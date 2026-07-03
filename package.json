@@ -1,0 +1,15 @@
+{
+  "name": "veritas-research-radar",
+  "version": "1.3.0",
+  "private": true,
+  "description": "Veritas browser extension plus local research job radar.",
+  "scripts": {
+    "radar:refresh": "node radar/scripts/refresh.js",
+    "radar:serve": "node radar/scripts/server.js",
+    "radar:import-dol": "node radar/scripts/import-dol-lca.js",
+    "test": "node tests/radar.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Veritas Research Radar</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Veritas Research Radar</h1>
+        <p id="refresh-meta">Loading radar data...</p>
+      </div>
+      <a class="button" href="https://www.dol.gov/agencies/eta/foreign-labor/performance" target="_blank" rel="noreferrer">DOL data</a>
+    </header>
+
+    <main class="layout">
+      <aside class="filters" aria-label="Filters">
+        <label>
+          Search
+          <input id="q" type="search" placeholder="title, skill, employer">
+        </label>
+
+        <label>
+          Visa signal
+          <select id="visa">
+            <option value="">Any</option>
+            <option value="FRIENDLY">Friendly</option>
+            <option value="RESTRICTED">Restricted</option>
+            <option value="NEUTRAL">No visa info</option>
+          </select>
+        </label>
+
+        <label>
+          Employer type
+          <select id="type">
+            <option value="">Any</option>
+            <option value="institution_of_higher_education">Higher education</option>
+            <option value="nonprofit_research_org">Research nonprofit</option>
+            <option value="nonprofit_research_hospital">Research hospital</option>
+          </select>
+        </label>
+
+        <label>
+          Cap-exempt evidence
+          <select id="cap">
+            <option value="">Any</option>
+            <option value="verified">Verified</option>
+            <option value="likely">Likely</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </label>
+
+        <label>
+          Triage
+          <select id="triage-filter">
+            <option value="">Any</option>
+            <option value="new">New</option>
+            <option value="shortlist">Shortlist</option>
+            <option value="applied">Applied</option>
+            <option value="emailed_lab">Emailed lab</option>
+            <option value="needs_visa_check">Needs visa check</option>
+            <option value="ignore">Ignore</option>
+          </select>
+        </label>
+
+        <label>
+          Minimum research score
+          <input id="min-research" type="range" min="0" max="100" value="0">
+          <span id="min-research-value">0</span>
+        </label>
+
+        <section class="profile">
+          <h2>Local profile match</h2>
+          <textarea id="resume" rows="9" placeholder="Paste resume text here. It stays in this browser session and is never sent to GitHub Actions."></textarea>
+          <label class="file-label">
+            Resume text file
+            <input id="resume-file" type="file" accept=".txt,.md,.text">
+          </label>
+          <button id="clear-profile" type="button">Clear profile</button>
+        </section>
+      </aside>
+
+      <section class="results">
+        <div class="summary">
+          <strong id="count">0 jobs</strong>
+          <span>Signals are planning aids; verify cap-exempt status and sponsorship with the employer.</span>
+        </div>
+        <div id="jobs" class="jobs"></div>
+      </section>
+    </main>
+
+    <template id="job-card-template">
+      <article class="job-card">
+        <div class="job-head">
+          <div>
+            <h2></h2>
+            <p class="meta"></p>
+          </div>
+          <a class="button apply" target="_blank" rel="noreferrer">Open</a>
+        </div>
+        <div class="badges"></div>
+        <p class="fit"></p>
+        <p class="description"></p>
+        <div class="matches"></div>
+        <label class="triage">
+          Triage
+          <select>
+            <option value="new">New</option>
+            <option value="shortlist">Shortlist</option>
+            <option value="applied">Applied</option>
+            <option value="emailed_lab">Emailed lab</option>
+            <option value="needs_visa_check">Needs visa check</option>
+            <option value="ignore">Ignore</option>
+          </select>
+        </label>
+      </article>
+    </template>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

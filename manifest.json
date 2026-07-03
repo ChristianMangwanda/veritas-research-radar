@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "Veritas - Visa Eligibility Scanner",
+  "version": "1.3.0",
+  "description": "Instantly identifies visa sponsorship eligibility on job postings for international students",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "background": {
+    "service_worker": "scripts/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.linkedin.com/*",
+        "*://*.indeed.com/*",
+        "*://*.glassdoor.com/*",
+        "*://*.glassdoor.ca/*",
+        "*://*.monster.com/*",
+        "*://*.ziprecruiter.com/*",
+        "*://*.handshake.com/*",
+        "*://*.simplify.jobs/*",
+        "*://*.wellfound.com/*",
+        "*://*.angel.co/*",
+        "*://*.greenhouse.io/*",
+        "*://*.lever.co/*",
+        "*://*.workday.com/*",
+        "*://*.myworkdayjobs.com/*"
+      ],
+      "js": [
+        "scripts/keywords.js",
+        "scripts/ui.js",
+        "scripts/content.js"
+      ],
+      "css": [
+        "styles/injected.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Veritas - Check visa eligibility"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

@@ -1,0 +1,29 @@
+name: Research Job Radar
+
+on:
+  schedule:
+    - cron: "30 12 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: research-radar-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Refresh public ATS data
+        run: npm run radar:refresh
+      - name: Commit refreshed radar data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update research radar data"
+          file_pattern: "radar/data/jobs.json radar/data/refresh-report.json"

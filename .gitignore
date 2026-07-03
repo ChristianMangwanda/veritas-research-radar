@@ -1,0 +1,42 @@
+# Veritas Installation files
+.DS_Store
+*.log
+*.swp
+*~
+
+# IDE files
+.vscode/
+.idea/
+*.code-workspace
+
+# Temporary files
+tmp/
+temp/
+
+# Node modules (if added later)
+node_modules/
+package-lock.json
+
+# Research radar local-only data
+radar/data/local-state.json
+radar/data/profile*.json
+radar/data/resume*.txt
+radar/data/resume*.md
+radar/data/dol-raw/
+
+# Build artifacts (if build process added)
+dist/
+build/
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Archive files
+*.zip
+*.tar.gz
+
+# Development notes
+notes.md
+TODO.md
