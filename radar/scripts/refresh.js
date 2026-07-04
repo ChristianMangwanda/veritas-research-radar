@@ -211,6 +211,45 @@ function enrichJob(job, employer, previousById, dolSignal = {}) {
   };
 }
 
+const CLOSED_RETENTION_DAYS = 30;
+
+/**
+ * Merges the current fetch with the previous dataset so postings that
+ * disappear become tombstones instead of silently vanishing.
+ * - fetched job            -> active (revives previously closed postings)
+ * - absent + fetch ok      -> closed tombstone (closed_at set once, kept 30 days)
+ * - absent + fetch errored -> carried forward unchanged (transient failures
+ *                             must not mass-close an employer's jobs)
+ * - employer not in registry anymore -> dropped
+ */
+function applyJobLifecycle({ previousJobs, fetchedJobs, employerOutcomes, now, retentionDays = CLOSED_RETENTION_DAYS }) {
+  const nowMs = Date.parse(now);
+  const retentionMs = retentionDays * 24 * 60 * 60 * 1000;
+  const isExpired = (closedAt) => nowMs - Date.parse(closedAt || now) > retentionMs;
+  const fetchedIds = new Set(fetchedJobs.map((job) => job.id));
+
+  const jobs = fetchedJobs.map((job) => {
+    const { closed_at, ...rest } = job;
+    return { ...rest, status: 'active' };
+  });
+
+  for (const previous of previousJobs) {
+    if (fetchedIds.has(previous.id)) continue;
+    const outcome = employerOutcomes.get(previous.employer_id);
+    if (!outcome) continue;
+    if (!outcome.attempted || !outcome.ok) {
+      if (previous.status === 'closed' && isExpired(previous.closed_at)) continue;
+      jobs.push(previous);
+      continue;
+    }
+    const closedAt = previous.closed_at || now;
+    if (isExpired(closedAt)) continue;
+    jobs.push({ ...previous, status: 'closed', closed_at: closedAt });
+  }
+
+  return jobs;
+}
+
 function validateEmployer(employer) {
   const required = ['id', 'name', 'type', 'cap_exempt_status', 'evidence_sources', 'careers_url'];
   for (const key of required) {
@@ -377,8 +416,9 @@ async function runRefresh() {
   const previousJobs = await readJson(JOBS_PATH, []);
   const dolSignals = await readJson(DOL_SIGNALS_PATH, {});
   const previousById = new Map(previousJobs.map((job) => [job.id, job]));
-  const allJobs = [];
+  const fetchedJobs = [];
   const employerReports = [];
+  const employerOutcomes = new Map();
 
   let networkHits = 0;
   for (const employer of employers) {
@@ -391,7 +431,8 @@ async function runRefresh() {
     const enriched = result.jobs
       .filter((job) => job.url && job.description_text)
       .map((job) => enrichJob(job, employer, previousById, dolSignals[employer.id]));
-    allJobs.push(...enriched);
+    fetchedJobs.push(...enriched);
+    employerOutcomes.set(employer.id, { attempted: !result.skipped, ok: !result.error });
     employerReports.push({
       employer_id: employer.id,
       name: employer.name,
@@ -403,17 +444,30 @@ async function runRefresh() {
     });
   }
 
+  const now = nowIso();
+  const allJobs = applyJobLifecycle({ previousJobs, fetchedJobs, employerOutcomes, now });
+
   allJobs.sort((a, b) => {
+    const statusDelta = (a.status === 'closed' ? 1 : 0) - (b.status === 'closed' ? 1 : 0);
+    if (statusDelta !== 0) return statusDelta;
     const scoreDelta = b.research_relevance_score - a.research_relevance_score;
     if (scoreDelta !== 0) return scoreDelta;
     return String(b.posted_or_updated_at || '').localeCompare(String(a.posted_or_updated_at || ''));
   });
 
+  const closedJobs = allJobs.filter((job) => job.status === 'closed');
+  for (const employerReport of employerReports) {
+    employerReport.closed_jobs = closedJobs.filter((job) => job.employer_id === employerReport.employer_id).length;
+  }
+
   const report = {
-    refreshed_at: nowIso(),
+    refreshed_at: now,
     employer_count: employers.length,
     ats_enabled_employer_count: employers.filter((employer) => employer.ats_provider).length,
     job_count: allJobs.length,
+    active_job_count: allJobs.length - closedJobs.length,
+    closed_job_count: closedJobs.length,
+    newly_closed_count: closedJobs.filter((job) => job.closed_at === now).length,
     errored_employers: employerReports.filter((report) => report.error).length,
     sources: {
       greenhouse: 'https://developers.greenhouse.io/job-board.html',
@@ -454,6 +508,7 @@ module.exports = {
   mapLeverJob,
   mapAshbyJob,
   mapSmartRecruitersPosting,
+  applyJobLifecycle,
   fetchGreenhouseJobs,
   fetchLeverJobs,
   fetchAshbyJobs,

@@ -1,12 +1,17 @@
 {
-  "refreshed_at": "2026-07-03T22:26:05.450Z",
+  "refreshed_at": "2026-07-04T01:09:26.843Z",
   "employer_count": 24,
-  "ats_enabled_employer_count": 1,
-  "job_count": 29,
+  "ats_enabled_employer_count": 3,
+  "job_count": 37,
+  "active_job_count": 37,
+  "closed_job_count": 0,
+  "newly_closed_count": 0,
   "errored_employers": 0,
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
+    "ashby": "https://developers.ashbyhq.com/docs/public-job-posting-api",
+    "smartrecruiters": "https://developers.smartrecruiters.com/docs/posting-api",
     "dol_oflc": "https://www.dol.gov/agencies/eta/foreign-labor/performance",
     "ipeds": "https://nces.ed.gov/ipeds/use-the-data",
     "irs_eo_bmf": "https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf"
@@ -19,7 +24,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "allen-institute",
@@ -28,7 +34,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "fred-hutch",
@@ -37,7 +44,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "chan-zuckerberg-biohub",
@@ -46,7 +54,8 @@
       "ats_token": "biohub",
       "fetched_jobs": 29,
       "skipped": false,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "salk-institute",
@@ -55,7 +64,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "st-jude",
@@ -64,16 +74,18 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "scripps-research",
       "name": "Scripps Research",
-      "ats_provider": null,
-      "ats_token": null,
-      "fetched_jobs": 0,
-      "skipped": true,
-      "error": null
+      "ats_provider": "smartrecruiters",
+      "ats_token": "scrippsresearch",
+      "fetched_jobs": 7,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "baylor-college-of-medicine",
@@ -82,7 +94,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "university-of-chicago",
@@ -91,7 +104,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "mit",
@@ -100,7 +114,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "stanford-university",
@@ -109,7 +124,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "harvard-university",
@@ -118,7 +134,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "johns-hopkins-university",
@@ -127,16 +144,18 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "ucsf",
       "name": "University of California San Francisco",
-      "ats_provider": null,
-      "ats_token": null,
-      "fetched_jobs": 0,
-      "skipped": true,
-      "error": null
+      "ats_provider": "lever",
+      "ats_token": "ucsf",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "uc-berkeley",
@@ -145,7 +164,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "uw-madison",
@@ -154,7 +174,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "university-of-washington",
@@ -163,7 +184,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "university-of-michigan",
@@ -172,7 +194,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "northwestern-university",
@@ -181,7 +204,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "memorial-sloan-kettering",
@@ -190,7 +214,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "dana-farber",
@@ -199,7 +224,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "mayo-clinic",
@@ -208,7 +234,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "cleveland-clinic",
@@ -217,7 +244,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     },
     {
       "employer_id": "hhmi",
@@ -226,7 +254,8 @@
       "ats_token": null,
       "fetched_jobs": 0,
       "skipped": true,
-      "error": null
+      "error": null,
+      "closed_jobs": 0
     }
   ]
 }

@@ -11,7 +11,8 @@ const {
   mapGreenhouseJob,
   mapLeverJob,
   mapAshbyJob,
-  mapSmartRecruitersPosting
+  mapSmartRecruitersPosting,
+  applyJobLifecycle
 } = require('../radar/scripts/refresh.js');
 const { normalizeName, parseCsvLine } = require('../radar/scripts/import-dol-lca.js');
 
@@ -180,6 +181,77 @@ async function testFetchRetry() {
   }
 }
 
+function testJobLifecycle() {
+  const now = '2026-07-03T12:00:00.000Z';
+  const job = (id, employerId, extra = {}) => ({
+    id,
+    employer_id: employerId,
+    title: `Job ${id}`,
+    first_seen_at: '2026-06-01T00:00:00.000Z',
+    ...extra
+  });
+  const outcomes = (entries) => new Map(Object.entries(entries));
+
+  // Disappeared job under an ok fetch -> tombstone with closed_at set once
+  let jobs = applyJobLifecycle({
+    previousJobs: [job('a:1', 'a'), job('a:2', 'a')],
+    fetchedJobs: [job('a:1', 'a')],
+    employerOutcomes: outcomes({ a: { attempted: true, ok: true } }),
+    now
+  });
+  assert.strictEqual(jobs.find((j) => j.id === 'a:1').status, 'active');
+  const closed = jobs.find((j) => j.id === 'a:2');
+  assert.strictEqual(closed.status, 'closed');
+  assert.strictEqual(closed.closed_at, now);
+
+  // Second run: closed_at preserved, not reset
+  jobs = applyJobLifecycle({
+    previousJobs: jobs,
+    fetchedJobs: [job('a:1', 'a')],
+    employerOutcomes: outcomes({ a: { attempted: true, ok: true } }),
+    now: '2026-07-04T12:00:00.000Z'
+  });
+  assert.strictEqual(jobs.find((j) => j.id === 'a:2').closed_at, now);
+
+  // Employer errored this run -> jobs carried forward unchanged, NOT closed
+  jobs = applyJobLifecycle({
+    previousJobs: [job('b:1', 'b')],
+    fetchedJobs: [],
+    employerOutcomes: outcomes({ b: { attempted: true, ok: false } }),
+    now
+  });
+  assert.strictEqual(jobs.length, 1);
+  assert.notStrictEqual(jobs[0].status, 'closed');
+
+  // Tombstone older than retention -> dropped
+  jobs = applyJobLifecycle({
+    previousJobs: [job('c:1', 'c', { status: 'closed', closed_at: '2026-05-01T00:00:00.000Z' })],
+    fetchedJobs: [],
+    employerOutcomes: outcomes({ c: { attempted: true, ok: true } }),
+    now
+  });
+  assert.strictEqual(jobs.length, 0);
+
+  // Reappearing job -> revived as active, closed_at cleared
+  jobs = applyJobLifecycle({
+    previousJobs: [job('d:1', 'd', { status: 'closed', closed_at: '2026-06-25T00:00:00.000Z' })],
+    fetchedJobs: [job('d:1', 'd')],
+    employerOutcomes: outcomes({ d: { attempted: true, ok: true } }),
+    now
+  });
+  assert.strictEqual(jobs[0].status, 'active');
+  assert.strictEqual(jobs[0].closed_at, undefined);
+
+  // Employer removed from registry -> jobs dropped
+  jobs = applyJobLifecycle({
+    previousJobs: [job('e:1', 'gone-employer')],
+    fetchedJobs: [],
+    employerOutcomes: outcomes({}),
+    now
+  });
+  assert.strictEqual(jobs.length, 0);
+}
+
 function testEnrichment() {
   const employer = {
     id: 'broad-institute',
@@ -221,6 +293,7 @@ async function main() {
   testNormalization();
   testProviderMappers();
   await testFetchRetry();
+  testJobLifecycle();
   testEnrichment();
 
   console.log('Radar tests passed');
