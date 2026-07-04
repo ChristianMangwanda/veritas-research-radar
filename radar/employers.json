@@ -473,5 +473,36 @@
       "genomics"
     ],
     "notes": "Likely nonprofit research institution. Custom career source deferred for v1. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found."
+  },
+  {
+    "id": "us-federal-research",
+    "name": "US Federal Government (Research)",
+    "type": "federal_government",
+    "cap_exempt_status": "unknown",
+    "evidence_sources": [
+      "usajobs_api"
+    ],
+    "ats_provider": "usajobs",
+    "ats_token": "data.usajobs.gov",
+    "ats_config": {
+      "position_series": [
+        "1301",
+        "1310",
+        "1550",
+        "0401",
+        "1529",
+        "1530"
+      ],
+      "keywords": [],
+      "max_pages_per_series": 5
+    },
+    "careers_url": "https://www.usajobs.gov/",
+    "research_areas": [
+      "physical science",
+      "computer science",
+      "biology",
+      "statistics"
+    ],
+    "notes": "Official USAJOBS API (free key via developer.usajobs.gov; env USAJOBS_API_KEY + USAJOBS_EMAIL). Federal roles are not H-1B cap-exempt in the usual sense and mostly require citizenship; the Veritas analyzer labels each posting honestly. Included by explicit user opt-in."
   }
 ]

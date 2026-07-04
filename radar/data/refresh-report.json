@@ -1,7 +1,7 @@
 {
-  "refreshed_at": "2026-07-04T01:26:46.557Z",
-  "employer_count": 24,
-  "ats_enabled_employer_count": 4,
+  "refreshed_at": "2026-07-04T03:55:21.072Z",
+  "employer_count": 25,
+  "ats_enabled_employer_count": 5,
   "job_count": 165,
   "active_job_count": 165,
   "closed_job_count": 0,
@@ -13,6 +13,10 @@
     "ashby": "https://developers.ashbyhq.com/docs/public-job-posting-api",
     "smartrecruiters": "https://developers.smartrecruiters.com/docs/posting-api",
     "workday": "public myworkdayjobs.com CXS job feed (per-tenant)",
+    "recruitee": "public {org}.recruitee.com/api/offers/ feed",
+    "breezy": "public {org}.breezy.hr/json feed",
+    "workable": "https://apply.workable.com/api/v1/widget/accounts/{org}",
+    "usajobs": "https://developer.usajobs.gov/api-reference/get-api-search",
     "dol_oflc": "https://www.dol.gov/agencies/eta/foreign-labor/performance",
     "ipeds": "https://nces.ed.gov/ipeds/use-the-data",
     "irs_eo_bmf": "https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf"
@@ -253,6 +257,16 @@
       "name": "Howard Hughes Medical Institute",
       "ats_provider": null,
       "ats_token": null,
+      "fetched_jobs": 0,
+      "skipped": true,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "us-federal-research",
+      "name": "US Federal Government (Research)",
+      "ats_provider": "usajobs",
+      "ats_token": "data.usajobs.gov",
       "fetched_jobs": 0,
       "skipped": true,
       "error": null,

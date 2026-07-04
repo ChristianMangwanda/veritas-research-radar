@@ -16,6 +16,8 @@ const {
   mapRecruiteeJob,
   mapBreezyJob,
   mapWorkableJob,
+  mapUsaJobsJob,
+  fetchUsaJobsJobs,
   isResearchRelevantTitle,
   applyJobLifecycle
 } = require('../radar/scripts/refresh.js');
@@ -302,6 +304,69 @@ async function testFetchRetry() {
   }
 }
 
+async function testUsaJobs() {
+  const employer = {
+    id: 'us-federal-research',
+    ats_token: 'data.usajobs.gov',
+    ats_config: { position_series: ['1301'], max_pages_per_series: 1 }
+  };
+
+  const mapped = mapUsaJobsJob({
+    MatchedObjectId: '827345600',
+    MatchedObjectDescriptor: {
+      PositionTitle: 'Research Physical Scientist',
+      PositionURI: 'https://www.usajobs.gov/job/827345600',
+      OrganizationName: 'National Institute of Standards and Technology',
+      DepartmentName: 'Department of Commerce',
+      PositionLocation: [{ LocationName: 'Gaithersburg, Maryland' }],
+      QualificationSummary: 'Degree in physical science required.',
+      UserArea: { Details: { JobSummary: 'Conduct research in measurement science.' } },
+      PublicationStartDate: '2026-07-01'
+    }
+  }, employer);
+  assert.strictEqual(mapped.id, 'usajobs:data.usajobs.gov:827345600');
+  assert.strictEqual(mapped.department, 'Department of Commerce — National Institute of Standards and Technology');
+  assert.strictEqual(mapped.location, 'Gaithersburg, Maryland');
+  assert.strictEqual(mapped.description_text, 'Conduct research in measurement science. Degree in physical science required.');
+  assert.strictEqual(mapped.source, 'usajobs');
+
+  const savedKey = process.env.USAJOBS_API_KEY;
+  const savedEmail = process.env.USAJOBS_EMAIL;
+  const originalFetch = globalThis.fetch;
+  try {
+    // Missing credentials -> skipped-flagged error, not a hard failure
+    delete process.env.USAJOBS_API_KEY;
+    delete process.env.USAJOBS_EMAIL;
+    await assert.rejects(() => fetchUsaJobsJobs(employer), (error) => error.skipped === true);
+
+    // Unexpected body shape -> loud failure (protects the lifecycle)
+    process.env.USAJOBS_API_KEY = 'test-key';
+    process.env.USAJOBS_EMAIL = 'test@example.test';
+    globalThis.fetch = async () => ({ ok: true, json: async () => ({ unexpected: true }) });
+    await assert.rejects(() => fetchUsaJobsJobs(employer), /shape unexpected/);
+
+    // Happy path via stubbed fetch
+    globalThis.fetch = async () => ({
+      ok: true,
+      json: async () => ({
+        SearchResult: {
+          SearchResultItems: [{
+            MatchedObjectId: '1',
+            MatchedObjectDescriptor: { PositionTitle: 'Data Scientist', PositionURI: 'https://www.usajobs.gov/job/1' }
+          }]
+        }
+      })
+    });
+    const jobs = await fetchUsaJobsJobs(employer);
+    assert.strictEqual(jobs.length, 1);
+    assert.strictEqual(jobs[0].source, 'usajobs');
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (savedKey === undefined) delete process.env.USAJOBS_API_KEY; else process.env.USAJOBS_API_KEY = savedKey;
+    if (savedEmail === undefined) delete process.env.USAJOBS_EMAIL; else process.env.USAJOBS_EMAIL = savedEmail;
+  }
+}
+
 function testJobLifecycle() {
   const now = '2026-07-03T12:00:00.000Z';
   const job = (id, employerId, extra = {}) => ({
@@ -415,6 +480,7 @@ async function main() {
   testEntityResolution();
   testProviderMappers();
   await testFetchRetry();
+  await testUsaJobs();
   testJobLifecycle();
   testEnrichment();
 

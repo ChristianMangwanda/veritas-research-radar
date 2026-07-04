@@ -22,6 +22,9 @@ const WORKDAY_PAGE_LIMIT = 20;
 const WORKDAY_MAX_PAGES = 50;
 const WORKDAY_MAX_DETAIL_FETCHES = 400;
 const WORKDAY_DETAIL_DELAY_MS = 250;
+const USAJOBS_PAGE_SIZE = 500;
+const USAJOBS_MAX_PAGES_PER_QUERY = 5;
+const USAJOBS_PAGE_DELAY_MS = 300;
 const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'recruitee', 'breezy', 'workable', 'usajobs'];
 
 const SIGNAL_PATTERNS = {
@@ -558,6 +561,70 @@ async function fetchWorkdayJobs(employer) {
   return jobs;
 }
 
+function mapUsaJobsJob(item, employer) {
+  const descriptor = item.MatchedObjectDescriptor || {};
+  const details = descriptor.UserArea?.Details || {};
+  const jobId = item.MatchedObjectId || descriptor.PositionID || '';
+  return {
+    id: `usajobs:${employer.ats_token}:${jobId}`,
+    employer_id: employer.id,
+    title: descriptor.PositionTitle || 'Untitled role',
+    department: [descriptor.DepartmentName, descriptor.OrganizationName].filter(Boolean).join(' — '),
+    location: (descriptor.PositionLocation || [])
+      .map((location) => location.LocationName)
+      .filter(Boolean)
+      .slice(0, 3)
+      .join('; ') || 'Unspecified',
+    url: descriptor.PositionURI,
+    description_text: normalizeText([details.JobSummary, descriptor.QualificationSummary].filter(Boolean).join(' ')),
+    posted_or_updated_at: descriptor.PublicationStartDate || null,
+    source: 'usajobs',
+    source_job_id: String(jobId)
+  };
+}
+
+async function fetchUsaJobsJobs(employer) {
+  const apiKey = process.env.USAJOBS_API_KEY;
+  const email = process.env.USAJOBS_EMAIL;
+  if (!apiKey || !email) {
+    // Missing credentials is a configuration state, not a fetch failure:
+    // surface as skipped so the lifecycle carries prior federal jobs forward
+    throw Object.assign(new Error('USAJOBS credentials not set (USAJOBS_API_KEY, USAJOBS_EMAIL)'), { skipped: true });
+  }
+  const config = employer.ats_config || {};
+  const maxPages = Number(config.max_pages_per_series) || USAJOBS_MAX_PAGES_PER_QUERY;
+  const queries = [
+    ...(config.position_series || []).map((value) => ['PositionSeries', value]),
+    ...(config.keywords || []).map((value) => ['Keyword', value])
+  ];
+  const headers = { 'user-agent': email, 'authorization-key': apiKey };
+  const byId = new Map();
+
+  for (const [param, value] of queries) {
+    for (let page = 1; page <= maxPages; page += 1) {
+      const url = `https://data.usajobs.gov/api/search?${param}=${encodeURIComponent(value)}&ResultsPerPage=${USAJOBS_PAGE_SIZE}&Page=${page}`;
+      const payload = await fetchJson(url, { headers });
+      const items = payload?.SearchResult?.SearchResultItems;
+      if (!Array.isArray(items)) {
+        // Fail loud: an error outcome carries previous jobs forward, whereas
+        // silently returning [] would tombstone every federal job
+        throw new Error('USAJOBS response shape unexpected (SearchResult.SearchResultItems missing)');
+      }
+      for (const item of items) {
+        try {
+          const job = mapUsaJobsJob(item, employer);
+          if (job.source_job_id) byId.set(job.id, job);
+        } catch (error) {
+          console.warn(`USAJOBS item mapping failed: ${error.message}`);
+        }
+      }
+      if (items.length < USAJOBS_PAGE_SIZE) break;
+      await sleep(USAJOBS_PAGE_DELAY_MS);
+    }
+  }
+  return [...byId.values()];
+}
+
 const ATS_FETCHERS = {
   greenhouse: fetchGreenhouseJobs,
   lever: fetchLeverJobs,
@@ -566,7 +633,8 @@ const ATS_FETCHERS = {
   workday: fetchWorkdayJobs,
   recruitee: fetchRecruiteeJobs,
   breezy: fetchBreezyJobs,
-  workable: fetchWorkableJobs
+  workable: fetchWorkableJobs,
+  usajobs: fetchUsaJobsJobs
 };
 
 async function fetchEmployerJobs(employer) {
@@ -580,6 +648,9 @@ async function fetchEmployerJobs(employer) {
   try {
     return { jobs: await fetcher(employer), skipped: false, error: null };
   } catch (error) {
+    if (error.skipped) {
+      return { jobs: [], skipped: true, error: null };
+    }
     return { jobs: [], skipped: false, error: error.message };
   }
 }
@@ -651,6 +722,7 @@ async function runRefresh() {
       recruitee: 'public {org}.recruitee.com/api/offers/ feed',
       breezy: 'public {org}.breezy.hr/json feed',
       workable: 'https://apply.workable.com/api/v1/widget/accounts/{org}',
+      usajobs: 'https://developer.usajobs.gov/api-reference/get-api-search',
       dol_oflc: 'https://www.dol.gov/agencies/eta/foreign-labor/performance',
       ipeds: 'https://nces.ed.gov/ipeds/use-the-data',
       irs_eo_bmf: 'https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf'
@@ -689,6 +761,8 @@ module.exports = {
   mapRecruiteeJob,
   mapBreezyJob,
   mapWorkableJob,
+  mapUsaJobsJob,
+  fetchUsaJobsJobs,
   isResearchRelevantTitle,
   applyJobLifecycle,
   fetchGreenhouseJobs,
