@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-04T21:44:06.941Z",
+  "generated_at": "2026-07-04T22:39:46.978Z",
   "sources": {
     "ipeds": {
       "year": 2024,
@@ -19,8 +19,8 @@
       "employers": 82316
     },
     "dol": {
-      "signals_file": false,
-      "raw_files": 0
+      "signals_file": true,
+      "raw_files": 1
     }
   },
   "employers": {
@@ -37,15 +37,17 @@
         }
       },
       "uscis_approvals_3y": 207,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 40,
+      "dol_certified_3y": 42,
+      "cap_exempt_score": 56,
       "score_components": {
         "irs": 25,
+        "dol": 16,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -62,15 +64,17 @@
         }
       },
       "uscis_approvals_3y": 49,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 38,
+      "dol_certified_3y": 16,
+      "cap_exempt_score": 50,
       "score_components": {
         "irs": 25,
+        "dol": 12,
         "uscis": 13
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -87,15 +91,17 @@
         }
       },
       "uscis_approvals_3y": 88,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 25,
+      "dol_certified_3y": 44,
+      "cap_exempt_score": 42,
       "score_components": {
         "irs": 10,
+        "dol": 17,
         "uscis": 15
       },
       "suggested_status": "likely",
       "evidence_tags": [
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -112,15 +118,17 @@
         }
       },
       "uscis_approvals_3y": 26,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 36,
+      "dol_certified_3y": 13,
+      "cap_exempt_score": 47,
       "score_components": {
         "irs": 25,
+        "dol": 11,
         "uscis": 11
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -137,14 +145,16 @@
         }
       },
       "uscis_approvals_3y": 0,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 25,
+      "dol_certified_3y": 8,
+      "cap_exempt_score": 35,
       "score_components": {
-        "irs": 25
+        "irs": 25,
+        "dol": 10
       },
       "suggested_status": "verified",
       "evidence_tags": [
-        "irs_eo_bmf"
+        "irs_eo_bmf",
+        "dol_lca"
       ]
     },
     "st-jude": {
@@ -160,15 +170,17 @@
         }
       },
       "uscis_approvals_3y": 356,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 25,
+      "dol_certified_3y": 181,
+      "cap_exempt_score": 45,
       "score_components": {
         "irs": 10,
+        "dol": 20,
         "uscis": 15
       },
       "suggested_status": "likely",
       "evidence_tags": [
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -185,14 +197,16 @@
         }
       },
       "uscis_approvals_3y": 0,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 25,
+      "dol_certified_3y": 30,
+      "cap_exempt_score": 40,
       "score_components": {
-        "irs": 25
+        "irs": 25,
+        "dol": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
-        "irs_eo_bmf"
+        "irs_eo_bmf",
+        "dol_lca"
       ]
     },
     "baylor-college-of-medicine": {
@@ -215,17 +229,19 @@
         }
       },
       "uscis_approvals_3y": 378,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 65,
+      "dol_certified_3y": 76,
+      "cap_exempt_score": 84,
       "score_components": {
         "ipeds": 40,
         "irs": 10,
+        "dol": 19,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "ipeds:223223",
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -249,17 +265,19 @@
         }
       },
       "uscis_approvals_3y": 560,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 65,
+      "dol_certified_3y": 194,
+      "cap_exempt_score": 85,
       "score_components": {
         "ipeds": 40,
         "irs": 10,
+        "dol": 20,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "ipeds:144050",
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -283,16 +301,18 @@
         }
       },
       "uscis_approvals_3y": 0,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 50,
+      "dol_certified_3y": 103,
+      "cap_exempt_score": 70,
       "score_components": {
         "ipeds": 40,
-        "irs": 10
+        "irs": 10,
+        "dol": 20
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "ipeds:166683",
-        "irs_eo_bmf"
+        "irs_eo_bmf",
+        "dol_lca"
       ]
     },
     "stanford-university": {
@@ -347,17 +367,19 @@
         }
       },
       "uscis_approvals_3y": 628,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 65,
+      "dol_certified_3y": 172,
+      "cap_exempt_score": 85,
       "score_components": {
         "ipeds": 40,
         "irs": 10,
+        "dol": 20,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "ipeds:166027",
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -381,17 +403,19 @@
         }
       },
       "uscis_approvals_3y": 682,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 65,
+      "dol_certified_3y": 218,
+      "cap_exempt_score": 85,
       "score_components": {
         "ipeds": 40,
         "irs": 10,
+        "dol": 20,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "ipeds:162928",
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -415,17 +439,19 @@
         }
       },
       "uscis_approvals_3y": 1,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 52,
+      "dol_certified_3y": 161,
+      "cap_exempt_score": 72,
       "score_components": {
         "ipeds": 40,
         "irs": 10,
+        "dol": 20,
         "uscis": 2
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "ipeds:110699",
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -449,17 +475,19 @@
         }
       },
       "uscis_approvals_3y": 349,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 65,
+      "dol_certified_3y": 100,
+      "cap_exempt_score": 85,
       "score_components": {
         "ipeds": 40,
         "irs": 10,
+        "dol": 20,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "ipeds:110635",
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -515,16 +543,18 @@
         }
       },
       "uscis_approvals_3y": 370,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 55,
+      "dol_certified_3y": 258,
+      "cap_exempt_score": 75,
       "score_components": {
         "ipeds": 40,
+        "dol": 20,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "ipeds:236948",
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -548,17 +578,19 @@
         }
       },
       "uscis_approvals_3y": 1076,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 65,
+      "dol_certified_3y": 425,
+      "cap_exempt_score": 85,
       "score_components": {
         "ipeds": 40,
         "irs": 10,
+        "dol": 20,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "ipeds:170976",
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -582,17 +614,19 @@
         }
       },
       "uscis_approvals_3y": 488,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 65,
+      "dol_certified_3y": 155,
+      "cap_exempt_score": 85,
       "score_components": {
         "ipeds": 40,
         "irs": 10,
+        "dol": 20,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "ipeds:147767",
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -609,15 +643,17 @@
         }
       },
       "uscis_approvals_3y": 392,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 40,
+      "dol_certified_3y": 117,
+      "cap_exempt_score": 60,
       "score_components": {
         "irs": 25,
+        "dol": 20,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -634,15 +670,17 @@
         }
       },
       "uscis_approvals_3y": 338,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 40,
+      "dol_certified_3y": 101,
+      "cap_exempt_score": 60,
       "score_components": {
         "irs": 25,
+        "dol": 20,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -666,17 +704,19 @@
         }
       },
       "uscis_approvals_3y": 911,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 65,
+      "dol_certified_3y": 249,
+      "cap_exempt_score": 85,
       "score_components": {
         "ipeds": 40,
         "irs": 10,
+        "dol": 20,
         "uscis": 15
       },
       "suggested_status": "likely",
       "evidence_tags": [
         "ipeds:173957",
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -700,17 +740,19 @@
         }
       },
       "uscis_approvals_3y": 687,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 65,
+      "dol_certified_3y": 78,
+      "cap_exempt_score": 84,
       "score_components": {
         "ipeds": 40,
         "irs": 10,
+        "dol": 19,
         "uscis": 15
       },
       "suggested_status": "likely",
       "evidence_tags": [
         "ipeds:411754",
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },
@@ -727,15 +769,17 @@
         }
       },
       "uscis_approvals_3y": 215,
-      "dol_certified_3y": 0,
-      "cap_exempt_score": 40,
+      "dol_certified_3y": 69,
+      "cap_exempt_score": 58,
       "score_components": {
         "irs": 25,
+        "dol": 18,
         "uscis": 15
       },
       "suggested_status": "verified",
       "evidence_tags": [
         "irs_eo_bmf",
+        "dol_lca",
         "uscis_h1b_datahub"
       ]
     },

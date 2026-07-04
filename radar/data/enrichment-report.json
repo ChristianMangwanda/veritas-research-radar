@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-04T21:44:06.941Z",
+  "generated_at": "2026-07-04T22:39:46.978Z",
   "sources": {
     "ipeds": {
       "year": 2024,
@@ -18,8 +18,8 @@
       "employers": 82316
     },
     "dol": {
-      "signals_file": false,
-      "raw_files": 0
+      "signals_file": true,
+      "raw_files": 1
     }
   },
   "registry": {
@@ -27,72 +27,27 @@
     "ipeds_matched": 14,
     "irs_matched": 24,
     "with_uscis_activity": 19,
-    "with_dol_signal": 0,
+    "with_dol_signal": 22,
     "verified_suggested": 20
   },
   "weak_matches": [],
   "unmatched": [
     {
-      "employer_id": "broad-institute",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "allen-institute",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "fred-hutch",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "chan-zuckerberg-biohub",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
       "employer_id": "salk-institute",
       "missing_sources": [
-        "uscis",
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "st-jude",
-      "missing_sources": [
-        "dol"
+        "uscis"
       ]
     },
     {
       "employer_id": "scripps-research",
       "missing_sources": [
-        "uscis",
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "baylor-college-of-medicine",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "university-of-chicago",
-      "missing_sources": [
-        "dol"
+        "uscis"
       ]
     },
     {
       "employer_id": "mit",
       "missing_sources": [
-        "uscis",
-        "dol"
+        "uscis"
       ]
     },
     {
@@ -103,81 +58,9 @@
       ]
     },
     {
-      "employer_id": "harvard-university",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "johns-hopkins-university",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "ucsf",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "uc-berkeley",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
       "employer_id": "uw-madison",
       "missing_sources": [
         "uscis",
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "university-of-washington",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "university-of-michigan",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "northwestern-university",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "memorial-sloan-kettering",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "dana-farber",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "mayo-clinic",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "cleveland-clinic",
-      "missing_sources": [
-        "dol"
-      ]
-    },
-    {
-      "employer_id": "hhmi",
-      "missing_sources": [
         "dol"
       ]
     }
