@@ -1,9 +1,9 @@
 {
-  "refreshed_at": "2026-07-04T01:09:26.843Z",
+  "refreshed_at": "2026-07-04T01:21:29.611Z",
   "employer_count": 24,
-  "ats_enabled_employer_count": 3,
-  "job_count": 37,
-  "active_job_count": 37,
+  "ats_enabled_employer_count": 4,
+  "job_count": 165,
+  "active_job_count": 165,
   "closed_job_count": 0,
   "newly_closed_count": 0,
   "errored_employers": 0,
@@ -12,6 +12,7 @@
     "lever": "https://github.com/lever/postings-api",
     "ashby": "https://developers.ashbyhq.com/docs/public-job-posting-api",
     "smartrecruiters": "https://developers.smartrecruiters.com/docs/posting-api",
+    "workday": "public myworkdayjobs.com CXS job feed (per-tenant)",
     "dol_oflc": "https://www.dol.gov/agencies/eta/foreign-labor/performance",
     "ipeds": "https://nces.ed.gov/ipeds/use-the-data",
     "irs_eo_bmf": "https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf"
@@ -100,10 +101,10 @@
     {
       "employer_id": "university-of-chicago",
       "name": "University of Chicago",
-      "ats_provider": null,
-      "ats_token": null,
-      "fetched_jobs": 0,
-      "skipped": true,
+      "ats_provider": "workday",
+      "ats_token": "uchicago",
+      "fetched_jobs": 128,
+      "skipped": false,
       "error": null,
       "closed_jobs": 0
     },

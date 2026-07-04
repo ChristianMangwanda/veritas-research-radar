@@ -12,6 +12,8 @@ const {
   mapLeverJob,
   mapAshbyJob,
   mapSmartRecruitersPosting,
+  mapWorkdayJob,
+  isResearchRelevantTitle,
   applyJobLifecycle
 } = require('../radar/scripts/refresh.js');
 const { normalizeName, parseCsvLine } = require('../radar/scripts/import-dol-lca.js');
@@ -144,6 +146,45 @@ function testProviderMappers() {
   assert.strictEqual(smartrecruiters.description_text, 'Run assays BS in Biology');
   assert.strictEqual(smartrecruiters.url, 'https://jobs.smartrecruiters.com/ExampleOrg/743999-research-associate');
   assert.strictEqual(smartrecruiters.source, 'smartrecruiters');
+
+  const workdayEmployer = {
+    id: 'example-university',
+    ats_token: 'exampleu',
+    ats_config: { host: 'exampleu.wd5.myworkdayjobs.com', tenant: 'exampleu', site: 'External' },
+    research_areas: ['economics']
+  };
+  const workday = mapWorkdayJob({
+    title: 'Research Data Analyst',
+    externalPath: '/job/Chicago/Research-Data-Analyst_JR1234',
+    locationsText: 'Illinois: Chicago',
+    bulletFields: ['JR1234']
+  }, {
+    title: 'Research Data Analyst',
+    location: 'Illinois: Chicago',
+    startDate: '2026-07-02',
+    jobReqId: 'JR1234',
+    externalUrl: 'https://exampleu.wd5.myworkdayjobs.com/External/job/Chicago/Research-Data-Analyst_JR1234',
+    jobDescription: '<p><b>Department</b></p>Economics Lab<p>Analyze research data.</p>'
+  }, workdayEmployer);
+  assert.strictEqual(workday.id, 'workday:exampleu:JR1234');
+  assert.strictEqual(workday.posted_or_updated_at, '2026-07-02T00:00:00.000Z');
+  assert.strictEqual(workday.description_text, 'Department Economics Lab Analyze research data.');
+  assert.strictEqual(workday.source, 'workday');
+  // Detail fetch failed -> mapper still produces a usable record from the list item
+  const workdayNoDetail = mapWorkdayJob({
+    title: 'Postdoctoral Scholar',
+    externalPath: '/job/Chicago/Postdoc_JR9',
+    locationsText: 'Illinois: Chicago',
+    bulletFields: ['JR9']
+  }, undefined, workdayEmployer);
+  assert.strictEqual(workdayNoDetail.id, 'workday:exampleu:JR9');
+  assert.strictEqual(workdayNoDetail.url, 'https://exampleu.wd5.myworkdayjobs.com/External/job/Chicago/Postdoc_JR9');
+
+  // Title prefilter: research-shaped titles pass, admin titles do not
+  assert.strictEqual(isResearchRelevantTitle('Senior Research Scientist', workdayEmployer), true);
+  assert.strictEqual(isResearchRelevantTitle('Postdoctoral Scholar', workdayEmployer), true);
+  assert.strictEqual(isResearchRelevantTitle('Economics Program Coordinator', workdayEmployer), true);
+  assert.strictEqual(isResearchRelevantTitle('Parking Attendant', workdayEmployer), false);
 }
 
 async function testFetchRetry() {

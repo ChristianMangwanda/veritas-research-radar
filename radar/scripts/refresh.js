@@ -18,7 +18,11 @@ const EMPLOYER_DELAY_MS = 500;
 const SMARTRECRUITERS_PAGE_LIMIT = 100;
 const SMARTRECRUITERS_MAX_PAGES = 5;
 const SMARTRECRUITERS_DETAIL_DELAY_MS = 200;
-const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters'];
+const WORKDAY_PAGE_LIMIT = 20;
+const WORKDAY_MAX_PAGES = 25;
+const WORKDAY_MAX_DETAIL_FETCHES = 150;
+const WORKDAY_DETAIL_DELAY_MS = 250;
+const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday'];
 
 const SIGNAL_PATTERNS = {
   cap_exempt_language: [
@@ -261,6 +265,12 @@ function validateEmployer(employer) {
   if (employer.ats_provider && !employer.ats_token) {
     throw new Error(`Employer ${employer.id} has ats_provider but no ats_token`);
   }
+  if (employer.ats_provider === 'workday') {
+    const config = employer.ats_config || {};
+    for (const key of ['host', 'tenant', 'site']) {
+      if (!config[key]) throw new Error(`Employer ${employer.id} uses workday but ats_config.${key} is missing`);
+    }
+  }
 }
 
 function mapGreenhouseJob(job, employer) {
@@ -389,11 +399,99 @@ async function fetchSmartRecruitersJobs(employer) {
   return jobs;
 }
 
+// Workday tenants can list thousands of postings and each description costs a
+// request, so only titles that look research-relevant get a detail fetch.
+const WORKDAY_TITLE_PREFILTER = [
+  /\bresearch\b/i,
+  /\bpostdoc(toral)?\b/i,
+  /\bscientist\b/i,
+  /\blaborator(y|ies)\b/i,
+  /\bdata\b/i,
+  /\bcomputational\b/i,
+  /\bbioinformatic/i,
+  /\bgenomic/i,
+  /\bmachine\s+learning\b/i,
+  /\bsoftware\s+engineer/i
+];
+
+function isResearchRelevantTitle(title, employer) {
+  if (WORKDAY_TITLE_PREFILTER.some((pattern) => pattern.test(title))) return true;
+  const lower = String(title).toLowerCase();
+  return (employer.research_areas || []).some((area) => lower.includes(String(area).toLowerCase()));
+}
+
+function mapWorkdayJob(listItem, detailInfo, employer) {
+  const config = employer.ats_config || {};
+  const reqId = detailInfo?.jobReqId || (listItem.bulletFields || [])[0] || normalizeId(listItem.externalPath);
+  const postedDate = detailInfo?.startDate ? new Date(`${detailInfo.startDate}T00:00:00Z`).toISOString() : null;
+  return {
+    id: `workday:${employer.ats_token}:${reqId}`,
+    employer_id: employer.id,
+    title: detailInfo?.title || listItem.title || 'Untitled role',
+    department: '',
+    location: detailInfo?.location || listItem.locationsText || 'Unspecified',
+    url: detailInfo?.externalUrl || `https://${config.host}/${config.site}${listItem.externalPath || ''}`,
+    description_text: normalizeText(detailInfo?.jobDescription || ''),
+    posted_or_updated_at: postedDate,
+    source: 'workday',
+    source_job_id: String(reqId)
+  };
+}
+
+async function fetchWorkdayJobs(employer) {
+  const { host, tenant, site } = employer.ats_config;
+  const base = `https://${host}/wday/cxs/${encodeURIComponent(tenant)}/${encodeURIComponent(site)}`;
+
+  const listings = [];
+  let total = Infinity;
+  for (let page = 0; page < WORKDAY_MAX_PAGES && page * WORKDAY_PAGE_LIMIT < total; page += 1) {
+    const payload = await fetchJson(`${base}/jobs`, {
+      method: 'POST',
+      body: {
+        appliedFacets: {},
+        limit: WORKDAY_PAGE_LIMIT,
+        offset: page * WORKDAY_PAGE_LIMIT,
+        searchText: ''
+      }
+    });
+    // Workday only reports `total` on the first page; later pages return 0
+    if (page === 0) total = Number(payload.total || 0);
+    const postings = payload.jobPostings || [];
+    if (postings.length === 0) break;
+    listings.push(...postings);
+  }
+
+  // Later pages can repeat postings while requisitions shift; dedupe by path
+  const seenPaths = new Set();
+  const uniqueListings = listings.filter((listItem) => {
+    if (!listItem.externalPath || seenPaths.has(listItem.externalPath)) return false;
+    seenPaths.add(listItem.externalPath);
+    return true;
+  });
+
+  const relevant = uniqueListings
+    .filter((listItem) => isResearchRelevantTitle(listItem.title || '', employer))
+    .slice(0, WORKDAY_MAX_DETAIL_FETCHES);
+
+  const jobs = [];
+  for (const listItem of relevant) {
+    try {
+      const detail = await fetchJson(`${base}${listItem.externalPath}`);
+      jobs.push(mapWorkdayJob(listItem, detail?.jobPostingInfo, employer));
+    } catch (error) {
+      console.warn(`Workday detail fetch failed for ${employer.id} ${listItem.externalPath}: ${error.message}`);
+    }
+    await sleep(WORKDAY_DETAIL_DELAY_MS);
+  }
+  return jobs;
+}
+
 const ATS_FETCHERS = {
   greenhouse: fetchGreenhouseJobs,
   lever: fetchLeverJobs,
   ashby: fetchAshbyJobs,
-  smartrecruiters: fetchSmartRecruitersJobs
+  smartrecruiters: fetchSmartRecruitersJobs,
+  workday: fetchWorkdayJobs
 };
 
 async function fetchEmployerJobs(employer) {
@@ -474,6 +572,7 @@ async function runRefresh() {
       lever: 'https://github.com/lever/postings-api',
       ashby: 'https://developers.ashbyhq.com/docs/public-job-posting-api',
       smartrecruiters: 'https://developers.smartrecruiters.com/docs/posting-api',
+      workday: 'public myworkdayjobs.com CXS job feed (per-tenant)',
       dol_oflc: 'https://www.dol.gov/agencies/eta/foreign-labor/performance',
       ipeds: 'https://nces.ed.gov/ipeds/use-the-data',
       irs_eo_bmf: 'https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf'
@@ -508,10 +607,13 @@ module.exports = {
   mapLeverJob,
   mapAshbyJob,
   mapSmartRecruitersPosting,
+  mapWorkdayJob,
+  isResearchRelevantTitle,
   applyJobLifecycle,
   fetchGreenhouseJobs,
   fetchLeverJobs,
   fetchAshbyJobs,
   fetchSmartRecruitersJobs,
+  fetchWorkdayJobs,
   runRefresh
 };

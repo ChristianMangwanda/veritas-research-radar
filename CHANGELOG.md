@@ -9,6 +9,14 @@ All notable changes to Veritas are documented in this file.
   and restrictive TN/E-3/O-1/L-1 counterparts (117 patterns total: 66 restricted / 51 friendly)
 - Sentence-scoped negation guard: negated restricted phrases ("No security clearance
   required", "not subject to ITAR") no longer flag a posting as restricted
+- Radar: Ashby, SmartRecruiters, and Workday adapters alongside Greenhouse/Lever;
+  live sources grew from 1 to 4 employers (CZ Biohub, Scripps Research, UCSF,
+  University of Chicago — 165 jobs, up from 29)
+- Radar: fetch retry with backoff, inter-employer rate limiting, and closed-posting
+  tombstones with 30-day retention (transient errors never mass-close jobs)
+- Dashboard: sort control, "new since last visit" badges and filter, closed-posting
+  toggle with warnings for triaged jobs, URL-persisted filters, per-employer error
+  detail, smarter PhD-requirement fit penalty
 
 ## [1.3.0] - 2026-07
 

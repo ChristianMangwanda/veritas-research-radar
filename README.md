@@ -19,7 +19,7 @@ Veritas automatically scans job descriptions and displays a color-coded badge in
 - **Keyword Highlighting**: Click badge to see matched phrases
 - **Dismissible**: X button to close badge when done
 - **Privacy-First**: 100% local processing, zero data collection
-- **Research Job Radar**: Fetches public Greenhouse/Lever postings from curated likely cap-exempt research employers
+- **Research Job Radar**: Fetches public ATS postings (Greenhouse, Lever, Ashby, SmartRecruiters, Workday) from curated likely cap-exempt research employers
 
 ### Smart Detection (117 Patterns)
 - **RESTRICTED** (66 patterns): US citizenship, security clearance, "no sponsorship", green card only, US persons / ITAR / export control
@@ -212,9 +212,13 @@ Employer evidence levels:
 - `likely`: institution type suggests cap-exempt fit, pending direct confirmation.
 - `unknown`: needs review.
 
-Current v1 source policy:
-- Greenhouse and Lever are supported.
-- Workday and custom university career pages are listed as deferred sources unless added case by case.
+Current source policy:
+- Greenhouse, Lever, Ashby, and SmartRecruiters public APIs are supported.
+- Workday is supported per-tenant via `ats_config` (host/tenant/site); a research-title
+  prefilter and per-employer caps keep large university feeds bounded.
+- Postings that disappear from a source become `status: "closed"` tombstones kept for
+  30 days, so triaged jobs never silently vanish.
+- Custom university career pages remain deferred unless added case by case.
 - LinkedIn, Indeed, Glassdoor, and similar open job boards are intentionally not scraped.
 
 ---

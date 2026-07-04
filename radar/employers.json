@@ -160,15 +160,20 @@
       "manual",
       "ipeds_candidate"
     ],
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "workday",
+    "ats_token": "uchicago",
+    "ats_config": {
+      "host": "uchicago.wd5.myworkdayjobs.com",
+      "tenant": "uchicago",
+      "site": "External"
+    },
     "careers_url": "https://uchicago.wd5.myworkdayjobs.com/External",
     "research_areas": [
       "computational biology",
       "data science",
       "medicine"
     ],
-    "notes": "Likely cap-exempt institution. Workday/custom source deferred for v1. Probed public ATS APIs on 2026-07-03: no Greenhouse/Lever/Ashby/SmartRecruiters board; careers site is Workday (uchicago.wd5.myworkdayjobs.com)."
+    "notes": "Likely cap-exempt institution. Workday/custom source deferred for v1. Probed public ATS APIs on 2026-07-03: no Greenhouse/Lever/Ashby/SmartRecruiters board; careers site is Workday (uchicago.wd5.myworkdayjobs.com). Workday CXS feed verified 2026-07-03 (378 postings); research-title prefilter applied."
   },
   {
     "id": "mit",
