@@ -19,8 +19,10 @@ const {
   mapUsaJobsJob,
   fetchUsaJobsJobs,
   isResearchRelevantTitle,
-  applyJobLifecycle
+  applyJobLifecycle,
+  activeScoutedJobs
 } = require('../radar/scripts/refresh.js');
+const { validateScoutedFile, scoutedJobId, canonicalUrl, normalizeScoutedJob } = require('../radar/scripts/import-scouted.js');
 const { normalizeName, parseCsvLine } = require('../radar/scripts/import-dol-lca.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
 
@@ -438,6 +440,55 @@ function testJobLifecycle() {
   assert.strictEqual(jobs.length, 0);
 }
 
+function testScoutedImporter() {
+  // Stable ids: tracking params, fragments, case, trailing slash are ignored
+  assert.strictEqual(canonicalUrl('https://Careers.Example.org/jobs/12345/?utm_source=x&gclid=abc#apply'),
+    'https://careers.example.org/jobs/12345');
+  assert.strictEqual(
+    scoutedJobId('fred-hutch', 'https://careers.example.org/jobs/12345?utm_campaign=y'),
+    scoutedJobId('fred-hutch', 'https://CAREERS.example.org/jobs/12345/')
+  );
+
+  const employersById = new Map([['fred-hutch', { id: 'fred-hutch', ats_provider: null }]]);
+  const payload = {
+    schema_version: 1,
+    employer_id: 'fred-hutch',
+    scouted_at: '2026-07-04T00:00:00Z',
+    source_url: 'https://careers.example.org/search',
+    jobs: [
+      { title: 'Research Technician II', url: 'https://careers.example.org/jobs/1', location: 'Seattle, WA' },
+      { title: '', url: 'https://careers.example.org/jobs/2' },
+      { title: 'Postdoc', url: 'not-a-url' },
+      { title: 'Dup', url: 'https://careers.example.org/jobs/1?utm_source=z' }
+    ],
+    skipped_reason: null
+  };
+  const result = validateScoutedFile(payload, employersById);
+  assert.strictEqual(result.fileError, null);
+  assert.strictEqual(result.accepted.length, 1);
+  assert.strictEqual(result.rejected.length, 3);
+  assert(result.rejected.some((r) => r.reason === 'missing title'));
+  assert(result.rejected.some((r) => r.reason === 'duplicate url in snapshot'));
+
+  assert.strictEqual(validateScoutedFile({ schema_version: 2 }, employersById).fileError.includes('schema_version'), true);
+  assert.strictEqual(validateScoutedFile({ schema_version: 1, employer_id: 'nope', scouted_at: '2026-07-04T00:00:00Z', jobs: [] }, employersById).fileError.includes('unknown employer_id'), true);
+
+  const normalized = normalizeScoutedJob(result.accepted[0], payload);
+  assert.strictEqual(normalized.source, 'agent_scout');
+  assert.strictEqual(normalized.employer_id, 'fred-hutch');
+  assert.strictEqual(normalized.last_scouted_at, '2026-07-04T00:00:00Z');
+  assert(normalized.id.startsWith('scout:fred-hutch:'));
+
+  // TTL: fresh snapshots survive, stale ones drop
+  const store = { jobs: [
+    { id: 'a', employer_id: 'fred-hutch', last_scouted_at: '2026-07-01T00:00:00Z' },
+    { id: 'b', employer_id: 'fred-hutch', last_scouted_at: '2026-06-01T00:00:00Z' },
+    { id: 'c', employer_id: 'fred-hutch' }
+  ] };
+  const active = activeScoutedJobs(store, '2026-07-04T00:00:00.000Z', 14);
+  assert.deepStrictEqual(active.map((job) => job.id), ['a']);
+}
+
 function testEnrichment() {
   const employer = {
     id: 'broad-institute',
@@ -482,6 +533,7 @@ async function main() {
   await testFetchRetry();
   await testUsaJobs();
   testJobLifecycle();
+  testScoutedImporter();
   testEnrichment();
 
   console.log('Radar tests passed');

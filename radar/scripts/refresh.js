@@ -11,6 +11,8 @@ const EMPLOYERS_PATH = path.join(RADAR_DIR, 'employers.json');
 const JOBS_PATH = path.join(DATA_DIR, 'jobs.json');
 const REPORT_PATH = path.join(DATA_DIR, 'refresh-report.json');
 const DOL_SIGNALS_PATH = path.join(DATA_DIR, 'dol-sponsor-signals.json');
+const SCOUTED_JOBS_PATH = path.join(DATA_DIR, 'scouted-jobs.json');
+const SCOUTED_TTL_DAYS = 14;
 
 const USER_AGENT = 'VeritasResearchRadar/1.0 (+https://github.com/ChristianMangwanda/Veritas)';
 const REQUEST_TIMEOUT_MS = 20000;
@@ -217,6 +219,18 @@ function enrichJob(job, employer, previousById, dolSignal = {}) {
     },
     disclaimer: 'Signals are planning aids only. Verify cap-exempt status and sponsorship directly with the employer.'
   };
+}
+
+/**
+ * Scouted jobs are trusted only while fresh: a snapshot older than the TTL no
+ * longer proves the posting exists, so it drops out (and tombstones normally).
+ */
+function activeScoutedJobs(store, now, ttlDays = SCOUTED_TTL_DAYS) {
+  const cutoffMs = Date.parse(now) - ttlDays * 24 * 60 * 60 * 1000;
+  return (store.jobs || []).filter((job) => {
+    const scoutedAt = Date.parse(job.last_scouted_at || '');
+    return Number.isFinite(scoutedAt) && scoutedAt >= cutoffMs;
+  });
 }
 
 const CLOSED_RETENTION_DAYS = 30;
@@ -689,6 +703,45 @@ async function runRefresh() {
   }
 
   const now = nowIso();
+
+  // Merge scouted jobs (external producer snapshots) for employers whose live
+  // ATS fetch did not succeed this run — scout data is a fallback, not a
+  // duplicate of a working feed. A fresh snapshot with zero jobs and no
+  // skipped_reason means "scouted, nothing found" and closes previous scouted
+  // jobs; a skipped_reason snapshot carries them forward like an errored fetch.
+  const scoutedStore = await readJson(SCOUTED_JOBS_PATH, { jobs: [], snapshots: {} });
+  const scoutedByEmployer = new Map();
+  for (const job of activeScoutedJobs(scoutedStore, now)) {
+    if (!scoutedByEmployer.has(job.employer_id)) scoutedByEmployer.set(job.employer_id, []);
+    scoutedByEmployer.get(job.employer_id).push(job);
+  }
+  const employersById = new Map(employers.map((employer) => [employer.id, employer]));
+  const scoutedTtlMs = SCOUTED_TTL_DAYS * 24 * 60 * 60 * 1000;
+  for (const [employerId, snapshot] of Object.entries(scoutedStore.snapshots || {})) {
+    const employer = employersById.get(employerId);
+    if (!employer) continue;
+    const scoutedAt = Date.parse(snapshot.scouted_at || '');
+    if (!Number.isFinite(scoutedAt) || Date.parse(now) - scoutedAt > scoutedTtlMs) continue;
+    if (snapshot.skipped_reason) continue;
+    const outcome = employerOutcomes.get(employerId);
+    if (outcome && outcome.attempted && outcome.ok) continue;
+    const enriched = (scoutedByEmployer.get(employerId) || [])
+      .filter((job) => job.url && job.title)
+      .map((job) => {
+        const enrichedJob = enrichJob(job, employer, previousById, dolSignals[employerId]);
+        enrichedJob.disclaimer += ' Extracted by an automated scout from the employer careers page; verify details at the source URL.';
+        return enrichedJob;
+      });
+    fetchedJobs.push(...enriched);
+    employerOutcomes.set(employerId, { attempted: true, ok: true });
+    const employerReport = employerReports.find((report) => report.employer_id === employerId);
+    if (employerReport) {
+      employerReport.fetched_jobs += enriched.length;
+      employerReport.scouted_jobs = enriched.length;
+      employerReport.skipped = false;
+    }
+  }
+
   const allJobs = applyJobLifecycle({ previousJobs, fetchedJobs, employerOutcomes, now });
 
   allJobs.sort((a, b) => {
@@ -765,6 +818,7 @@ module.exports = {
   fetchUsaJobsJobs,
   isResearchRelevantTitle,
   applyJobLifecycle,
+  activeScoutedJobs,
   fetchGreenhouseJobs,
   fetchLeverJobs,
   fetchAshbyJobs,
