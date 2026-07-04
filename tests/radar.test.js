@@ -20,8 +20,16 @@ const {
   fetchUsaJobsJobs,
   isResearchRelevantTitle,
   applyJobLifecycle,
-  activeScoutedJobs
+  activeScoutedJobs,
+  applyEnrichmentOverlay
 } = require('../radar/scripts/refresh.js');
+const {
+  parseIpedsCsv,
+  computeCapExemptScore,
+  suggestStatus,
+  buildDiscoveryCandidates
+} = require('../radar/scripts/enrich.js');
+const { createResolver: createEnrichResolver } = require('../radar/scripts/lib/entity-resolution.js');
 const { validateScoutedFile, scoutedJobId, canonicalUrl, normalizeScoutedJob } = require('../radar/scripts/import-scouted.js');
 const { extractZipEntry, listZipEntries } = require('../radar/scripts/lib/zip.js');
 const zlib = require('zlib');
@@ -539,6 +547,81 @@ function testScoutedImporter() {
   assert.deepStrictEqual(active.map((job) => job.id), ['a']);
 }
 
+function testEnrichPipeline() {
+  // parseIpedsCsv
+  const institutions = parseIpedsCsv('UNITID,INSTNM,CITY,STABBR\n144050,"University of Chicago",Chicago,IL\n,,x,y\n');
+  assert.strictEqual(institutions.length, 1);
+  assert.deepStrictEqual(institutions[0], { unitid: '144050', instnm: 'University of Chicago', city: 'Chicago', stabbr: 'IL' });
+
+  // Scoring table
+  const confident = { strategy: 'exact', confidence: 1.0 };
+  assert.strictEqual(computeCapExemptScore({ ipeds: { unitid: '1', match: confident } }).score, 40);
+  assert.strictEqual(computeCapExemptScore({
+    ipeds: { unitid: '1', match: confident },
+    irs: { subsection: '03', ntee_cd: 'U40', match: confident }
+  }).score, 65);
+  assert.strictEqual(computeCapExemptScore({ irs: { subsection: '03', ntee_cd: 'B25', match: confident } }).score, 10);
+  assert.strictEqual(computeCapExemptScore({ dol_certified_3y: 9 }).score, 10);
+  assert.strictEqual(computeCapExemptScore({ dol_certified_3y: 1000 }).score, 20);
+  assert.strictEqual(computeCapExemptScore({ uscis_approvals_3y: 100 }).score, 15);
+  // Confidence gate: weak matches never score
+  const weak = { strategy: 'token_overlap', confidence: 0.6 };
+  assert.strictEqual(computeCapExemptScore({ ipeds: { unitid: '1', match: weak } }).score, 0);
+
+  // Status promotion rules
+  const higherEd = { type: 'institution_of_higher_education', cap_exempt_status: 'likely' };
+  const nonprofit = { type: 'nonprofit_research_org', cap_exempt_status: 'likely' };
+  assert.strictEqual(suggestStatus({ ipeds: { match: confident } }, higherEd), 'verified');
+  assert.strictEqual(suggestStatus({ ipeds: { match: weak } }, higherEd), 'likely');
+  assert.strictEqual(suggestStatus({ irs: { subsection: '03', ntee_cd: 'H90', match: confident } }, nonprofit), 'verified');
+  // Type mismatch -> no promotion
+  assert.strictEqual(suggestStatus({ ipeds: { match: confident } }, nonprofit), 'likely');
+
+  // Overlay merge: upgrade but never downgrade, evidence union, identity untouched
+  const employers = [
+    { id: 'a', name: 'A University', type: 'institution_of_higher_education', cap_exempt_status: 'likely', evidence_sources: ['manual'] },
+    { id: 'b', name: 'B Institute', type: 'nonprofit_research_org', cap_exempt_status: 'verified', evidence_sources: ['manual'] }
+  ];
+  const merged = applyEnrichmentOverlay(employers, { employers: {
+    a: { suggested_status: 'verified', evidence_tags: ['ipeds:1'], cap_exempt_score: 78 },
+    b: { suggested_status: 'likely', evidence_tags: ['dol_lca'], cap_exempt_score: 30 }
+  } });
+  assert.strictEqual(merged[0].cap_exempt_status, 'verified');
+  assert.deepStrictEqual(merged[0].evidence_sources, ['manual', 'ipeds:1']);
+  assert.strictEqual(merged[0].cap_exempt_score, 78);
+  assert.strictEqual(merged[1].cap_exempt_status, 'verified', 'manual verified must never downgrade');
+  assert.strictEqual(merged[0].name, 'A University');
+  assert.deepStrictEqual(applyEnrichmentOverlay(employers, null), employers);
+
+  // Discovery: eligibility gate + registry exclusion + ranking
+  const registryResolver = createEnrichResolver([{ id: 'known-org', name: 'Known Research Institute' }]);
+  const candidates = buildDiscoveryCandidates({
+    irsRows: [
+      { is_research: true, name: 'RAND CORPORATION', ein: '1', ntee_cd: 'U30', subsection: '03', state: 'CA' },
+      { is_research: true, name: 'KNOWN RESEARCH INSTITUTE', ein: '2', ntee_cd: 'U30', subsection: '03', state: 'MA' },
+      { is_research: true, name: 'SLEEPY RESEARCH SOCIETY', ein: '3', ntee_cd: 'U30', subsection: '03', state: 'OH' }
+    ],
+    ipedsInstitutions: [
+      { unitid: '100', instnm: 'Busy State University', city: 'X', stabbr: 'TX' },
+      { unitid: '101', instnm: 'Idle College', city: 'Y', stabbr: 'VT' }
+    ],
+    dolActivity: new Map([
+      ['RAND', { certified_count: 34, sample_titles: ['Research Scientist'] }],
+      ['BUSY STATE UNIVERSITY', { certified_count: 120, sample_titles: ['Postdoctoral Fellow'] }]
+    ]),
+    uscisActivity: new Map([['RAND', 120]]),
+    registryResolver
+  });
+  const names = candidates.map((candidate) => candidate.name);
+  assert(names.includes('RAND CORPORATION'));
+  assert(names.includes('Busy State University'));
+  assert(!names.includes('KNOWN RESEARCH INSTITUTE'), 'registry orgs excluded');
+  assert(!names.includes('SLEEPY RESEARCH SOCIETY'), 'no activity -> gated out');
+  assert(!names.includes('Idle College'), 'no activity -> gated out');
+  assert.strictEqual(candidates[0].name, 'Busy State University', 'ipeds+dol outranks irs+dol+uscis here');
+  assert(candidates.every((candidate) => candidate.suggested_registry_entry.id.length > 0));
+}
+
 function testEnrichment() {
   const employer = {
     id: 'broad-institute',
@@ -585,6 +668,7 @@ async function main() {
   testJobLifecycle();
   testZipExtraction();
   testScoutedImporter();
+  testEnrichPipeline();
   testEnrichment();
 
   console.log('Radar tests passed');

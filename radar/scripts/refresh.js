@@ -13,6 +13,31 @@ const REPORT_PATH = path.join(DATA_DIR, 'refresh-report.json');
 const DOL_SIGNALS_PATH = path.join(DATA_DIR, 'dol-sponsor-signals.json');
 const SCOUTED_JOBS_PATH = path.join(DATA_DIR, 'scouted-jobs.json');
 const SCOUTED_TTL_DAYS = 14;
+const ENRICHMENT_PATH = path.join(DATA_DIR, 'employer-enrichment.json');
+
+const CAP_EXEMPT_STATUS_ORDER = { unknown: 0, likely: 1, verified: 2 };
+
+/**
+ * Merges the generated enrichment overlay onto the hand-curated registry.
+ * Upgrades cap_exempt_status (never downgrades), unions evidence, attaches
+ * the score — and never touches identity fields. Missing overlay -> no-op.
+ */
+function applyEnrichmentOverlay(employers, enrichment) {
+  const overlay = enrichment?.employers || {};
+  return employers.map((employer) => {
+    const evidence = overlay[employer.id];
+    if (!evidence) return employer;
+    const merged = { ...employer };
+    const suggested = evidence.suggested_status;
+    if (suggested
+      && (CAP_EXEMPT_STATUS_ORDER[suggested] ?? 0) > (CAP_EXEMPT_STATUS_ORDER[employer.cap_exempt_status] ?? 0)) {
+      merged.cap_exempt_status = suggested;
+    }
+    merged.evidence_sources = [...new Set([...(employer.evidence_sources || []), ...(evidence.evidence_tags || [])])];
+    if (typeof evidence.cap_exempt_score === 'number') merged.cap_exempt_score = evidence.cap_exempt_score;
+    return merged;
+  });
+}
 
 const USER_AGENT = 'VeritasResearchRadar/1.0 (+https://github.com/ChristianMangwanda/Veritas)';
 const REQUEST_TIMEOUT_MS = 20000;
@@ -197,6 +222,7 @@ function enrichJob(job, employer, previousById, dolSignal = {}) {
     employer_name: employer.name,
     employer_type: employer.type,
     cap_exempt_status: employer.cap_exempt_status,
+    cap_exempt_score: employer.cap_exempt_score ?? null,
     cap_exempt_evidence_sources: employer.evidence_sources || [],
     cap_exempt_notes: employer.notes || '',
     first_seen_at: previous?.first_seen_at || nowIso(),
@@ -670,7 +696,9 @@ async function fetchEmployerJobs(employer) {
 }
 
 async function runRefresh() {
-  const employers = await readJson(EMPLOYERS_PATH, []);
+  const registryEmployers = await readJson(EMPLOYERS_PATH, []);
+  const enrichment = await readJson(ENRICHMENT_PATH, null);
+  const employers = applyEnrichmentOverlay(registryEmployers, enrichment);
   const previousJobs = await readJson(JOBS_PATH, []);
   const dolSignals = await readJson(DOL_SIGNALS_PATH, {});
   const previousById = new Map(previousJobs.map((job) => [job.id, job]));
@@ -819,6 +847,7 @@ module.exports = {
   isResearchRelevantTitle,
   applyJobLifecycle,
   activeScoutedJobs,
+  applyEnrichmentOverlay,
   fetchGreenhouseJobs,
   fetchLeverJobs,
   fetchAshbyJobs,
