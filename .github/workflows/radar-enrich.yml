@@ -1,0 +1,29 @@
+name: Radar Enrichment
+
+on:
+  schedule:
+    - cron: "0 6 1 * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: radar-enrich-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run monthly enrichment (IPEDS + IRS EO BMF + USCIS joins)
+        run: npm run radar:enrich -- --force
+      - name: Commit enrichment outputs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update employer enrichment and discovery candidates"
+          file_pattern: "radar/data/employer-enrichment.json radar/data/discovery-candidates.json radar/data/enrichment-report.json"
