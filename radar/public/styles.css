@@ -206,6 +206,51 @@ button,
   color: #7a5200;
 }
 
+.badge.new {
+  background: #dbe9fe;
+  color: #1d4fd8;
+}
+
+.badge.closed {
+  background: var(--neutral-soft);
+  color: var(--muted);
+}
+
+.job-card--closed {
+  opacity: 0.65;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.check input {
+  width: auto;
+  margin: 0;
+}
+
+.refresh-errors {
+  margin: 12px 18px 0;
+  padding: 10px 14px;
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.refresh-errors summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.refresh-errors ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
 .fit {
   font-weight: 700;
 }

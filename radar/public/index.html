@@ -15,11 +15,36 @@
       <a class="button" href="https://www.dol.gov/agencies/eta/foreign-labor/performance" target="_blank" rel="noreferrer">DOL data</a>
     </header>
 
+    <details id="refresh-errors" class="refresh-errors" hidden>
+      <summary></summary>
+      <ul></ul>
+    </details>
+
     <main class="layout">
       <aside class="filters" aria-label="Filters">
         <label>
           Search
           <input id="q" type="search" placeholder="title, skill, employer">
+        </label>
+
+        <label>
+          Sort by
+          <select id="sort">
+            <option value="fit">Fit score</option>
+            <option value="research">Research score</option>
+            <option value="newest_seen">Newest found</option>
+            <option value="newest_posted">Newest posted</option>
+          </select>
+        </label>
+
+        <label class="check">
+          <input id="new-only" type="checkbox">
+          New since last visit
+        </label>
+
+        <label class="check">
+          <input id="include-closed" type="checkbox">
+          Include closed postings
         </label>
 
         <label>

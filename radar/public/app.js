@@ -2,8 +2,15 @@ const state = {
   jobs: [],
   employers: [],
   local: { version: 1, triage: {} },
-  profile: null
+  profile: null,
+  lastVisit: null
 };
+
+const LAST_VISIT_KEY = 'veritas_radar_last_visit';
+
+// Closed postings with these triage states stay visible so an applied-to job
+// that disappears from the ATS is flagged rather than silently hidden
+const PROTECTED_TRIAGE = new Set(['shortlist', 'applied', 'emailed_lab', 'needs_visa_check']);
 
 const SKILLS = [
   'python', 'r', 'sql', 'javascript', 'typescript', 'node', 'react', 'nextflow',
@@ -18,7 +25,11 @@ const DOM = {
   jobs: document.querySelector('#jobs'),
   count: document.querySelector('#count'),
   refreshMeta: document.querySelector('#refresh-meta'),
+  refreshErrors: document.querySelector('#refresh-errors'),
   q: document.querySelector('#q'),
+  sort: document.querySelector('#sort'),
+  newOnly: document.querySelector('#new-only'),
+  includeClosed: document.querySelector('#include-closed'),
   visa: document.querySelector('#visa'),
   type: document.querySelector('#type'),
   cap: document.querySelector('#cap'),
@@ -81,11 +92,28 @@ function scoreFit(job) {
   score += Math.min(matchedSkills.length * 8, 40);
   score += Math.min(matchedDomains.length * 12, 24);
   score += Math.round((job.research_relevance_score || 0) * 0.16);
-  if (/\b(phd|ph\.d|doctorate)\b/i.test(text) && !state.profile.degrees.includes('phd')) score -= 18;
+  score += phdPenalty(text);
   if (job.veritas_state === 'RESTRICTED') score -= 35;
   score = Math.max(0, Math.min(100, score));
   const fit_summary = `${score >= 75 ? 'Strong' : score >= 50 ? 'Possible' : 'Weak'} fit: ${matchedSkills.length} matching skills, ${matchedDomains.length} matching domains. Verify visa language before applying.`;
   return { fit_score: score, matched_skills: matchedSkills, missing_skills: missingSkills, fit_summary };
+}
+
+// Only penalize hard PhD requirements; "PhD preferred" or "or equivalent" should
+// not sink the score for masters/bachelors candidates
+function phdPenalty(text) {
+  if (state.profile.degrees.includes('phd')) return 0;
+  if (!/\b(phd|ph\.d|doctorate|doctoral)\b/i.test(text)) return 0;
+  const softened = /\b(ph\.?d|doctorate|doctoral)\b[^.]{0,60}\b(preferred|desirable|a plus|or equivalent)\b/i.test(text)
+    || /\b(preferred|desirable)\b[^.]{0,60}\b(ph\.?d|doctorate|doctoral)\b/i.test(text);
+  if (softened) return 0;
+  const required = /\b(ph\.?d|doctorate|doctoral degree)\b[^.]{0,60}\b(required|must|necessary)\b/i.test(text)
+    || /\b(requires?|must\s+(hold|have|possess))\b[^.]{0,60}\b(ph\.?d|doctorate|doctoral)\b/i.test(text);
+  return required ? -18 : -4;
+}
+
+function isNewSinceLastVisit(job) {
+  return Boolean(state.lastVisit && job.first_seen_at && job.first_seen_at > state.lastVisit);
 }
 
 function badge(text, kind = '') {
@@ -99,6 +127,37 @@ function triageFor(job) {
   return state.local.triage[job.id]?.status || 'new';
 }
 
+function isClosed(job) {
+  return job.status === 'closed';
+}
+
+function dateDesc(a, b) {
+  if (!a && !b) return 0;
+  if (!a) return 1;
+  if (!b) return -1;
+  return String(b).localeCompare(String(a));
+}
+
+const SORTERS = {
+  fit(a, b) {
+    const fitA = a.fit.fit_score ?? -1;
+    const fitB = b.fit.fit_score ?? -1;
+    if (fitA !== fitB) return fitB - fitA;
+    return (b.research_relevance_score || 0) - (a.research_relevance_score || 0);
+  },
+  research(a, b) {
+    const delta = (b.research_relevance_score || 0) - (a.research_relevance_score || 0);
+    if (delta !== 0) return delta;
+    return SORTERS.fit(a, b);
+  },
+  newest_seen(a, b) {
+    return dateDesc(a.first_seen_at, b.first_seen_at) || SORTERS.fit(a, b);
+  },
+  newest_posted(a, b) {
+    return dateDesc(a.posted_or_updated_at, b.posted_or_updated_at) || SORTERS.fit(a, b);
+  }
+};
+
 function filteredJobs() {
   const query = DOM.q.value.trim().toLowerCase();
   const visa = DOM.visa.value;
@@ -106,9 +165,12 @@ function filteredJobs() {
   const cap = DOM.cap.value;
   const triage = DOM.triageFilter.value;
   const minResearch = Number(DOM.minResearch.value);
+  const sorter = SORTERS[DOM.sort.value] || SORTERS.fit;
 
   return state.jobs
     .map((job) => ({ ...job, fit: scoreFit(job) }))
+    .filter((job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)))
+    .filter((job) => !DOM.newOnly.checked || isNewSinceLastVisit(job))
     .filter((job) => !query || jobText(job).includes(query))
     .filter((job) => !visa || job.veritas_state === visa)
     .filter((job) => !type || job.employer_type === type)
@@ -116,14 +178,42 @@ function filteredJobs() {
     .filter((job) => !triage || triageFor(job) === triage)
     .filter((job) => Number(job.research_relevance_score || 0) >= minResearch)
     .sort((a, b) => {
-      const fitA = a.fit.fit_score ?? -1;
-      const fitB = b.fit.fit_score ?? -1;
-      if (fitA !== fitB) return fitB - fitA;
-      return (b.research_relevance_score || 0) - (a.research_relevance_score || 0);
+      const statusDelta = (isClosed(a) ? 1 : 0) - (isClosed(b) ? 1 : 0);
+      if (statusDelta !== 0) return statusDelta;
+      return sorter(a, b);
     });
 }
 
+function syncUrl() {
+  const params = new URLSearchParams();
+  if (DOM.q.value.trim()) params.set('q', DOM.q.value.trim());
+  if (DOM.sort.value !== 'fit') params.set('sort', DOM.sort.value);
+  if (DOM.newOnly.checked) params.set('newOnly', '1');
+  if (DOM.includeClosed.checked) params.set('includeClosed', '1');
+  if (DOM.visa.value) params.set('visa', DOM.visa.value);
+  if (DOM.type.value) params.set('type', DOM.type.value);
+  if (DOM.cap.value) params.set('cap', DOM.cap.value);
+  if (DOM.triageFilter.value) params.set('triage', DOM.triageFilter.value);
+  if (DOM.minResearch.value !== '0') params.set('minResearch', DOM.minResearch.value);
+  const qs = params.toString();
+  history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+}
+
+function hydrateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('q')) DOM.q.value = params.get('q');
+  if (params.has('sort') && SORTERS[params.get('sort')]) DOM.sort.value = params.get('sort');
+  DOM.newOnly.checked = params.get('newOnly') === '1';
+  DOM.includeClosed.checked = params.get('includeClosed') === '1';
+  if (params.has('visa')) DOM.visa.value = params.get('visa');
+  if (params.has('type')) DOM.type.value = params.get('type');
+  if (params.has('cap')) DOM.cap.value = params.get('cap');
+  if (params.has('triage')) DOM.triageFilter.value = params.get('triage');
+  if (params.has('minResearch')) DOM.minResearch.value = params.get('minResearch');
+}
+
 function render() {
+  syncUrl();
   DOM.minResearchValue.textContent = DOM.minResearch.value;
   const jobs = filteredJobs();
   DOM.count.textContent = `${jobs.length} job${jobs.length === 1 ? '' : 's'}`;
@@ -138,6 +228,12 @@ function render() {
     link.textContent = 'Open role';
 
     const badges = node.querySelector('.badges');
+    if (isNewSinceLastVisit(job)) badges.append(badge('NEW', 'new'));
+    if (isClosed(job)) {
+      node.classList.add('job-card--closed');
+      const protectedTriage = PROTECTED_TRIAGE.has(triageFor(job));
+      badges.append(badge(protectedTriage ? 'posting closed — verify status' : 'closed', protectedTriage ? 'weak' : 'closed'));
+    }
     badges.append(
       badge(job.veritas_state, job.veritas_state.toLowerCase()),
       badge(`cap-exempt: ${job.cap_exempt_status}`, job.cap_exempt_status),
@@ -172,7 +268,7 @@ function render() {
 }
 
 function bindEvents() {
-  for (const input of [DOM.q, DOM.visa, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
+  for (const input of [DOM.q, DOM.sort, DOM.newOnly, DOM.includeClosed, DOM.visa, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
     input.addEventListener('input', render);
   }
 
@@ -197,7 +293,38 @@ function bindEvents() {
   });
 }
 
+function renderRefreshStatus(report) {
+  if (!report) {
+    DOM.refreshMeta.textContent = 'No refresh report yet. Run npm run radar:refresh.';
+    return;
+  }
+  const parts = [
+    `Last refresh ${new Date(report.refreshed_at).toLocaleString()}`,
+    `${report.active_job_count ?? report.job_count} active jobs`,
+    `${report.errored_employers} source errors`
+  ];
+  if (report.newly_closed_count) parts.push(`${report.newly_closed_count} newly closed`);
+  DOM.refreshMeta.textContent = parts.join(' · ');
+
+  const errored = (report.employers || []).filter((employer) => employer.error);
+  if (errored.length) {
+    DOM.refreshErrors.hidden = false;
+    DOM.refreshErrors.querySelector('summary').textContent = `${errored.length} source error${errored.length === 1 ? '' : 's'} on last refresh`;
+    const list = DOM.refreshErrors.querySelector('ul');
+    list.replaceChildren();
+    for (const employer of errored) {
+      const item = document.createElement('li');
+      item.textContent = `${employer.name} (${employer.ats_provider}) — ${employer.error}`;
+      list.append(item);
+    }
+  }
+}
+
 async function init() {
+  state.lastVisit = localStorage.getItem(LAST_VISIT_KEY);
+  localStorage.setItem(LAST_VISIT_KEY, new Date().toISOString());
+  hydrateFromUrl();
+
   const [jobs, employers, local, report] = await Promise.all([
     getJson('/api/jobs', []),
     getJson('/api/employers', []),
@@ -207,9 +334,7 @@ async function init() {
   state.jobs = jobs;
   state.employers = employers;
   state.local = local;
-  DOM.refreshMeta.textContent = report
-    ? `Last refresh ${new Date(report.refreshed_at).toLocaleString()} · ${report.job_count} jobs · ${report.errored_employers} source errors`
-    : 'No refresh report yet. Run npm run radar:refresh.';
+  renderRefreshStatus(report);
   bindEvents();
   render();
 }
