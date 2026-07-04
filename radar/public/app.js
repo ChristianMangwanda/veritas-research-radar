@@ -29,6 +29,7 @@ const DOM = {
   discovery: document.querySelector('#discovery'),
   q: document.querySelector('#q'),
   sort: document.querySelector('#sort'),
+  source: document.querySelector('#source'),
   newOnly: document.querySelector('#new-only'),
   includeClosed: document.querySelector('#include-closed'),
   visa: document.querySelector('#visa'),
@@ -151,6 +152,11 @@ const SORTERS = {
     if (delta !== 0) return delta;
     return SORTERS.fit(a, b);
   },
+  capexempt(a, b) {
+    const delta = (b.cap_exempt_score || 0) - (a.cap_exempt_score || 0);
+    if (delta !== 0) return delta;
+    return SORTERS.fit(a, b);
+  },
   newest_seen(a, b) {
     return dateDesc(a.first_seen_at, b.first_seen_at) || SORTERS.fit(a, b);
   },
@@ -168,10 +174,12 @@ function filteredJobs() {
   const minResearch = Number(DOM.minResearch.value);
   const sorter = SORTERS[DOM.sort.value] || SORTERS.fit;
 
+  const source = DOM.source.value;
   return state.jobs
     .map((job) => ({ ...job, fit: scoreFit(job) }))
     .filter((job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)))
     .filter((job) => !DOM.newOnly.checked || isNewSinceLastVisit(job))
+    .filter((job) => !source || job.source === source)
     .filter((job) => !query || jobText(job).includes(query))
     .filter((job) => !visa || job.veritas_state === visa)
     .filter((job) => !type || job.employer_type === type)
@@ -189,6 +197,7 @@ function syncUrl() {
   const params = new URLSearchParams();
   if (DOM.q.value.trim()) params.set('q', DOM.q.value.trim());
   if (DOM.sort.value !== 'fit') params.set('sort', DOM.sort.value);
+  if (DOM.source.value) params.set('source', DOM.source.value);
   if (DOM.newOnly.checked) params.set('newOnly', '1');
   if (DOM.includeClosed.checked) params.set('includeClosed', '1');
   if (DOM.visa.value) params.set('visa', DOM.visa.value);
@@ -211,6 +220,21 @@ function hydrateFromUrl() {
   if (params.has('cap')) DOM.cap.value = params.get('cap');
   if (params.has('triage')) DOM.triageFilter.value = params.get('triage');
   if (params.has('minResearch')) DOM.minResearch.value = params.get('minResearch');
+  if (params.has('source')) DOM.source.value = params.get('source');
+}
+
+function populateSources() {
+  const counts = new Map();
+  for (const job of state.jobs) {
+    counts.set(job.source, (counts.get(job.source) || 0) + 1);
+  }
+  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  for (const [source, count] of sorted) {
+    const option = document.createElement('option');
+    option.value = source;
+    option.textContent = `${source} (${count})`;
+    DOM.source.append(option);
+  }
 }
 
 function render() {
@@ -241,6 +265,10 @@ function render() {
       badge(`sponsor: ${job.sponsor_signal}`, job.sponsor_signal),
       badge(`research ${job.research_relevance_score || 0}`)
     );
+    if (typeof job.cap_exempt_score === 'number' && job.cap_exempt_score > 0) {
+      badges.append(badge(`cap-exempt score ${job.cap_exempt_score}`, job.cap_exempt_score >= 55 ? 'strong' : 'moderate'));
+    }
+    badges.append(badge(job.source, 'source'));
     if (job.cap_exempt_language?.length) badges.append(badge('cap-exempt language', 'likely'));
     if (job.international_candidate_language?.length) badges.append(badge('international language', 'moderate'));
 
@@ -269,7 +297,7 @@ function render() {
 }
 
 function bindEvents() {
-  for (const input of [DOM.q, DOM.sort, DOM.newOnly, DOM.includeClosed, DOM.visa, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
+  for (const input of [DOM.q, DOM.sort, DOM.source, DOM.newOnly, DOM.includeClosed, DOM.visa, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
     input.addEventListener('input', render);
   }
 
@@ -367,6 +395,10 @@ async function init() {
   state.jobs = jobs;
   state.employers = employers;
   state.local = local;
+  populateSources();
+  // Source options only exist now, so re-apply the source filter from the URL
+  const sourceParam = new URLSearchParams(window.location.search).get('source');
+  if (sourceParam) DOM.source.value = sourceParam;
   renderRefreshStatus(report);
   renderDiscovery(discovery);
   bindEvents();
