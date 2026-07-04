@@ -5,6 +5,21 @@ All notable changes to Veritas are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Aggregator firehose**: single repo now includes the Python+Playwright scout
+  (`scout/`). Scrapes research-job boards (Nature Careers, Science Careers,
+  HigherEdJobs), resolves every job's employer against a generated ~20,000-entry
+  cap-exempt directory (IPEDS + IRS-research universe), and keeps only the
+  cap-exempt matches. First run: 551 scraped → 110 kept across 53 new employers
+  (dataset 172 → 282 jobs, live employers 5 → 58).
+- **Automated DOL download** (`scout/scout_dol.py`): pulls the Akamai-gated OFLC
+  LCA disclosure file via a real browser session and converts it to CSV. All
+  four enrichment datasets now feed the signal (first import: FY2026 Q2,
+  1.04M records; 22/25 registry employers carry sponsorship counts).
+- Dashboard: source filter, cap-exempt-score badge + sort.
+- Policy: the scout treats robots.txt as advisory (owner decision); throttled,
+  no CAPTCHA defeat. Aggregators previously ruled out are now in scope.
+
+### Added (prior two-layer work)
 - **Two-layer cap-exempt instrument**: 6-hourly job sourcing + monthly signal
   enrichment joining IPEDS, IRS EO BMF, USCIS H-1B Data Hub, and DOL LCA data
   via a confidence-ordered entity-resolution library (aliases, token matching,

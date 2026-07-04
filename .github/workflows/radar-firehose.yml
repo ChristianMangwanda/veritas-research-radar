@@ -1,0 +1,42 @@
+name: Radar Aggregator Firehose
+
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: radar-firehose-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  firehose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install scout deps
+        run: |
+          python -m venv scout/.venv
+          scout/.venv/bin/pip install -r scout/requirements.txt
+          scout/.venv/bin/python -m playwright install --with-deps chromium
+      - name: Scrape aggregators + apply cap-exempt filter
+        run: npm run scout:aggregators -- --all --details 60 --import
+      - name: Refresh dataset
+        run: npm run radar:refresh
+        env:
+          USAJOBS_API_KEY: ${{ secrets.USAJOBS_API_KEY }}
+          USAJOBS_EMAIL: ${{ secrets.USAJOBS_EMAIL }}
+      - name: Commit firehose data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update aggregator firehose data"
+          file_pattern: "radar/data/aggregated-jobs.json radar/data/jobs.json radar/data/refresh-report.json"

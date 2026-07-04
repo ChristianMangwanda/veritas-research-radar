@@ -25,5 +25,5 @@ jobs:
       - name: Commit enrichment outputs
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update employer enrichment and discovery candidates"
-          file_pattern: "radar/data/employer-enrichment.json radar/data/discovery-candidates.json radar/data/enrichment-report.json"
+          commit_message: "Update employer enrichment, discovery, and cap-exempt directory"
+          file_pattern: "radar/data/employer-enrichment.json radar/data/discovery-candidates.json radar/data/enrichment-report.json radar/data/cap-exempt-directory.json"

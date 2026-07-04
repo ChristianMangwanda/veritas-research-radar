@@ -182,29 +182,39 @@ veritas/
 
 ### Research Job Radar
 
-The radar is a two-layer instrument for cap-exempt research roles:
+A single instrument for cap-exempt research roles, in three layers:
 
-- **Every 6 hours** (GitHub Action), the sourcer pulls jobs from clean public
-  endpoints — nine ATS adapters (Greenhouse, Lever, Ashby, SmartRecruiters,
-  Workday, Recruitee, Breezy, Workable, USAJOBS) plus validated scout
-  snapshots — runs every posting through the Veritas analyzer, and tracks
-  closed postings as tombstones.
-- **Monthly**, the enrichment run manufactures the cap-exempt signal itself by
-  joining four government datasets via entity resolution: DOL LCA disclosures
+- **The daily sourcer** (Node, every 6 hours): nine ATS adapters (Greenhouse,
+  Lever, Ashby, SmartRecruiters, Workday, Recruitee, Breezy, Workable, USAJOBS)
+  plus the aggregator firehose and per-employer scout snapshots. Every posting
+  runs through the Veritas analyzer; closed postings become tombstones.
+- **The enrichment layer** (monthly): manufactures the cap-exempt signal by
+  joining four government datasets via entity resolution — DOL LCA disclosures
   (who sponsors, in which titles), IPEDS (the legal definition of the
-  higher-education exemption), IRS EO BMF (501(c)(3) research nonprofits via
-  NTEE codes), and the USCIS H-1B Employer Data Hub (who actually gets
-  petitions approved). It upgrades registry evidence and emits a ranked
-  discovery list of new cap-exempt employer candidates.
+  higher-education exemption), IRS EO BMF (501(c)(3) research nonprofits by NTEE
+  code), and the USCIS H-1B Employer Data Hub (who gets petitions approved). It
+  emits a **cap-exempt directory** of ~20,000 employers and a ranked discovery
+  list, and upgrades the registry.
+- **The scout** (Python + Playwright, `scout/`): the aggregator firehose and
+  JS-page scraper. Scrapes research-job boards (Nature Careers, Science
+  Careers, HigherEdJobs), tags each job with its employer, and the importer
+  keeps only those that resolve into the cap-exempt directory. This is how the
+  radar covers hundreds of employers without wiring each one by hand.
 
 Commands:
 
 ```bash
-npm run radar:refresh          # daily layer
-npm run radar:serve            # dashboard at http://localhost:4173
-npm run radar:enrich           # monthly joins (~350MB cached downloads)
-npm run radar:import-scouted   # merge scout producer snapshots
+npm run radar:refresh            # daily layer (fetch + merge + lifecycle)
+npm run radar:serve              # dashboard at http://localhost:4173
+npm run radar:enrich             # monthly joins (~350MB cached downloads)
+npm run scout:aggregators -- --all --import   # firehose (needs scout/ venv)
+npm run scout:jobs -- --all --import          # per-employer scout
+npm run radar:import-aggregated  # cap-exempt filter over scraped jobs
 ```
+
+See [scout/README.md](scout/README.md) for the Python setup. **Policy note:**
+as of 2026-07 the scout treats robots.txt as advisory (logged, not enforced)
+by owner decision; it stays throttled and does not defeat CAPTCHAs.
 
 Data boundaries:
 - Public GitHub Actions data: `radar/employers.json`, `radar/data/jobs.json`, `radar/data/refresh-report.json`.
@@ -232,16 +242,12 @@ Source policy:
 | Greenhouse / Lever / Ashby / SmartRecruiters / Recruitee / Breezy / Workable | public JSON APIs | every 6h |
 | Workday | per-tenant CXS feed (`ats_config`), research-title prefilter + caps | every 6h |
 | USAJOBS | official API, free key (`USAJOBS_API_KEY` + `USAJOBS_EMAIL`) | every 6h |
-| Scout snapshots | external producer honoring `radar/SCOUT-CONTRACT.md` (LadyLibertysBrief Playwright scout) | on demand, 14-day TTL |
+| Aggregators (Nature Careers, Science Careers, HigherEdJobs) | Playwright scrape, cap-exempt-filtered | on demand, 7-day TTL |
+| Per-employer scout snapshots | `scout/` Playwright, per `radar/SCOUT-CONTRACT.md` | on demand, 14-day TTL |
 | IPEDS HD | direct zip download (NCES) | monthly enrich |
 | IRS EO BMF | direct CSV downloads (~340MB) | monthly enrich |
 | USCIS H-1B Data Hub | direct CSVs, newest 3 fiscal years | monthly enrich |
-| DOL LCA disclosures | manual browser download (Akamai blocks bots) → local import | when refreshed |
-
-Ruled out after evaluation — no machine-readable feeds, bot walls we do not
-circumvent as a matter of policy: HigherEdJobs, HERC, Nature Careers, Science
-Careers, jobs.ac.uk, EURAXESS, academicpositions.com. LinkedIn, Indeed,
-Glassdoor, and similar boards are intentionally not scraped.
+| DOL LCA disclosures | browser download via `scout/scout_dol.py` (Akamai-gated) → import | when refreshed |
 
 Postings that disappear from a source become `status: "closed"` tombstones
 kept for 30 days, so triaged jobs never silently vanish.
