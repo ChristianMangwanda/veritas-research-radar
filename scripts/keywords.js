@@ -93,7 +93,23 @@
       /will\s+not\s+(provide|offer|support)\s+(visa\s+)?(sponsorship|support)/gi,
       /do\s+not\s+offer.*sponsorship/gi,
       /not\s+(available|eligible).*\b(opt|cpt|optional\s+practical\s+training|curricular\s+practical\s+training)\b/gi,
-      /\b(opt|cpt)\s+(is\s+)?not\s+(eligible|available|accepted)/gi
+      /\b(opt|cpt)\s+(is\s+)?not\s+(eligible|available|accepted)/gi,
+
+      // US persons / export control (ITAR/EAR) - citizenship proxy common in research/defense labs
+      /\bus\s+persons?\s+only\b/gi,
+      /must\s+be\s+(a\s+)?us\s+person\b/gi,
+      /\bitar\b/gi,
+      /export\s+control(led)?\s+(laws?|regulations?|requirements?)/gi,
+      /deemed\s+export/gi,
+      /subject\s+to\s+(itar|ear|export\s+control)/gi,
+
+      // Restrictive counterparts to specific work visas
+      /not\s+(accepting|sponsoring)\s+(tn|e-?3|o-?1|l-?1|h-?1b)\b/gi,
+      /(tn|e-?3)\s+visa\s+not\s+(accepted|available|supported)/gi
+
+      // Deliberately NOT flagged: bare E-Verify participation. Nearly all US employers
+      // use E-Verify, so it carries no sponsorship signal by itself; restrictive
+      // E-Verify phrasings pair with "without sponsorship" language already caught above.
     ],
 
     FRIENDLY: [
@@ -176,6 +192,33 @@
     ]
   };
 
+  // Negation handling for RESTRICTED matches. Looks only at text BEFORE the match,
+  // within the same sentence/clause, so pattern-internal negators ("no visa
+  // sponsorship", "without sponsorship") never suppress their own match.
+  const SENTENCE_BOUNDARY = /[.!?;:\n\r•|]/;
+  const NEGATORS = [
+    /\bno\b/i,
+    /\bnot\b/i,
+    /\bnever\b/i,
+    /\bwithout\s+requiring\b/i,
+    /\bregardless\s+of\b/i,
+    /\beven\s+if\b/i
+  ];
+
+  /**
+   * Checks whether a RESTRICTED match is preceded by a negator in the same clause
+   * (e.g. "No security clearance required", "not subject to ITAR")
+   * @param {string} textContent - The full analyzed text
+   * @param {number} matchIndex - Character offset of the match
+   * @returns {boolean} True if the match should be suppressed
+   */
+  function isNegatedRestrictedMatch(textContent, matchIndex) {
+    const windowStart = Math.max(0, matchIndex - 80);
+    const window = textContent.slice(windowStart, matchIndex);
+    const clause = window.split(SENTENCE_BOUNDARY).pop();
+    return NEGATORS.some(negator => negator.test(clause));
+  }
+
   /**
    * Analyzes text content for visa eligibility keywords
    * @param {string} textContent - The text to analyze
@@ -193,16 +236,17 @@
     // Check for restrictions first
     for (const pattern of KEYWORDS.RESTRICTED) {
       const matchArray = [...textContent.matchAll(pattern)];
-      if (matchArray.length > 0) {
+      matchArray.forEach(match => {
+        if (isNegatedRestrictedMatch(textContent, match.index)) {
+          return;
+        }
         state = 'RESTRICTED';
-        matchArray.forEach(match => {
-          matches.push({
-            type: 'RESTRICTED',
-            text: match[0],
-            index: match.index
-          });
+        matches.push({
+          type: 'RESTRICTED',
+          text: match[0],
+          index: match.index
         });
-      }
+      });
     }
 
     // Only check FRIENDLY if no restrictions found
@@ -264,7 +308,8 @@
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
       KEYWORDS,
-      analyzeText: root.Veritas.analyzeText
+      analyzeText: root.Veritas.analyzeText,
+      isNegatedRestrictedMatch
     };
   }
 

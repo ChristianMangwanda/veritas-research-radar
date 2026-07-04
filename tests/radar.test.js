@@ -9,6 +9,38 @@ function testSharedAnalyzer() {
   assert.strictEqual(analyzeText('Visa sponsorship is available for this role.').state, 'FRIENDLY');
   assert.strictEqual(analyzeText('Applicants must be authorized to work without sponsorship.').state, 'RESTRICTED');
   assert.strictEqual(analyzeText('Build research data systems for a genomics lab.').state, 'NEUTRAL');
+  // US persons / export control
+  assert.strictEqual(analyzeText('Open to US persons only due to contract requirements.').state, 'RESTRICTED');
+  assert.strictEqual(analyzeText('This role is subject to ITAR.').state, 'RESTRICTED');
+  assert.strictEqual(analyzeText('Work is governed by export control regulations.').state, 'RESTRICTED');
+  // Restrictive visa counterparts
+  assert.strictEqual(analyzeText('We are not sponsoring TN or E-3 visas for this role.').state, 'RESTRICTED');
+  // Bare E-Verify participation carries no sponsorship signal
+  assert.strictEqual(analyzeText('This employer participates in E-Verify.').state, 'NEUTRAL');
+  // Priority: RESTRICTED beats FRIENDLY
+  assert.strictEqual(
+    analyzeText('US citizenship is required. Visa sponsorship is available for other roles.').state,
+    'RESTRICTED'
+  );
+}
+
+function testNegationGuard() {
+  // Negated restricted phrases must not flag the posting
+  assert.strictEqual(analyzeText('No security clearance required for this role.').state, 'NEUTRAL');
+  assert.strictEqual(analyzeText('This position is not subject to ITAR.').state, 'NEUTRAL');
+  // Suppressed restricted matches fall through to FRIENDLY
+  assert.strictEqual(
+    analyzeText('No security clearance required. Visa sponsorship is available.').state,
+    'FRIENDLY'
+  );
+  // Pattern-internal negators must NOT suppress their own match
+  assert.strictEqual(analyzeText('No visa sponsorship available.').state, 'RESTRICTED');
+  assert.strictEqual(analyzeText('We cannot sponsor and will not sponsor visas.').state, 'RESTRICTED');
+  // Unnegated equivalents stay restricted
+  assert.strictEqual(analyzeText('US citizenship is required.').state, 'RESTRICTED');
+  assert.strictEqual(analyzeText('Security clearance required.').state, 'RESTRICTED');
+  // Sentence boundary stops negator bleed from a prior clause
+  assert.strictEqual(analyzeText('No exceptions: US citizenship is required.').state, 'RESTRICTED');
 }
 
 function testFixturePages() {
@@ -67,6 +99,7 @@ function testEnrichment() {
 }
 
 testSharedAnalyzer();
+testNegationGuard();
 testFixturePages();
 testSignalExtraction();
 testNormalization();

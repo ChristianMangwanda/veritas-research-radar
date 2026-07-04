@@ -2,6 +2,14 @@
 
 All notable changes to Veritas are documented in this file.
 
+## [Unreleased]
+
+### Added
+- New RESTRICTED patterns: "US persons only", ITAR / export control / deemed export,
+  and restrictive TN/E-3/O-1/L-1 counterparts (117 patterns total: 66 restricted / 51 friendly)
+- Sentence-scoped negation guard: negated restricted phrases ("No security clearance
+  required", "not subject to ITAR") no longer flag a posting as restricted
+
 ## [1.3.0] - 2026-07
 
 ### Added
