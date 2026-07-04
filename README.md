@@ -182,16 +182,29 @@ veritas/
 
 ### Research Job Radar
 
-The radar is a local-first data tool for likely cap-exempt research roles. It uses only clean public ATS APIs for daily collection, then runs the Veritas sponsorship analyzer against every fetched job.
+The radar is a two-layer instrument for cap-exempt research roles:
+
+- **Every 6 hours** (GitHub Action), the sourcer pulls jobs from clean public
+  endpoints — nine ATS adapters (Greenhouse, Lever, Ashby, SmartRecruiters,
+  Workday, Recruitee, Breezy, Workable, USAJOBS) plus validated scout
+  snapshots — runs every posting through the Veritas analyzer, and tracks
+  closed postings as tombstones.
+- **Monthly**, the enrichment run manufactures the cap-exempt signal itself by
+  joining four government datasets via entity resolution: DOL LCA disclosures
+  (who sponsors, in which titles), IPEDS (the legal definition of the
+  higher-education exemption), IRS EO BMF (501(c)(3) research nonprofits via
+  NTEE codes), and the USCIS H-1B Employer Data Hub (who actually gets
+  petitions approved). It upgrades registry evidence and emits a ranked
+  discovery list of new cap-exempt employer candidates.
 
 Commands:
 
 ```bash
-npm run radar:refresh
-npm run radar:serve
+npm run radar:refresh          # daily layer
+npm run radar:serve            # dashboard at http://localhost:4173
+npm run radar:enrich           # monthly joins (~350MB cached downloads)
+npm run radar:import-scouted   # merge scout producer snapshots
 ```
-
-Then open `http://localhost:4173`.
 
 Data boundaries:
 - Public GitHub Actions data: `radar/employers.json`, `radar/data/jobs.json`, `radar/data/refresh-report.json`.
@@ -212,14 +225,26 @@ Employer evidence levels:
 - `likely`: institution type suggests cap-exempt fit, pending direct confirmation.
 - `unknown`: needs review.
 
-Current source policy:
-- Greenhouse, Lever, Ashby, and SmartRecruiters public APIs are supported.
-- Workday is supported per-tenant via `ats_config` (host/tenant/site); a research-title
-  prefilter and per-employer caps keep large university feeds bounded.
-- Postings that disappear from a source become `status: "closed"` tombstones kept for
-  30 days, so triaged jobs never silently vanish.
-- Custom university career pages remain deferred unless added case by case.
-- LinkedIn, Indeed, Glassdoor, and similar open job boards are intentionally not scraped.
+Source policy:
+
+| Source | Access | Cadence |
+|---|---|---|
+| Greenhouse / Lever / Ashby / SmartRecruiters / Recruitee / Breezy / Workable | public JSON APIs | every 6h |
+| Workday | per-tenant CXS feed (`ats_config`), research-title prefilter + caps | every 6h |
+| USAJOBS | official API, free key (`USAJOBS_API_KEY` + `USAJOBS_EMAIL`) | every 6h |
+| Scout snapshots | external producer honoring `radar/SCOUT-CONTRACT.md` (LadyLibertysBrief Playwright scout) | on demand, 14-day TTL |
+| IPEDS HD | direct zip download (NCES) | monthly enrich |
+| IRS EO BMF | direct CSV downloads (~340MB) | monthly enrich |
+| USCIS H-1B Data Hub | direct CSVs, newest 3 fiscal years | monthly enrich |
+| DOL LCA disclosures | manual browser download (Akamai blocks bots) → local import | when refreshed |
+
+Ruled out after evaluation — no machine-readable feeds, bot walls we do not
+circumvent as a matter of policy: HigherEdJobs, HERC, Nature Careers, Science
+Careers, jobs.ac.uk, EURAXESS, academicpositions.com. LinkedIn, Indeed,
+Glassdoor, and similar boards are intentionally not scraped.
+
+Postings that disappear from a source become `status: "closed"` tombstones
+kept for 30 days, so triaged jobs never silently vanish.
 
 ---
 

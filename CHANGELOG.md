@@ -5,6 +5,19 @@ All notable changes to Veritas are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Two-layer cap-exempt instrument**: 6-hourly job sourcing + monthly signal
+  enrichment joining IPEDS, IRS EO BMF, USCIS H-1B Data Hub, and DOL LCA data
+  via a confidence-ordered entity-resolution library (aliases, token matching,
+  false-positive guards)
+- Four new daily sources: USAJOBS (official API, free key), Recruitee, Breezy,
+  Workable — nine ATS adapters total
+- Enrichment outputs: employer evidence overlay (20/25 registry employers now
+  hard-"verified"), ranked discovery list of 250 new cap-exempt employer
+  candidates (dashboard panel + /api/discovery), and an alias worklist report
+- Scout producer contract (radar/SCOUT-CONTRACT.md) + validating importer with
+  stable URL-hash ids, snapshot-replace semantics, and 14-day TTL — feeds
+  Playwright-scouted jobs from the LadyLibertysBrief agent into the radar
+- Monthly enrichment GitHub Action; daily refresh now runs every 6 hours
 - New RESTRICTED patterns: "US persons only", ITAR / export control / deemed export,
   and restrictive TN/E-3/O-1/L-1 counterparts (117 patterns total: 66 restricted / 51 friendly)
 - Sentence-scoped negation guard: negated restricted phrases ("No security clearance
