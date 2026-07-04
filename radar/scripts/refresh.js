@@ -16,13 +16,13 @@ const USER_AGENT = 'VeritasResearchRadar/1.0 (+https://github.com/ChristianMangw
 const REQUEST_TIMEOUT_MS = 20000;
 const EMPLOYER_DELAY_MS = 500;
 const SMARTRECRUITERS_PAGE_LIMIT = 100;
-const SMARTRECRUITERS_MAX_PAGES = 5;
+const SMARTRECRUITERS_MAX_PAGES = 10;
 const SMARTRECRUITERS_DETAIL_DELAY_MS = 200;
 const WORKDAY_PAGE_LIMIT = 20;
-const WORKDAY_MAX_PAGES = 25;
-const WORKDAY_MAX_DETAIL_FETCHES = 150;
+const WORKDAY_MAX_PAGES = 50;
+const WORKDAY_MAX_DETAIL_FETCHES = 400;
 const WORKDAY_DETAIL_DELAY_MS = 250;
-const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday'];
+const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'recruitee', 'breezy', 'workable', 'usajobs'];
 
 const SIGNAL_PATTERNS = {
   cap_exempt_language: [
@@ -104,7 +104,7 @@ function isRetryableFetchError(error) {
 }
 
 async function fetchJson(url, options = {}) {
-  const { method = 'GET', body, retries = 1, retryDelayMs = 1000 } = options;
+  const { method = 'GET', body, retries = 1, retryDelayMs = 1000, headers = {} } = options;
   let lastError;
   for (let attempt = 0; attempt <= retries; attempt += 1) {
     const controller = new AbortController();
@@ -115,7 +115,8 @@ async function fetchJson(url, options = {}) {
         headers: {
           accept: 'application/json',
           'user-agent': USER_AGENT,
-          ...(body ? { 'content-type': 'application/json' } : {})
+          ...(body ? { 'content-type': 'application/json' } : {}),
+          ...headers
         },
         body: body ? JSON.stringify(body) : undefined,
         signal: controller.signal
@@ -399,6 +400,77 @@ async function fetchSmartRecruitersJobs(employer) {
   return jobs;
 }
 
+// Recruitee/Breezy/Workable: no registry employer uses these yet — they serve
+// the discovery flow (wiring a discovered org is a one-line registry edit).
+function mapRecruiteeJob(offer, employer) {
+  const locations = (offer.locations || [])
+    .map((location) => [location.city, location.state, location.country].filter(Boolean).join(', '))
+    .filter(Boolean);
+  return {
+    id: `recruitee:${employer.ats_token}:${offer.guid || offer.id}`,
+    employer_id: employer.id,
+    title: offer.title || offer.position || offer.sharing_title || 'Untitled role',
+    department: offer.department || '',
+    location: locations.join('; ') || offer.location || 'Unspecified',
+    url: offer.careers_url || offer.url,
+    description_text: normalizeText(offer.description || ''),
+    posted_or_updated_at: offer.published_at || null,
+    source: 'recruitee',
+    source_job_id: String(offer.guid || offer.id || '')
+  };
+}
+
+function mapBreezyJob(job, employer) {
+  return {
+    id: `breezy:${employer.ats_token}:${job.id || job.friendly_id}`,
+    employer_id: employer.id,
+    title: job.name || 'Untitled role',
+    department: typeof job.department === 'string' ? job.department : job.department?.name || '',
+    location: job.location?.name || 'Unspecified',
+    url: job.url,
+    // The list feed may omit descriptions; such jobs are dropped by the
+    // url+description quality filter until a detail fetch is added
+    description_text: normalizeText(job.description || ''),
+    posted_or_updated_at: job.published_date || null,
+    source: 'breezy',
+    source_job_id: String(job.id || job.friendly_id || '')
+  };
+}
+
+function mapWorkableJob(job, employer) {
+  return {
+    id: `workable:${employer.ats_token}:${job.shortcode || job.id}`,
+    employer_id: employer.id,
+    title: job.title || 'Untitled role',
+    department: job.department || '',
+    location: [job.city, job.state, job.country].filter(Boolean).join(', ')
+      || (job.telecommuting ? 'Remote' : 'Unspecified'),
+    url: job.url || job.application_url,
+    description_text: normalizeText(job.description || ''),
+    posted_or_updated_at: job.published_on || job.created_at || null,
+    source: 'workable',
+    source_job_id: String(job.shortcode || job.id || '')
+  };
+}
+
+async function fetchRecruiteeJobs(employer) {
+  const url = `https://${encodeURIComponent(employer.ats_token)}.recruitee.com/api/offers/`;
+  const payload = await fetchJson(url);
+  return (payload.offers || []).map((offer) => mapRecruiteeJob(offer, employer));
+}
+
+async function fetchBreezyJobs(employer) {
+  const url = `https://${encodeURIComponent(employer.ats_token)}.breezy.hr/json`;
+  const payload = await fetchJson(url);
+  return (Array.isArray(payload) ? payload : []).map((job) => mapBreezyJob(job, employer));
+}
+
+async function fetchWorkableJobs(employer) {
+  const url = `https://apply.workable.com/api/v1/widget/accounts/${encodeURIComponent(employer.ats_token)}?details=true`;
+  const payload = await fetchJson(url);
+  return (payload.jobs || []).map((job) => mapWorkableJob(job, employer));
+}
+
 // Workday tenants can list thousands of postings and each description costs a
 // request, so only titles that look research-relevant get a detail fetch.
 const WORKDAY_TITLE_PREFILTER = [
@@ -491,7 +563,10 @@ const ATS_FETCHERS = {
   lever: fetchLeverJobs,
   ashby: fetchAshbyJobs,
   smartrecruiters: fetchSmartRecruitersJobs,
-  workday: fetchWorkdayJobs
+  workday: fetchWorkdayJobs,
+  recruitee: fetchRecruiteeJobs,
+  breezy: fetchBreezyJobs,
+  workable: fetchWorkableJobs
 };
 
 async function fetchEmployerJobs(employer) {
@@ -573,6 +648,9 @@ async function runRefresh() {
       ashby: 'https://developers.ashbyhq.com/docs/public-job-posting-api',
       smartrecruiters: 'https://developers.smartrecruiters.com/docs/posting-api',
       workday: 'public myworkdayjobs.com CXS job feed (per-tenant)',
+      recruitee: 'public {org}.recruitee.com/api/offers/ feed',
+      breezy: 'public {org}.breezy.hr/json feed',
+      workable: 'https://apply.workable.com/api/v1/widget/accounts/{org}',
       dol_oflc: 'https://www.dol.gov/agencies/eta/foreign-labor/performance',
       ipeds: 'https://nces.ed.gov/ipeds/use-the-data',
       irs_eo_bmf: 'https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf'
@@ -608,6 +686,9 @@ module.exports = {
   mapAshbyJob,
   mapSmartRecruitersPosting,
   mapWorkdayJob,
+  mapRecruiteeJob,
+  mapBreezyJob,
+  mapWorkableJob,
   isResearchRelevantTitle,
   applyJobLifecycle,
   fetchGreenhouseJobs,

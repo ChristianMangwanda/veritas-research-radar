@@ -13,6 +13,9 @@ const {
   mapAshbyJob,
   mapSmartRecruitersPosting,
   mapWorkdayJob,
+  mapRecruiteeJob,
+  mapBreezyJob,
+  mapWorkableJob,
   isResearchRelevantTitle,
   applyJobLifecycle
 } = require('../radar/scripts/refresh.js');
@@ -219,6 +222,49 @@ function testProviderMappers() {
   assert.strictEqual(isResearchRelevantTitle('Postdoctoral Scholar', workdayEmployer), true);
   assert.strictEqual(isResearchRelevantTitle('Economics Program Coordinator', workdayEmployer), true);
   assert.strictEqual(isResearchRelevantTitle('Parking Attendant', workdayEmployer), false);
+
+  const recruitee = mapRecruiteeJob({
+    guid: 'rt-9',
+    title: 'Bioinformatics Engineer',
+    department: 'Science',
+    locations: [{ city: 'Boston', state: 'MA', country: 'United States' }],
+    careers_url: 'https://exampleorg.recruitee.com/o/bioinformatics-engineer',
+    description: '<p>Build pipelines</p>',
+    published_at: '2026-06-15T10:00:00.000Z'
+  }, employer);
+  assert.strictEqual(recruitee.id, 'recruitee:exampleorg:rt-9');
+  assert.strictEqual(recruitee.location, 'Boston, MA, United States');
+  assert.strictEqual(recruitee.description_text, 'Build pipelines');
+  assert.strictEqual(recruitee.source, 'recruitee');
+
+  const breezy = mapBreezyJob({
+    id: 'bz-1',
+    friendly_id: 'research-tech',
+    name: 'Research Technician',
+    department: 'Lab Ops',
+    location: { name: 'Seattle, WA' },
+    url: 'https://exampleorg.breezy.hr/p/bz-1',
+    description: '<p>Assist experiments</p>',
+    published_date: '2026-06-20'
+  }, employer);
+  assert.strictEqual(breezy.id, 'breezy:exampleorg:bz-1');
+  assert.strictEqual(breezy.location, 'Seattle, WA');
+  assert.strictEqual(breezy.source, 'breezy');
+
+  const workable = mapWorkableJob({
+    shortcode: 'AB12CD',
+    title: 'Data Scientist',
+    department: 'Analytics',
+    city: 'New York',
+    state: 'NY',
+    country: 'United States',
+    url: 'https://apply.workable.com/exampleorg/j/AB12CD/',
+    description: '<p>Model research data</p>',
+    published_on: '2026-06-01'
+  }, employer);
+  assert.strictEqual(workable.id, 'workable:exampleorg:AB12CD');
+  assert.strictEqual(workable.location, 'New York, NY, United States');
+  assert.strictEqual(workable.source, 'workable');
 }
 
 async function testFetchRetry() {
