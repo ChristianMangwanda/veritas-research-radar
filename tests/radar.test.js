@@ -23,6 +23,8 @@ const {
   activeScoutedJobs
 } = require('../radar/scripts/refresh.js');
 const { validateScoutedFile, scoutedJobId, canonicalUrl, normalizeScoutedJob } = require('../radar/scripts/import-scouted.js');
+const { extractZipEntry, listZipEntries } = require('../radar/scripts/lib/zip.js');
+const zlib = require('zlib');
 const { normalizeName, parseCsvLine } = require('../radar/scripts/import-dol-lca.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
 
@@ -440,6 +442,54 @@ function testJobLifecycle() {
   assert.strictEqual(jobs.length, 0);
 }
 
+function buildSingleEntryZip(name, content, method = 8) {
+  const raw = Buffer.from(content);
+  const data = method === 8 ? zlib.deflateRawSync(raw) : raw;
+  const nameBuffer = Buffer.from(name);
+
+  const local = Buffer.alloc(30);
+  local.writeUInt32LE(0x04034b50, 0);
+  local.writeUInt16LE(20, 4);
+  local.writeUInt16LE(method, 8);
+  local.writeUInt32LE(data.length, 18);
+  local.writeUInt32LE(raw.length, 22);
+  local.writeUInt16LE(nameBuffer.length, 26);
+  const localBlock = Buffer.concat([local, nameBuffer, data]);
+
+  const central = Buffer.alloc(46);
+  central.writeUInt32LE(0x02014b50, 0);
+  central.writeUInt16LE(method, 10);
+  central.writeUInt32LE(data.length, 20);
+  central.writeUInt32LE(raw.length, 24);
+  central.writeUInt16LE(nameBuffer.length, 28);
+  central.writeUInt32LE(0, 42);
+  const centralBlock = Buffer.concat([central, nameBuffer]);
+
+  const eocd = Buffer.alloc(22);
+  eocd.writeUInt32LE(0x06054b50, 0);
+  eocd.writeUInt16LE(1, 8);
+  eocd.writeUInt16LE(1, 10);
+  eocd.writeUInt32LE(centralBlock.length, 12);
+  eocd.writeUInt32LE(localBlock.length, 16);
+
+  return Buffer.concat([localBlock, centralBlock, eocd]);
+}
+
+function testZipExtraction() {
+  const csv = 'UNITID,INSTNM\n144050,"University of Chicago"\n';
+
+  const deflated = buildSingleEntryZip('hd2023.csv', csv, 8);
+  assert.strictEqual(listZipEntries(deflated).length, 1);
+  assert.strictEqual(listZipEntries(deflated)[0].name, 'hd2023.csv');
+  assert.strictEqual(extractZipEntry(deflated, (name) => name.endsWith('.csv')).toString('utf8'), csv);
+
+  const stored = buildSingleEntryZip('hd2023.csv', csv, 0);
+  assert.strictEqual(extractZipEntry(stored, (name) => name.endsWith('.csv')).toString('utf8'), csv);
+
+  assert.throws(() => extractZipEntry(deflated, (name) => name.endsWith('.xml')), /no entry matched/);
+  assert.throws(() => extractZipEntry(Buffer.from('not a zip file at all......'), () => true), /end-of-central-directory/);
+}
+
 function testScoutedImporter() {
   // Stable ids: tracking params, fragments, case, trailing slash are ignored
   assert.strictEqual(canonicalUrl('https://Careers.Example.org/jobs/12345/?utm_source=x&gclid=abc#apply'),
@@ -533,6 +583,7 @@ async function main() {
   await testFetchRetry();
   await testUsaJobs();
   testJobLifecycle();
+  testZipExtraction();
   testScoutedImporter();
   testEnrichment();
 
