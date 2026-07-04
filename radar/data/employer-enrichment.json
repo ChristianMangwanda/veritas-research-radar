@@ -1,0 +1,753 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-04T04:24:37.577Z",
+  "sources": {
+    "ipeds": {
+      "year": 2024,
+      "institutions": 6072
+    },
+    "irs_eo_bmf": {
+      "files_loaded": 4,
+      "kept_rows": 16848
+    },
+    "uscis": {
+      "years": [
+        2023,
+        2022,
+        2021
+      ],
+      "employers": 82316
+    },
+    "dol": {
+      "signals_file": false,
+      "raw_files": 0
+    }
+  },
+  "employers": {
+    "broad-institute": {
+      "ipeds": null,
+      "irs": {
+        "ein": "263428781",
+        "ntee_cd": "H20",
+        "subsection": "03",
+        "name": "BROAD INSTITUTE INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 207,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 40,
+      "score_components": {
+        "irs": 25,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "allen-institute": {
+      "ipeds": null,
+      "irs": {
+        "ein": "912155317",
+        "ntee_cd": "H96",
+        "subsection": "03",
+        "name": "ALLEN INSTITUTE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 49,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 38,
+      "score_components": {
+        "irs": 25,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "fred-hutch": {
+      "ipeds": null,
+      "irs": {
+        "ein": "911935159",
+        "ntee_cd": "E240",
+        "subsection": "03",
+        "name": "FRED HUTCHINSON CANCER CENTER",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 88,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 25,
+      "score_components": {
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "likely",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "chan-zuckerberg-biohub": {
+      "ipeds": null,
+      "irs": {
+        "ein": "811669175",
+        "ntee_cd": "H99",
+        "subsection": "03",
+        "name": "CHAN ZUCKERBERG BIOHUB INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 26,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 36,
+      "score_components": {
+        "irs": 25,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "salk-institute": {
+      "ipeds": null,
+      "irs": {
+        "ein": "952160097",
+        "ntee_cd": "U500",
+        "subsection": "03",
+        "name": "SALK INSTITUTE FOR BIOLOGICAL STUDIES",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 25,
+      "score_components": {
+        "irs": 25
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf"
+      ]
+    },
+    "st-jude": {
+      "ipeds": null,
+      "irs": {
+        "ein": "800850327",
+        "ntee_cd": "L21",
+        "subsection": "03",
+        "name": "ST JUDE INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 356,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 25,
+      "score_components": {
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "likely",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "scripps-research": {
+      "ipeds": null,
+      "irs": {
+        "ein": "330435954",
+        "ntee_cd": "H92",
+        "subsection": "03",
+        "name": "SCRIPPS RESEARCH INSTITUTE",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 25,
+      "score_components": {
+        "irs": 25
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf"
+      ]
+    },
+    "baylor-college-of-medicine": {
+      "ipeds": {
+        "unitid": "223223",
+        "instnm": "Baylor College of Medicine",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "741613878",
+        "ntee_cd": "B500",
+        "subsection": "03",
+        "name": "BAYLOR COLLEGE OF MEDICINE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 378,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:223223",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-chicago": {
+      "ipeds": {
+        "unitid": "144050",
+        "instnm": "University of Chicago",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "362177139",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "UNIVERSITY OF CHICAGO",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 560,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:144050",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "mit": {
+      "ipeds": {
+        "unitid": "166683",
+        "instnm": "Massachusetts Institute of Technology",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "042103594",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "MASSACHUSETTS INSTITUTE OF TECHNOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 50,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:166683",
+        "irs_eo_bmf"
+      ]
+    },
+    "stanford-university": {
+      "ipeds": {
+        "unitid": "243744",
+        "instnm": "Stanford University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "651257175",
+        "ntee_cd": "U030",
+        "subsection": "03",
+        "name": "ASSOCIATION FOR COMPUTING MACHINERY INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 25
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:243744",
+        "irs_eo_bmf"
+      ]
+    },
+    "harvard-university": {
+      "ipeds": {
+        "unitid": "166027",
+        "instnm": "Harvard University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "042581946",
+        "ntee_cd": "Q050",
+        "subsection": "03",
+        "name": "INTERNATONAL RELATIONS COUNCIL INC HARVARD UNIVERSITY",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 628,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:166027",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "johns-hopkins-university": {
+      "ipeds": {
+        "unitid": "162928",
+        "instnm": "Johns Hopkins University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237424444",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "JOHNS HOPKINS UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 682,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:162928",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "ucsf": {
+      "ipeds": {
+        "unitid": "110699",
+        "instnm": "University of California-San Francisco",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "946036493",
+        "ntee_cd": "B43",
+        "subsection": "03",
+        "name": "UNIVERSITY OF CALIFORNIA SAN FRANCISCO",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:110699",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "uc-berkeley": {
+      "ipeds": {
+        "unitid": "110635",
+        "instnm": "University of California-Berkeley",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "823595718",
+        "ntee_cd": "T50",
+        "subsection": "03",
+        "name": "GRADUATE STUDENT ASSOCIATION OF THE UNIVERSITY OF CALIFORNIA BERKELEY",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 349,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:110635",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "uw-madison": {
+      "ipeds": {
+        "unitid": "240444",
+        "instnm": "University of Wisconsin-Madison",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "412272996",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "CHI ALPHA - UW MADISON",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 50,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:240444",
+        "irs_eo_bmf"
+      ]
+    },
+    "university-of-washington": {
+      "ipeds": {
+        "unitid": "236948",
+        "instnm": "University of Washington-Seattle Campus",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "irs": {
+        "ein": "911486484",
+        "ntee_cd": "J40",
+        "subsection": "05",
+        "name": "UNIVERSITY OF WASHINGTON",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 370,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:236948",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-michigan": {
+      "ipeds": {
+        "unitid": "170976",
+        "instnm": "University of Michigan-Ann Arbor",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "irs": {
+        "ein": "161277472",
+        "ntee_cd": "A05",
+        "subsection": "03",
+        "name": "SOCIETY FOR RESEARCH ON ADOLESCENCE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1076,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:170976",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "northwestern-university": {
+      "ipeds": {
+        "unitid": "147767",
+        "instnm": "Northwestern University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "362167817",
+        "ntee_cd": "N500",
+        "subsection": "03",
+        "name": "NORTHWESTERN UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 488,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:147767",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "memorial-sloan-kettering": {
+      "ipeds": null,
+      "irs": {
+        "ein": "131624182",
+        "ntee_cd": "H30Z",
+        "subsection": "03",
+        "name": "MEMORIAL SLOAN-KETTERING CANCER CENTER",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 392,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 40,
+      "score_components": {
+        "irs": 25,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "dana-farber": {
+      "ipeds": null,
+      "irs": {
+        "ein": "042263040",
+        "ntee_cd": "H300",
+        "subsection": "03",
+        "name": "DANA-FARBER CANCER INSTITUTE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 338,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 40,
+      "score_components": {
+        "irs": 25,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "mayo-clinic": {
+      "ipeds": {
+        "unitid": "173957",
+        "instnm": "Mayo Clinic College of Medicine and Science",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "irs": {
+        "ein": "300107471",
+        "ntee_cd": "E21",
+        "subsection": "03",
+        "name": "MAYO CLINIC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 911,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "likely",
+      "evidence_tags": [
+        "ipeds:173957",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "cleveland-clinic": {
+      "ipeds": {
+        "unitid": "411754",
+        "instnm": "Cleveland Clinic Health System-School of Diagnostic Imaging",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "irs": {
+        "ein": "264367036",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "CLEVELAND CLINIC NEVADA",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 687,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "likely",
+      "evidence_tags": [
+        "ipeds:411754",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "hhmi": {
+      "ipeds": null,
+      "irs": {
+        "ein": "590735717",
+        "ntee_cd": "H920",
+        "subsection": "03",
+        "name": "HOWARD HUGHES MEDICAL INSTITUTE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 215,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 40,
+      "score_components": {
+        "irs": 25,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "us-federal-research": {
+      "ipeds": null,
+      "irs": null,
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 0,
+      "score_components": {},
+      "suggested_status": "unknown",
+      "evidence_tags": []
+    }
+  }
+}
