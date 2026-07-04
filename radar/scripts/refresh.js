@@ -14,6 +14,11 @@ const DOL_SIGNALS_PATH = path.join(DATA_DIR, 'dol-sponsor-signals.json');
 
 const USER_AGENT = 'VeritasResearchRadar/1.0 (+https://github.com/ChristianMangwanda/Veritas)';
 const REQUEST_TIMEOUT_MS = 20000;
+const EMPLOYER_DELAY_MS = 500;
+const SMARTRECRUITERS_PAGE_LIMIT = 100;
+const SMARTRECRUITERS_MAX_PAGES = 5;
+const SMARTRECRUITERS_DETAIL_DELAY_MS = 200;
+const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters'];
 
 const SIGNAL_PATTERNS = {
   cap_exempt_language: [
@@ -84,24 +89,51 @@ async function writeJson(filePath, value) {
   await fs.writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
-async function fetchJson(url) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  try {
-    const response = await fetch(url, {
-      headers: {
-        accept: 'application/json',
-        'user-agent': USER_AGENT
-      },
-      signal: controller.signal
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} ${response.statusText}`);
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableFetchError(error) {
+  // Network failures and timeouts carry no HTTP status; 429/5xx are transient.
+  // Other 4xx (e.g. 404 for a wrong board token) are deterministic — do not retry.
+  return error.status === undefined || error.status === 429 || error.status >= 500;
+}
+
+async function fetchJson(url, options = {}) {
+  const { method = 'GET', body, retries = 1, retryDelayMs = 1000 } = options;
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          accept: 'application/json',
+          'user-agent': USER_AGENT,
+          ...(body ? { 'content-type': 'application/json' } : {})
+        },
+        body: body ? JSON.stringify(body) : undefined,
+        signal: controller.signal
+      });
+      if (!response.ok) {
+        const error = new Error(`HTTP ${response.status} ${response.statusText}`);
+        error.status = response.status;
+        throw error;
+      }
+      return await response.json();
+    } catch (error) {
+      lastError = error;
+      if (attempt < retries && isRetryableFetchError(error)) {
+        await sleep(retryDelayMs * (attempt + 1));
+        continue;
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeout);
     }
-    return response.json();
-  } finally {
-    clearTimeout(timeout);
   }
+  throw lastError;
 }
 
 function matchSignals(text) {
@@ -184,7 +216,7 @@ function validateEmployer(employer) {
   for (const key of required) {
     if (!employer[key]) throw new Error(`Employer ${employer.id || employer.name || '<unknown>'} is missing ${key}`);
   }
-  if (employer.ats_provider && !['greenhouse', 'lever'].includes(employer.ats_provider)) {
+  if (employer.ats_provider && !SUPPORTED_ATS_PROVIDERS.includes(employer.ats_provider)) {
     throw new Error(`Employer ${employer.id} has unsupported ats_provider ${employer.ats_provider}`);
   }
   if (employer.ats_provider && !employer.ats_token) {
@@ -192,59 +224,149 @@ function validateEmployer(employer) {
   }
 }
 
+function mapGreenhouseJob(job, employer) {
+  const department = (job.departments || []).map((department) => department.name).filter(Boolean).join(', ');
+  const offices = (job.offices || []).map((office) => office.location || office.name).filter(Boolean);
+  return {
+    id: `greenhouse:${employer.ats_token}:${job.id}`,
+    employer_id: employer.id,
+    title: job.title || 'Untitled role',
+    department,
+    location: job.location?.name || offices.join(', ') || 'Unspecified',
+    url: job.absolute_url,
+    description_text: normalizeText(job.content),
+    posted_or_updated_at: job.updated_at || null,
+    source: 'greenhouse',
+    source_job_id: String(job.id)
+  };
+}
+
+function mapLeverJob(job, employer) {
+  const categories = job.categories || {};
+  return {
+    id: `lever:${employer.ats_token}:${job.id || normalizeId(job.hostedUrl || job.text)}`,
+    employer_id: employer.id,
+    title: job.text || 'Untitled role',
+    department: categories.team || '',
+    location: categories.location || job.workplaceType || 'Unspecified',
+    url: job.hostedUrl || job.applyUrl,
+    description_text: normalizeText(job.descriptionPlain || job.description || job.additionalPlain || ''),
+    posted_or_updated_at: job.createdAt ? new Date(job.createdAt).toISOString() : null,
+    source: 'lever',
+    source_job_id: String(job.id || '')
+  };
+}
+
+function mapAshbyJob(job, employer) {
+  const location = job.isRemote && job.location
+    ? `${job.location} (Remote)`
+    : job.location || (job.isRemote ? 'Remote' : 'Unspecified');
+  return {
+    id: `ashby:${employer.ats_token}:${job.id}`,
+    employer_id: employer.id,
+    title: job.title || 'Untitled role',
+    department: job.department || job.team || '',
+    location,
+    url: job.jobUrl || job.applyUrl,
+    description_text: normalizeText(job.descriptionHtml || job.descriptionPlain || ''),
+    posted_or_updated_at: job.publishedAt || null,
+    source: 'ashby',
+    source_job_id: String(job.id)
+  };
+}
+
+function mapSmartRecruitersPosting(posting, detail, employer) {
+  const location = posting.location || {};
+  const locationText = location.fullLocation
+    || [location.city, location.region, location.country ? String(location.country).toUpperCase() : '']
+      .filter(Boolean).join(', ')
+    || 'Unspecified';
+  const sections = detail?.jobAd?.sections || {};
+  const description = ['companyDescription', 'jobDescription', 'qualifications', 'additionalInformation']
+    .map((key) => sections[key]?.text || '')
+    .filter(Boolean)
+    .join(' ');
+  return {
+    id: `smartrecruiters:${employer.ats_token}:${posting.id}`,
+    employer_id: employer.id,
+    title: posting.name || 'Untitled role',
+    department: posting.department?.label || '',
+    location: location.remote ? `${locationText} (Remote)` : locationText,
+    url: detail?.postingUrl || detail?.applyUrl
+      || `https://jobs.smartrecruiters.com/${encodeURIComponent(employer.ats_token)}/${encodeURIComponent(posting.id)}`,
+    description_text: normalizeText(description),
+    posted_or_updated_at: posting.releasedDate || null,
+    source: 'smartrecruiters',
+    source_job_id: String(posting.id)
+  };
+}
+
 async function fetchGreenhouseJobs(employer) {
   const url = `https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(employer.ats_token)}/jobs?content=true`;
   const payload = await fetchJson(url);
-  return (payload.jobs || []).map((job) => {
-    const department = (job.departments || []).map((department) => department.name).filter(Boolean).join(', ');
-    const offices = (job.offices || []).map((office) => office.location || office.name).filter(Boolean);
-    return {
-      id: `greenhouse:${employer.ats_token}:${job.id}`,
-      employer_id: employer.id,
-      title: job.title || 'Untitled role',
-      department,
-      location: job.location?.name || offices.join(', ') || 'Unspecified',
-      url: job.absolute_url,
-      description_text: normalizeText(job.content),
-      posted_or_updated_at: job.updated_at || null,
-      source: 'greenhouse',
-      source_job_id: String(job.id)
-    };
-  });
+  return (payload.jobs || []).map((job) => mapGreenhouseJob(job, employer));
 }
 
 async function fetchLeverJobs(employer) {
   const url = `https://api.lever.co/v0/postings/${encodeURIComponent(employer.ats_token)}?mode=json`;
   const payload = await fetchJson(url);
-  return (Array.isArray(payload) ? payload : []).map((job) => {
-    const categories = job.categories || {};
-    return {
-      id: `lever:${employer.ats_token}:${job.id || normalizeId(job.hostedUrl || job.text)}`,
-      employer_id: employer.id,
-      title: job.text || 'Untitled role',
-      department: categories.team || '',
-      location: categories.location || job.workplaceType || 'Unspecified',
-      url: job.hostedUrl || job.applyUrl,
-      description_text: normalizeText(job.descriptionPlain || job.description || job.additionalPlain || ''),
-      posted_or_updated_at: job.createdAt ? new Date(job.createdAt).toISOString() : null,
-      source: 'lever',
-      source_job_id: String(job.id || '')
-    };
-  });
+  return (Array.isArray(payload) ? payload : []).map((job) => mapLeverJob(job, employer));
 }
+
+async function fetchAshbyJobs(employer) {
+  const url = `https://api.ashbyhq.com/posting-api/job-board/${encodeURIComponent(employer.ats_token)}?includeCompensation=true`;
+  const payload = await fetchJson(url);
+  return (payload.jobs || [])
+    .filter((job) => job.isListed !== false)
+    .map((job) => mapAshbyJob(job, employer));
+}
+
+async function fetchSmartRecruitersJobs(employer) {
+  const token = encodeURIComponent(employer.ats_token);
+  const listings = [];
+  let offset = 0;
+  let total = Infinity;
+  for (let page = 0; page < SMARTRECRUITERS_MAX_PAGES && offset < total; page += 1) {
+    const url = `https://api.smartrecruiters.com/v1/companies/${token}/postings?limit=${SMARTRECRUITERS_PAGE_LIMIT}&offset=${offset}`;
+    const payload = await fetchJson(url);
+    total = Number(payload.totalFound || 0);
+    const content = payload.content || [];
+    if (content.length === 0) break;
+    listings.push(...content);
+    offset += content.length;
+  }
+  const jobs = [];
+  for (const posting of listings) {
+    // The list endpoint carries no description; fetch the posting detail per job.
+    // Fail-soft: a bad posting should not sink the whole employer.
+    try {
+      const detail = await fetchJson(`https://api.smartrecruiters.com/v1/companies/${token}/postings/${encodeURIComponent(posting.id)}`);
+      jobs.push(mapSmartRecruitersPosting(posting, detail, employer));
+    } catch (error) {
+      console.warn(`SmartRecruiters detail fetch failed for ${employer.id} posting ${posting.id}: ${error.message}`);
+    }
+    await sleep(SMARTRECRUITERS_DETAIL_DELAY_MS);
+  }
+  return jobs;
+}
+
+const ATS_FETCHERS = {
+  greenhouse: fetchGreenhouseJobs,
+  lever: fetchLeverJobs,
+  ashby: fetchAshbyJobs,
+  smartrecruiters: fetchSmartRecruitersJobs
+};
 
 async function fetchEmployerJobs(employer) {
   if (!employer.ats_provider) {
     return { jobs: [], skipped: true, error: null };
   }
-  try {
-    if (employer.ats_provider === 'greenhouse') {
-      return { jobs: await fetchGreenhouseJobs(employer), skipped: false, error: null };
-    }
-    if (employer.ats_provider === 'lever') {
-      return { jobs: await fetchLeverJobs(employer), skipped: false, error: null };
-    }
+  const fetcher = ATS_FETCHERS[employer.ats_provider];
+  if (!fetcher) {
     return { jobs: [], skipped: true, error: `Unsupported ATS provider ${employer.ats_provider}` };
+  }
+  try {
+    return { jobs: await fetcher(employer), skipped: false, error: null };
   } catch (error) {
     return { jobs: [], skipped: false, error: error.message };
   }
@@ -258,8 +380,13 @@ async function runRefresh() {
   const allJobs = [];
   const employerReports = [];
 
+  let networkHits = 0;
   for (const employer of employers) {
     validateEmployer(employer);
+    if (employer.ats_provider && networkHits > 0) {
+      await sleep(EMPLOYER_DELAY_MS);
+    }
+    if (employer.ats_provider) networkHits += 1;
     const result = await fetchEmployerJobs(employer);
     const enriched = result.jobs
       .filter((job) => job.url && job.description_text)
@@ -291,6 +418,8 @@ async function runRefresh() {
     sources: {
       greenhouse: 'https://developers.greenhouse.io/job-board.html',
       lever: 'https://github.com/lever/postings-api',
+      ashby: 'https://developers.ashbyhq.com/docs/public-job-posting-api',
+      smartrecruiters: 'https://developers.smartrecruiters.com/docs/posting-api',
       dol_oflc: 'https://www.dol.gov/agencies/eta/foreign-labor/performance',
       ipeds: 'https://nces.ed.gov/ipeds/use-the-data',
       irs_eo_bmf: 'https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf'
@@ -319,7 +448,15 @@ module.exports = {
   matchSignals,
   scoreResearchRelevance,
   enrichJob,
+  fetchJson,
+  isRetryableFetchError,
+  mapGreenhouseJob,
+  mapLeverJob,
+  mapAshbyJob,
+  mapSmartRecruitersPosting,
   fetchGreenhouseJobs,
   fetchLeverJobs,
+  fetchAshbyJobs,
+  fetchSmartRecruitersJobs,
   runRefresh
 };

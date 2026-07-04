@@ -2,7 +2,17 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const { analyzeText } = require('../scripts/keywords.js');
-const { enrichJob, matchSignals, normalizeText } = require('../radar/scripts/refresh.js');
+const {
+  enrichJob,
+  matchSignals,
+  normalizeText,
+  fetchJson,
+  isRetryableFetchError,
+  mapGreenhouseJob,
+  mapLeverJob,
+  mapAshbyJob,
+  mapSmartRecruitersPosting
+} = require('../radar/scripts/refresh.js');
 const { normalizeName, parseCsvLine } = require('../radar/scripts/import-dol-lca.js');
 
 function testSharedAnalyzer() {
@@ -65,6 +75,111 @@ function testNormalization() {
   assert.deepStrictEqual(parseCsvLine('"A, B",CERTIFIED,"Research Scientist"'), ['A, B', 'CERTIFIED', 'Research Scientist']);
 }
 
+function testProviderMappers() {
+  const employer = { id: 'example-org', ats_token: 'exampleorg' };
+
+  const greenhouse = mapGreenhouseJob({
+    id: 42,
+    title: 'Research Engineer',
+    departments: [{ name: 'Platform' }],
+    offices: [{ location: 'Cambridge, MA' }],
+    absolute_url: 'https://boards.greenhouse.io/exampleorg/jobs/42',
+    content: '<p>Genomics &amp; pipelines</p>',
+    updated_at: '2026-07-01T00:00:00Z'
+  }, employer);
+  assert.strictEqual(greenhouse.id, 'greenhouse:exampleorg:42');
+  assert.strictEqual(greenhouse.location, 'Cambridge, MA');
+  assert.strictEqual(greenhouse.description_text, 'Genomics & pipelines');
+  assert.strictEqual(greenhouse.source, 'greenhouse');
+
+  const lever = mapLeverJob({
+    id: 'abc-123',
+    text: 'Data Scientist',
+    categories: { team: 'Science', location: 'Seattle, WA' },
+    hostedUrl: 'https://jobs.lever.co/exampleorg/abc-123',
+    descriptionPlain: 'Single-cell analysis role',
+    createdAt: 1751500800000
+  }, employer);
+  assert.strictEqual(lever.id, 'lever:exampleorg:abc-123');
+  assert.strictEqual(lever.department, 'Science');
+  assert.strictEqual(lever.posted_or_updated_at, new Date(1751500800000).toISOString());
+  assert.strictEqual(lever.source, 'lever');
+
+  const ashby = mapAshbyJob({
+    id: 'uuid-1',
+    title: 'ML Engineer',
+    department: 'Research',
+    team: 'Core',
+    location: 'San Francisco',
+    isRemote: true,
+    isListed: true,
+    publishedAt: '2026-06-30T12:00:00+00:00',
+    jobUrl: 'https://jobs.ashbyhq.com/exampleorg/uuid-1',
+    descriptionHtml: '<div>Deep learning research</div>'
+  }, employer);
+  assert.strictEqual(ashby.id, 'ashby:exampleorg:uuid-1');
+  assert.strictEqual(ashby.location, 'San Francisco (Remote)');
+  assert.strictEqual(ashby.description_text, 'Deep learning research');
+  assert.strictEqual(ashby.source, 'ashby');
+
+  const smartrecruiters = mapSmartRecruitersPosting({
+    id: '743999',
+    name: 'Research Associate',
+    department: { label: 'Immunology' },
+    location: { city: 'San Diego', region: 'CA', country: 'us', remote: false, fullLocation: 'San Diego, CA, United States' },
+    releasedDate: '2026-06-01T00:00:00.000Z'
+  }, {
+    postingUrl: 'https://jobs.smartrecruiters.com/ExampleOrg/743999-research-associate',
+    jobAd: {
+      sections: {
+        jobDescription: { text: '<p>Run assays</p>' },
+        qualifications: { text: '<p>BS in Biology</p>' }
+      }
+    }
+  }, employer);
+  assert.strictEqual(smartrecruiters.id, 'smartrecruiters:exampleorg:743999');
+  assert.strictEqual(smartrecruiters.title, 'Research Associate');
+  assert.strictEqual(smartrecruiters.department, 'Immunology');
+  assert.strictEqual(smartrecruiters.description_text, 'Run assays BS in Biology');
+  assert.strictEqual(smartrecruiters.url, 'https://jobs.smartrecruiters.com/ExampleOrg/743999-research-associate');
+  assert.strictEqual(smartrecruiters.source, 'smartrecruiters');
+}
+
+async function testFetchRetry() {
+  const status = (code) => Object.assign(new Error(`HTTP ${code}`), { status: code });
+  assert.strictEqual(isRetryableFetchError(new Error('network down')), true);
+  assert.strictEqual(isRetryableFetchError(status(429)), true);
+  assert.strictEqual(isRetryableFetchError(status(500)), true);
+  assert.strictEqual(isRetryableFetchError(status(404)), false);
+
+  const originalFetch = globalThis.fetch;
+  try {
+    // Transient 500 then success: fetchJson should retry and succeed
+    let calls = 0;
+    globalThis.fetch = async () => {
+      calls += 1;
+      if (calls === 1) {
+        return { ok: false, status: 500, statusText: 'Server Error' };
+      }
+      return { ok: true, json: async () => ({ jobs: [] }) };
+    };
+    const result = await fetchJson('https://example.test/jobs', { retryDelayMs: 1 });
+    assert.deepStrictEqual(result, { jobs: [] });
+    assert.strictEqual(calls, 2);
+
+    // Deterministic 404: no retry
+    calls = 0;
+    globalThis.fetch = async () => {
+      calls += 1;
+      return { ok: false, status: 404, statusText: 'Not Found' };
+    };
+    await assert.rejects(() => fetchJson('https://example.test/missing', { retryDelayMs: 1 }), /HTTP 404/);
+    assert.strictEqual(calls, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
 function testEnrichment() {
   const employer = {
     id: 'broad-institute',
@@ -98,11 +213,20 @@ function testEnrichment() {
   assert.deepStrictEqual(enriched.dol_recent_titles, ['Research Scientist']);
 }
 
-testSharedAnalyzer();
-testNegationGuard();
-testFixturePages();
-testSignalExtraction();
-testNormalization();
-testEnrichment();
+async function main() {
+  testSharedAnalyzer();
+  testNegationGuard();
+  testFixturePages();
+  testSignalExtraction();
+  testNormalization();
+  testProviderMappers();
+  await testFetchRetry();
+  testEnrichment();
 
-console.log('Radar tests passed');
+  console.log('Radar tests passed');
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
