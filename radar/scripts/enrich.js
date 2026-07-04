@@ -35,6 +35,7 @@ const DOL_RAW_DIR = path.join(DATA_DIR, 'dol-raw');
 const ENRICHMENT_PATH = path.join(DATA_DIR, 'employer-enrichment.json');
 const DISCOVERY_PATH = path.join(DATA_DIR, 'discovery-candidates.json');
 const REPORT_PATH = path.join(DATA_DIR, 'enrichment-report.json');
+const DIRECTORY_PATH = path.join(DATA_DIR, 'cap-exempt-directory.json');
 
 const USER_AGENT = 'VeritasResearchRadar/1.0 (+https://github.com/ChristianMangwanda/Veritas)';
 const DOWNLOAD_TIMEOUT_MS = 300000;
@@ -447,6 +448,47 @@ function buildDiscoveryCandidates({ irsRows, ipedsInstitutions, dolActivity, usc
 }
 
 // ---------------------------------------------------------------------------
+// Cap-exempt directory: the full IPEDS + IRS-research universe as a lookup
+// table, so the aggregator firehose can keep only cap-exempt employers.
+// Keyed by normalizeName; token_key enables order-insensitive lookups.
+
+function buildCapExemptDirectory({ ipedsInstitutions, irsRows, dolActivity, uscisActivity }) {
+  const entries = {};
+  const upsert = (name, patch) => {
+    const key = normalizeName(name);
+    if (!key) return;
+    const current = entries[key] || {
+      name,
+      token_key: significantTokens(name).sort().join(' '),
+      kind: null,
+      unitid: null,
+      ein: null,
+      ntee_cd: null,
+      uscis_approvals_3y: 0,
+      dol_certified_3y: 0
+    };
+    Object.assign(current, patch);
+    current.kind = current.unitid && current.ein ? 'both' : (current.unitid ? 'ipeds' : 'irs');
+    entries[key] = current;
+  };
+
+  for (const institution of ipedsInstitutions) {
+    upsert(institution.instnm, { unitid: institution.unitid });
+  }
+  for (const row of irsRows) {
+    if (!row.is_research) continue;
+    upsert(row.name, { ein: row.ein, ntee_cd: row.ntee_cd });
+  }
+  for (const [key, entry] of Object.entries(entries)) {
+    const tokenKey = entry.token_key;
+    const dol = dolActivity.get(key) || dolActivity.get(tokenKey);
+    if (dol) entry.dol_certified_3y = dol.certified_count;
+    entry.uscis_approvals_3y = uscisActivity.get(key) ?? uscisActivity.get(tokenKey) ?? 0;
+  }
+  return entries;
+}
+
+// ---------------------------------------------------------------------------
 // Registry join
 
 function buildRegistryTokenSet(employers) {
@@ -597,6 +639,13 @@ async function runEnrich({ force = false, offline = false, dolCsv = null } = {})
     registryResolver
   });
 
+  const directory = buildCapExemptDirectory({
+    ipedsInstitutions: ipeds.institutions,
+    irsRows: irs.rows,
+    dolActivity: dolRaw.byEmployer,
+    uscisActivity: uscis.byEmployer
+  });
+
   const enrichment = {
     schema_version: 1,
     generated_at: startedAt,
@@ -642,6 +691,9 @@ async function runEnrich({ force = false, offline = false, dolCsv = null } = {})
   await writeJson(ENRICHMENT_PATH, enrichment);
   await writeJson(DISCOVERY_PATH, { schema_version: 1, generated_at: startedAt, candidates: discovery });
   await writeJson(REPORT_PATH, report);
+  // Directory is large (~20k entries) — compact JSON, no pretty-printing
+  await fsp.writeFile(DIRECTORY_PATH, `${JSON.stringify({ schema_version: 1, generated_at: startedAt, entries: directory })}\n`, 'utf8');
+  console.log(`Cap-exempt directory: ${Object.keys(directory).length} employers`);
 
   console.log(`Enrichment complete: ${report.registry.verified_suggested} employers suggested 'verified', ${discovery.length} discovery candidates`);
   if (weakMatches.length) {
@@ -668,6 +720,7 @@ module.exports = {
   computeCapExemptScore,
   suggestStatus,
   buildDiscoveryCandidates,
+  buildCapExemptDirectory,
   joinRegistryEvidence,
   buildRegistryTokenSet,
   downloadToFile,

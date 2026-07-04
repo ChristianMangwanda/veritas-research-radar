@@ -31,6 +31,7 @@ const {
 } = require('../radar/scripts/enrich.js');
 const { createResolver: createEnrichResolver } = require('../radar/scripts/lib/entity-resolution.js');
 const { validateScoutedFile, scoutedJobId, canonicalUrl, normalizeScoutedJob } = require('../radar/scripts/import-scouted.js');
+const { resolveAggregatedJob, directoryLookup, pseudoEmployerId } = require('../radar/scripts/import-aggregated.js');
 const { extractZipEntry, listZipEntries } = require('../radar/scripts/lib/zip.js');
 const zlib = require('zlib');
 const { normalizeName, parseCsvLine } = require('../radar/scripts/import-dol-lca.js');
@@ -547,6 +548,41 @@ function testScoutedImporter() {
   assert.deepStrictEqual(active.map((job) => job.id), ['a']);
 }
 
+function testAggregatedImporter() {
+  const directory = {
+    'YALE UNIVERSITY': { name: 'Yale University', token_key: 'UNIVERSITY YALE', kind: 'ipeds', unitid: '130794', ein: null, ntee_cd: null, uscis_approvals_3y: 710, dol_certified_3y: 0 },
+    'RAND': { name: 'RAND Corporation', token_key: 'RAND', kind: 'irs', unitid: null, ein: '95', ntee_cd: 'U30', uscis_approvals_3y: 120, dol_certified_3y: 0 }
+  };
+  const tokenKeyIndex = new Map([['UNIVERSITY YALE', 'YALE UNIVERSITY'], ['RAND', 'RAND']]);
+  const registryResolver = createResolver([{ id: 'university-of-chicago', name: 'University of Chicago' }]);
+  const liveProviderIds = new Set(['university-of-chicago']);
+  const ctx = { directory, tokenKeyIndex, registryResolver, liveProviderIds };
+
+  // token-order-insensitive directory lookup
+  assert.strictEqual(directoryLookup(directory, tokenKeyIndex, 'The Yale University').unitid, '130794');
+  assert.strictEqual(directoryLookup(directory, tokenKeyIndex, 'RAND Corp').ein, '95');
+  assert.strictEqual(directoryLookup(directory, tokenKeyIndex, 'Nowhere Community College'), null);
+
+  // cap-exempt employer kept with score
+  const yaleJob = resolveAggregatedJob({ employer_name: 'Yale University', title: 'Postdoc', url: 'x' }, ctx);
+  assert.strictEqual(yaleJob.keep, true);
+  assert.strictEqual(yaleJob.kind, 'ipeds');
+  assert(yaleJob.score >= 55); // IPEDS 40 + USCIS(710) 15
+
+  // non-cap-exempt employer dropped
+  assert.deepStrictEqual(
+    resolveAggregatedJob({ employer_name: 'Acme Widgets LLC', title: 'x', url: 'y' }, ctx),
+    { keep: false, reason: 'not_cap_exempt' }
+  );
+
+  // employer already covered by a live ATS feed is dropped as a duplicate
+  const dupe = resolveAggregatedJob({ employer_name: 'University of Chicago', title: 'x', url: 'y' }, ctx);
+  assert.strictEqual(dupe.keep, false);
+  assert.strictEqual(dupe.reason, 'covered_by_live_ats');
+
+  assert.strictEqual(pseudoEmployerId('Yale University'), 'agg:yale-university');
+}
+
 function testEnrichPipeline() {
   // parseIpedsCsv
   const institutions = parseIpedsCsv('UNITID,INSTNM,CITY,STABBR\n144050,"University of Chicago",Chicago,IL\n,,x,y\n');
@@ -668,6 +704,7 @@ async function main() {
   testJobLifecycle();
   testZipExtraction();
   testScoutedImporter();
+  testAggregatedImporter();
   testEnrichPipeline();
   testEnrichment();
 

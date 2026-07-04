@@ -13,6 +13,8 @@ const REPORT_PATH = path.join(DATA_DIR, 'refresh-report.json');
 const DOL_SIGNALS_PATH = path.join(DATA_DIR, 'dol-sponsor-signals.json');
 const SCOUTED_JOBS_PATH = path.join(DATA_DIR, 'scouted-jobs.json');
 const SCOUTED_TTL_DAYS = 14;
+const AGGREGATED_JOBS_PATH = path.join(DATA_DIR, 'aggregated-jobs.json');
+const AGGREGATED_TTL_DAYS = 7;
 const ENRICHMENT_PATH = path.join(DATA_DIR, 'employer-enrichment.json');
 
 const CAP_EXEMPT_STATUS_ORDER = { unknown: 0, likely: 1, verified: 2 };
@@ -768,6 +770,57 @@ async function runRefresh() {
       employerReport.scouted_jobs = enriched.length;
       employerReport.skipped = false;
     }
+  }
+
+  // Merge the aggregator firehose (cap-exempt-filtered jobs from research
+  // boards). Jobs use pseudo employer ids (agg:<slug>) so they never collide
+  // with registry lifecycle outcomes. Fresh source snapshot -> jobs active;
+  // stale/expired -> previous jobs tombstone via the normal lifecycle.
+  const aggregatedStore = await readJson(AGGREGATED_JOBS_PATH, { jobs: [], snapshots: {} });
+  const aggregatedTtlMs = AGGREGATED_TTL_DAYS * 24 * 60 * 60 * 1000;
+  const aggregatedSources = new Set(Object.keys(aggregatedStore.snapshots || {}));
+  let aggregatedMerged = 0;
+  for (const job of aggregatedStore.jobs || []) {
+    const snapshot = (aggregatedStore.snapshots || {})[job.source];
+    const scoutedAt = Date.parse(snapshot?.scouted_at || '');
+    if (!Number.isFinite(scoutedAt) || Date.parse(now) - scoutedAt > aggregatedTtlMs) continue;
+    const pseudoEmployer = {
+      id: job.employer_id,
+      name: job.employer_name,
+      type: job.employer_kind === 'ipeds' || job.employer_kind === 'both'
+        ? 'institution_of_higher_education'
+        : 'nonprofit_research_org',
+      cap_exempt_status: 'likely',
+      cap_exempt_score: job.cap_exempt_score ?? null,
+      evidence_sources: [
+        'cap_exempt_directory',
+        ...(job.directory_evidence?.unitid ? [`ipeds:${job.directory_evidence.unitid}`] : []),
+        ...(job.directory_evidence?.ein ? ['irs_eo_bmf'] : []),
+        ...(job.directory_evidence?.uscis_approvals_3y ? ['uscis_h1b_datahub'] : [])
+      ],
+      ats_provider: null,
+      ats_token: null,
+      research_areas: [],
+      notes: `Matched to the cap-exempt directory from the ${job.source} feed.`
+    };
+    const enrichedJob = enrichJob(job, pseudoEmployer, previousById, {});
+    enrichedJob.disclaimer += ' Sourced from a job aggregator; verify details at the source URL.';
+    fetchedJobs.push(enrichedJob);
+    aggregatedMerged += 1;
+  }
+  // Outcomes: every pseudo-employer whose source has a snapshot gets ok, so
+  // vanished/expired aggregated jobs close instead of dangling
+  const aggregatedEmployerIds = new Set((aggregatedStore.jobs || []).map((job) => job.employer_id));
+  for (const previous of previousJobs) {
+    if (String(previous.employer_id || '').startsWith('agg:') && aggregatedSources.has(previous.source)) {
+      aggregatedEmployerIds.add(previous.employer_id);
+    }
+  }
+  for (const employerId of aggregatedEmployerIds) {
+    employerOutcomes.set(employerId, { attempted: true, ok: true });
+  }
+  if (aggregatedMerged > 0) {
+    console.log(`Merged ${aggregatedMerged} aggregated cap-exempt jobs from ${aggregatedSources.size} sources`);
   }
 
   const allJobs = applyJobLifecycle({ previousJobs, fetchedJobs, employerOutcomes, now });

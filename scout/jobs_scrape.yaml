@@ -1,0 +1,8 @@
+# Per-employer overrides for the jobs-scout mode (scripts/scout_jobs.py).
+# Targets default to the radar registry (radar/employers.json) entries with
+# ats_provider: null, using their careers_url and an 'a' selector. Add an
+# entry here when an employer needs a deeper listing URL or a tighter anchor
+# selector.
+
+fred-hutch:
+  listing_url: https://www.fredhutch.org/en/about/careers/job-openings/staff-job-openings.html

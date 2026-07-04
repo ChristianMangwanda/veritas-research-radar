@@ -8,7 +8,10 @@
     "radar:serve": "node radar/scripts/server.js",
     "radar:import-dol": "node radar/scripts/import-dol-lca.js",
     "radar:import-scouted": "node radar/scripts/import-scouted.js",
+    "radar:import-aggregated": "node radar/scripts/import-aggregated.js",
     "radar:enrich": "node radar/scripts/enrich.js",
+    "scout:jobs": "scout/.venv/bin/python scout/scout_jobs.py",
+    "scout:aggregators": "scout/.venv/bin/python scout/scout_aggregators.py",
     "test": "node tests/radar.test.js"
   },
   "engines": {
