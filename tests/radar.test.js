@@ -17,6 +17,7 @@ const {
   applyJobLifecycle
 } = require('../radar/scripts/refresh.js');
 const { normalizeName, parseCsvLine } = require('../radar/scripts/import-dol-lca.js');
+const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
 
 function testSharedAnalyzer() {
   assert.strictEqual(analyzeText('Visa sponsorship is available for this role.').state, 'FRIENDLY');
@@ -76,6 +77,39 @@ function testNormalization() {
   assert.strictEqual(normalizeText('<p>Python &amp; genomics&nbsp;role</p>'), 'Python & genomics role');
   assert.strictEqual(normalizeName('The Broad Institute, Inc.'), 'BROAD INSTITUTE');
   assert.deepStrictEqual(parseCsvLine('"A, B",CERTIFIED,"Research Scientist"'), ['A, B', 'CERTIFIED', 'Research Scientist']);
+}
+
+function testEntityResolution() {
+  const resolver = createResolver([
+    { id: 'broad-institute', name: 'Broad Institute', aliases: ['Broad Institute of MIT and Harvard'] },
+    { id: 'university-of-chicago', name: 'University of Chicago' },
+    { id: 'mayo-clinic', name: 'Mayo Clinic', aliases: ['Mayo Foundation for Medical Education and Research'] },
+    { id: 'fred-hutch', name: 'Fred Hutchinson Cancer Center' },
+    { id: 'columbia-university', name: 'Columbia University' }
+  ]);
+  const expect = (raw, id, strategy) => {
+    const result = resolver.resolve(raw);
+    assert.strictEqual(result.matched?.id ?? null, id, `resolve(${raw}) -> ${result.matched?.id} (${result.strategy})`);
+    if (strategy) assert.strictEqual(result.strategy, strategy, `strategy for ${raw}`);
+  };
+
+  expect('THE BROAD INSTITUTE INC', 'broad-institute', 'exact');
+  expect('Broad Institute of MIT and Harvard', 'broad-institute', 'alias');
+  expect('THE UNIVERSITY OF CHICAGO', 'university-of-chicago', 'exact');
+  expect('CHICAGO UNIVERSITY', 'university-of-chicago', 'token_set');
+  expect('MAYO FOUNDATION FOR MEDICAL EDUCATION AND RESEARCH', 'mayo-clinic', 'alias');
+  // Insertion in the middle -> weak overlap match only
+  const hutch = resolver.resolve('FRED HUTCHINSON CANCER RESEARCH CENTER');
+  assert.strictEqual(hutch.matched?.id, 'fred-hutch');
+  assert.strictEqual(hutch.strategy, 'token_overlap');
+  assert(hutch.confidence < 0.75, 'insertion match must stay below the scoring gate');
+  // Containment with a qualifier suffix
+  expect('FRED HUTCHINSON CANCER CENTER SOUTH LAKE UNION', 'fred-hutch', 'containment');
+  // False-positive traps
+  expect('MAYODAN INDUSTRIES INC', null);
+  expect('COLUMBIA SPORTSWEAR COMPANY', null);
+  expect('MAYO CLINIC OF SCOTTSDALE', 'mayo-clinic', 'containment');
+  assert.deepStrictEqual(significantTokens('The University of Chicago'), ['UNIVERSITY', 'CHICAGO']);
 }
 
 function testProviderMappers() {
@@ -332,6 +366,7 @@ async function main() {
   testFixturePages();
   testSignalExtraction();
   testNormalization();
+  testEntityResolution();
   testProviderMappers();
   await testFetchRetry();
   testJobLifecycle();
