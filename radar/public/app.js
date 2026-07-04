@@ -26,6 +26,7 @@ const DOM = {
   count: document.querySelector('#count'),
   refreshMeta: document.querySelector('#refresh-meta'),
   refreshErrors: document.querySelector('#refresh-errors'),
+  discovery: document.querySelector('#discovery'),
   q: document.querySelector('#q'),
   sort: document.querySelector('#sort'),
   newOnly: document.querySelector('#new-only'),
@@ -320,21 +321,54 @@ function renderRefreshStatus(report) {
   }
 }
 
+function renderDiscovery(discovery) {
+  const candidates = discovery?.candidates || [];
+  if (!candidates.length) return;
+  DOM.discovery.hidden = false;
+  DOM.discovery.querySelector('summary').textContent =
+    `${candidates.length} discovered cap-exempt employer candidate${candidates.length === 1 ? '' : 's'}`;
+  const list = DOM.discovery.querySelector('.discovery-list');
+  list.replaceChildren();
+  for (const candidate of candidates.slice(0, 50)) {
+    const row = document.createElement('div');
+    row.className = 'discovery-row';
+    const title = document.createElement('strong');
+    title.textContent = candidate.name;
+    const badges = document.createElement('span');
+    badges.className = 'badges';
+    badges.append(badge(`score ${candidate.score}`));
+    if (candidate.ipeds) badges.append(badge('IPEDS', 'likely'));
+    if (candidate.irs) badges.append(badge(`IRS ${candidate.irs.ntee_cd || '501c3'}`, 'likely'));
+    if (candidate.dol_research_certified_3y) badges.append(badge(`DOL ${candidate.dol_research_certified_3y}`, 'moderate'));
+    if (candidate.uscis_approvals_3y) badges.append(badge(`USCIS ${candidate.uscis_approvals_3y}`, 'moderate'));
+    row.append(title, badges);
+    if (candidate.dol_sample_titles?.length) {
+      const titles = document.createElement('span');
+      titles.className = 'discovery-titles';
+      titles.textContent = candidate.dol_sample_titles.slice(0, 3).join(' · ');
+      row.append(titles);
+    }
+    list.append(row);
+  }
+}
+
 async function init() {
   state.lastVisit = localStorage.getItem(LAST_VISIT_KEY);
   localStorage.setItem(LAST_VISIT_KEY, new Date().toISOString());
   hydrateFromUrl();
 
-  const [jobs, employers, local, report] = await Promise.all([
+  const [jobs, employers, local, report, discovery] = await Promise.all([
     getJson('/api/jobs', []),
     getJson('/api/employers', []),
     getJson('/api/local-state', { version: 1, triage: {} }),
-    getJson('/api/refresh-report', null)
+    getJson('/api/refresh-report', null),
+    getJson('/api/discovery', { candidates: [] })
   ]);
   state.jobs = jobs;
   state.employers = employers;
   state.local = local;
   renderRefreshStatus(report);
+  renderDiscovery(discovery);
   bindEvents();
   render();
 }

@@ -96,6 +96,11 @@ async function route(request, response) {
     return;
   }
 
+  if (request.method === 'GET' && url.pathname === '/api/discovery') {
+    send(response, 200, JSON.stringify(await readJson(path.join(DATA_DIR, 'discovery-candidates.json'), { candidates: [] })));
+    return;
+  }
+
   if (request.method === 'GET' && url.pathname === '/api/local-state') {
     send(response, 200, JSON.stringify(await readJson(LOCAL_STATE_PATH, defaultLocalState())));
     return;

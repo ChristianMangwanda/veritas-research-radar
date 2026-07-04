@@ -251,6 +251,44 @@ button,
   padding-left: 18px;
 }
 
+.discovery {
+  margin: 12px 18px 0;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.discovery summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.discovery-note {
+  margin: 8px 0;
+  color: var(--muted);
+}
+
+.discovery-list {
+  display: grid;
+  gap: 8px;
+}
+
+.discovery-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+
+.discovery-titles {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .fit {
   font-weight: 700;
 }
