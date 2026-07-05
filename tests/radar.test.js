@@ -734,7 +734,12 @@ function testEnrichPipeline() {
   // parseIpedsCsv
   const institutions = parseIpedsCsv('UNITID,INSTNM,CITY,STABBR\n144050,"University of Chicago",Chicago,IL\n,,x,y\n');
   assert.strictEqual(institutions.length, 1);
-  assert.deepStrictEqual(institutions[0], { unitid: '144050', instnm: 'University of Chicago', city: 'Chicago', stabbr: 'IL' });
+  assert.deepStrictEqual(institutions[0], { unitid: '144050', instnm: 'University of Chicago', city: 'Chicago', stabbr: 'IL', website: null });
+
+  // WEBADDR flows through with scheme normalization (bare domains are common)
+  const withSite = parseIpedsCsv('UNITID,INSTNM,CITY,STABBR,WEBADDR\n1,"A College",X,YY,"www.acollege.edu/"\n2,"B College",X,YY,"https://b.edu"\n');
+  assert.strictEqual(withSite[0].website, 'https://www.acollege.edu/');
+  assert.strictEqual(withSite[1].website, 'https://b.edu/');
 
   // Scoring table
   const confident = { strategy: 'exact', confidence: 1.0 };

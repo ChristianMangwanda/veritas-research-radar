@@ -45,6 +45,8 @@ function applyEnrichmentOverlay(employers, enrichment) {
 const USER_AGENT = 'VeritasResearchRadar/1.0 (+https://github.com/ChristianMangwanda/Veritas)';
 const REQUEST_TIMEOUT_MS = 20000;
 const EMPLOYER_DELAY_MS = 500;
+// Auto-wired (tier: "auto") employers only commit research-relevant postings
+const AUTO_TIER_MIN_RESEARCH_SCORE = 25;
 const SMARTRECRUITERS_PAGE_LIMIT = 100;
 const SMARTRECRUITERS_MAX_PAGES = 10;
 const SMARTRECRUITERS_DETAIL_DELAY_MS = 200;
@@ -756,9 +758,16 @@ async function runRefresh() {
     }
     if (employer.ats_provider) networkHits += 1;
     const result = await fetchEmployerJobs(employer);
-    const enriched = result.jobs
+    let enriched = result.jobs
       .filter((job) => job.url && job.description_text)
       .map((job) => enrichJob(job, employer, previousById, dolSignals[employer.id]));
+    // Auto-wired employers (discovery crawl) keep only research-relevant
+    // postings — a wired university means thousands of roles, and committing
+    // the cafeteria shifts would drown the dataset the radar exists for
+    if (employer.tier === 'auto') {
+      enriched = enriched.filter((job) =>
+        job.research_relevance_score >= AUTO_TIER_MIN_RESEARCH_SCORE || job.class_evidence);
+    }
     fetchedJobs.push(...enriched);
     employerOutcomes.set(employer.id, { attempted: !result.skipped, ok: !result.error });
     employerReports.push({

@@ -4,6 +4,23 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Added (Phase 3: coverage flywheel)
+- **ATS discovery pipeline**: websites flow into the cap-exempt directory
+  (IPEDS WEBADDR + resumable nonprofit resolver), and `scout_discover.py`
+  crawls careers pages harvesting ATS links — URL patterns with tenant
+  extraction for 20+ providers plus content signatures that unmask platforms
+  behind vanity domains. First census (106 top-evidence employers, 68%
+  identified): iCIMS 26, Workday 20, PeopleAdmin 16, PageUp 8 — the adapter
+  priority list is now data, not guesswork.
+- **promote-employers.js**: probes crawl-discovered Workday tenants via the
+  live CXS API (best site board wins), drafts registry proposals with crawl
+  provenance as identity, merges on approval. First wave: 23 universities
+  wired (registry 25 → 48), including WashU, Cornell, CMU, Brown, Georgetown,
+  Rochester, Northeastern — ~5,700 live postings behind them.
+- **Auto-tier guard**: crawl-wired employers commit only research-relevant
+  postings (score ≥ 25 or class evidence), so wiring a university adds its
+  labs, not its cafeteria shifts.
+
 ### Added (Phase 2: behavioral evidence)
 - **Title-class evidence engine**: every LCA row and every posting classifies
   through one shared taxonomy (`lib/title-class.js`, 9 classes + SOC-code
