@@ -5,6 +5,36 @@ All notable changes to Veritas are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Dashboard redesign**: three-pane triage layout (filters / scannable job list /
+  full detail pane) with keyboard flow (j/k navigate, o open, s/a/e/v/x triage,
+  / search), matched-phrase highlighting inside the full description, one-click
+  triage buttons, a stat strip (active / new-for-you / friendly / employers),
+  dark mode with a theme toggle, discovery and source-error drawers, an empty
+  state with filter reset, and a list-first mobile layout with a filters toggle.
+- Weekly employer-scout workflow (`radar-scout.yml`): scouted snapshots expire
+  after 14 days; CI now re-scouts ATS-less employers every Monday so their jobs
+  stop silently tombstoning.
+- Aggregated jobs without captured descriptions are now explicitly marked
+  (`description_captured: false` + disclaimer) so a NEUTRAL visa state can't be
+  mistaken for "posting scanned, no visa language found".
+
+### Fixed
+- Extension: manual rescan (toolbar click) on an already-scanned page removed
+  the badge without redrawing it; the rescan now resets the content hash.
+- Extension: highlight toggle no longer needs two clicks after a badge is
+  dismissed or replaced (stale `highlightsVisible` state).
+- Extension: removed a literal NUL byte embedded in ui.js that made git treat
+  the file as binary.
+- Radar: CSV parsing now handles quoted fields containing newlines across all
+  government-file readers (new `parseCsv`/`csvRecords` in lib/csv.js); the DOL
+  importer streams the multi-hundred-MB file instead of buffering it.
+- Radar: aggregator-firehose jobs now pass the same url/title integrity filter
+  as the scout path.
+- CI: the four data workflows share one concurrency group with staggered crons,
+  so simultaneous runs can no longer race to a failed non-fast-forward push of
+  jobs.json.
+
+### Added (prior firehose work)
 - **Aggregator firehose**: single repo now includes the Python+Playwright scout
   (`scout/`). Scrapes research-job boards (Nature Careers, Science Careers,
   HigherEdJobs), resolves every job's employer against a generated ~20,000-entry

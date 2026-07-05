@@ -2,14 +2,16 @@ name: Radar Enrichment
 
 on:
   schedule:
-    - cron: "0 6 1 * *"
+    - cron: "25 6 1 * *"
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
+# Shares the radar-data group: enrichment commits different files, but a push
+# race with the refresh workflows would still fail non-fast-forward.
 concurrency:
-  group: radar-enrich-${{ github.ref }}
+  group: radar-data-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:

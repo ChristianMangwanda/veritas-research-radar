@@ -2,14 +2,16 @@ name: Research Job Radar
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "15 */6 * * *"
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
+# All workflows that commit radar data share one concurrency group so their
+# pushes serialize instead of racing to a non-fast-forward failure.
 concurrency:
-  group: research-radar-${{ github.ref }}
+  group: radar-data-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:

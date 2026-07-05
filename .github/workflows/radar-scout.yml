@@ -1,22 +1,26 @@
-name: Radar Aggregator Firehose
+name: Radar Employer Scout
 
+# Scouts registry employers that have no clean ATS feed (Playwright page
+# triage per radar/SCOUT-CONTRACT.md). Snapshots expire after 14 days, so a
+# weekly run keeps the scouted employers continuously covered.
 on:
   schedule:
-    - cron: "45 2,14 * * *"
+    - cron: "35 3 * * 1"
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 # Shares the radar-data group so its jobs.json commit can never race the
-# 6-hourly refresh or the weekly scout.
+# other refresh workflows.
 concurrency:
   group: radar-data-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  firehose:
+  scout:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,15 +34,15 @@ jobs:
           python -m venv scout/.venv
           scout/.venv/bin/pip install -r scout/requirements.txt
           scout/.venv/bin/python -m playwright install --with-deps chromium
-      - name: Scrape aggregators + apply cap-exempt filter
-        run: npm run scout:aggregators -- --all --details 60 --import
+      - name: Scout employers without ATS feeds
+        run: npm run scout:jobs -- --all --import
       - name: Refresh dataset
         run: npm run radar:refresh
         env:
           USAJOBS_API_KEY: ${{ secrets.USAJOBS_API_KEY }}
           USAJOBS_EMAIL: ${{ secrets.USAJOBS_EMAIL }}
-      - name: Commit firehose data
+      - name: Commit scouted data
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update aggregator firehose data"
-          file_pattern: "radar/data/aggregated-jobs.json radar/data/jobs.json radar/data/refresh-report.json"
+          commit_message: "Update scouted employer data"
+          file_pattern: "radar/data/scouted-jobs.json radar/data/jobs.json radar/data/refresh-report.json"
