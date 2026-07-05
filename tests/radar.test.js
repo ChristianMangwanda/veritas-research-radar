@@ -34,8 +34,9 @@ const { validateScoutedFile, scoutedJobId, canonicalUrl, normalizeScoutedJob } =
 const { resolveAggregatedJob, directoryLookup, pseudoEmployerId } = require('../radar/scripts/import-aggregated.js');
 const { extractZipEntry, listZipEntries } = require('../radar/scripts/lib/zip.js');
 const zlib = require('zlib');
-const { normalizeName, parseCsvLine } = require('../radar/scripts/import-dol-lca.js');
+const { normalizeName, parseCsvLine, annualWage, median } = require('../radar/scripts/import-dol-lca.js');
 const { parseCsv, csvRecords } = require('../radar/scripts/lib/csv.js');
+const { classifyTitle, classLabel } = require('../radar/scripts/lib/title-class.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
 
 function testSharedAnalyzer() {
@@ -154,6 +155,70 @@ function testAnalyzerCorpus() {
     console.log(`  corpus ${label}: precision ${(precision * 100).toFixed(0)}%, recall ${(recall * 100).toFixed(0)}% (n=${total})`);
   }
   assert.deepStrictEqual(failures, [], `analyzer corpus failures:\n${failures.join('\n')}`);
+}
+
+// The evidence engine only works if LCA rows and postings classify through
+// ONE function — these cases pin the taxonomy on both real LCA titles and
+// real posting titles from the dataset.
+function testTitleClassEvidence() {
+  assert.strictEqual(classifyTitle('Postdoctoral Scholar'), 'postdoc');
+  assert.strictEqual(classifyTitle('Postdoc Fellow, Functional Genomics'), 'postdoc');
+  assert.strictEqual(classifyTitle('Assistant Clinical Professor'), 'faculty');
+  assert.strictEqual(classifyTitle('Research Software Engineer'), 'engineering_software');
+  assert.strictEqual(classifyTitle('Computational Biologist'), 'data_computational');
+  assert.strictEqual(classifyTitle('Staff Data Scientist, Genomics'), 'data_computational');
+  assert.strictEqual(classifyTitle('Staff Scientist'), 'scientist');
+  assert.strictEqual(classifyTitle('Research Associate II'), 'research_associate');
+  assert.strictEqual(classifyTitle('Associate Specialist'), 'research_associate');
+  assert.strictEqual(classifyTitle('Clinical Research Coordinator 1'), 'research_support');
+  assert.strictEqual(classifyTitle('MEDICAL ONCOLOGY FELLOW (PGY-4)'), 'clinical');
+  assert.strictEqual(classifyTitle('Registrar'), 'other');
+  // SOC fallback for LCA rows whose title regexes miss
+  assert.strictEqual(classifyTitle('Departmental Appointee', '25-1022.00'), 'faculty');
+  assert.strictEqual(classifyTitle('Analyst IV', '15-2051.00'), 'data_computational');
+  assert.strictEqual(classLabel('postdoc'), 'postdoc');
+
+  // Wage annualization guards
+  assert.strictEqual(annualWage('139000', 'Year'), 139000);
+  assert.strictEqual(annualWage('40.50', 'Hour'), 84240);
+  assert.strictEqual(annualWage('nonsense', 'Year'), null);
+  assert.strictEqual(annualWage('50', 'Year'), null); // absurd annual filtered
+  assert.strictEqual(median([30, 10, 20]), 20);
+  assert.strictEqual(median([10, 20, 30, 40]), 25);
+  assert.strictEqual(median([]), null);
+
+  // enrichJob attaches the class bucket matching the posting title
+  const employer = {
+    id: 'ucsf', name: 'UCSF', type: 'institution_of_higher_education',
+    cap_exempt_status: 'verified', evidence_sources: ['ipeds:123'],
+    ats_provider: 'lever', ats_token: 'ucsf', research_areas: []
+  };
+  const job = {
+    id: 'lever:ucsf:1', employer_id: 'ucsf', title: 'Postdoctoral Scholar - Neurology',
+    department: '', location: 'San Francisco', url: 'https://example.test/1',
+    description_text: 'Conduct research in the lab.', posted_or_updated_at: null, source: 'lever'
+  };
+  const enriched = enrichJob(job, employer, new Map(), {
+    certified_count_3y: 161,
+    recent_titles: ['Postdoctoral Scholar'],
+    title_classes: {
+      postdoc: { certified_count_3y: 37, median_annual_wage: 71000, sample_titles: ['Postdoctoral Scholar'] },
+      clinical: { certified_count_3y: 80, median_annual_wage: 160000, sample_titles: ['Clinical Resident'] }
+    }
+  });
+  assert.strictEqual(enriched.title_class, 'postdoc');
+  assert.deepStrictEqual(enriched.class_evidence, {
+    certified_count_3y: 37, median_annual_wage: 71000, sample_titles: ['Postdoctoral Scholar']
+  });
+  assert.strictEqual(enriched.sponsor_signal, 'strong'); // class-level >= 3
+
+  // No class evidence -> institution-wide count alone caps at moderate
+  const noClass = enrichJob({ ...job, title: 'Grants Administrator' }, employer, new Map(), {
+    certified_count_3y: 161, recent_titles: [], title_classes: {}
+  });
+  assert.strictEqual(noClass.title_class, 'other');
+  assert.strictEqual(noClass.class_evidence, null);
+  assert.strictEqual(noClass.sponsor_signal, 'moderate'); // 161 institution-wide, wrong class
 }
 
 function testEntityResolution() {
@@ -781,6 +846,7 @@ async function main() {
   testNormalization();
   await testCsvMultilineRecords();
   testAnalyzerCorpus();
+  testTitleClassEvidence();
   testEntityResolution();
   testProviderMappers();
   await testFetchRetry();

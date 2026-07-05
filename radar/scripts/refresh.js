@@ -3,6 +3,7 @@
 const fs = require('fs/promises');
 const path = require('path');
 const { analyzeText } = require('../../scripts/keywords.js');
+const { classifyTitle, classLabel } = require('./lib/title-class.js');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RADAR_DIR = path.join(ROOT, 'radar');
@@ -204,10 +205,13 @@ function scoreResearchRelevance(job, signals, employer) {
   return Math.max(0, Math.min(100, score));
 }
 
-function sponsorSignal(veritasState, dolCount) {
+// Behavioral evidence first: class-level LCA history (this employer certified
+// visas for THIS kind of role) outranks institution-wide counts, which alone
+// cap at moderate. Explicit sponsorship text plus real history is also strong.
+function sponsorSignal(veritasState, dolCount, classCount = 0) {
   if (veritasState === 'RESTRICTED') return 'restricted';
-  if (dolCount >= 10) return 'strong';
-  if (veritasState === 'FRIENDLY') return 'moderate';
+  if (classCount >= 3 || (veritasState === 'FRIENDLY' && dolCount >= 10)) return 'strong';
+  if (classCount >= 1 || veritasState === 'FRIENDLY' || dolCount >= 25) return 'moderate';
   if (dolCount > 0) return 'weak';
   return 'unknown';
 }
@@ -224,6 +228,17 @@ function enrichJob(job, employer, previousById, dolSignal = {}) {
   const signals = matchSignals(text);
   const previous = previousById.get(job.id);
   const dolCount = Number(dolSignal.certified_count_3y || employer.dol_lca_certified_count_3y || 0);
+
+  // Title-class evidence: the employer's LCA history for THIS kind of role
+  const titleClass = classifyTitle(job.title);
+  const classBucket = (dolSignal.title_classes || {})[titleClass] || null;
+  const classEvidence = classBucket
+    ? {
+        certified_count_3y: classBucket.certified_count_3y,
+        median_annual_wage: classBucket.median_annual_wage ?? null,
+        sample_titles: classBucket.sample_titles || []
+      }
+    : null;
 
   return {
     ...job,
@@ -242,7 +257,10 @@ function enrichJob(job, employer, previousById, dolSignal = {}) {
     international_candidate_language: signals.international_candidate_language,
     dol_lca_certified_count_3y: dolCount,
     dol_recent_titles: dolSignal.recent_titles || employer.dol_recent_titles || [],
-    sponsor_signal: sponsorSignal(veritas.state, dolCount),
+    title_class: titleClass,
+    title_class_label: classLabel(titleClass),
+    class_evidence: classEvidence,
+    sponsor_signal: sponsorSignal(veritas.state, dolCount, classEvidence?.certified_count_3y || 0),
     research_relevance_score: scoreResearchRelevance(job, signals, employer),
     provenance: {
       job_source: job.source,

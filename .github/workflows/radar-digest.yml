@@ -1,0 +1,29 @@
+name: Radar Daily Digest
+
+# Pushes a daily "what's new" notification via ntfy.sh, ranked by sponsorship
+# evidence. Reads committed data only — no fetching, no commits. Skips cleanly
+# (prints instead of pushing) until the NTFY_TOPIC secret is set.
+on:
+  schedule:
+    - cron: "5 13 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: radar-digest
+  cancel-in-progress: true
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Build and send digest
+        run: node radar/scripts/digest.js
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}

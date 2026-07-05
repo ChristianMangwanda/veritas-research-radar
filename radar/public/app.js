@@ -107,22 +107,54 @@ let visaFilter = '';
 /* ------------------------------------------------------------------------ */
 /* Data + persistence                                                        */
 
+// On GitHub Pages there is no API server: /api/* falls back to the static
+// JSON copies the deploy workflow places under data/, and triage state falls
+// back to localStorage. The same bundle serves both environments.
+const STATIC_DATA = {
+  '/api/jobs': 'data/jobs.json',
+  '/api/employers': 'data/employers.json',
+  '/api/refresh-report': 'data/refresh-report.json',
+  '/api/discovery': 'data/discovery-candidates.json'
+};
+
+const LOCAL_TRIAGE_KEY = 'veritas_radar_local_state';
+
 async function getJson(url, fallback) {
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
     return response.json();
   } catch {
+    const staticPath = STATIC_DATA[url];
+    if (staticPath) {
+      try {
+        const response = await fetch(staticPath);
+        if (response.ok) return response.json();
+      } catch { /* fall through */ }
+    }
     return fallback;
   }
 }
 
+function loadTriageFromBrowser() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LOCAL_TRIAGE_KEY));
+    if (stored && typeof stored.triage === 'object') return stored;
+  } catch { /* corrupted -> fresh */ }
+  return { version: 1, triage: {} };
+}
+
 async function saveLocalState() {
-  await fetch('/api/local-state', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ triage: state.local.triage })
-  });
+  try {
+    const response = await fetch('/api/local-state', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ triage: state.local.triage })
+    });
+    if (!response.ok) throw new Error(String(response.status));
+  } catch {
+    localStorage.setItem(LOCAL_TRIAGE_KEY, JSON.stringify({ version: 1, triage: state.local.triage }));
+  }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -236,6 +268,11 @@ const SORTERS = {
   },
   newest_posted(a, b) {
     return dateDesc(a.posted_or_updated_at, b.posted_or_updated_at) || SORTERS.fit(a, b);
+  },
+  evidence(a, b) {
+    const delta = (b.class_evidence?.certified_count_3y || 0) - (a.class_evidence?.certified_count_3y || 0);
+    if (delta !== 0) return delta;
+    return (b.dol_lca_certified_count_3y || 0) - (a.dol_lca_certified_count_3y || 0) || SORTERS.fit(a, b);
   }
 };
 
@@ -434,7 +471,14 @@ function buildRow(job) {
     node.classList.add('is-closed');
     chips.append(tag(PROTECTED_TRIAGE.has(status) ? 'closed — verify' : 'closed', 'tag-warn'));
   }
-  chips.append(tag(VISA_LABELS[job.veritas_state] || job.veritas_state, VISA_TAGS[job.veritas_state] ?? ''));
+  // Behavioral evidence is the primary chip; the text scan only appears when
+  // it actually found language (NEUTRAL on every row was noise)
+  if (job.class_evidence?.certified_count_3y) {
+    chips.append(tag(`sponsors ${job.title_class_label} ×${job.class_evidence.certified_count_3y}`, 'tag-friendly'));
+  }
+  if (job.veritas_state !== 'NEUTRAL') {
+    chips.append(tag(VISA_LABELS[job.veritas_state] || job.veritas_state, VISA_TAGS[job.veritas_state] ?? ''));
+  }
 
   const scores = node.querySelector('.row-scores');
   if (job.fit.fit_score !== null) {
@@ -637,17 +681,34 @@ function renderDetailSignals(job) {
   const evidence = evidenceSummary(job.cap_exempt_evidence_sources);
   if (evidence) institutionCell.querySelector('dd').append(el('span', 'signal-note', `via ${evidence}`));
 
-  const sponsorCell = signalCell('Sponsorship history',
-    tag(job.sponsor_signal, job.sponsor_signal === 'strong' ? 'tag-friendly' : job.sponsor_signal === 'restricted' ? 'tag-restricted' : job.sponsor_signal === 'moderate' ? 'tag-accent' : 'tag-warn'),
-    ...(job.dol_lca_certified_count_3y ? [document.createTextNode(`${job.dol_lca_certified_count_3y} LCA certifications (3y)`)] : []));
-  if (job.dol_lca_certified_count_3y) {
-    sponsorCell.querySelector('dd').append(el('span', 'signal-note', 'institution-wide, all job titles — not specific to this role'));
+  // Evidence-first: class-level LCA history is the headline, institution-wide
+  // counts are context, the text scan is a footnote
+  const signalTag = tag(job.sponsor_signal, job.sponsor_signal === 'strong' ? 'tag-friendly' : job.sponsor_signal === 'restricted' ? 'tag-restricted' : job.sponsor_signal === 'moderate' ? 'tag-accent' : 'tag-warn');
+  const sponsorCell = signalCell(`Sponsorship evidence — ${job.title_class_label || 'this role'}`, signalTag);
+  sponsorCell.style.gridColumn = 'span 2';
+  const sponsorDd = sponsorCell.querySelector('dd');
+  if (job.class_evidence?.certified_count_3y) {
+    sponsorDd.append(document.createTextNode(
+      `${job.class_evidence.certified_count_3y} LCA certifications for ${job.title_class_label} roles (3y)`));
+    const noteParts = [];
+    if (job.class_evidence.median_annual_wage) {
+      noteParts.push(`median $${job.class_evidence.median_annual_wage.toLocaleString()}`);
+    }
+    if (job.dol_lca_certified_count_3y) {
+      noteParts.push(`${job.dol_lca_certified_count_3y} institution-wide`);
+    }
+    if (noteParts.length) sponsorDd.append(el('span', 'signal-note', noteParts.join(' · ')));
+  } else if (job.dol_lca_certified_count_3y) {
+    sponsorDd.append(document.createTextNode(`${job.dol_lca_certified_count_3y} LCA certifications (3y), institution-wide`));
+    sponsorDd.append(el('span', 'signal-note', `none on record for ${job.title_class_label || 'this'} roles — treat as unproven for this role`));
+  } else {
+    sponsorDd.append(el('span', 'signal-note', 'no LCA sponsorship history on record'));
   }
 
   DOM.detailSignals.append(
-    signalCell('Visa signal', tag(VISA_LABELS[job.veritas_state] || job.veritas_state, VISA_TAGS[job.veritas_state] ?? '')),
     institutionCell,
-    sponsorCell
+    sponsorCell,
+    signalCell('Posting language', tag(VISA_LABELS[job.veritas_state] || job.veritas_state, VISA_TAGS[job.veritas_state] ?? ''))
   );
 
   const researchCell = signalCell('Research relevance', document.createTextNode(`${job.research_relevance_score || 0} / 100`));
@@ -970,13 +1031,14 @@ async function init() {
   const [jobs, employers, local, report, discovery] = await Promise.all([
     getJson('/api/jobs', []),
     getJson('/api/employers', []),
-    getJson('/api/local-state', { version: 1, triage: {} }),
+    getJson('/api/local-state', null),
     getJson('/api/refresh-report', null),
     getJson('/api/discovery', { candidates: [] })
   ]);
   state.jobs = jobs;
   state.employers = employers;
-  state.local = local;
+  // null means no API server (static hosting) -> browser-local triage
+  state.local = local || loadTriageFromBrowser();
   populateSources();
   // Source options only exist now, so re-apply the source filter from the URL
   const sourceParam = new URLSearchParams(window.location.search).get('source');

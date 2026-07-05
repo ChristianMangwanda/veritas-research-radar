@@ -31,6 +31,16 @@ npm run radar:import-dol -- path/to/LCA.csv   # manual DOL signal import
 npm run radar:import-scouted    # validate + merge scout snapshots
 ```
 
+## Notifications + hosted dashboard
+
+- Dashboard (static, auto-refreshed every 6h):
+  https://christianmangwanda.github.io/veritas-research-radar/ — triage state
+  lives in that browser's localStorage; the local `npm start` server keeps
+  using `radar/data/local-state.json`.
+- Daily digest: pick a private topic name, set it as the `NTFY_TOPIC` repo
+  secret, then subscribe to `ntfy.sh/<topic>` in the ntfy app or browser.
+  Until the secret exists the digest workflow just prints.
+
 ## Setup the automation needs
 
 1. **Push this repo to GitHub** — both workflows (`research-radar.yml` every 6

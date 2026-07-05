@@ -4,6 +4,29 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Added (Phase 2: behavioral evidence)
+- **Title-class evidence engine**: every LCA row and every posting classifies
+  through one shared taxonomy (`lib/title-class.js`, 9 classes + SOC-code
+  fallback). The DOL importer now emits per employer × class certified counts,
+  median annualized wages, and sample titles; refresh attaches the bucket
+  matching each posting's class. A UCSF postdoc posting now shows "47 postdoc-
+  class LCAs (3y), median $77,030" instead of an institution-wide number.
+- **Sponsor signal is behavioral-first**: strong requires class-level history
+  (or explicit sponsorship text plus institution history); institution-wide
+  counts alone cap at moderate. 133 of 750 eligible jobs now rank strong on
+  class-backed evidence.
+- **Evidence-first dashboard**: green "sponsors <class> ×N" chips on rows,
+  "Sponsorship evidence" cell with wage medians leads the signal grid, the
+  text scan is demoted to a "Posting language" footnote, new evidence sort,
+  and NEUTRAL chips no longer clutter every row.
+- **Dashboard on GitHub Pages**: the same bundle now runs statically —
+  /api/* falls back to committed JSON copies, triage falls back to
+  localStorage. Deployed by `pages.yml` on a schedule (bot commits can't
+  trigger workflows) to christianmangwanda.github.io/veritas-research-radar.
+- **Daily digest** (`radar/scripts/digest.js` + `radar-digest.yml`): new
+  eligible jobs from the last 24h ranked by class evidence, pushed via
+  ntfy.sh at 13:05 UTC. Prints-only until the NTFY_TOPIC secret is set.
+
 ### Added (Phase 1: signal honesty)
 - **Federal citizenship gate**: USAJOBS postings are citizen-gated by default
   (the requirement lives in hiring-path metadata, not description text) and
