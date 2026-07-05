@@ -118,12 +118,15 @@ def extract_ats_links(html: str) -> list[dict]:
 
 def find_careers_links(page) -> list[str]:
     """Rank same-page links that look like a jobs/careers destination."""
+    # SVG anchors expose href as an SVGAnimatedString object, not a string —
+    # normalize in the browser and guard again here
     anchors = page.eval_on_selector_all(
-        "a[href]", "els => els.map(e => ({href: e.href, text: (e.textContent||'').trim().slice(0,80)}))")
+        "a[href]",
+        "els => els.map(e => ({href: typeof e.href === 'string' ? e.href : (e.href && e.href.baseVal) || '', text: (e.textContent||'').trim().slice(0,80)}))")
     scored = []
     for anchor in anchors:
         href, text = anchor.get("href", ""), anchor.get("text", "")
-        if not href.startswith("http"):
+        if not isinstance(href, str) or not href.startswith("http"):
             continue
         haystack = f"{href} {text}"
         if not CAREERS_LINK.search(haystack) or CAREERS_EXCLUDE.search(haystack):
@@ -274,7 +277,19 @@ def main() -> int:
         context = browser.new_context(user_agent=UA)
         page = context.new_page()
         for index, (key, entry) in enumerate(pending, 1):
-            result = discover_employer(page, entry)
+            # One pathological page must never kill a 900-employer sweep
+            try:
+                result = discover_employer(page, entry)
+            except Exception as error:
+                result = {
+                    "name": entry["name"], "website": entry["website"], "careers_url": None,
+                    "ats": [], "status": f"crawler_error: {type(error).__name__}",
+                    "uscis_approvals_3y": entry.get("uscis_approvals_3y", 0),
+                    "dol_certified_3y": entry.get("dol_certified_3y", 0),
+                    "crawled_at": now_iso(),
+                }
+                page.close()
+                page = context.new_page()
             results[key] = result
             providers = ",".join(sorted({a["provider"] for a in result["ats"]})) or "-"
             log.info("crawled", n=f"{index}/{len(pending)}", name=entry["name"][:40],
