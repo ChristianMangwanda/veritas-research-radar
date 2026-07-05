@@ -8,34 +8,60 @@
   </head>
   <body>
     <header class="topbar">
-      <div>
-        <h1>Veritas Research Radar</h1>
-        <p id="refresh-meta">Loading radar data...</p>
+      <div class="topbar-brand">
+        <span class="brand-mark" aria-hidden="true">◉</span>
+        <div>
+          <h1>Veritas Research Radar</h1>
+          <p id="refresh-meta" class="refresh-meta">Loading radar data…</p>
+        </div>
       </div>
-      <a class="button" href="https://www.dol.gov/agencies/eta/foreign-labor/performance" target="_blank" rel="noreferrer">DOL data</a>
+
+      <div class="stat-strip" role="group" aria-label="Dataset overview">
+        <div class="stat"><span class="stat-value" id="stat-active">–</span><span class="stat-label">active jobs</span></div>
+        <div class="stat"><span class="stat-value" id="stat-new">–</span><span class="stat-label">new for you</span></div>
+        <div class="stat"><span class="stat-value" id="stat-friendly">–</span><span class="stat-label">visa friendly</span></div>
+        <div class="stat"><span class="stat-value" id="stat-employers">–</span><span class="stat-label">employers</span></div>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="errors-toggle" class="chip chip-warning" type="button" hidden>⚠ <span></span></button>
+        <button id="discovery-toggle" class="chip" type="button" hidden>✦ <span></span></button>
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="Toggle color theme" title="Toggle theme">◐</button>
+      </div>
     </header>
 
-    <details id="refresh-errors" class="refresh-errors" hidden>
-      <summary></summary>
-      <ul></ul>
-    </details>
+    <div id="errors-panel" class="drawer" hidden>
+      <div class="drawer-head">
+        <h2>Source errors on last refresh</h2>
+        <button class="icon-button drawer-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <ul id="errors-list" class="errors-list"></ul>
+    </div>
 
-    <details id="discovery" class="discovery" hidden>
-      <summary></summary>
-      <p class="discovery-note">Ranked cap-exempt employer candidates from the monthly IPEDS × IRS × DOL × USCIS join.
-        Verify identity and add a careers URL before promoting one into the registry.</p>
-      <div class="discovery-list"></div>
-    </details>
+    <div id="discovery-panel" class="drawer" hidden>
+      <div class="drawer-head">
+        <h2>Discovered cap-exempt employer candidates</h2>
+        <button class="icon-button drawer-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <p class="drawer-note">Ranked from the monthly IPEDS × IRS × DOL × USCIS join. Verify identity and add a
+        careers URL before promoting one into the registry.</p>
+      <div id="discovery-list" class="discovery-list"></div>
+    </div>
 
     <main class="layout">
       <aside class="filters" aria-label="Filters">
-        <label>
-          Search
-          <input id="q" type="search" placeholder="title, skill, employer">
+        <div class="filters-head">
+          <h2>Filters</h2>
+          <button id="reset-filters" class="link-button" type="button" hidden>Reset <span></span></button>
+        </div>
+
+        <label class="field">
+          <span class="field-label">Search</span>
+          <input id="q" type="search" placeholder="Title, skill, employer…  ( / )">
         </label>
 
-        <label>
-          Sort by
+        <label class="field">
+          <span class="field-label">Sort by</span>
           <select id="sort">
             <option value="fit">Fit score</option>
             <option value="research">Research score</option>
@@ -45,35 +71,25 @@
           </select>
         </label>
 
-        <label>
-          Source
+        <fieldset class="field">
+          <legend class="field-label">Visa signal</legend>
+          <div id="visa-seg" class="segmented" role="group">
+            <button type="button" data-value="" class="is-active">Any</button>
+            <button type="button" data-value="FRIENDLY">Friendly</button>
+            <button type="button" data-value="RESTRICTED">Restricted</button>
+            <button type="button" data-value="NEUTRAL">No info</button>
+          </div>
+        </fieldset>
+
+        <label class="field">
+          <span class="field-label">Source</span>
           <select id="source">
             <option value="">Any source</option>
           </select>
         </label>
 
-        <label class="check">
-          <input id="new-only" type="checkbox">
-          New since last visit
-        </label>
-
-        <label class="check">
-          <input id="include-closed" type="checkbox">
-          Include closed postings
-        </label>
-
-        <label>
-          Visa signal
-          <select id="visa">
-            <option value="">Any</option>
-            <option value="FRIENDLY">Friendly</option>
-            <option value="RESTRICTED">Restricted</option>
-            <option value="NEUTRAL">No visa info</option>
-          </select>
-        </label>
-
-        <label>
-          Employer type
+        <label class="field">
+          <span class="field-label">Employer type</span>
           <select id="type">
             <option value="">Any</option>
             <option value="institution_of_higher_education">Higher education</option>
@@ -83,8 +99,8 @@
           </select>
         </label>
 
-        <label>
-          Cap-exempt evidence
+        <label class="field">
+          <span class="field-label">Cap-exempt evidence</span>
           <select id="cap">
             <option value="">Any</option>
             <option value="verified">Verified</option>
@@ -93,8 +109,8 @@
           </select>
         </label>
 
-        <label>
-          Triage
+        <label class="field">
+          <span class="field-label">Triage state</span>
           <select id="triage-filter">
             <option value="">Any</option>
             <option value="new">New</option>
@@ -106,56 +122,94 @@
           </select>
         </label>
 
-        <label>
-          Minimum research score
+        <label class="field">
+          <span class="field-label">Minimum research score <output id="min-research-value">0</output></span>
           <input id="min-research" type="range" min="0" max="100" value="0">
-          <span id="min-research-value">0</span>
+        </label>
+
+        <label class="check">
+          <input id="new-only" type="checkbox">
+          <span>New since last visit</span>
+        </label>
+
+        <label class="check">
+          <input id="include-closed" type="checkbox">
+          <span>Include closed postings</span>
         </label>
 
         <section class="profile">
           <h2>Local profile match</h2>
-          <textarea id="resume" rows="9" placeholder="Paste resume text here. It stays in this browser session and is never sent to GitHub Actions."></textarea>
-          <label class="file-label">
-            Resume text file
-            <input id="resume-file" type="file" accept=".txt,.md,.text">
-          </label>
-          <button id="clear-profile" type="button">Clear profile</button>
+          <p class="profile-note">Resume text stays in this browser. It is never uploaded or committed.</p>
+          <textarea id="resume" rows="6" placeholder="Paste resume text to score fit against each posting…"></textarea>
+          <div class="profile-actions">
+            <label class="file-button">
+              Load file
+              <input id="resume-file" type="file" accept=".txt,.md,.text">
+            </label>
+            <button id="clear-profile" class="ghost-button" type="button">Clear</button>
+          </div>
         </section>
       </aside>
 
-      <section class="results">
-        <div class="summary">
+      <section class="list-pane" aria-label="Job list">
+        <div class="list-head">
           <strong id="count">0 jobs</strong>
-          <span>Signals are planning aids; verify cap-exempt status and sponsorship with the employer.</span>
+          <button id="filters-toggle" class="chip filters-toggle" type="button">Filters <span></span></button>
+          <span class="kbd-hint" title="Keyboard: j/k move · Enter open details · o open posting · s shortlist · a applied · x ignore">⌨ j k o s a x</span>
         </div>
-        <div id="jobs" class="jobs"></div>
+        <div id="jobs" class="job-list" role="listbox" aria-label="Jobs"></div>
+        <div id="empty-state" class="empty-state" hidden>
+          <p><strong>No jobs match these filters.</strong></p>
+          <p>Loosen a filter or <button id="empty-reset" class="link-button" type="button">reset all filters</button>.</p>
+        </div>
+      </section>
+
+      <section id="detail-pane" class="detail-pane" aria-label="Job detail" hidden>
+        <div class="detail-scroll">
+          <button id="detail-back" class="link-button detail-back" type="button">← Back to list</button>
+          <div class="detail-head">
+            <h2 id="detail-title"></h2>
+            <p id="detail-meta" class="detail-meta"></p>
+          </div>
+
+          <div class="detail-actions">
+            <a id="detail-open" class="primary-button" target="_blank" rel="noreferrer">Open posting ↗</a>
+            <div id="triage-seg" class="segmented triage-seg" role="group" aria-label="Triage">
+              <button type="button" data-value="new">New</button>
+              <button type="button" data-value="shortlist">Shortlist</button>
+              <button type="button" data-value="applied">Applied</button>
+              <button type="button" data-value="emailed_lab">Emailed lab</button>
+              <button type="button" data-value="needs_visa_check">Visa check</button>
+              <button type="button" data-value="ignore">Ignore</button>
+            </div>
+          </div>
+
+          <div id="detail-alerts"></div>
+
+          <dl id="detail-signals" class="signal-grid"></dl>
+
+          <div id="detail-fit" class="fit-block"></div>
+
+          <section class="detail-description">
+            <h3>Description</h3>
+            <div id="detail-description-body" class="description-body"></div>
+          </section>
+
+          <p id="detail-disclaimer" class="disclaimer"></p>
+        </div>
       </section>
     </main>
 
-    <template id="job-card-template">
-      <article class="job-card">
-        <div class="job-head">
-          <div>
-            <h2></h2>
-            <p class="meta"></p>
-          </div>
-          <a class="button apply" target="_blank" rel="noreferrer">Open</a>
+    <template id="job-row-template">
+      <article class="job-row" role="option" tabindex="0">
+        <div class="row-main">
+          <span class="row-title"></span>
+          <span class="row-sub"></span>
         </div>
-        <div class="badges"></div>
-        <p class="fit"></p>
-        <p class="description"></p>
-        <div class="matches"></div>
-        <label class="triage">
-          Triage
-          <select>
-            <option value="new">New</option>
-            <option value="shortlist">Shortlist</option>
-            <option value="applied">Applied</option>
-            <option value="emailed_lab">Emailed lab</option>
-            <option value="needs_visa_check">Needs visa check</option>
-            <option value="ignore">Ignore</option>
-          </select>
-        </label>
+        <div class="row-side">
+          <span class="row-chips"></span>
+          <span class="row-scores"></span>
+        </div>
       </article>
     </template>
 
