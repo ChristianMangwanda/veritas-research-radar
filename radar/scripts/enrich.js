@@ -94,6 +94,17 @@ async function readFirstLine(filePath) {
 // ---------------------------------------------------------------------------
 // IPEDS (accredited institutions of higher education)
 
+function normalizeWebsite(value) {
+  const raw = String(value || '').trim().replace(/^"+|"+$/g, '');
+  if (!raw || raw === '.') return null;
+  const withScheme = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  try {
+    return new URL(withScheme).toString();
+  } catch {
+    return null;
+  }
+}
+
 function parseIpedsCsv(text) {
   const rows = parseCsv(text);
   if (rows.length < 2) return [];
@@ -102,7 +113,8 @@ function parseIpedsCsv(text) {
     unitid: columnIndex(headers, ['UNITID']),
     instnm: columnIndex(headers, ['INSTNM']),
     city: columnIndex(headers, ['CITY']),
-    stabbr: columnIndex(headers, ['STABBR'])
+    stabbr: columnIndex(headers, ['STABBR']),
+    webaddr: columnIndex(headers, ['WEBADDR'])
   };
   if (idx.unitid < 0 || idx.instnm < 0) return [];
   const institutions = [];
@@ -114,7 +126,8 @@ function parseIpedsCsv(text) {
       unitid,
       instnm,
       city: String(row[idx.city] || '').trim(),
-      stabbr: String(row[idx.stabbr] || '').trim()
+      stabbr: String(row[idx.stabbr] || '').trim(),
+      website: idx.webaddr >= 0 ? normalizeWebsite(row[idx.webaddr]) : null
     });
   }
   return institutions;
@@ -457,16 +470,19 @@ function buildCapExemptDirectory({ ipedsInstitutions, irsRows, dolActivity, usci
       unitid: null,
       ein: null,
       ntee_cd: null,
+      website: null,
       uscis_approvals_3y: 0,
       dol_certified_3y: 0
     };
+    // Never let a null overwrite a known website
+    if (patch.website == null) delete patch.website;
     Object.assign(current, patch);
     current.kind = current.unitid && current.ein ? 'both' : (current.unitid ? 'ipeds' : 'irs');
     entries[key] = current;
   };
 
   for (const institution of ipedsInstitutions) {
-    upsert(institution.instnm, { unitid: institution.unitid });
+    upsert(institution.instnm, { unitid: institution.unitid, website: institution.website });
   }
   for (const row of irsRows) {
     if (!row.is_research) continue;
@@ -638,6 +654,18 @@ async function runEnrich({ force = false, offline = false, dolCsv = null } = {})
     dolActivity: dolRaw.byEmployer,
     uscisActivity: uscis.byEmployer
   });
+
+  // Nonprofit websites arrive from a separate resumable fetcher (ProPublica
+  // 990 lookups keyed by directory key); merge without overwriting IPEDS data
+  const websiteSidecar = await readJson(path.join(DATA_DIR, 'employer-websites.json'), {});
+  let sidecarMerged = 0;
+  for (const [key, record] of Object.entries(websiteSidecar)) {
+    if (directory[key] && !directory[key].website && record.website) {
+      directory[key].website = record.website;
+      sidecarMerged += 1;
+    }
+  }
+  if (sidecarMerged) console.log(`Merged ${sidecarMerged} nonprofit websites from sidecar`);
 
   const enrichment = {
     schema_version: 1,

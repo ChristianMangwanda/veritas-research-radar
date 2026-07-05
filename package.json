@@ -13,6 +13,8 @@
     "radar:enrich": "node radar/scripts/enrich.js",
     "scout:jobs": "scout/.venv/bin/python scout/scout_jobs.py",
     "scout:aggregators": "scout/.venv/bin/python scout/scout_aggregators.py",
+    "scout:discover": "scout/.venv/bin/python scout/scout_discover.py",
+    "radar:websites": "node radar/scripts/fetch-nonprofit-websites.js",
     "test": "node tests/radar.test.js"
   },
   "engines": {
