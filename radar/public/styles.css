@@ -750,6 +750,13 @@ input[type="range"] {
 
 .signal .meter { width: 100%; }
 
+.signal-note {
+  flex-basis: 100%;
+  font-size: 11px;
+  font-weight: 450;
+  color: var(--faint);
+}
+
 .fit-block {
   display: grid;
   gap: 6px;

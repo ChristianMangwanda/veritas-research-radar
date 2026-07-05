@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "notes": "Ground-truth labeled excerpts for the keyword analyzer. must=exact asserts the analyzer returns the label; must=not_friendly pins known failure modes where the analyzer may miss the true label but must never claim FRIENDLY. Real excerpts come from postings observed in radar/data/jobs.json (2026-07). Grow this corpus whenever a misclassification is found in the wild.",
+  "cases": [
+    {
+      "id": "fh-not-sponsoring",
+      "label": "RESTRICTED",
+      "must": "exact",
+      "source": "agent_scout (Fred Hutch, real)",
+      "text": "Although Fred Hutch is not sponsoring most H-1B visas at this time, candidates who already hold an H-1B sponsored by another organization and are currently in the U.S. may be eligible."
+    },
+    {
+      "id": "not-eligible-sponsorship",
+      "label": "RESTRICTED",
+      "must": "exact",
+      "source": "science-careers (real)",
+      "text": "Work Authorization Requirement: This position is not eligible for visa sponsorship. Candidates must be legally authorized to work in the United States at the time of application."
+    },
+    {
+      "id": "must-be-us-citizen",
+      "label": "RESTRICTED",
+      "must": "exact",
+      "source": "usajobs (real)",
+      "text": "Basic Requirements: United States Citizenship: Must be a US Citizen. Education: Degree of Doctor of Chiropractic, or its equivalent."
+    },
+    {
+      "id": "aaas-no-sponsorship",
+      "label": "RESTRICTED",
+      "must": "exact",
+      "source": "science-careers (real)",
+      "text": "AAAS uses E-Verify to confirm the employment eligibility of all newly hired employees. No visa sponsorship is available for this position."
+    },
+    {
+      "id": "mammalogy-no-commit",
+      "label": "RESTRICTED",
+      "must": "exact",
+      "source": "science-careers (real; was a FRIENDLY false positive before the negation guard covered friendly matches)",
+      "text": "Cal Poly SLO does not commit to providing visa sponsorship for this position, and applicants should not expect that such sponsorship will be offered."
+    },
+    {
+      "id": "nato-citizen-requirement",
+      "label": "RESTRICTED",
+      "must": "exact",
+      "source": "usajobs (real)",
+      "text": "In accordance with the Status of Forces Agreement between Germany and the U.S., you must be a U.S. citizen or citizen of a NATO country with a U.S. permanent resident card."
+    },
+    {
+      "id": "itar-us-persons",
+      "label": "RESTRICTED",
+      "must": "exact",
+      "source": "synthetic",
+      "text": "This role is subject to ITAR and is limited to US persons as defined by federal regulation."
+    },
+    {
+      "id": "clearance-required",
+      "label": "RESTRICTED",
+      "must": "exact",
+      "source": "synthetic",
+      "text": "Applicants must hold an active Top Secret security clearance at the time of hire."
+    },
+    {
+      "id": "authorized-without-sponsorship",
+      "label": "RESTRICTED",
+      "must": "exact",
+      "source": "synthetic",
+      "text": "Must be authorized to work in the U.S. without sponsorship now and in the future."
+    },
+    {
+      "id": "cannot-sponsor",
+      "label": "RESTRICTED",
+      "must": "exact",
+      "source": "synthetic",
+      "text": "We are seeking a lab manager. Please note we cannot sponsor H-1B visas for this opening."
+    },
+    {
+      "id": "sponsorship-available",
+      "label": "FRIENDLY",
+      "must": "exact",
+      "source": "synthetic",
+      "text": "Visa sponsorship is available for this position for qualified candidates."
+    },
+    {
+      "id": "cap-exempt-year-round",
+      "label": "FRIENDLY",
+      "must": "exact",
+      "source": "synthetic",
+      "text": "As a university employer we file cap-exempt H-1B petitions year-round for research staff."
+    },
+    {
+      "id": "opt-welcome",
+      "label": "FRIENDLY",
+      "must": "exact",
+      "source": "synthetic",
+      "text": "Candidates on OPT or STEM OPT are welcome to apply for this fellowship."
+    },
+    {
+      "id": "provides-immigration-services",
+      "label": "FRIENDLY",
+      "must": "exact",
+      "source": "synthetic (mirror of the USCIS agency-name false positive: providing-context must fire, bare agency name must not)",
+      "text": "Our international office provides immigration services and green card processing for employees."
+    },
+    {
+      "id": "will-sponsor-h1b",
+      "label": "FRIENDLY",
+      "must": "exact",
+      "source": "synthetic",
+      "text": "The laboratory will sponsor H-1B visas for exceptional postdoctoral candidates."
+    },
+    {
+      "id": "tn-visa-eligible",
+      "label": "FRIENDLY",
+      "must": "exact",
+      "source": "synthetic",
+      "text": "TN visa candidates from Canada and Mexico are eligible for this role."
+    },
+    {
+      "id": "plain-research-posting",
+      "label": "NEUTRAL",
+      "must": "exact",
+      "source": "workday (University of Chicago, real)",
+      "text": "The Section of Genetic Medicine conducts impactful investigations focused on quantitative genetics, systems biology and genomics as well as through extensive collaborations of the faculty throughout the Department of Medicine."
+    },
+    {
+      "id": "everify-only",
+      "label": "NEUTRAL",
+      "must": "exact",
+      "source": "synthetic (bare E-Verify participation carries no sponsorship signal)",
+      "text": "This employer participates in E-Verify and will provide the federal government with your Form I-9 information."
+    },
+    {
+      "id": "no-clearance-required",
+      "label": "NEUTRAL",
+      "must": "exact",
+      "source": "synthetic (negation guard)",
+      "text": "No security clearance required for this role."
+    },
+    {
+      "id": "not-itar",
+      "label": "NEUTRAL",
+      "must": "exact",
+      "source": "synthetic (negation guard)",
+      "text": "This position is not subject to ITAR or export control restrictions."
+    },
+    {
+      "id": "relocation-only",
+      "label": "NEUTRAL",
+      "must": "exact",
+      "source": "synthetic (relocation without visa language is not a sponsorship signal)",
+      "text": "We offer competitive benefits including relocation assistance and professional development funds."
+    },
+    {
+      "id": "uscis-agency-name",
+      "label": "RESTRICTED",
+      "must": "not_friendly",
+      "source": "usajobs Homeland Defender (real; the agency name 'U.S. Citizenship and Immigration Services' was a FRIENDLY false positive). True label is RESTRICTED via the federal hiring-path gate, which lives in the mapper, not the text scan.",
+      "text": "The Department of Homeland Security, U.S. Citizenship and Immigration Services, has a critical hiring need. GS-05: You qualify at the GS-05 level if you possess three years of general experience."
+    },
+    {
+      "id": "fccpt-agency-mention",
+      "label": "NEUTRAL",
+      "must": "not_friendly",
+      "source": "usajobs Physical Therapist (real; mentions the agency in a credentialing context)",
+      "text": "The Foreign Credentialing Commission on Physical Therapy (FCCPT) is a non-profit organization created to assist the United States (U.S.) Citizenship and Immigration Services (formerly INS) and U.S. state licensing authorities by evaluating the credentials of Foreign Educated Physical Therapists."
+    },
+    {
+      "id": "should-not-expect-offer",
+      "label": "RESTRICTED",
+      "must": "not_friendly",
+      "source": "synthetic (negated offer; analyzer may read NEUTRAL, must never read FRIENDLY)",
+      "text": "Applicants should not expect that visa sponsorship will be offered for this position."
+    }
+  ]
+}

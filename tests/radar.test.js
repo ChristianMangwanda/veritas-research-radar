@@ -122,6 +122,40 @@ async function testCsvMultilineRecords() {
   ]);
 }
 
+// Ground-truth labeled corpus: every case runs through the analyzer; exact
+// cases must classify correctly, not_friendly cases pin known failure modes.
+// Per-class precision/recall is printed so pattern edits show their effect.
+function testAnalyzerCorpus() {
+  const corpus = JSON.parse(fs.readFileSync(path.join(__dirname, 'analyzer-corpus.json'), 'utf8'));
+  const stats = {
+    RESTRICTED: { tp: 0, fp: 0, fn: 0 },
+    FRIENDLY: { tp: 0, fp: 0, fn: 0 },
+    NEUTRAL: { tp: 0, fp: 0, fn: 0 }
+  };
+  const failures = [];
+  for (const testCase of corpus.cases) {
+    const state = analyzeText(testCase.text).state;
+    if (testCase.must === 'exact') {
+      if (state !== testCase.label) failures.push(`${testCase.id}: expected ${testCase.label}, got ${state}`);
+      if (state === testCase.label) stats[testCase.label].tp += 1;
+      else {
+        stats[testCase.label].fn += 1;
+        if (stats[state]) stats[state].fp += 1;
+      }
+    } else if (testCase.must === 'not_friendly' && state === 'FRIENDLY') {
+      failures.push(`${testCase.id}: must never be FRIENDLY (ground truth ${testCase.label})`);
+    }
+  }
+  for (const [label, s] of Object.entries(stats)) {
+    const total = s.tp + s.fn;
+    if (!total) continue;
+    const precision = s.tp + s.fp ? s.tp / (s.tp + s.fp) : 1;
+    const recall = s.tp / total;
+    console.log(`  corpus ${label}: precision ${(precision * 100).toFixed(0)}%, recall ${(recall * 100).toFixed(0)}% (n=${total})`);
+  }
+  assert.deepStrictEqual(failures, [], `analyzer corpus failures:\n${failures.join('\n')}`);
+}
+
 function testEntityResolution() {
   const resolver = createResolver([
     { id: 'broad-institute', name: 'Broad Institute', aliases: ['Broad Institute of MIT and Harvard'] },
@@ -367,6 +401,29 @@ async function testUsaJobs() {
   assert.strictEqual(mapped.location, 'Gaithersburg, Maryland');
   assert.strictEqual(mapped.description_text, 'Conduct research in measurement science. Degree in physical science required.');
   assert.strictEqual(mapped.source, 'usajobs');
+  // Federal postings are citizen-gated by default even when the description
+  // text never says "citizen" — the requirement lives in hiring metadata
+  assert.strictEqual(mapped.citizenship_gated, true);
+  assert.strictEqual(mapped.restricted_reason, 'US citizenship required (federal hiring path)');
+
+  // A posting that explicitly opens to non-citizens escapes the gate
+  const openMapped = mapUsaJobsJob({
+    MatchedObjectId: '900000001',
+    MatchedObjectDescriptor: {
+      PositionTitle: 'Postdoctoral Fellow (Title 42)',
+      PositionURI: 'https://www.usajobs.gov/job/900000001',
+      QualificationSummary: 'PhD required.',
+      UserArea: { Details: { JobSummary: 'This position is filled without regard to citizenship.', WhoMayApply: { Name: 'All qualified candidates' } } }
+    }
+  }, employer);
+  assert.strictEqual(openMapped.citizenship_gated, false);
+  assert.strictEqual(openMapped.restricted_reason, null);
+
+  // enrichJob: the mapper-level gate overrides a text scan that found nothing
+  const gatedEnriched = enrichJob(mapped, employer, new Map(), {});
+  assert.strictEqual(gatedEnriched.veritas_state, 'RESTRICTED');
+  assert(gatedEnriched.matched_phrases.includes('US citizenship required (federal hiring path)'));
+  assert.strictEqual(gatedEnriched.citizenship_gated, true);
 
   const savedKey = process.env.USAJOBS_API_KEY;
   const savedEmail = process.env.USAJOBS_EMAIL;
@@ -723,6 +780,7 @@ async function main() {
   testSignalExtraction();
   testNormalization();
   await testCsvMultilineRecords();
+  testAnalyzerCorpus();
   testEntityResolution();
   testProviderMappers();
   await testFetchRetry();

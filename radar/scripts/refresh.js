@@ -215,6 +215,12 @@ function sponsorSignal(veritasState, dolCount) {
 function enrichJob(job, employer, previousById, dolSignal = {}) {
   const text = `${job.title}\n${job.department}\n${job.description_text}`;
   const veritas = analyzeText(text);
+  // A mapper-level restriction (e.g. federal citizenship gate) overrides the
+  // text scan: the requirement lives in source metadata, not the description
+  if (job.restricted_reason) {
+    veritas.state = 'RESTRICTED';
+    veritas.matches = [{ type: 'RESTRICTED', text: job.restricted_reason }, ...veritas.matches];
+  }
   const signals = matchSignals(text);
   const previous = previousById.get(job.id);
   const dolCount = Number(dolSignal.certified_count_3y || employer.dol_lca_certified_count_3y || 0);
@@ -603,10 +609,24 @@ async function fetchWorkdayJobs(employer) {
   return jobs;
 }
 
+// Federal competitive-service positions require US citizenship by default,
+// and the requirement usually lives in "Who May Apply" metadata rather than
+// the description text — so gate on the metadata, defaulting to gated.
+function usaJobsCitizenshipGated(descriptor, details) {
+  const context = [
+    details.WhoMayApply?.Name,
+    Array.isArray(details.HiringPath) ? details.HiringPath.join(' ') : details.HiringPath,
+    details.JobSummary,
+    descriptor.QualificationSummary
+  ].filter(Boolean).join(' ');
+  return !/non-?citizens?\s+(may|can|are\s+(eligible|encouraged))|without\s+regard\s+to\s+citizenship|citizenship\s+is\s+not\s+required/i.test(context);
+}
+
 function mapUsaJobsJob(item, employer) {
   const descriptor = item.MatchedObjectDescriptor || {};
   const details = descriptor.UserArea?.Details || {};
   const jobId = item.MatchedObjectId || descriptor.PositionID || '';
+  const citizenshipGated = usaJobsCitizenshipGated(descriptor, details);
   return {
     id: `usajobs:${employer.ats_token}:${jobId}`,
     employer_id: employer.id,
@@ -621,7 +641,9 @@ function mapUsaJobsJob(item, employer) {
     description_text: normalizeText([details.JobSummary, descriptor.QualificationSummary].filter(Boolean).join(' ')),
     posted_or_updated_at: descriptor.PublicationStartDate || null,
     source: 'usajobs',
-    source_job_id: String(jobId)
+    source_job_id: String(jobId),
+    citizenship_gated: citizenshipGated,
+    restricted_reason: citizenshipGated ? 'US citizenship required (federal hiring path)' : null
   };
 }
 

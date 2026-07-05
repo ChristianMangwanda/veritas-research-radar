@@ -21,6 +21,7 @@ from radar_scout.aggregators import (
     CapExemptDirectory,
     build_snapshot,
     fetch_details,
+    load_description_cache,
     scrape_higheredjobs,
     scrape_madgex,
     write_snapshot,
@@ -48,6 +49,9 @@ def main() -> int:
     directory = CapExemptDirectory.load(RADAR_PATH)
     if directory is None:
         log.warning("no_directory", hint="run npm run radar:enrich first; detail fetches will be skipped")
+    description_cache = load_description_cache(RADAR_PATH)
+    if description_cache:
+        log.info("description_cache_loaded", urls=len(description_cache))
 
     from playwright.sync_api import sync_playwright
 
@@ -61,7 +65,7 @@ def main() -> int:
                 jobs = scrape_madgex(source, page, max_pages=args.max_pages)
                 skipped = None if jobs else "no_listings_found"
                 if jobs and directory and args.details > 0:
-                    fetched = fetch_details(jobs, directory, page, cap=args.details)
+                    fetched = fetch_details(jobs, directory, page, cap=args.details, cache=description_cache)
                     log.info("details_done", source=source_name, fetched=fetched)
                 snapshot = build_snapshot(source_name, source.list_url.format(page=1), jobs, skipped)
             elif source_name == "higheredjobs":

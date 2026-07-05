@@ -21,9 +21,9 @@ Veritas automatically scans job descriptions and displays a color-coded badge in
 - **Privacy-First**: 100% local processing, zero data collection
 - **Research Job Radar**: Fetches public ATS postings (Greenhouse, Lever, Ashby, SmartRecruiters, Workday) from curated likely cap-exempt research employers
 
-### Smart Detection (117 Patterns)
-- **RESTRICTED** (66 patterns): US citizenship, security clearance, "no sponsorship", green card only, US persons / ITAR / export control
-- **FRIENDLY** (51 patterns): H-1B, OPT/CPT, STEM OPT, TN visa, E-3 visa, immigration support
+### Smart Detection (120 Patterns)
+- **RESTRICTED** (67 patterns): US citizenship, security clearance, "no sponsorship", green card only, US persons / ITAR / export control
+- **FRIENDLY** (53 patterns): H-1B, OPT/CPT, STEM OPT, TN visa, E-3 visa, immigration support
 - **Negation-aware**: phrases like "No security clearance required" no longer flag a job as restricted
 
 ### Supported Platforms
@@ -163,7 +163,7 @@ veritas/
 ├── scripts/
 │   ├── background.js      # Service worker
 │   ├── content.js         # Main content script
-│   ├── keywords.js        # 117 detection patterns
+│   ├── keywords.js        # 120 detection patterns
 │   └── ui.js              # Badge & highlighting
 ├── styles/
 │   └── injected.css       # Badge styles

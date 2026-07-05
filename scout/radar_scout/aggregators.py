@@ -172,9 +172,44 @@ def scrape_madgex(source: MadgexSource, page_obj, max_pages: int | None = None) 
     return jobs
 
 
-def fetch_details(jobs: list[dict], directory: "CapExemptDirectory | None", page_obj, cap: int = 60) -> int:
+def load_description_cache(radar_path: Path) -> dict[str, str]:
+    """Previously fetched descriptions from the committed aggregated store,
+    keyed by job URL. Reusing them means each run's detail budget goes only to
+    jobs we have never read, so description coverage converges over runs
+    instead of re-reading the same top-of-list postings forever."""
+    store_path = radar_path / "radar" / "data" / "aggregated-jobs.json"
+    try:
+        store = json.loads(store_path.read_text("utf-8"))
+    except (OSError, ValueError):
+        return {}
+    cache = {}
+    for job in store.get("jobs", []):
+        url = job.get("url")
+        description = str(job.get("description_text") or "").strip()
+        if url and description:
+            cache[url] = description
+    return cache
+
+
+def prefill_descriptions(jobs: list[dict], cache: dict[str, str] | None) -> int:
+    """Fill description_text from the cache for jobs we already read."""
+    reused = 0
+    for job in jobs:
+        if not job.get("description_text") and cache and job["url"] in cache:
+            job["description_text"] = cache[job["url"]]
+            reused += 1
+    return reused
+
+
+def fetch_details(jobs: list[dict], directory: "CapExemptDirectory | None", page_obj, cap: int = 60,
+                  cache: dict[str, str] | None = None) -> int:
     """Fetch full descriptions, prioritizing jobs at cap-exempt employers —
-    those are the ones the importer will keep, so they deserve the budget."""
+    those are the ones the importer will keep, so they deserve the budget.
+    Jobs already described (via the cache) never spend budget."""
+    reused = prefill_descriptions(jobs, cache)
+    if reused:
+        log.info("details_reused", count=reused)
+
     def priority(job: dict) -> int:
         if directory and directory.match(job["employer_name"]):
             return 0
@@ -184,6 +219,8 @@ def fetch_details(jobs: list[dict], directory: "CapExemptDirectory | None", page
     for job in sorted(jobs, key=priority):
         if fetched >= cap:
             break
+        if job.get("description_text"):
+            continue  # already described via cache or an earlier pass
         if directory and not directory.match(job["employer_name"]):
             continue  # never spend budget on employers the importer will drop
         throttle(job["url"], 2)

@@ -25,8 +25,8 @@
 
       // Security clearance (implies citizenship)
       /security\s+clearance\s+(required|needed|necessary)/gi,
-      /(secret|top\s+secret|ts\/sci)\s+clearance/gi,
-      /must\s+(be\s+able\s+to\s+)?(obtain|maintain)\s+(a\s+)?security\s+clearance/gi,
+      /(secret|top\s+secret|ts\/sci)\s+(security\s+)?clearance/gi,
+      /must\s+(be\s+able\s+to\s+)?(obtain|maintain|hold|possess)\s+(an?\s+)?(active\s+|current\s+)?security\s+clearance/gi,
       /clearable/gi,
 
       // Direct "no sponsorship" statements
@@ -46,6 +46,7 @@
       /would\s+not\s+require\s+(visa\s+)?(support|sponsorship)/gi,
       /does\s+not\s+provide\s+(immigration\s+|visa\s+)?(sponsorship|support)/gi,
       /not\s+provide\s+immigration\s+sponsorship/gi,
+      /(does|do|will)\s+not\s+commit\s+to\s+(providing\s+)?(visa\s+|immigration\s+)?sponsorship/gi,
 
       // Authorization without sponsorship requirements
       /must\s+be\s+authorized\s+to\s+work\s+without(\s+visa)?\s+sponsorship/gi,
@@ -134,8 +135,14 @@
       /h-?1b\s+cap\s+exempt/gi,
       /will\s+file\s+h-?1b/gi,
 
+      // Cap-exempt H-1B (universities, nonprofit research orgs — the phrase
+      // only appears in sponsorship contexts; README promised this since v1.2
+      // but the pattern was missing until the corpus caught it)
+      /cap[-\s]?exempt/gi,
+
       // OPT/CPT direct mentions (require positive context)
       /opt\s*(\/|and|or)?\s*cpt\s+(eligible|welcome|accepted|students?)/gi,
+      /\b(opt|cpt|stem\s+opt)\b[^.\n]{0,40}\b(welcome|encouraged)\b/gi,
       /f-?1\s+(opt|cpt)\s+(eligible|welcome|accepted)/gi,
       /stem\s+opt\s+(eligible|welcome|accepted|extension)/gi,
       /opt\s+extension\s+(available|eligible)/gi,
@@ -155,7 +162,9 @@
       /support.*visa.*process/gi,
       /assist(s|ance)?\s+with\s+(visa|immigration)/gi,
       /relocation\s+and\s+visa\s+support/gi,
-      /immigration\s+services/gi,
+      // Requires providing-context: bare "immigration services" is the name of
+      // the federal agency (USCIS) and appears in citizen-only postings
+      /(provides?|provided|offers?|offered|access\s+to)\s+immigration\s+services/gi,
 
       // TN visa (Canada/Mexico)
       /tn\s+visa/gi,
@@ -192,9 +201,11 @@
     ]
   };
 
-  // Negation handling for RESTRICTED matches. Looks only at text BEFORE the match,
+  // Negation handling for BOTH match types. Looks only at text BEFORE the match,
   // within the same sentence/clause, so pattern-internal negators ("no visa
   // sponsorship", "without sponsorship") never suppress their own match.
+  // Applying it to FRIENDLY matches matters just as much: "applicants should
+  // not expect that such sponsorship will be offered" is a refusal, not an offer.
   const SENTENCE_BOUNDARY = /[.!?;:\n\r•|]/;
   const NEGATORS = [
     /\bno\b/i,
@@ -202,17 +213,20 @@
     /\bnever\b/i,
     /\bwithout\s+requiring\b/i,
     /\bregardless\s+of\b/i,
-    /\beven\s+if\b/i
+    /\beven\s+if\b/i,
+    /\bunable\s+to\b/i,
+    /\bcannot\b/i
   ];
 
   /**
-   * Checks whether a RESTRICTED match is preceded by a negator in the same clause
-   * (e.g. "No security clearance required", "not subject to ITAR")
+   * Checks whether a match is preceded by a negator in the same clause
+   * (e.g. "No security clearance required", "not subject to ITAR",
+   * "should not expect that sponsorship will be offered")
    * @param {string} textContent - The full analyzed text
    * @param {number} matchIndex - Character offset of the match
    * @returns {boolean} True if the match should be suppressed
    */
-  function isNegatedRestrictedMatch(textContent, matchIndex) {
+  function isNegatedMatch(textContent, matchIndex) {
     const windowStart = Math.max(0, matchIndex - 80);
     const window = textContent.slice(windowStart, matchIndex);
     const clause = window.split(SENTENCE_BOUNDARY).pop();
@@ -237,7 +251,7 @@
     for (const pattern of KEYWORDS.RESTRICTED) {
       const matchArray = [...textContent.matchAll(pattern)];
       matchArray.forEach(match => {
-        if (isNegatedRestrictedMatch(textContent, match.index)) {
+        if (isNegatedMatch(textContent, match.index)) {
           return;
         }
         state = 'RESTRICTED';
@@ -253,16 +267,17 @@
     if (state === 'NEUTRAL') {
       for (const pattern of KEYWORDS.FRIENDLY) {
         const matchArray = [...textContent.matchAll(pattern)];
-        if (matchArray.length > 0) {
+        matchArray.forEach(match => {
+          if (isNegatedMatch(textContent, match.index)) {
+            return;
+          }
           state = 'FRIENDLY';
-          matchArray.forEach(match => {
-            matches.push({
-              type: 'FRIENDLY',
-              text: match[0],
-              index: match.index
-            });
+          matches.push({
+            type: 'FRIENDLY',
+            text: match[0],
+            index: match.index
           });
-        }
+        });
       }
     }
 
@@ -309,7 +324,9 @@
     module.exports = {
       KEYWORDS,
       analyzeText: root.Veritas.analyzeText,
-      isNegatedRestrictedMatch
+      isNegatedMatch,
+      // Backwards-compatible alias for the pre-rename name
+      isNegatedRestrictedMatch: isNegatedMatch
     };
   }
 

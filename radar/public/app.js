@@ -33,7 +33,7 @@ const TRIAGE_COLORS = {
   ignore: 'var(--faint)'
 };
 
-const VISA_LABELS = { FRIENDLY: 'Friendly', RESTRICTED: 'Restricted', NEUTRAL: 'No visa info' };
+const VISA_LABELS = { FRIENDLY: 'Friendly', RESTRICTED: 'Restricted', NEUTRAL: 'No visa language' };
 const VISA_TAGS = { FRIENDLY: 'tag-friendly', RESTRICTED: 'tag-restricted', NEUTRAL: '' };
 
 const SKILLS = [
@@ -69,6 +69,7 @@ const DOM = {
   visaSeg: document.querySelector('#visa-seg'),
   newOnly: document.querySelector('#new-only'),
   includeClosed: document.querySelector('#include-closed'),
+  includeFederal: document.querySelector('#include-federal'),
   type: document.querySelector('#type'),
   cap: document.querySelector('#cap'),
   triageFilter: document.querySelector('#triage-filter'),
@@ -129,7 +130,7 @@ async function saveLocalState() {
 
 function extractProfile(text) {
   const lower = text.toLowerCase();
-  const skills = SKILLS.filter((skill) => lower.includes(skill));
+  const skills = SKILLS.filter((skill) => hasTerm(lower, skill));
   const degrees = [];
   if (/\b(ph\.?d|doctorate|doctoral)\b/i.test(text)) degrees.push('phd');
   if (/\b(master|m\.s\.|msc|m\.sc)\b/i.test(text)) degrees.push('masters');
@@ -137,7 +138,7 @@ function extractProfile(text) {
 
   const domains = [];
   for (const domain of ['bioinformatics', 'genomics', 'computational biology', 'data science', 'machine learning', 'clinical research', 'software engineering']) {
-    if (lower.includes(domain)) domains.push(domain);
+    if (hasTerm(lower, domain)) domains.push(domain);
   }
 
   return { skills, degrees, domains, rawLength: text.trim().length };
@@ -147,14 +148,26 @@ function jobText(job) {
   return `${job.title} ${job.department} ${job.employer_name} ${job.description_text}`.toLowerCase();
 }
 
+// Word-boundary term matching: bare includes() made single-letter skills like
+// "r" match every posting and "api" match "rapid"
+const TERM_REGEXES = new Map();
+function hasTerm(text, term) {
+  let regex = TERM_REGEXES.get(term);
+  if (!regex) {
+    regex = new RegExp(`\\b${escapeRegExp(term)}\\b`, 'i');
+    TERM_REGEXES.set(term, regex);
+  }
+  return regex.test(text);
+}
+
 function scoreFit(job) {
   if (!state.profile || state.profile.rawLength < 50) {
     return { fit_score: null, matched_skills: [], missing_skills: [], fit_summary: 'Paste resume text to compute local fit.' };
   }
   const text = jobText(job);
-  const matchedSkills = state.profile.skills.filter((skill) => text.includes(skill));
-  const missingSkills = state.profile.skills.filter((skill) => !text.includes(skill)).slice(0, 6);
-  const matchedDomains = state.profile.domains.filter((domain) => text.includes(domain));
+  const matchedSkills = state.profile.skills.filter((skill) => hasTerm(text, skill));
+  const missingSkills = state.profile.skills.filter((skill) => !hasTerm(text, skill)).slice(0, 6);
+  const matchedDomains = state.profile.domains.filter((domain) => hasTerm(text, domain));
   let score = 20;
   score += Math.min(matchedSkills.length * 8, 40);
   score += Math.min(matchedDomains.length * 12, 24);
@@ -237,6 +250,7 @@ function filteredJobs() {
 
   return state.jobs
     .map((job) => ({ ...job, fit: scoreFit(job) }))
+    .filter((job) => !job.citizenship_gated || DOM.includeFederal.checked)
     .filter((job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)))
     .filter((job) => !DOM.newOnly.checked || isNewSinceLastVisit(job))
     .filter((job) => !source || job.source === source)
@@ -263,6 +277,7 @@ function activeFilterCount() {
   if (DOM.triageFilter.value) count += 1;
   if (DOM.newOnly.checked) count += 1;
   if (DOM.includeClosed.checked) count += 1;
+  if (DOM.includeFederal.checked) count += 1;
   if (DOM.minResearch.value !== '0') count += 1;
   return count;
 }
@@ -275,6 +290,7 @@ function resetFilters() {
   DOM.triageFilter.value = '';
   DOM.newOnly.checked = false;
   DOM.includeClosed.checked = false;
+  DOM.includeFederal.checked = false;
   DOM.minResearch.value = '0';
   setVisaFilter('');
   render();
@@ -290,6 +306,7 @@ function syncUrl() {
   if (DOM.source.value) params.set('source', DOM.source.value);
   if (DOM.newOnly.checked) params.set('newOnly', '1');
   if (DOM.includeClosed.checked) params.set('includeClosed', '1');
+  if (DOM.includeFederal.checked) params.set('federal', '1');
   if (visaFilter) params.set('visa', visaFilter);
   if (DOM.type.value) params.set('type', DOM.type.value);
   if (DOM.cap.value) params.set('cap', DOM.cap.value);
@@ -305,6 +322,7 @@ function hydrateFromUrl() {
   if (params.has('sort') && SORTERS[params.get('sort')]) DOM.sort.value = params.get('sort');
   DOM.newOnly.checked = params.get('newOnly') === '1';
   DOM.includeClosed.checked = params.get('includeClosed') === '1';
+  DOM.includeFederal.checked = params.get('federal') === '1';
   if (params.has('visa')) setVisaFilter(params.get('visa'), { skipRender: true });
   if (params.has('type')) DOM.type.value = params.get('type');
   if (params.has('cap')) DOM.cap.value = params.get('cap');
@@ -352,7 +370,9 @@ function shortDate(iso) {
 /* Rendering: stat strip, list, detail                                       */
 
 function renderStats() {
-  const active = state.jobs.filter((job) => !isClosed(job));
+  // Citizen-gated federal jobs are excluded from the headline numbers — a
+  // count the user is mostly ineligible for is a vanity metric, not a stat
+  const active = state.jobs.filter((job) => !isClosed(job) && !job.citizenship_gated);
   DOM.statActive.textContent = active.length;
   DOM.statNew.textContent = active.filter(isNewSinceLastVisit).length;
   DOM.statFriendly.textContent = active.filter((job) => job.veritas_state === 'FRIENDLY').length;
@@ -584,15 +604,50 @@ function signalCell(label, ...content) {
   return cell;
 }
 
+// What each evidence tag actually proves — shown to the user instead of
+// letting a green "verified" pill imply "this job sponsors"
+const EVIDENCE_LABELS = [
+  [/^ipeds/, 'IPEDS higher-ed registry'],
+  [/^irs_eo_bmf/, 'IRS 501(c)(3) master file'],
+  [/^uscis/, 'USCIS petition history'],
+  [/^dol/, 'DOL LCA disclosures'],
+  [/^usajobs/, 'USAJOBS listing'],
+  [/^manual/, 'manually curated'],
+  [/^cap_exempt_directory/, 'cap-exempt directory match']
+];
+
+function evidenceSummary(sources) {
+  const seen = new Set();
+  for (const source of sources || []) {
+    for (const [pattern, label] of EVIDENCE_LABELS) {
+      if (pattern.test(String(source))) { seen.add(label); break; }
+    }
+  }
+  return [...seen].join(' · ');
+}
+
+const CAP_LABELS = { verified: 'cap-exempt: confirmed', likely: 'cap-exempt: likely', unknown: 'cap-exempt: unknown' };
+
 function renderDetailSignals(job) {
   DOM.detailSignals.replaceChildren();
 
+  const institutionCell = signalCell('Institution status',
+    tag(CAP_LABELS[job.cap_exempt_status] || job.cap_exempt_status, job.cap_exempt_status === 'verified' ? 'tag-friendly' : job.cap_exempt_status === 'likely' ? 'tag-accent' : 'tag-warn'),
+    ...(typeof job.cap_exempt_score === 'number' && job.cap_exempt_score > 0 ? [document.createTextNode(`score ${job.cap_exempt_score}`)] : []));
+  const evidence = evidenceSummary(job.cap_exempt_evidence_sources);
+  if (evidence) institutionCell.querySelector('dd').append(el('span', 'signal-note', `via ${evidence}`));
+
+  const sponsorCell = signalCell('Sponsorship history',
+    tag(job.sponsor_signal, job.sponsor_signal === 'strong' ? 'tag-friendly' : job.sponsor_signal === 'restricted' ? 'tag-restricted' : job.sponsor_signal === 'moderate' ? 'tag-accent' : 'tag-warn'),
+    ...(job.dol_lca_certified_count_3y ? [document.createTextNode(`${job.dol_lca_certified_count_3y} LCA certifications (3y)`)] : []));
+  if (job.dol_lca_certified_count_3y) {
+    sponsorCell.querySelector('dd').append(el('span', 'signal-note', 'institution-wide, all job titles — not specific to this role'));
+  }
+
   DOM.detailSignals.append(
     signalCell('Visa signal', tag(VISA_LABELS[job.veritas_state] || job.veritas_state, VISA_TAGS[job.veritas_state] ?? '')),
-    signalCell('Cap-exempt', tag(job.cap_exempt_status, job.cap_exempt_status === 'verified' ? 'tag-friendly' : job.cap_exempt_status === 'likely' ? 'tag-accent' : 'tag-warn'),
-      ...(typeof job.cap_exempt_score === 'number' && job.cap_exempt_score > 0 ? [document.createTextNode(`score ${job.cap_exempt_score}`)] : [])),
-    signalCell('Sponsor history', tag(job.sponsor_signal, job.sponsor_signal === 'strong' ? 'tag-friendly' : job.sponsor_signal === 'restricted' ? 'tag-restricted' : job.sponsor_signal === 'moderate' ? 'tag-accent' : 'tag-warn'),
-      ...(job.dol_lca_certified_count_3y ? [document.createTextNode(`${job.dol_lca_certified_count_3y} LCA certifications (3y)`)] : []))
+    institutionCell,
+    sponsorCell
   );
 
   const researchCell = signalCell('Research relevance', document.createTextNode(`${job.research_relevance_score || 0} / 100`));
@@ -858,7 +913,7 @@ function bindDetailEvents() {
 }
 
 function bindEvents() {
-  for (const input of [DOM.q, DOM.sort, DOM.source, DOM.newOnly, DOM.includeClosed, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
+  for (const input of [DOM.q, DOM.sort, DOM.source, DOM.newOnly, DOM.includeClosed, DOM.includeFederal, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
     input.addEventListener('input', render);
   }
 

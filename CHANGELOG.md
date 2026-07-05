@@ -4,6 +4,31 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Added (Phase 1: signal honesty)
+- **Federal citizenship gate**: USAJOBS postings are citizen-gated by default
+  (the requirement lives in hiring-path metadata, not description text) and
+  marked RESTRICTED at the mapper level; the dashboard hides them unless
+  "Include citizen-only federal" is checked, and headline stats exclude them.
+- **Negation guard now covers FRIENDLY matches**: "applicants should not expect
+  that sponsorship will be offered" no longer reads as an offer. New restricted
+  pattern for "does not commit to providing visa sponsorship".
+- **Ground-truth analyzer corpus** (`tests/analyzer-corpus.json`): labeled real
+  + synthetic excerpts with per-class precision/recall printed on every test
+  run; pins every false positive found in the wild (USCIS-agency-name-as-
+  friendly, negated offers). Corpus immediately caught three recall gaps —
+  including that the cap-exempt pattern promised since v1.2 never existed
+  (now added; 120 patterns: 67 restricted / 53 friendly).
+- Tightened "immigration services" to require providing-context — the bare
+  phrase is the name of the federal agency.
+- **Word-boundary fit matching**: the resume matcher no longer matches skill
+  "r" against every posting or "api" against "rapid".
+- **Honest evidence labels**: "verified" cap-exempt pill replaced with
+  "Institution status: cap-exempt confirmed via IPEDS/IRS…"; sponsorship
+  history is explicitly marked institution-wide, not role-specific.
+- **Incremental aggregator detail-fetch**: previously fetched descriptions are
+  reused from the committed store, so each run's budget goes only to unread
+  jobs and description coverage converges instead of plateauing at ~50%.
+
 ### Added
 - **Dashboard redesign**: three-pane triage layout (filters / scannable job list /
   full detail pane) with keyboard flow (j/k navigate, o open, s/a/e/v/x triage,
