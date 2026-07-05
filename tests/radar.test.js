@@ -35,6 +35,7 @@ const { resolveAggregatedJob, directoryLookup, pseudoEmployerId } = require('../
 const { extractZipEntry, listZipEntries } = require('../radar/scripts/lib/zip.js');
 const zlib = require('zlib');
 const { normalizeName, parseCsvLine } = require('../radar/scripts/import-dol-lca.js');
+const { parseCsv, csvRecords } = require('../radar/scripts/lib/csv.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
 
 function testSharedAnalyzer() {
@@ -95,6 +96,30 @@ function testNormalization() {
   assert.strictEqual(normalizeText('<p>Python &amp; genomics&nbsp;role</p>'), 'Python & genomics role');
   assert.strictEqual(normalizeName('The Broad Institute, Inc.'), 'BROAD INSTITUTE');
   assert.deepStrictEqual(parseCsvLine('"A, B",CERTIFIED,"Research Scientist"'), ['A, B', 'CERTIFIED', 'Research Scientist']);
+}
+
+async function testCsvMultilineRecords() {
+  // Quoted fields containing newlines must parse as one record, not mis-split
+  const text = 'NAME,STATUS,TITLE\n"Acme\nResearch, Inc.",CERTIFIED,"Staff ""Lead"" Scientist"\nPlain Org,DENIED,Analyst\n';
+  assert.deepStrictEqual(parseCsv(text), [
+    ['NAME', 'STATUS', 'TITLE'],
+    ['Acme\nResearch, Inc.', 'CERTIFIED', 'Staff "Lead" Scientist'],
+    ['Plain Org', 'DENIED', 'Analyst']
+  ]);
+  // CRLF record separators and blank lines
+  assert.deepStrictEqual(parseCsv('a,b\r\n\r\nc,d\r\n'), [['a', 'b'], ['c', 'd']]);
+
+  // Streaming shape: physical lines (as readline would emit them) rejoin into
+  // whole records when a quoted field spans lines
+  const physicalLines = ['NAME,TITLE', '"Acme', 'Research, Inc.","Postdoc', 'Fellow"', 'Plain Org,Analyst'];
+  async function* emit() { yield* physicalLines; }
+  const records = [];
+  for await (const record of csvRecords(emit())) records.push(record);
+  assert.deepStrictEqual(records, [
+    ['NAME', 'TITLE'],
+    ['Acme\nResearch, Inc.', 'Postdoc\nFellow'],
+    ['Plain Org', 'Analyst']
+  ]);
 }
 
 function testEntityResolution() {
@@ -697,6 +722,7 @@ async function main() {
   testFixturePages();
   testSignalExtraction();
   testNormalization();
+  await testCsvMultilineRecords();
   testEntityResolution();
   testProviderMappers();
   await testFetchRetry();

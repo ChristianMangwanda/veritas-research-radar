@@ -21,7 +21,7 @@ const readline = require('readline');
 const { Readable } = require('stream');
 const { pipeline } = require('stream/promises');
 const { createResolver, normalizeName, significantTokens } = require('./lib/entity-resolution.js');
-const { parseCsvLine, columnIndex } = require('./lib/csv.js');
+const { parseCsv, csvRecords, columnIndex } = require('./lib/csv.js');
 const { extractZipEntry } = require('./lib/zip.js');
 const { matchSignals } = require('./refresh.js');
 
@@ -95,9 +95,9 @@ async function readFirstLine(filePath) {
 // IPEDS (accredited institutions of higher education)
 
 function parseIpedsCsv(text) {
-  const lines = text.split(/\r?\n/).filter(Boolean);
-  if (lines.length < 2) return [];
-  const headers = parseCsvLine(lines[0]);
+  const rows = parseCsv(text);
+  if (rows.length < 2) return [];
+  const headers = rows[0];
   const idx = {
     unitid: columnIndex(headers, ['UNITID']),
     instnm: columnIndex(headers, ['INSTNM']),
@@ -106,8 +106,7 @@ function parseIpedsCsv(text) {
   };
   if (idx.unitid < 0 || idx.instnm < 0) return [];
   const institutions = [];
-  for (const line of lines.slice(1)) {
-    const row = parseCsvLine(line);
+  for (const row of rows.slice(1)) {
     const unitid = String(row[idx.unitid] || '').trim();
     const instnm = String(row[idx.instnm] || '').trim();
     if (!unitid || !instnm) continue;
@@ -148,24 +147,22 @@ async function loadIpeds(options) {
 async function streamIrsFile(filePath, { resolver, registryTokens, keptRows }) {
   const rl = readline.createInterface({ input: fs.createReadStream(filePath), crlfDelay: Infinity });
   let idx = null;
-  let lineNo = 0;
-  for await (const line of rl) {
-    lineNo += 1;
+  let rowNo = 0;
+  for await (const row of csvRecords(rl)) {
+    rowNo += 1;
     if (!idx) {
-      const headers = parseCsvLine(line);
       idx = {
-        ein: columnIndex(headers, ['EIN']),
-        name: columnIndex(headers, ['NAME']),
-        subsection: columnIndex(headers, ['SUBSECTION']),
-        ntee: columnIndex(headers, ['NTEE_CD']),
-        sortName: columnIndex(headers, ['SORT_NAME']),
-        state: columnIndex(headers, ['STATE'])
+        ein: columnIndex(row, ['EIN']),
+        name: columnIndex(row, ['NAME']),
+        subsection: columnIndex(row, ['SUBSECTION']),
+        ntee: columnIndex(row, ['NTEE_CD']),
+        sortName: columnIndex(row, ['SORT_NAME']),
+        state: columnIndex(row, ['STATE'])
       };
       if (idx.ein < 0 || idx.name < 0) throw new Error(`${path.basename(filePath)}: unexpected header`);
       continue;
     }
-    if (lineNo % 250000 === 0) console.log(`  ${path.basename(filePath)}: ${lineNo} lines...`);
-    const row = parseCsvLine(line);
+    if (rowNo % 250000 === 0) console.log(`  ${path.basename(filePath)}: ${rowNo} rows...`);
     const name = String(row[idx.name] || '').trim();
     if (!name) continue;
     const ntee = String(row[idx.ntee] || '').trim();
@@ -226,18 +223,16 @@ async function loadIrsEoBmf({ resolver, registryTokens }, options) {
 async function streamUscisFile(filePath, byEmployer) {
   const rl = readline.createInterface({ input: fs.createReadStream(filePath), crlfDelay: Infinity });
   let idx = null;
-  for await (const line of rl) {
+  for await (const row of csvRecords(rl)) {
     if (!idx) {
-      const headers = parseCsvLine(line);
       idx = {
-        employer: columnIndex(headers, ['EMPLOYER', 'EMPLOYER_NAME', 'EMPLOYER_PETITIONER_NAME']),
-        initial: columnIndex(headers, ['INITIAL_APPROVAL', 'INITIAL_APPROVALS']),
-        continuing: columnIndex(headers, ['CONTINUING_APPROVAL', 'CONTINUING_APPROVALS'])
+        employer: columnIndex(row, ['EMPLOYER', 'EMPLOYER_NAME', 'EMPLOYER_PETITIONER_NAME']),
+        initial: columnIndex(row, ['INITIAL_APPROVAL', 'INITIAL_APPROVALS']),
+        continuing: columnIndex(row, ['CONTINUING_APPROVAL', 'CONTINUING_APPROVALS'])
       };
       if (idx.employer < 0) throw new Error(`${path.basename(filePath)}: unexpected header`);
       continue;
     }
-    const row = parseCsvLine(line);
     const name = String(row[idx.employer] || '').trim();
     if (!name) continue;
     const toCount = (value) => Number(String(value || '0').replace(/[^0-9]/g, '')) || 0;
@@ -279,18 +274,16 @@ async function loadUscis(options) {
 async function streamDolFile(filePath, byEmployer) {
   const rl = readline.createInterface({ input: fs.createReadStream(filePath), crlfDelay: Infinity });
   let idx = null;
-  for await (const line of rl) {
+  for await (const row of csvRecords(rl)) {
     if (!idx) {
-      const headers = parseCsvLine(line);
       idx = {
-        employer: columnIndex(headers, ['EMPLOYER_NAME', 'EMPLOYER_LEGAL_BUSINESS_NAME', 'EMPLOYER_BUSINESS_DBA']),
-        status: columnIndex(headers, ['CASE_STATUS', 'CASESTATUS']),
-        title: columnIndex(headers, ['JOB_TITLE', 'SOC_TITLE'])
+        employer: columnIndex(row, ['EMPLOYER_NAME', 'EMPLOYER_LEGAL_BUSINESS_NAME', 'EMPLOYER_BUSINESS_DBA']),
+        status: columnIndex(row, ['CASE_STATUS', 'CASESTATUS']),
+        title: columnIndex(row, ['JOB_TITLE', 'SOC_TITLE'])
       };
       if (idx.employer < 0) throw new Error(`${path.basename(filePath)}: no employer column`);
       continue;
     }
-    const row = parseCsvLine(line);
     const status = String(row[idx.status] || '').toUpperCase();
     if (idx.status >= 0 && !status.includes('CERTIFIED')) continue;
     const title = String(row[idx.title] || '').trim();

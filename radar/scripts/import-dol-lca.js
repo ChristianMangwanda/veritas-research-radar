@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
-const fs = require('fs/promises');
+const fs = require('fs');
+const fsp = require('fs/promises');
 const path = require('path');
+const readline = require('readline');
 const { normalizeName, createResolver } = require('./lib/entity-resolution.js');
-const { parseCsvLine, columnIndex } = require('./lib/csv.js');
+const { parseCsvLine, csvRecords, columnIndex } = require('./lib/csv.js');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RADAR_DIR = path.join(ROOT, 'radar');
@@ -23,24 +25,32 @@ function isRecent(value) {
 }
 
 async function importDolCsv(csvPath) {
-  const employers = JSON.parse(await fs.readFile(EMPLOYERS_PATH, 'utf8'));
+  const employers = JSON.parse(await fsp.readFile(EMPLOYERS_PATH, 'utf8'));
   const resolver = createResolver(employers);
   const weakMatches = new Map();
-  const csv = await fs.readFile(csvPath, 'utf8');
-  const lines = csv.split(/\r?\n/).filter(Boolean);
-  if (lines.length < 2) throw new Error('CSV file has no data rows');
+  // Streamed: the disclosure files run to hundreds of MB, and quoted fields
+  // can contain newlines — csvRecords joins those into whole records.
+  const rl = readline.createInterface({ input: fs.createReadStream(csvPath), crlfDelay: Infinity });
 
-  const headers = parseCsvLine(lines[0]);
-  const employerIndex = columnIndex(headers, ['EMPLOYER_NAME', 'EMPLOYER_LEGAL_BUSINESS_NAME', 'EMPLOYER_BUSINESS_DBA']);
-  const statusIndex = columnIndex(headers, ['CASE_STATUS', 'CASESTATUS']);
-  const titleIndex = columnIndex(headers, ['JOB_TITLE', 'SOC_TITLE']);
-  const dateIndex = columnIndex(headers, ['DECISION_DATE', 'CASE_SUBMITTED', 'RECEIVED_DATE']);
-
-  if (employerIndex < 0) throw new Error('Could not find employer name column');
+  let employerIndex = -1;
+  let statusIndex = -1;
+  let titleIndex = -1;
+  let dateIndex = -1;
+  let headerSeen = false;
+  let dataRows = 0;
 
   const signals = {};
-  for (const line of lines.slice(1)) {
-    const row = parseCsvLine(line);
+  for await (const row of csvRecords(rl)) {
+    if (!headerSeen) {
+      headerSeen = true;
+      employerIndex = columnIndex(row, ['EMPLOYER_NAME', 'EMPLOYER_LEGAL_BUSINESS_NAME', 'EMPLOYER_BUSINESS_DBA']);
+      statusIndex = columnIndex(row, ['CASE_STATUS', 'CASESTATUS']);
+      titleIndex = columnIndex(row, ['JOB_TITLE', 'SOC_TITLE']);
+      dateIndex = columnIndex(row, ['DECISION_DATE', 'CASE_SUBMITTED', 'RECEIVED_DATE']);
+      if (employerIndex < 0) throw new Error('Could not find employer name column');
+      continue;
+    }
+    dataRows += 1;
     const resolution = resolver.resolve(row[employerIndex]);
     if (!resolution.matched) continue;
     if (resolution.confidence < MIN_MATCH_CONFIDENCE) {
@@ -68,8 +78,10 @@ async function importDolCsv(csvPath) {
     signals[employer.id] = current;
   }
 
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(OUT_PATH, `${JSON.stringify(signals, null, 2)}\n`, 'utf8');
+  if (!headerSeen || dataRows === 0) throw new Error('CSV file has no data rows');
+
+  await fsp.mkdir(DATA_DIR, { recursive: true });
+  await fsp.writeFile(OUT_PATH, `${JSON.stringify(signals, null, 2)}\n`, 'utf8');
   console.log(`Imported DOL sponsor signals for ${Object.keys(signals).length} employers`);
   if (weakMatches.size) {
     console.log('Near-miss employer names (add an alias to employers.json to count them):');

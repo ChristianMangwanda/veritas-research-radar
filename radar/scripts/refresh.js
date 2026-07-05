@@ -781,6 +781,7 @@ async function runRefresh() {
   const aggregatedSources = new Set(Object.keys(aggregatedStore.snapshots || {}));
   let aggregatedMerged = 0;
   for (const job of aggregatedStore.jobs || []) {
+    if (!job.url || !job.title) continue;
     const snapshot = (aggregatedStore.snapshots || {})[job.source];
     const scoutedAt = Date.parse(snapshot?.scouted_at || '');
     if (!Number.isFinite(scoutedAt) || Date.parse(now) - scoutedAt > aggregatedTtlMs) continue;
@@ -805,6 +806,12 @@ async function runRefresh() {
     };
     const enrichedJob = enrichJob(job, pseudoEmployer, previousById, {});
     enrichedJob.disclaimer += ' Sourced from a job aggregator; verify details at the source URL.';
+    if (!String(job.description_text || '').trim()) {
+      // The firehose only detail-fetches a budgeted subset; a NEUTRAL visa
+      // state here means "never read the posting", not "scanned, no language"
+      enrichedJob.description_captured = false;
+      enrichedJob.disclaimer += ' Description text was not captured; visa and research signals reflect the title only.';
+    }
     fetchedJobs.push(enrichedJob);
     aggregatedMerged += 1;
   }

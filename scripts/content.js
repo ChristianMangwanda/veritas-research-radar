@@ -162,6 +162,9 @@
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.type === 'RESCAN') {
             console.log('[Veritas] Rescan requested');
+            // Reset the content hash so scanCurrentPage() cannot short-circuit
+            // on unchanged content — a manual rescan must always redraw the badge.
+            lastContentHash = null;
             window.Veritas.removeBadge();
             scanCurrentPage();
             sendResponse({ success: true });
