@@ -95,6 +95,12 @@ const DOM = {
 
 const narrowLayout = window.matchMedia('(max-width: 1180px)');
 
+// With thousands of jobs (USAJOBS alone returns 2,500) rendering every row on
+// each keystroke janks; the sort puts the best matches first, so cap the list
+// and reveal the rest on demand.
+const LIST_RENDER_CAP = 400;
+let showAllRows = false;
+
 let visaFilter = '';
 
 /* ------------------------------------------------------------------------ */
@@ -372,8 +378,18 @@ function render() {
     state.selectedId = null;
   }
 
-  for (const job of jobs) {
+  const toRender = showAllRows ? jobs : jobs.slice(0, LIST_RENDER_CAP);
+  for (const job of toRender) {
     DOM.jobs.append(buildRow(job));
+  }
+  if (jobs.length > toRender.length) {
+    const more = el('button', 'ghost-button show-all', `Show all ${jobs.length} jobs (rendering first ${toRender.length})`);
+    more.type = 'button';
+    more.addEventListener('click', () => {
+      showAllRows = true;
+      render();
+    });
+    DOM.jobs.append(more);
   }
 
   renderDetail();
