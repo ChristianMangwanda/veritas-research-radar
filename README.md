@@ -57,8 +57,9 @@ Auto-scans on: LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter, Handshake, Si
 
 **Stuck?** See the [troubleshooting section](INSTALLATION.md#troubleshooting) in INSTALLATION.md
 
-### Chrome Web Store
-*(Coming soon - under review)*
+> Veritas is distributed as a load-unpacked extension — there is no Chrome Web
+> Store listing. Update it with `git pull` + the reload button on
+> `chrome://extensions/`.
 
 ---
 
@@ -281,20 +282,20 @@ Contributions welcome! Areas for improvement:
 
 ## Roadmap
 
-### v1.3 (Q1 2026)
+### Shipped in 1.3.x
+- Research Job Radar: two-layer cap-exempt instrument with autonomous GitHub
+  Actions sourcing (ATS + USAJOBS + aggregator firehose + weekly scout)
+- Triage dashboard: three-pane layout, keyboard flow, dark mode, resume fit
+
+### Next
+- Extension popup surfacing the collected scan statistics
 - User-configurable keywords
-- Statistics dashboard
-- Platform-specific DOM improvements
+- Registry growth: promote discovery candidates into wired employers
 
-### v2.0 (Q2 2026)
-- AI/LLM integration for nuanced language
+### Future
+- AI/LLM integration for nuanced sponsorship language
 - Auto-filter mode (hide ineligible jobs)
-- Company H-1B database integration
-
-### v3.0 (Future)
 - Multi-browser support (Firefox, Safari, Edge)
-- Mobile browser support
-- Collaborative filtering
 
 ---
 

@@ -4,6 +4,7 @@
   "private": true,
   "description": "Veritas browser extension plus local research job radar.",
   "scripts": {
+    "start": "git pull --rebase --autostash && node radar/scripts/server.js",
     "radar:refresh": "node radar/scripts/refresh.js",
     "radar:serve": "node radar/scripts/server.js",
     "radar:import-dol": "node radar/scripts/import-dol-lca.js",
