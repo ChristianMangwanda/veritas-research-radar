@@ -133,6 +133,15 @@ const server = http.createServer((request, response) => {
   });
 });
 
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.log(`A dashboard is already running — open http://${HOST}:${PORT}`);
+    console.log('(To restart it instead: pkill -f radar/scripts/server.js, then npm start.)');
+    process.exit(0);
+  }
+  throw error;
+});
+
 server.listen(PORT, HOST, () => {
   console.log(`Veritas Research Radar running at http://${HOST}:${PORT}`);
 });
