@@ -1267,29 +1267,6 @@
       "probe_total_jobs": 25
     },
     {
-      "id": "mgh-institute-of-health-professions",
-      "name": "MGH Institute of Health Professions",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:166869"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "massgeneralbrigham",
-      "ats_config": {
-        "host": "massgeneralbrigham.wd1.myworkdayjobs.com",
-        "tenant": "massgeneralbrigham",
-        "site": "MGBExternal"
-      },
-      "careers_url": "https://www.mghihp.edu/about/careers",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 2000 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 2000
-    },
-    {
       "id": "guilford-college",
       "name": "Guilford College",
       "aliases": [],
@@ -1658,29 +1635,6 @@
       "probe_total_jobs": 3
     },
     {
-      "id": "adventhealth-university",
-      "name": "AdventHealth University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:133872"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "adventhealth",
-      "ats_config": {
-        "host": "adventhealth.wd12.myworkdayjobs.com",
-        "tenant": "adventhealth",
-        "site": "AH_External_Career_Site"
-      },
-      "careers_url": "https://www.adventhealth.com/careers/adventhealth-university-jobs",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 2000 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 2000
-    },
-    {
       "id": "northern-new-mexico-college",
       "name": "Northern New Mexico College",
       "aliases": [],
@@ -1886,29 +1840,6 @@
       "research_areas": [],
       "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 45 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
       "probe_total_jobs": 45
-    },
-    {
-      "id": "queens-university-of-charlotte",
-      "name": "Queens University of Charlotte",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:199412"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "aah",
-      "ats_config": {
-        "host": "aah.wd5.myworkdayjobs.com",
-        "tenant": "aah",
-        "site": "External"
-      },
-      "careers_url": "https://www.queens.edu/careers/why-work-at-queens/career-opportunities-at-queens/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 2000 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 2000
     },
     {
       "id": "the-university-of-findlay",
@@ -2314,6 +2245,23 @@
     {
       "name": "Norfolk State University",
       "reason": "workday:nsu probe found no live site"
+    }
+  ],
+  "held": [
+    {
+      "name": "MGH Institute of Health Professions",
+      "tenant": "massgeneralbrigham",
+      "reason": "health-system board on a school name — needs a properly named registry entry"
+    },
+    {
+      "name": "AdventHealth University",
+      "tenant": "adventhealth",
+      "reason": "health-system board on a school name — needs a properly named registry entry"
+    },
+    {
+      "name": "Queens University of Charlotte",
+      "tenant": "aah",
+      "reason": "health-system board on a school name — needs a properly named registry entry"
     }
   ]
 }
