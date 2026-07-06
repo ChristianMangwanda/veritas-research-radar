@@ -58,7 +58,7 @@ const WORKDAY_DETAIL_DELAY_MS = 250;
 const USAJOBS_PAGE_SIZE = 500;
 const USAJOBS_MAX_PAGES_PER_QUERY = 5;
 const USAJOBS_PAGE_DELAY_MS = 300;
-const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'recruitee', 'breezy', 'workable', 'usajobs'];
+const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin'];
 
 const SIGNAL_PATTERNS = {
   cap_exempt_language: [
@@ -710,6 +710,80 @@ async function fetchUsaJobsJobs(employer) {
   return [...byId.values()];
 }
 
+// --- PeopleAdmin (PowerSchool) — Atom feed, one request, descriptions inline
+
+async function fetchText(url, options = {}) {
+  const { retries = 1, retryDelayMs = 1000 } = options;
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      const response = await fetch(url, {
+        headers: { accept: 'application/atom+xml, application/xml, text/xml', 'user-agent': USER_AGENT },
+        signal: controller.signal
+      });
+      if (!response.ok) {
+        const error = new Error(`HTTP ${response.status} ${response.statusText}`);
+        error.status = response.status;
+        throw error;
+      }
+      return await response.text();
+    } catch (error) {
+      lastError = error;
+      if (attempt < retries && isRetryableFetchError(error)) {
+        await sleep(retryDelayMs * (attempt + 1));
+        continue;
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+  throw lastError;
+}
+
+// The feed is machine-generated and structurally stable; targeted regex
+// extraction avoids an XML-parser dependency
+function parsePeopleAdminAtom(xml) {
+  const entries = [];
+  for (const block of String(xml).match(/<entry>[\s\S]*?<\/entry>/g) || []) {
+    const pick = (tag) => (block.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`)) || [])[1] || '';
+    const url = (block.match(/<link[^>]*rel="alternate"[^>]*href="([^"]+)"/) || [])[1] || pick('id').trim();
+    entries.push({
+      url: url.trim(),
+      title: normalizeText(pick('title')),
+      content: pick('content'),
+      published: pick('published').trim() || null,
+      author: normalizeText((block.match(/<author>[\s\S]*?<name>([\s\S]*?)<\/name>/) || [])[1] || '')
+    });
+  }
+  return entries;
+}
+
+function mapPeopleAdminEntry(entry, employer) {
+  const postingId = (String(entry.url).match(/\/postings\/(\d+)/) || [])[1] || entry.url;
+  return {
+    id: `peopleadmin:${employer.ats_token}:${postingId}`,
+    employer_id: employer.id,
+    title: entry.title || 'Untitled role',
+    department: entry.author || '',
+    location: 'Unspecified',
+    url: entry.url,
+    description_text: normalizeText(entry.content),
+    posted_or_updated_at: entry.published,
+    source: 'peopleadmin',
+    source_job_id: String(postingId)
+  };
+}
+
+async function fetchPeopleAdminJobs(employer) {
+  const xml = await fetchText(`https://${employer.ats_token}.peopleadmin.com/postings/search.atom`);
+  return parsePeopleAdminAtom(xml)
+    .filter((entry) => entry.url.startsWith('http'))
+    .map((entry) => mapPeopleAdminEntry(entry, employer));
+}
+
 const ATS_FETCHERS = {
   greenhouse: fetchGreenhouseJobs,
   lever: fetchLeverJobs,
@@ -719,7 +793,8 @@ const ATS_FETCHERS = {
   recruitee: fetchRecruiteeJobs,
   breezy: fetchBreezyJobs,
   workable: fetchWorkableJobs,
-  usajobs: fetchUsaJobsJobs
+  usajobs: fetchUsaJobsJobs,
+  peopleadmin: fetchPeopleAdminJobs
 };
 
 async function fetchEmployerJobs(employer) {
@@ -962,6 +1037,9 @@ if (require.main === module) {
 }
 
 module.exports = {
+  parsePeopleAdminAtom,
+  mapPeopleAdminEntry,
+  fetchPeopleAdminJobs,
   normalizeText,
   matchSignals,
   scoreResearchRelevance,

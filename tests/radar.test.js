@@ -37,6 +37,7 @@ const zlib = require('zlib');
 const { normalizeName, parseCsvLine, annualWage, median } = require('../radar/scripts/import-dol-lca.js');
 const { parseCsv, csvRecords } = require('../radar/scripts/lib/csv.js');
 const { classifyTitle, classLabel } = require('../radar/scripts/lib/title-class.js');
+const { parsePeopleAdminAtom, mapPeopleAdminEntry } = require('../radar/scripts/refresh.js');
 const { jobRow, supabaseEnv } = require('../radar/scripts/lib/supabase.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
 
@@ -220,6 +221,40 @@ function testTitleClassEvidence() {
   assert.strictEqual(noClass.title_class, 'other');
   assert.strictEqual(noClass.class_evidence, null);
   assert.strictEqual(noClass.sponsor_signal, 'moderate'); // 161 institution-wide, wrong class
+}
+
+function testPeopleAdminAdapter() {
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Example University: All Jobs</title>
+  <entry>
+    <id>https://example.peopleadmin.com/postings/12345</id>
+    <published>2026-07-01T10:00:00-04:00</published>
+    <link rel="alternate" type="text/html" href="https://example.peopleadmin.com/postings/12345"/>
+    <title>Research Technician &amp; Lab Manager</title>
+    <content>&lt;div&gt;Join the &lt;strong&gt;genomics&lt;/strong&gt; lab. Visa sponsorship is available.&lt;/div&gt;</content>
+    <author><name>Biology - 101</name></author>
+  </entry>
+  <entry>
+    <id>https://example.peopleadmin.com/postings/12346</id>
+    <link rel="alternate" type="text/html" href="https://example.peopleadmin.com/postings/12346"/>
+    <title>Groundskeeper</title>
+    <content>&lt;p&gt;Maintain campus grounds.&lt;/p&gt;</content>
+  </entry>
+</feed>`;
+  const entries = parsePeopleAdminAtom(xml);
+  assert.strictEqual(entries.length, 2);
+  assert.strictEqual(entries[0].title, 'Research Technician & Lab Manager');
+  assert.strictEqual(entries[0].author, 'Biology - 101');
+  assert.strictEqual(entries[1].published, null);
+
+  const employer = { id: 'example-university', ats_token: 'example' };
+  const job = mapPeopleAdminEntry(entries[0], employer);
+  assert.strictEqual(job.id, 'peopleadmin:example:12345');
+  assert.strictEqual(job.department, 'Biology - 101');
+  assert.strictEqual(job.description_text, 'Join the genomics lab. Visa sponsorship is available.');
+  assert.strictEqual(job.source, 'peopleadmin');
+  assert.strictEqual(job.posted_or_updated_at, '2026-07-01T10:00:00-04:00');
 }
 
 function testSupabaseSink() {
@@ -881,6 +916,7 @@ async function main() {
   testAnalyzerCorpus();
   testTitleClassEvidence();
   testSupabaseSink();
+  testPeopleAdminAdapter();
   testEntityResolution();
   testProviderMappers();
   await testFetchRetry();

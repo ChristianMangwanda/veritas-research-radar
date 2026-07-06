@@ -70,6 +70,55 @@ async function probeWorkday(tenant, dc, siteHint) {
   return best;
 }
 
+async function fetchTextWithTimeout(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'user-agent': 'veritas-research-radar ats probe' }
+    });
+    if (!response.ok) return null;
+    return await response.text();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Generic words carry no identity: "University of X" vs "University of Y"
+const GENERIC_NAME_TOKENS = new Set(['UNIVERSITY', 'COLLEGE', 'THE', 'OF', 'AT', 'AND', 'STATE', 'INSTITUTE', 'SCHOOL', 'ALL', 'JOBS', 'CAREERS', 'SYSTEM']);
+
+function distinctiveTokens(name) {
+  return String(name || '').toUpperCase().replace(/[^A-Z0-9 ]+/g, ' ').split(/\s+/)
+    .filter((token) => token.length > 2 && !GENERIC_NAME_TOKENS.has(token));
+}
+
+function namesOverlap(a, b) {
+  const tokensA = new Set(distinctiveTokens(a));
+  return distinctiveTokens(b).some((token) => tokensA.has(token));
+}
+
+/**
+ * PeopleAdmin probe: the Atom feed's <title> names the institution, which
+ * doubles as the identity check — a shared state-wide instance (e.g. a
+ * Commonwealth of Virginia board linked from a member school's site) fails
+ * the name match and is skipped instead of mislabeled.
+ */
+async function probePeopleAdmin(tenant, expectedName) {
+  const xml = await fetchTextWithTimeout(`https://${tenant}.peopleadmin.com/postings/search.atom`);
+  await sleep(PROBE_DELAY_MS);
+  if (!xml) return null;
+  const totalJobs = (xml.match(/<entry>/g) || []).length;
+  const feedTitle = (xml.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || '';
+  if (totalJobs === 0) return null;
+  if (!namesOverlap(feedTitle, expectedName)) {
+    return { mismatch: true, feed_title: feedTitle.trim() };
+  }
+  return { tenant, site: null, total_jobs: totalJobs, feed_title: feedTitle.trim() };
+}
+
 function employerType(record) {
   // ipeds unitid => higher ed; otherwise research nonprofit
   return record.kind === 'ipeds' || record.kind === 'both' || record.unitid
@@ -88,23 +137,48 @@ async function buildProposals() {
   const skipped = [];
 
   for (const [key, record] of Object.entries(discovery.employers)) {
-    const workdayHits = (record.ats || []).filter((a) => a.provider === 'workday' && a.tenant);
-    if (!workdayHits.length) continue;
-    const hit = workdayHits[0];
-    if (existingTenants.has(hit.tenant)) {
-      skipped.push({ name: record.name, reason: 'tenant already wired' });
-      continue;
-    }
+    const hits = record.ats || [];
+    const workdayHit = hits.find((a) => a.provider === 'workday' && a.tenant);
+    const peopleAdminHit = hits.find((a) => a.provider === 'peopleadmin' && a.tenant);
+    if (!workdayHit && !peopleAdminHit) continue;
+
     const id = slugify(record.name);
     if (existingIds.has(id)) {
       skipped.push({ name: record.name, reason: 'registry id exists' });
       continue;
     }
 
-    console.log(`probing workday:${hit.tenant} (${record.name})…`);
-    const probe = await probeWorkday(hit.tenant, hit.workday_dc || '5', hit.workday_site);
-    if (!probe) {
-      skipped.push({ name: record.name, reason: `workday:${hit.tenant} probe found no live site` });
+    let wiring = null;
+    if (workdayHit && !existingTenants.has(workdayHit.tenant)) {
+      console.log(`probing workday:${workdayHit.tenant} (${record.name})…`);
+      const probe = await probeWorkday(workdayHit.tenant, workdayHit.workday_dc || '5', workdayHit.workday_site);
+      if (probe) {
+        wiring = {
+          ats_provider: 'workday',
+          ats_token: probe.tenant,
+          ats_config: { host: probe.host, tenant: probe.tenant, site: probe.site },
+          total_jobs: probe.total_jobs
+        };
+      }
+    }
+    if (!wiring && peopleAdminHit && !existingTenants.has(peopleAdminHit.tenant)) {
+      console.log(`probing peopleadmin:${peopleAdminHit.tenant} (${record.name})…`);
+      const probe = await probePeopleAdmin(peopleAdminHit.tenant, record.name);
+      if (probe?.mismatch) {
+        skipped.push({ name: record.name, reason: `peopleadmin feed title "${probe.feed_title}" does not match — likely a shared instance` });
+        continue;
+      }
+      if (probe) {
+        wiring = {
+          ats_provider: 'peopleadmin',
+          ats_token: probe.tenant,
+          ats_config: { tenant: probe.tenant },
+          total_jobs: probe.total_jobs
+        };
+      }
+    }
+    if (!wiring) {
+      skipped.push({ name: record.name, reason: 'no live feed found on probes' });
       continue;
     }
 
@@ -121,13 +195,13 @@ async function buildProposals() {
         ...(dirEntry.ein ? ['irs_eo_bmf'] : [])
       ],
       tier: 'auto',
-      ats_provider: 'workday',
-      ats_token: probe.tenant,
-      ats_config: { host: probe.host, tenant: probe.tenant, site: probe.site },
+      ats_provider: wiring.ats_provider,
+      ats_token: wiring.ats_token,
+      ats_config: wiring.ats_config,
       careers_url: record.careers_url || record.website,
       research_areas: [],
-      notes: `Auto-wired from ATS discovery crawl (${record.crawled_at?.slice(0, 10)}); probe saw ${probe.total_jobs} live postings. USCIS ${dirEntry.uscis_approvals_3y || 0} approvals / DOL ${dirEntry.dol_certified_3y || 0} research LCAs (3y).`,
-      probe_total_jobs: probe.total_jobs
+      notes: `Auto-wired from ATS discovery crawl (${record.crawled_at?.slice(0, 10)}); probe saw ${wiring.total_jobs} live postings. USCIS ${dirEntry.uscis_approvals_3y || 0} approvals / DOL ${dirEntry.dol_certified_3y || 0} research LCAs (3y).`,
+      probe_total_jobs: wiring.total_jobs
     });
   }
 
