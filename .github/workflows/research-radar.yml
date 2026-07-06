@@ -33,4 +33,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update research radar data"
-          file_pattern: "radar/data/jobs.json radar/data/refresh-report.json"
+          file_pattern: "radar/data/refresh-report.json"

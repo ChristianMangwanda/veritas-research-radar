@@ -4,7 +4,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const { analyzeText } = require('../../scripts/keywords.js');
 const { classifyTitle, classLabel } = require('./lib/title-class.js');
-const { syncJobs } = require('./lib/supabase.js');
+const { syncJobs, fetchAllJobs } = require('./lib/supabase.js');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RADAR_DIR = path.join(ROOT, 'radar');
@@ -744,7 +744,16 @@ async function runRefresh() {
   const registryEmployers = await readJson(EMPLOYERS_PATH, []);
   const enrichment = await readJson(ENRICHMENT_PATH, null);
   const employers = applyEnrichmentOverlay(registryEmployers, enrichment);
-  const previousJobs = await readJson(JOBS_PATH, []);
+  // Lifecycle state (first_seen_at, tombstones) lives in Supabase once the
+  // dataset stops being committed; the local file remains the fallback
+  let previousJobs = null;
+  try {
+    previousJobs = await fetchAllJobs();
+    if (previousJobs) console.log(`Loaded ${previousJobs.length} previous jobs from Supabase`);
+  } catch (error) {
+    console.warn(`Supabase previous-state read failed, using local file: ${error.message}`);
+  }
+  if (!previousJobs) previousJobs = await readJson(JOBS_PATH, []);
   const dolSignals = await readJson(DOL_SIGNALS_PATH, {});
   const previousById = new Map(previousJobs.map((job) => [job.id, job]));
   const fetchedJobs = [];
@@ -880,7 +889,11 @@ async function runRefresh() {
     console.log(`Merged ${aggregatedMerged} aggregated cap-exempt jobs from ${aggregatedSources.size} sources`);
   }
 
-  const allJobs = applyJobLifecycle({ previousJobs, fetchedJobs, employerOutcomes, now });
+  // ATS feeds occasionally list one requisition twice (same id, two paths);
+  // first occurrence wins so the dataset never carries duplicate ids
+  const uniqueFetched = [...new Map(fetchedJobs.map((job) => [job.id, job]).reverse()).values()].reverse();
+
+  const allJobs = applyJobLifecycle({ previousJobs, fetchedJobs: uniqueFetched, employerOutcomes, now });
 
   allJobs.sort((a, b) => {
     const statusDelta = (a.status === 'closed' ? 1 : 0) - (b.status === 'closed' ? 1 : 0);

@@ -15,6 +15,7 @@
 
 const fsp = require('fs/promises');
 const path = require('path');
+const { fetchAllJobs } = require('./lib/supabase.js');
 
 const JOBS_PATH = path.resolve(__dirname, '../data/jobs.json');
 const DEFAULT_DASHBOARD = 'https://christianmangwanda.github.io/veritas-research-radar/';
@@ -37,7 +38,12 @@ function rankJobs(a, b) {
 }
 
 async function buildDigest({ hours }) {
-  const jobs = JSON.parse(await fsp.readFile(JOBS_PATH, 'utf8'));
+  // Supabase is the dataset of record; the local file is the fallback
+  let jobs = null;
+  try {
+    jobs = await fetchAllJobs();
+  } catch { /* fall back to file */ }
+  if (!jobs) jobs = JSON.parse(await fsp.readFile(JOBS_PATH, 'utf8'));
   const cutoff = Date.now() - hours * 60 * 60 * 1000;
   const fresh = jobs.filter((job) =>
     job.status !== 'closed'

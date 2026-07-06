@@ -27,3 +27,5 @@ jobs:
         run: node radar/scripts/digest.js
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}

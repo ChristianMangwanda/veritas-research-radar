@@ -32,7 +32,7 @@ jobs:
         run: |
           mkdir -p site/data
           cp radar/public/* site/
-          cp radar/data/jobs.json radar/data/refresh-report.json radar/data/discovery-candidates.json site/data/
+          cp radar/data/refresh-report.json radar/data/discovery-candidates.json site/data/
           cp radar/employers.json site/data/employers.json
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

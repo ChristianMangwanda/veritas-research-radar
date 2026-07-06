@@ -4,6 +4,16 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Added (Stage 4: Supabase backbone — cutover complete)
+- The dataset of record moved from a 22MB git-committed jobs.json to Supabase
+  Postgres: CI refreshes upsert every job (dedup fixed: one Workday feed listed
+  a requisition twice) and journal each run; lifecycle state (first-seen,
+  tombstones) loads from the database. jobs.json is no longer committed.
+- Dashboard reads live data via the anon key (RLS read-only) with parallel
+  page fetches — ~5s to first rows for 3,587 jobs; falls back to the local
+  API server, then static JSON. Digest queries the database too.
+
+
 ### Added (Phase 3: coverage flywheel)
 - **ATS discovery pipeline**: websites flow into the cap-exempt directory
   (IPEDS WEBADDR + resumable nonprofit resolver), and `scout_discover.py`

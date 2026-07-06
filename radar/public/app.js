@@ -107,15 +107,67 @@ let visaFilter = '';
 /* ------------------------------------------------------------------------ */
 /* Data + persistence                                                        */
 
-// On GitHub Pages there is no API server: /api/* falls back to the static
-// JSON copies the deploy workflow places under data/, and triage state falls
-// back to localStorage. The same bundle serves both environments.
+// On GitHub Pages there is no API server: jobs and the refresh report read
+// live from Supabase (anon key is public by design; RLS is read-only), other
+// endpoints fall back to static JSON copies, and triage state falls back to
+// localStorage. The same bundle serves both environments.
+const SUPABASE_URL = 'https://nawbdsujjysugaisczta.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_7GXYKvqrAMSfxwPX-0NKyA_CSO2Sz2T';
+
 const STATIC_DATA = {
-  '/api/jobs': 'data/jobs.json',
   '/api/employers': 'data/employers.json',
-  '/api/refresh-report': 'data/refresh-report.json',
   '/api/discovery': 'data/discovery-candidates.json'
 };
+
+async function supabaseGet(pathname) {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1${pathname}`, {
+    headers: { apikey: SUPABASE_ANON_KEY, authorization: `Bearer ${SUPABASE_ANON_KEY}` }
+  });
+  if (!response.ok) throw new Error(`supabase ${response.status}`);
+  return response.json();
+}
+
+async function tryJson(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
+async function loadJobs() {
+  const local = await tryJson('/api/jobs');
+  if (local) return local;
+  try {
+    // Count first, then fetch every page in parallel — sequential paging made
+    // first paint wait ~4x longer than it needs to
+    const pageSize = 1000;
+    const head = await fetch(`${SUPABASE_URL}/rest/v1/jobs?select=id`, {
+      headers: { apikey: SUPABASE_ANON_KEY, prefer: 'count=exact', range: '0-0' }
+    });
+    const total = Number((head.headers.get('content-range') || '').split('/')[1] || 0);
+    if (total > 0) {
+      const pages = await Promise.all(
+        Array.from({ length: Math.ceil(total / pageSize) }, (_, page) =>
+          supabaseGet(`/jobs?select=payload&order=id&limit=${pageSize}&offset=${page * pageSize}`))
+      );
+      return pages.flat().map((row) => row.payload);
+    }
+  } catch { /* fall through */ }
+  return (await tryJson('data/jobs.json')) || [];
+}
+
+async function loadRefreshReport() {
+  const local = await tryJson('/api/refresh-report');
+  if (local) return local;
+  try {
+    const rows = await supabaseGet('/refresh_runs?select=report&order=refreshed_at.desc&limit=1');
+    if (rows[0]?.report) return rows[0].report;
+  } catch { /* fall through */ }
+  return tryJson('data/refresh-report.json');
+}
 
 const LOCAL_TRIAGE_KEY = 'veritas_radar_local_state';
 
@@ -1029,10 +1081,10 @@ async function init() {
   hydrateFromUrl();
 
   const [jobs, employers, local, report, discovery] = await Promise.all([
-    getJson('/api/jobs', []),
+    loadJobs(),
     getJson('/api/employers', []),
     getJson('/api/local-state', null),
-    getJson('/api/refresh-report', null),
+    loadRefreshReport(),
     getJson('/api/discovery', { candidates: [] })
   ]);
   state.jobs = jobs;

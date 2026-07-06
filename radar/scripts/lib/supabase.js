@@ -78,8 +78,11 @@ async function syncJobs(jobs, report) {
   if (!env) return { synced: false, reason: 'SUPABASE_URL / SUPABASE_SERVICE_KEY not set' };
 
   const syncedAt = new Date().toISOString();
-  for (let offset = 0; offset < jobs.length; offset += BATCH_SIZE) {
-    const batch = jobs.slice(offset, offset + BATCH_SIZE).map((job) => jobRow(job, syncedAt));
+  // Same-id duplicates in one upsert make Postgres reject the whole batch
+  // ("cannot affect row a second time") — last occurrence wins
+  const uniqueJobs = [...new Map(jobs.map((job) => [job.id, job])).values()];
+  for (let offset = 0; offset < uniqueJobs.length; offset += BATCH_SIZE) {
+    const batch = uniqueJobs.slice(offset, offset + BATCH_SIZE).map((job) => jobRow(job, syncedAt));
     await request(env, 'POST', '/jobs?on_conflict=id', {
       body: batch,
       headers: { prefer: 'resolution=merge-duplicates,return=minimal' }
@@ -98,7 +101,26 @@ async function syncJobs(jobs, report) {
     });
   }
 
-  return { synced: true, count: jobs.length };
+  return { synced: true, count: uniqueJobs.length };
 }
 
-module.exports = { syncJobs, supabaseEnv, jobRow };
+/**
+ * Load the full previous dataset (payload column carries the enriched job
+ * verbatim). Returns null when credentials are missing or the table is empty
+ * so callers can fall back to the local jobs.json file.
+ */
+async function fetchAllJobs() {
+  const env = supabaseEnv();
+  if (!env) return null;
+  const pageSize = 1000;
+  const jobs = [];
+  for (let offset = 0; ; offset += pageSize) {
+    const response = await request(env, 'GET', `/jobs?select=payload&order=id&limit=${pageSize}&offset=${offset}`);
+    const rows = await response.json();
+    jobs.push(...rows.map((row) => row.payload));
+    if (rows.length < pageSize) break;
+  }
+  return jobs.length ? jobs : null;
+}
+
+module.exports = { syncJobs, fetchAllJobs, supabaseEnv, jobRow };
