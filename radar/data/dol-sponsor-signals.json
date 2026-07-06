@@ -1,4 +1,69 @@
 {
+  "the-university-of-texas-at-dallas": {
+    "employer_id": "the-university-of-texas-at-dallas",
+    "certified_count_3y": 51,
+    "recent_titles": [
+      "Research Associate",
+      "Research Scientist II",
+      "Assistant Professor",
+      "Research Scientist",
+      "Assistant Professor of Instruction",
+      "Reserach Associate",
+      "Peoplesoft Security Administrator III",
+      "Systems Engineer III",
+      "Time & Labor Business Analyst",
+      "Enterprise Systems Developer I",
+      "Visiting Assistant Professor",
+      "Associate Professor of Instruction"
+    ],
+    "title_classes": {
+      "research_associate": {
+        "certified_count_3y": 9,
+        "sample_titles": [
+          "Research Associate"
+        ],
+        "median_annual_wage": 60000
+      },
+      "scientist": {
+        "certified_count_3y": 5,
+        "sample_titles": [
+          "Research Scientist II",
+          "Research Scientist",
+          "Reserach Associate"
+        ],
+        "median_annual_wage": 72556
+      },
+      "faculty": {
+        "certified_count_3y": 33,
+        "sample_titles": [
+          "Assistant Professor",
+          "Assistant Professor of Instruction",
+          "Visiting Assistant Professor",
+          "Associate Professor of Instruction",
+          "Assistant Professor of Operations Management"
+        ],
+        "median_annual_wage": 127555
+      },
+      "engineering_software": {
+        "certified_count_3y": 3,
+        "sample_titles": [
+          "Peoplesoft Security Administrator III",
+          "Systems Engineer III",
+          "Enterprise Systems Developer I"
+        ],
+        "median_annual_wage": 95000
+      },
+      "other": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Time & Labor Business Analyst"
+        ],
+        "median_annual_wage": 66126
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:46.837Z"
+  },
   "university-of-maryland-college-park": {
     "employer_id": "university-of-maryland-college-park",
     "certified_count_3y": 105,
@@ -78,7 +143,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.184Z"
+    "imported_at": "2026-07-06T12:46:46.838Z"
   },
   "ucsf": {
     "employer_id": "ucsf",
@@ -180,7 +245,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.185Z"
+    "imported_at": "2026-07-06T12:46:46.838Z"
   },
   "st-jude": {
     "employer_id": "st-jude",
@@ -281,7 +346,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.186Z"
+    "imported_at": "2026-07-06T12:46:46.839Z"
   },
   "university-of-mississippi": {
     "employer_id": "university-of-mississippi",
@@ -376,7 +441,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.187Z"
+    "imported_at": "2026-07-06T12:46:46.841Z"
   },
   "stevens-institute-of-technology": {
     "employer_id": "stevens-institute-of-technology",
@@ -419,7 +484,104 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.188Z"
+    "imported_at": "2026-07-06T12:46:46.841Z"
+  },
+  "university-of-vermont": {
+    "employer_id": "university-of-vermont",
+    "certified_count_3y": 63,
+    "recent_titles": [
+      "Postdoctoral Associate",
+      "Hospitalist",
+      "Research Analyst",
+      "Post-Doctoral Associate",
+      "Attending Physician",
+      "Registered Nurse",
+      "Research Assistant Professor",
+      "Professor",
+      "Medical Lab Scientist II",
+      "Associate Professor",
+      "Staff Pharmacist",
+      "Neurosurgeon"
+    ],
+    "title_classes": {
+      "postdoc": {
+        "certified_count_3y": 8,
+        "sample_titles": [
+          "Postdoctoral Associate",
+          "Post-Doctoral Associate"
+        ],
+        "median_annual_wage": 62326
+      },
+      "clinical": {
+        "certified_count_3y": 30,
+        "sample_titles": [
+          "Hospitalist",
+          "Attending Physician",
+          "Registered Nurse",
+          "Staff Pharmacist",
+          "Neurosurgeon"
+        ],
+        "median_annual_wage": 301283
+      },
+      "engineering_software": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Research Analyst",
+          "IT Professional"
+        ],
+        "median_annual_wage": 65546
+      },
+      "faculty": {
+        "certified_count_3y": 16,
+        "sample_titles": [
+          "Research Assistant Professor",
+          "Professor",
+          "Associate Professor",
+          "Assistant Professor",
+          "Lecturer"
+        ],
+        "median_annual_wage": 93837
+      },
+      "scientist": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Medical Lab Scientist II"
+        ],
+        "median_annual_wage": 104354
+      },
+      "research_support": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Clinical Research Coordinator III",
+          "Laboratory/Research Technician"
+        ],
+        "median_annual_wage": 56207
+      },
+      "other": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Health Care Counselor",
+          "Hospice Social Worker III"
+        ],
+        "median_annual_wage": 70283
+      },
+      "data_computational": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Research Data Analyst"
+        ],
+        "median_annual_wage": 58157
+      },
+      "research_associate": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Research Associate"
+        ],
+        "median_annual_wage": 70000
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:46.841Z"
   },
   "scripps-research": {
     "employer_id": "scripps-research",
@@ -465,7 +627,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.189Z"
+    "imported_at": "2026-07-06T12:46:46.843Z"
   },
   "colorado-state-university-pueblo": {
     "employer_id": "colorado-state-university-pueblo",
@@ -555,7 +717,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.189Z"
+    "imported_at": "2026-07-06T12:46:46.843Z"
   },
   "georgetown-university": {
     "employer_id": "georgetown-university",
@@ -657,7 +819,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.197Z"
+    "imported_at": "2026-07-06T12:46:46.852Z"
   },
   "university-of-michigan": {
     "employer_id": "university-of-michigan",
@@ -775,7 +937,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.198Z"
+    "imported_at": "2026-07-06T12:46:46.853Z"
   },
   "johns-hopkins-university": {
     "employer_id": "johns-hopkins-university",
@@ -880,7 +1042,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.199Z"
+    "imported_at": "2026-07-06T12:46:46.854Z"
   },
   "university-of-miami": {
     "employer_id": "university-of-miami",
@@ -978,7 +1140,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.199Z"
+    "imported_at": "2026-07-06T12:46:46.854Z"
   },
   "tuskegee-university": {
     "employer_id": "tuskegee-university",
@@ -1016,7 +1178,27 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.201Z"
+    "imported_at": "2026-07-06T12:46:46.856Z"
+  },
+  "murray-state-university": {
+    "employer_id": "murray-state-university",
+    "certified_count_3y": 3,
+    "recent_titles": [
+      "Veterinary Pathologist/Assistant Professor",
+      "Instructor/Laboratory Technician III, Agricultural Chemist"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 3,
+        "sample_titles": [
+          "Veterinary Pathologist/Assistant Professor",
+          "Instructor/Laboratory Technician III, Agricultural Chemist"
+        ],
+        "median_annual_wage": 105000
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:46.859Z"
   },
   "university-of-arkansas-for-medical-sciences": {
     "employer_id": "university-of-arkansas-for-medical-sciences",
@@ -1113,7 +1295,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.205Z"
+    "imported_at": "2026-07-06T12:46:46.859Z"
   },
   "prairie-view-a-m-university": {
     "employer_id": "prairie-view-a-m-university",
@@ -1169,7 +1351,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.206Z"
+    "imported_at": "2026-07-06T12:46:46.860Z"
   },
   "broad-institute": {
     "employer_id": "broad-institute",
@@ -1235,7 +1417,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.206Z"
+    "imported_at": "2026-07-06T12:46:46.860Z"
   },
   "northwestern-university": {
     "employer_id": "northwestern-university",
@@ -1338,7 +1520,48 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.206Z"
+    "imported_at": "2026-07-06T12:46:46.860Z"
+  },
+  "south-dakota-state-university": {
+    "employer_id": "south-dakota-state-university",
+    "certified_count_3y": 16,
+    "recent_titles": [
+      "ASSISTANT PROFESSOR - COMPUTER SCIENCE",
+      "ASSISTANT PROFESSOR - QUANTITATIVE GENETICS AND GENOMICS",
+      "ASSISTANT PROFESSOR - APPLIED MATHEMATICS",
+      "POST DOCTORATE RESEARCH ASSOCIATE",
+      "ASSISTANT PROFESSOR - CROP PHYSIOLOGY",
+      "ASSISTANT PROFESSOR - ARCHITECTURE",
+      "ASST PROFESSOR-PRECISION AGRICULTURE AUTOMATION ENGINEERING",
+      "RESEARCH ASSOCIATE I",
+      "ASSISTANT PROFESSOR - COMPUTER AND CYBER SCIENCES",
+      "ASSISTANT PROFESSOR - GEOGRAPHY",
+      "ASSISTANT PROFESSOR - RUMINANT NUTRITION",
+      "ASSISTANT PROFESSOR - STATISTICS"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 13,
+        "sample_titles": [
+          "ASSISTANT PROFESSOR - COMPUTER SCIENCE",
+          "ASSISTANT PROFESSOR - QUANTITATIVE GENETICS AND GENOMICS",
+          "ASSISTANT PROFESSOR - APPLIED MATHEMATICS",
+          "ASSISTANT PROFESSOR - CROP PHYSIOLOGY",
+          "ASSISTANT PROFESSOR - ARCHITECTURE"
+        ],
+        "median_annual_wage": 90000
+      },
+      "research_associate": {
+        "certified_count_3y": 3,
+        "sample_titles": [
+          "POST DOCTORATE RESEARCH ASSOCIATE",
+          "RESEARCH ASSOCIATE I"
+        ],
+        "median_annual_wage": 54075
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:46.865Z"
   },
   "cleveland-clinic": {
     "employer_id": "cleveland-clinic",
@@ -1426,7 +1649,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.212Z"
+    "imported_at": "2026-07-06T12:46:46.867Z"
   },
   "northern-kentucky-university": {
     "employer_id": "northern-kentucky-university",
@@ -1452,7 +1675,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.212Z"
+    "imported_at": "2026-07-06T12:46:46.867Z"
   },
   "mayo-clinic": {
     "employer_id": "mayo-clinic",
@@ -1552,7 +1775,75 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.213Z"
+    "imported_at": "2026-07-06T12:46:46.867Z"
+  },
+  "dartmouth-college": {
+    "employer_id": "dartmouth-college",
+    "certified_count_3y": 27,
+    "recent_titles": [
+      "Research Scientist",
+      "Assistant Professor",
+      "Suicide Prevention Program Coordinator/Staff Counselor",
+      "Research Associate B",
+      "Research Associate",
+      "Senior Investment Associate",
+      "Enterprise Software Engineer III",
+      "Senior Compliance and Data Analyst",
+      "Post-Production Manager",
+      "Economics Research Specialist",
+      "DICE Program Manager, Financial"
+    ],
+    "title_classes": {
+      "scientist": {
+        "certified_count_3y": 3,
+        "sample_titles": [
+          "Research Scientist"
+        ],
+        "median_annual_wage": 73570
+      },
+      "faculty": {
+        "certified_count_3y": 9,
+        "sample_titles": [
+          "Assistant Professor"
+        ],
+        "median_annual_wage": 109000
+      },
+      "other": {
+        "certified_count_3y": 4,
+        "sample_titles": [
+          "Suicide Prevention Program Coordinator/Staff Counselor",
+          "Senior Investment Associate",
+          "Post-Production Manager",
+          "DICE Program Manager, Financial"
+        ],
+        "median_annual_wage": 76400
+      },
+      "research_associate": {
+        "certified_count_3y": 8,
+        "sample_titles": [
+          "Research Associate B",
+          "Research Associate",
+          "Economics Research Specialist"
+        ],
+        "median_annual_wage": 66950
+      },
+      "engineering_software": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Enterprise Software Engineer III"
+        ],
+        "median_annual_wage": 102942
+      },
+      "data_computational": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Senior Compliance and Data Analyst"
+        ],
+        "median_annual_wage": 85654
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:46.870Z"
   },
   "texas-a-m-university-kingsville": {
     "employer_id": "texas-a-m-university-kingsville",
@@ -1649,7 +1940,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.222Z"
+    "imported_at": "2026-07-06T12:46:46.878Z"
   },
   "salk-institute": {
     "employer_id": "salk-institute",
@@ -1685,7 +1976,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.224Z"
+    "imported_at": "2026-07-06T12:46:46.879Z"
   },
   "metropolitan-state-university-of-denver": {
     "employer_id": "metropolitan-state-university-of-denver",
@@ -1735,11 +2026,11 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.228Z"
+    "imported_at": "2026-07-06T12:46:46.883Z"
   },
   "university-of-chicago": {
     "employer_id": "university-of-chicago",
-    "certified_count_3y": 194,
+    "certified_count_3y": 184,
     "recent_titles": [
       "Assistant Athletic Trainer",
       "Postdoctoral Scholar",
@@ -1787,13 +2078,13 @@
         "median_annual_wage": 79560
       },
       "faculty": {
-        "certified_count_3y": 38,
+        "certified_count_3y": 32,
         "sample_titles": [
           "Research Assistant Professor",
           "Associate Instructional Professor",
-          "Assistant Professor of Management",
           "Assistant Instructional Professor",
-          "Assistant Professor"
+          "Assistant Professor",
+          "L.E. Dickson Instructor"
         ],
         "median_annual_wage": 110000
       },
@@ -1820,7 +2111,7 @@
         "median_annual_wage": 92414
       },
       "research_associate": {
-        "certified_count_3y": 7,
+        "certified_count_3y": 5,
         "sample_titles": [
           "Campus Environment Planning & Design Specialist",
           "Web and Graphic Design Specialist",
@@ -1831,13 +2122,13 @@
         "median_annual_wage": 82245
       },
       "research_support": {
-        "certified_count_3y": 15,
+        "certified_count_3y": 13,
         "sample_titles": [
           "Laboratory Manager",
           "Senior Research Technician",
           "Clinical Research Coordinator 2",
           "Research Analyst",
-          "Research Assistant I"
+          "Senior Research Technologist"
         ],
         "median_annual_wage": 65000
       },
@@ -1854,7 +2145,142 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.229Z"
+    "imported_at": "2026-07-06T12:46:46.883Z"
+  },
+  "university-of-kentucky": {
+    "employer_id": "university-of-kentucky",
+    "certified_count_3y": 63,
+    "recent_titles": [
+      "Assistant Professor",
+      "Associate Professor",
+      "Assistant Professor, Research Title Series",
+      "Scientist IV",
+      "Lecturer",
+      "Assistant Professor, Special Title Series",
+      "Business Intelligence Developer Senior",
+      "Team Lead/Grant Services",
+      "Postdoctoral Scholar",
+      "Assistant Professor, Clinical Title Series",
+      "Scientist II",
+      "Scientist I"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 36,
+        "sample_titles": [
+          "Assistant Professor",
+          "Associate Professor",
+          "Assistant Professor, Research Title Series",
+          "Lecturer",
+          "Assistant Professor, Special Title Series"
+        ],
+        "median_annual_wage": 202003
+      },
+      "scientist": {
+        "certified_count_3y": 7,
+        "sample_titles": [
+          "Scientist IV",
+          "Scientist II",
+          "Scientist I",
+          "Associate Research Scientist",
+          "Scientist I."
+        ],
+        "median_annual_wage": 62930
+      },
+      "data_computational": {
+        "certified_count_3y": 5,
+        "sample_titles": [
+          "Business Intelligence Developer Senior",
+          "Biomedical Data Scientist",
+          "Bioinformatics Analyst",
+          "Bioinformatics Analyst Senior",
+          "Statistician"
+        ],
+        "median_annual_wage": 75050
+      },
+      "other": {
+        "certified_count_3y": 4,
+        "sample_titles": [
+          "Team Lead/Grant Services",
+          "Student Affairs Officer III",
+          "Research Engineer Associate",
+          "Research Analyst"
+        ],
+        "median_annual_wage": 68107
+      },
+      "postdoc": {
+        "certified_count_3y": 6,
+        "sample_titles": [
+          "Postdoctoral Scholar"
+        ],
+        "median_annual_wage": 59039
+      },
+      "clinical": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Interventional Cardiology Physician Fellow"
+        ],
+        "median_annual_wage": 80331
+      },
+      "research_associate": {
+        "certified_count_3y": 4,
+        "sample_titles": [
+          "MDM Design Specialist",
+          "Research Associate Senior",
+          "Procurement Specialist UK HealthCare"
+        ],
+        "median_annual_wage": 69627
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:46.894Z"
+  },
+  "eastern-washington-university": {
+    "employer_id": "eastern-washington-university",
+    "certified_count_3y": 11,
+    "recent_titles": [
+      "IT Project Manager – Journey",
+      "Assist Prof of Comp Sci & Electrical Engg - Cybersecurity",
+      "Quarterly Faculty / Adjunct",
+      "Student Services Coordinator",
+      "Assistant Professor of Psychology",
+      "Management Analyst 4",
+      "Academic Counselor / Coordinator",
+      "Assistant Women’s Basketball Coach",
+      "Psychological Counselor",
+      "Assistant Women’s Soccer Coach"
+    ],
+    "title_classes": {
+      "engineering_software": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "IT Project Manager – Journey"
+        ],
+        "median_annual_wage": 105000
+      },
+      "faculty": {
+        "certified_count_3y": 4,
+        "sample_titles": [
+          "Assist Prof of Comp Sci & Electrical Engg - Cybersecurity",
+          "Quarterly Faculty / Adjunct",
+          "Assistant Professor of Psychology"
+        ],
+        "median_annual_wage": 95000
+      },
+      "other": {
+        "certified_count_3y": 6,
+        "sample_titles": [
+          "Student Services Coordinator",
+          "Management Analyst 4",
+          "Academic Counselor / Coordinator",
+          "Assistant Women’s Basketball Coach",
+          "Psychological Counselor"
+        ],
+        "median_annual_wage": 53685
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:46.895Z"
   },
   "texas-a-m-university-san-antonio": {
     "employer_id": "texas-a-m-university-san-antonio",
@@ -1890,7 +2316,45 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.240Z"
+    "imported_at": "2026-07-06T12:46:46.896Z"
+  },
+  "portland-state-university": {
+    "employer_id": "portland-state-university",
+    "certified_count_3y": 6,
+    "recent_titles": [
+      "Assistant Professor",
+      "Research Assistant Professor",
+      "Senior Research Associate 2",
+      "Post-doctoral Researcher",
+      "Associate Professor"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 4,
+        "sample_titles": [
+          "Assistant Professor",
+          "Research Assistant Professor",
+          "Associate Professor"
+        ],
+        "median_annual_wage": 124094
+      },
+      "research_associate": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Senior Research Associate 2"
+        ],
+        "median_annual_wage": 79452
+      },
+      "postdoc": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Post-doctoral Researcher"
+        ],
+        "median_annual_wage": 62952
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:46.896Z"
   },
   "brown-university": {
     "employer_id": "brown-university",
@@ -1992,7 +2456,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.240Z"
+    "imported_at": "2026-07-06T12:46:46.897Z"
   },
   "university-of-alabama-at-birmingham": {
     "employer_id": "university-of-alabama-at-birmingham",
@@ -2102,7 +2566,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.240Z"
+    "imported_at": "2026-07-06T12:46:46.897Z"
   },
   "texas-a-m-university-central-texas": {
     "employer_id": "texas-a-m-university-central-texas",
@@ -2130,7 +2594,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.241Z"
+    "imported_at": "2026-07-06T12:46:46.898Z"
   },
   "harvard-university": {
     "employer_id": "harvard-university",
@@ -2204,7 +2668,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.241Z"
+    "imported_at": "2026-07-06T12:46:46.898Z"
   },
   "memorial-sloan-kettering": {
     "employer_id": "memorial-sloan-kettering",
@@ -2308,7 +2772,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.243Z"
+    "imported_at": "2026-07-06T12:46:46.900Z"
   },
   "thomas-jefferson-university": {
     "employer_id": "thomas-jefferson-university",
@@ -2412,7 +2876,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.243Z"
+    "imported_at": "2026-07-06T12:46:46.900Z"
   },
   "fairfield-university": {
     "employer_id": "fairfield-university",
@@ -2448,7 +2912,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.244Z"
+    "imported_at": "2026-07-06T12:46:46.901Z"
   },
   "university-of-idaho": {
     "employer_id": "university-of-idaho",
@@ -2492,7 +2956,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.245Z"
+    "imported_at": "2026-07-06T12:46:46.902Z"
   },
   "university-of-north-florida": {
     "employer_id": "university-of-north-florida",
@@ -2510,7 +2974,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.247Z"
+    "imported_at": "2026-07-06T12:46:46.905Z"
   },
   "cornell-university": {
     "employer_id": "cornell-university",
@@ -2573,7 +3037,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.253Z"
+    "imported_at": "2026-07-06T12:46:46.911Z"
   },
   "the-university-of-tampa": {
     "employer_id": "the-university-of-tampa",
@@ -2605,7 +3069,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.253Z"
+    "imported_at": "2026-07-06T12:46:46.911Z"
   },
   "university-of-arkansas": {
     "employer_id": "university-of-arkansas",
@@ -2676,7 +3140,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.256Z"
+    "imported_at": "2026-07-06T12:46:46.914Z"
   },
   "wofford-college": {
     "employer_id": "wofford-college",
@@ -2696,7 +3160,81 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.259Z"
+    "imported_at": "2026-07-06T12:46:46.918Z"
+  },
+  "oregon-state-university": {
+    "employer_id": "oregon-state-university",
+    "certified_count_3y": 55,
+    "recent_titles": [
+      "IT Project Coordinator",
+      "Research Associate",
+      "Extension General Agriculture Educator",
+      "Instructor",
+      "Assistant Profesor",
+      "Fiscal Coordinator 2",
+      "Postdoctoral Scholar",
+      "Assistant Professor (Tenure)",
+      "AMP Upskilling and Learning Process Owner",
+      "Faculty Research Assistant",
+      "Analyst Programmer",
+      "Manager Student Success Services"
+    ],
+    "title_classes": {
+      "engineering_software": {
+        "certified_count_3y": 3,
+        "sample_titles": [
+          "IT Project Coordinator",
+          "Analyst Programmer"
+        ],
+        "median_annual_wage": 69972
+      },
+      "research_associate": {
+        "certified_count_3y": 10,
+        "sample_titles": [
+          "Research Associate"
+        ],
+        "median_annual_wage": 66670
+      },
+      "other": {
+        "certified_count_3y": 7,
+        "sample_titles": [
+          "Extension General Agriculture Educator",
+          "Fiscal Coordinator 2",
+          "AMP Upskilling and Learning Process Owner",
+          "Manager Student Success Services",
+          "Academic Advisor"
+        ],
+        "median_annual_wage": 59764
+      },
+      "faculty": {
+        "certified_count_3y": 20,
+        "sample_titles": [
+          "Instructor",
+          "Assistant Profesor",
+          "Assistant Professor (Tenure)",
+          "Faculty Research Assistant",
+          "Assistant Professor"
+        ],
+        "median_annual_wage": 86004
+      },
+      "postdoc": {
+        "certified_count_3y": 13,
+        "sample_titles": [
+          "Postdoctoral Scholar"
+        ],
+        "median_annual_wage": 65640
+      },
+      "data_computational": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "AMP Upskilling and Learning Process Owner",
+          "Initiatives Manager"
+        ],
+        "median_annual_wage": 101560
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:46.924Z"
   },
   "university-of-wisconsin-milwaukee": {
     "employer_id": "university-of-wisconsin-milwaukee",
@@ -2736,7 +3274,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.265Z"
+    "imported_at": "2026-07-06T12:46:46.925Z"
   },
   "colby-college": {
     "employer_id": "colby-college",
@@ -2772,7 +3310,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.266Z"
+    "imported_at": "2026-07-06T12:46:46.926Z"
   },
   "wake-forest-university": {
     "employer_id": "wake-forest-university",
@@ -2864,7 +3402,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.272Z"
+    "imported_at": "2026-07-06T12:46:46.933Z"
   },
   "carnegie-mellon-university": {
     "employer_id": "carnegie-mellon-university",
@@ -2957,7 +3495,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.272Z"
+    "imported_at": "2026-07-06T12:46:46.934Z"
   },
   "university-of-nebraska-medical-center": {
     "employer_id": "university-of-nebraska-medical-center",
@@ -3053,7 +3591,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.272Z"
+    "imported_at": "2026-07-06T12:46:46.934Z"
   },
   "university-of-washington": {
     "employer_id": "university-of-washington",
@@ -3163,7 +3701,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.274Z"
+    "imported_at": "2026-07-06T12:46:46.936Z"
   },
   "northeast-ohio-medical-university": {
     "employer_id": "northeast-ohio-medical-university",
@@ -3199,7 +3737,47 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.275Z"
+    "imported_at": "2026-07-06T12:46:46.937Z"
+  },
+  "oakland-university": {
+    "employer_id": "oakland-university",
+    "certified_count_3y": 7,
+    "recent_titles": [
+      "Instructor",
+      "Associate Professor",
+      "Assistant Professor",
+      "Academic Researcher",
+      "Postdoctoral Researcher",
+      "Recruitment Manager"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 4,
+        "sample_titles": [
+          "Instructor",
+          "Associate Professor",
+          "Assistant Professor"
+        ],
+        "median_annual_wage": 45000
+      },
+      "other": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Academic Researcher",
+          "Recruitment Manager"
+        ],
+        "median_annual_wage": 58794
+      },
+      "postdoc": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Postdoctoral Researcher"
+        ],
+        "median_annual_wage": 62587
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:46.945Z"
   },
   "washington-state-university": {
     "employer_id": "washington-state-university",
@@ -3270,7 +3848,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.282Z"
+    "imported_at": "2026-07-06T12:46:46.948Z"
   },
   "northeastern-university": {
     "employer_id": "northeastern-university",
@@ -3350,7 +3928,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.282Z"
+    "imported_at": "2026-07-06T12:46:46.948Z"
   },
   "university-of-wisconsin-whitewater": {
     "employer_id": "university-of-wisconsin-whitewater",
@@ -3379,7 +3957,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.284Z"
+    "imported_at": "2026-07-06T12:46:46.950Z"
   },
   "hhmi": {
     "employer_id": "hhmi",
@@ -3436,7 +4014,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.288Z"
+    "imported_at": "2026-07-06T12:46:46.954Z"
   },
   "university-of-southern-california": {
     "employer_id": "university-of-southern-california",
@@ -3542,7 +4120,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.291Z"
+    "imported_at": "2026-07-06T12:46:46.958Z"
   },
   "mit": {
     "employer_id": "mit",
@@ -3602,7 +4180,55 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.292Z"
+    "imported_at": "2026-07-06T12:46:46.959Z"
+  },
+  "university-of-rhode-island": {
+    "employer_id": "university-of-rhode-island",
+    "certified_count_3y": 14,
+    "recent_titles": [
+      "Assistant Professor of Public Relations (Tenure Track)",
+      "Assistant Professor in Statistics (Tenure Track)",
+      "Assistant Professor of Ocean Engineering (Tenure Track)",
+      "Assistant Teaching Professor in Chemical Engineering",
+      "Coordinator, Data & Program Effectiveness",
+      "Asst. Prof. in Criminology & Criminal Justice (Tenure Track)",
+      "Associate Teaching Professor",
+      "Assistant Professor of German (Tenure Track)",
+      "Assistant Professor of East Asian History (Tenure Track)",
+      "Assistant Professor",
+      "Postdoctoral Fellow",
+      "Computational Scientist, High Perf. and Research Computing"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 11,
+        "sample_titles": [
+          "Assistant Professor of Public Relations (Tenure Track)",
+          "Assistant Professor in Statistics (Tenure Track)",
+          "Assistant Professor of Ocean Engineering (Tenure Track)",
+          "Assistant Teaching Professor in Chemical Engineering",
+          "Asst. Prof. in Criminology & Criminal Justice (Tenure Track)"
+        ],
+        "median_annual_wage": 81413
+      },
+      "data_computational": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Coordinator, Data & Program Effectiveness",
+          "Computational Scientist, High Perf. and Research Computing"
+        ],
+        "median_annual_wage": 86730
+      },
+      "postdoc": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Postdoctoral Fellow"
+        ],
+        "median_annual_wage": 66950
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:46.961Z"
   },
   "the-university-of-findlay": {
     "employer_id": "the-university-of-findlay",
@@ -3632,7 +4258,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.301Z"
+    "imported_at": "2026-07-06T12:46:46.970Z"
   },
   "university-of-louisville": {
     "employer_id": "university-of-louisville",
@@ -3698,7 +4324,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.305Z"
+    "imported_at": "2026-07-06T12:46:46.974Z"
   },
   "allen-institute": {
     "employer_id": "allen-institute",
@@ -3750,7 +4376,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.309Z"
+    "imported_at": "2026-07-06T12:46:46.978Z"
   },
   "dana-farber": {
     "employer_id": "dana-farber",
@@ -3846,7 +4472,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.311Z"
+    "imported_at": "2026-07-06T12:46:46.981Z"
   },
   "baylor-college-of-medicine": {
     "employer_id": "baylor-college-of-medicine",
@@ -3937,7 +4563,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.319Z"
+    "imported_at": "2026-07-06T12:46:46.990Z"
   },
   "adams-state-university": {
     "employer_id": "adams-state-university",
@@ -3955,7 +4581,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.322Z"
+    "imported_at": "2026-07-06T12:46:46.994Z"
   },
   "rochester-institute-of-technology": {
     "employer_id": "rochester-institute-of-technology",
@@ -4032,7 +4658,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.326Z"
+    "imported_at": "2026-07-06T12:46:46.998Z"
   },
   "depauw-university": {
     "employer_id": "depauw-university",
@@ -4056,7 +4682,34 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.328Z"
+    "imported_at": "2026-07-06T12:46:47.001Z"
+  },
+  "bowdoin-college": {
+    "employer_id": "bowdoin-college",
+    "certified_count_3y": 6,
+    "recent_titles": [
+      "Assistant Professor of Philosophy",
+      "Assistant Professor of Economics",
+      "Assistant Professor of Africana Studies",
+      "Instructor in Russian, East European, and Eurasian Studies",
+      "Lecturer in Chinese Language",
+      "Lecturer in Hispanic Studies"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 6,
+        "sample_titles": [
+          "Assistant Professor of Philosophy",
+          "Assistant Professor of Economics",
+          "Assistant Professor of Africana Studies",
+          "Instructor in Russian, East European, and Eurasian Studies",
+          "Lecturer in Chinese Language"
+        ],
+        "median_annual_wage": 89000
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.011Z"
   },
   "university-of-rochester": {
     "employer_id": "university-of-rochester",
@@ -4158,7 +4811,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.338Z"
+    "imported_at": "2026-07-06T12:46:47.013Z"
   },
   "washington-and-lee-university": {
     "employer_id": "washington-and-lee-university",
@@ -4182,7 +4835,122 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.341Z"
+    "imported_at": "2026-07-06T12:46:47.016Z"
+  },
+  "montana-state-university": {
+    "employer_id": "montana-state-university",
+    "certified_count_3y": 14,
+    "recent_titles": [
+      "Assistant Professor of Remote Sensing",
+      "Assistant Professor of Civil Engineering",
+      "Instructor",
+      "Assistant Professor - Human Development and Family Science",
+      "Assistant Professor of Sociology",
+      "Assistant Professor of Statistics",
+      "Assistant Professor",
+      "Assistant Professor of Political Science",
+      "County Extension Agent",
+      "Assistant Professor Civil Engineering",
+      "Assistant Professor of Agronomy",
+      "Data Systems Manager I"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 12,
+        "sample_titles": [
+          "Assistant Professor of Remote Sensing",
+          "Assistant Professor of Civil Engineering",
+          "Instructor",
+          "Assistant Professor - Human Development and Family Science",
+          "Assistant Professor of Sociology"
+        ],
+        "median_annual_wage": 80422
+      },
+      "other": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "County Extension Agent"
+        ],
+        "median_annual_wage": 43410
+      },
+      "data_computational": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Data Systems Manager I"
+        ],
+        "median_annual_wage": 56826
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.025Z"
+  },
+  "concord-university": {
+    "employer_id": "concord-university",
+    "certified_count_3y": 1,
+    "recent_titles": [
+      "Instructor of Mathematics"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Instructor of Mathematics"
+        ],
+        "median_annual_wage": 56650
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.028Z"
+  },
+  "university-of-memphis": {
+    "employer_id": "university-of-memphis",
+    "certified_count_3y": 11,
+    "recent_titles": [
+      "Assistant Professor",
+      "Assistant Professor of Practice",
+      "Assistant Professor, Africa and African Diaspora",
+      "Project Coordinator 1",
+      "Research Specialist",
+      "Assistant Professor, Doctor Physical Therapy",
+      "Post Doctoral Fellow",
+      "Research Assistant Professor"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 8,
+        "sample_titles": [
+          "Assistant Professor",
+          "Assistant Professor of Practice",
+          "Assistant Professor, Africa and African Diaspora",
+          "Assistant Professor, Doctor Physical Therapy",
+          "Research Assistant Professor"
+        ],
+        "median_annual_wage": 74804
+      },
+      "other": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Project Coordinator 1"
+        ],
+        "median_annual_wage": 48471
+      },
+      "research_associate": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Research Specialist"
+        ],
+        "median_annual_wage": 57575
+      },
+      "postdoc": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Post Doctoral Fellow"
+        ],
+        "median_annual_wage": 53895
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.031Z"
   },
   "university-of-south-alabama": {
     "employer_id": "university-of-south-alabama",
@@ -4229,7 +4997,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.367Z"
+    "imported_at": "2026-07-06T12:46:47.039Z"
   },
   "medical-college-of-wisconsin": {
     "employer_id": "medical-college-of-wisconsin",
@@ -4317,7 +5085,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.375Z"
+    "imported_at": "2026-07-06T12:46:47.049Z"
   },
   "ball-state-university": {
     "employer_id": "ball-state-university",
@@ -4371,7 +5139,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.376Z"
+    "imported_at": "2026-07-06T12:46:47.049Z"
   },
   "university-of-north-carolina-at-chapel-hill": {
     "employer_id": "university-of-north-carolina-at-chapel-hill",
@@ -4441,7 +5209,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.390Z"
+    "imported_at": "2026-07-06T12:46:47.064Z"
   },
   "george-washington-university": {
     "employer_id": "george-washington-university",
@@ -4481,7 +5249,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.390Z"
+    "imported_at": "2026-07-06T12:46:47.065Z"
   },
   "marshall-university": {
     "employer_id": "marshall-university",
@@ -4523,7 +5291,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.391Z"
+    "imported_at": "2026-07-06T12:46:47.066Z"
   },
   "uc-berkeley": {
     "employer_id": "uc-berkeley",
@@ -4617,7 +5385,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.392Z"
+    "imported_at": "2026-07-06T12:46:47.067Z"
   },
   "howard-university": {
     "employer_id": "howard-university",
@@ -4651,7 +5419,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.397Z"
+    "imported_at": "2026-07-06T12:46:47.072Z"
   },
   "hofstra-university": {
     "employer_id": "hofstra-university",
@@ -4675,7 +5443,29 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.407Z"
+    "imported_at": "2026-07-06T12:46:47.083Z"
+  },
+  "troy-university": {
+    "employer_id": "troy-university",
+    "certified_count_3y": 7,
+    "recent_titles": [
+      "Assistant Professor",
+      "Assistant Professor Risk Management & Insurance",
+      "Lecturer"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 7,
+        "sample_titles": [
+          "Assistant Professor",
+          "Assistant Professor Risk Management & Insurance",
+          "Lecturer"
+        ],
+        "median_annual_wage": 89124
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.088Z"
   },
   "dickinson-college": {
     "employer_id": "dickinson-college",
@@ -4695,7 +5485,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.434Z"
+    "imported_at": "2026-07-06T12:46:47.112Z"
   },
   "montclair-state-university": {
     "employer_id": "montclair-state-university",
@@ -4753,7 +5543,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.435Z"
+    "imported_at": "2026-07-06T12:46:47.113Z"
   },
   "bentley-university": {
     "employer_id": "bentley-university",
@@ -4775,7 +5565,25 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.456Z"
+    "imported_at": "2026-07-06T12:46:47.137Z"
+  },
+  "lewis-university": {
+    "employer_id": "lewis-university",
+    "certified_count_3y": 1,
+    "recent_titles": [
+      "Assistant Professor in Educational Leadership"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Assistant Professor in Educational Leadership"
+        ],
+        "median_annual_wage": 66687
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.147Z"
   },
   "clemson-university": {
     "employer_id": "clemson-university",
@@ -4839,7 +5647,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.484Z"
+    "imported_at": "2026-07-06T12:46:47.167Z"
   },
   "florida-institute-of-technology": {
     "employer_id": "florida-institute-of-technology",
@@ -4895,7 +5703,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.504Z"
+    "imported_at": "2026-07-06T12:46:47.188Z"
   },
   "mount-holyoke-college": {
     "employer_id": "mount-holyoke-college",
@@ -4924,7 +5732,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.509Z"
+    "imported_at": "2026-07-06T12:46:47.195Z"
   },
   "colorado-school-of-mines": {
     "employer_id": "colorado-school-of-mines",
@@ -4966,7 +5774,49 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.517Z"
+    "imported_at": "2026-07-06T12:46:47.204Z"
+  },
+  "university-of-north-carolina-at-charlotte": {
+    "employer_id": "university-of-north-carolina-at-charlotte",
+    "certified_count_3y": 17,
+    "recent_titles": [
+      "Assistant Professor",
+      "Research Associate",
+      "Postdoctoral Research Fellow",
+      "Teaching Assistant Professor",
+      "Lecturer",
+      "Postdoctoral Fellow",
+      "Associate Professor"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 12,
+        "sample_titles": [
+          "Assistant Professor",
+          "Teaching Assistant Professor",
+          "Lecturer",
+          "Associate Professor"
+        ],
+        "median_annual_wage": 107685
+      },
+      "research_associate": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Research Associate"
+        ],
+        "median_annual_wage": 65790
+      },
+      "postdoc": {
+        "certified_count_3y": 4,
+        "sample_titles": [
+          "Postdoctoral Research Fellow",
+          "Postdoctoral Fellow"
+        ],
+        "median_annual_wage": 60942
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.224Z"
   },
   "kean-university": {
     "employer_id": "kean-university",
@@ -4986,7 +5836,45 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.538Z"
+    "imported_at": "2026-07-06T12:46:47.226Z"
+  },
+  "kettering-university": {
+    "employer_id": "kettering-university",
+    "certified_count_3y": 2,
+    "recent_titles": [
+      "Assistant Professor"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Assistant Professor"
+        ],
+        "median_annual_wage": 88775
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.239Z"
+  },
+  "angelo-state-university": {
+    "employer_id": "angelo-state-university",
+    "certified_count_3y": 2,
+    "recent_titles": [
+      "Assistant Professor (Management and Marketing)",
+      "Assistant Professor"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Assistant Professor (Management and Marketing)",
+          "Assistant Professor"
+        ],
+        "median_annual_wage": 62160
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.265Z"
   },
   "wesleyan-university": {
     "employer_id": "wesleyan-university",
@@ -5033,7 +5921,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.576Z"
+    "imported_at": "2026-07-06T12:46:47.267Z"
   },
   "university-of-the-pacific": {
     "employer_id": "university-of-the-pacific",
@@ -5087,7 +5975,51 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.586Z"
+    "imported_at": "2026-07-06T12:46:47.278Z"
+  },
+  "loyola-university-chicago": {
+    "employer_id": "loyola-university-chicago",
+    "certified_count_3y": 10,
+    "recent_titles": [
+      "Assistant Professor of Management",
+      "Rigali Endowed Assistant Professor",
+      "Associate Professor",
+      "Assistant Professor",
+      "Research Assistant I",
+      "Research Associate",
+      "Research Assistant III",
+      "Research Assistant Professor"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 6,
+        "sample_titles": [
+          "Assistant Professor of Management",
+          "Rigali Endowed Assistant Professor",
+          "Associate Professor",
+          "Assistant Professor",
+          "Research Assistant Professor"
+        ],
+        "median_annual_wage": 99827
+      },
+      "research_support": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Research Assistant I",
+          "Research Assistant III"
+        ],
+        "median_annual_wage": 47299
+      },
+      "research_associate": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Research Associate"
+        ],
+        "median_annual_wage": 59538
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.284Z"
   },
   "the-university-of-texas-rio-grande-valley": {
     "employer_id": "the-university-of-texas-rio-grande-valley",
@@ -5153,7 +6085,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.593Z"
+    "imported_at": "2026-07-06T12:46:47.285Z"
   },
   "western-governors-university": {
     "employer_id": "western-governors-university",
@@ -5204,7 +6136,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.606Z"
+    "imported_at": "2026-07-06T12:46:47.302Z"
   },
   "barnard-college": {
     "employer_id": "barnard-college",
@@ -5238,7 +6170,114 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.611Z"
+    "imported_at": "2026-07-06T12:46:47.309Z"
+  },
+  "central-michigan-university": {
+    "employer_id": "central-michigan-university",
+    "certified_count_3y": 10,
+    "recent_titles": [
+      "Assistant Professor",
+      "Data Scientist",
+      "Assistant Professor of Piano",
+      "Web Developer/Programmer II",
+      "Assistant Professor, Accounting",
+      "Coordinator of Graduate Recruitment",
+      "Assistant Professor of Business Information Systems",
+      "Field Hockey Assistant Coach",
+      "Science of Advanced Materials Postdoctoral Research Fellow"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 4,
+        "sample_titles": [
+          "Assistant Professor",
+          "Assistant Professor of Piano",
+          "Assistant Professor, Accounting",
+          "Assistant Professor of Business Information Systems"
+        ],
+        "median_annual_wage": 117500
+      },
+      "data_computational": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Data Scientist"
+        ],
+        "median_annual_wage": 59423
+      },
+      "engineering_software": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Web Developer/Programmer II"
+        ],
+        "median_annual_wage": 83230
+      },
+      "other": {
+        "certified_count_3y": 3,
+        "sample_titles": [
+          "Coordinator of Graduate Recruitment",
+          "Field Hockey Assistant Coach"
+        ],
+        "median_annual_wage": 39330
+      },
+      "postdoc": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Science of Advanced Materials Postdoctoral Research Fellow"
+        ],
+        "median_annual_wage": 56000
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.315Z"
+  },
+  "slippery-rock-university-of-pennsylvania": {
+    "employer_id": "slippery-rock-university-of-pennsylvania",
+    "certified_count_3y": 2,
+    "recent_titles": [
+      "Assistant Professor of Anesthesiology & Critical Care",
+      "Assistant Professor of Mechanical Engineering"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Assistant Professor of Anesthesiology & Critical Care",
+          "Assistant Professor of Mechanical Engineering"
+        ],
+        "median_annual_wage": 254074
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.317Z"
+  },
+  "university-of-central-arkansas": {
+    "employer_id": "university-of-central-arkansas",
+    "certified_count_3y": 10,
+    "recent_titles": [
+      "Assistant Professor of Accounting",
+      "Assistant Professor Elementary, Literacy &Special Education",
+      "Lecturer I of Biology",
+      "Assistant Professor of Psychology",
+      "Lecturer I of Mathematics in Student Transitions",
+      "Assistant Professor of Public Relations",
+      "Assistant Professor of Computer Science",
+      "Assistant Professor of Art - Art Education"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 10,
+        "sample_titles": [
+          "Assistant Professor of Accounting",
+          "Assistant Professor Elementary, Literacy &Special Education",
+          "Lecturer I of Biology",
+          "Assistant Professor of Psychology",
+          "Lecturer I of Mathematics in Student Transitions"
+        ],
+        "median_annual_wage": 52175
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.328Z"
   },
   "bucknell-university": {
     "employer_id": "bucknell-university",
@@ -5258,7 +6297,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.658Z"
+    "imported_at": "2026-07-06T12:46:47.369Z"
   },
   "rhodes-college": {
     "employer_id": "rhodes-college",
@@ -5280,7 +6319,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.665Z"
+    "imported_at": "2026-07-06T12:46:47.377Z"
   },
   "minnesota-state-university-mankato": {
     "employer_id": "minnesota-state-university-mankato",
@@ -5320,7 +6359,27 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.677Z"
+    "imported_at": "2026-07-06T12:46:47.390Z"
+  },
+  "oregon-institute-of-technology": {
+    "employer_id": "oregon-institute-of-technology",
+    "certified_count_3y": 3,
+    "recent_titles": [
+      "Assistant Professor",
+      "Visiting Instructor"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 3,
+        "sample_titles": [
+          "Assistant Professor",
+          "Visiting Instructor"
+        ],
+        "median_annual_wage": 72000
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.407Z"
   },
   "fred-hutch": {
     "employer_id": "fred-hutch",
@@ -5412,7 +6471,33 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.697Z"
+    "imported_at": "2026-07-06T12:46:47.411Z"
+  },
+  "western-university-of-health-sciences": {
+    "employer_id": "western-university-of-health-sciences",
+    "certified_count_3y": 2,
+    "recent_titles": [
+      "Assistant Professor of Foundational Science",
+      "Research Analyst"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Assistant Professor of Foundational Science"
+        ],
+        "median_annual_wage": 115000
+      },
+      "data_computational": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Research Analyst"
+        ],
+        "median_annual_wage": 81228
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.411Z"
   },
   "grand-valley-state-university": {
     "employer_id": "grand-valley-state-university",
@@ -5434,7 +6519,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.722Z"
+    "imported_at": "2026-07-06T12:46:47.440Z"
   },
   "northwest-missouri-state-university": {
     "employer_id": "northwest-missouri-state-university",
@@ -5483,7 +6568,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.740Z"
+    "imported_at": "2026-07-06T12:46:47.455Z"
   },
   "university-of-central-florida": {
     "employer_id": "university-of-central-florida",
@@ -5545,7 +6630,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.746Z"
+    "imported_at": "2026-07-06T12:46:47.461Z"
   },
   "university-of-nevada-reno": {
     "employer_id": "university-of-nevada-reno",
@@ -5610,7 +6695,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.767Z"
+    "imported_at": "2026-07-06T12:46:47.482Z"
   },
   "campbellsville-university": {
     "employer_id": "campbellsville-university",
@@ -5628,7 +6713,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.785Z"
+    "imported_at": "2026-07-06T12:46:47.503Z"
   },
   "the-new-school": {
     "employer_id": "the-new-school",
@@ -5662,7 +6747,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.807Z"
+    "imported_at": "2026-07-06T12:46:47.526Z"
   },
   "ivy-tech-community-college": {
     "employer_id": "ivy-tech-community-college",
@@ -5692,7 +6777,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.818Z"
+    "imported_at": "2026-07-06T12:46:47.538Z"
   },
   "missouri-western-state-university": {
     "employer_id": "missouri-western-state-university",
@@ -5710,7 +6795,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.833Z"
+    "imported_at": "2026-07-06T12:46:47.555Z"
   },
   "claremont-mckenna-college": {
     "employer_id": "claremont-mckenna-college",
@@ -5732,7 +6817,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.860Z"
+    "imported_at": "2026-07-06T12:46:47.584Z"
   },
   "truman-state-university": {
     "employer_id": "truman-state-university",
@@ -5750,7 +6835,157 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.868Z"
+    "imported_at": "2026-07-06T12:46:47.592Z"
+  },
+  "northern-illinois-university": {
+    "employer_id": "northern-illinois-university",
+    "certified_count_3y": 14,
+    "recent_titles": [
+      "Assistant Professor",
+      "Program Adviser (Academic Advising)",
+      "IT Technical Associate",
+      "Post-Doctoral Fellow",
+      "Business Data Analyst",
+      "Data and Analytics Lead"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 8,
+        "sample_titles": [
+          "Assistant Professor"
+        ],
+        "median_annual_wage": 83726
+      },
+      "other": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Program Adviser (Academic Advising)"
+        ],
+        "median_annual_wage": 47278
+      },
+      "engineering_software": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "IT Technical Associate"
+        ],
+        "median_annual_wage": 91889
+      },
+      "postdoc": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Post-Doctoral Fellow"
+        ],
+        "median_annual_wage": 43993
+      },
+      "data_computational": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "Business Data Analyst",
+          "Data and Analytics Lead"
+        ],
+        "median_annual_wage": 65975
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.599Z"
+  },
+  "marquette-university": {
+    "employer_id": "marquette-university",
+    "certified_count_3y": 16,
+    "recent_titles": [
+      "Teaching Assistant Professor",
+      "Assistant Professor of Management",
+      "Assistant Professor",
+      "Postdoctoral Research Associate",
+      "Research Technician",
+      "Clinical Assistant Professor",
+      "Associate Professor",
+      "Instructor of Practice",
+      "Clinical Assistant Professor & CPMG Leader",
+      "Clinical Assistant Professor & CPMG Leader - ASP",
+      "Clinical Asst Prof. & Dir. of Technological Innovation Ctr."
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 14,
+        "sample_titles": [
+          "Teaching Assistant Professor",
+          "Assistant Professor of Management",
+          "Assistant Professor",
+          "Clinical Assistant Professor",
+          "Associate Professor"
+        ],
+        "median_annual_wage": 118788
+      },
+      "postdoc": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Postdoctoral Research Associate"
+        ],
+        "median_annual_wage": 59673
+      },
+      "research_support": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Research Technician"
+        ],
+        "median_annual_wage": 54080
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.600Z"
+  },
+  "south-dakota-school-of-mines-and-technology": {
+    "employer_id": "south-dakota-school-of-mines-and-technology",
+    "certified_count_3y": 9,
+    "recent_titles": [
+      "ASSISTANT PROFESSOR - PHYSICS",
+      "ASSISTANT PROFESSOR - CHEMISTRY",
+      "ASSISTANT PROFESSOR - INDUSTRIAL ENGINEERING",
+      "Senior Accountant",
+      "ASSISTANT PROFESSOR - COMPUTER SCIENCE",
+      "RESEARCH SCIENTIST II",
+      "ASSISTANT PROFESSOR - NANOSCIENCE AND BIOMEDICAL ENGINEERING",
+      "RESEARCH SCIENTIST I",
+      "RESEARCH ENGINEER AND INSTRUMENTATION SPECIALIST"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 5,
+        "sample_titles": [
+          "ASSISTANT PROFESSOR - PHYSICS",
+          "ASSISTANT PROFESSOR - CHEMISTRY",
+          "ASSISTANT PROFESSOR - INDUSTRIAL ENGINEERING",
+          "ASSISTANT PROFESSOR - COMPUTER SCIENCE",
+          "ASSISTANT PROFESSOR - NANOSCIENCE AND BIOMEDICAL ENGINEERING"
+        ],
+        "median_annual_wage": 89114
+      },
+      "other": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Senior Accountant"
+        ],
+        "median_annual_wage": 82000
+      },
+      "scientist": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "RESEARCH SCIENTIST II",
+          "RESEARCH SCIENTIST I"
+        ],
+        "median_annual_wage": 62485
+      },
+      "research_associate": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "RESEARCH ENGINEER AND INSTRUMENTATION SPECIALIST"
+        ],
+        "median_annual_wage": 72164
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.650Z"
   },
   "texas-a-m-international-university": {
     "employer_id": "texas-a-m-international-university",
@@ -5774,7 +7009,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:25.969Z"
+    "imported_at": "2026-07-06T12:46:47.699Z"
   },
   "tarleton-state-university": {
     "employer_id": "tarleton-state-university",
@@ -5804,7 +7039,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.048Z"
+    "imported_at": "2026-07-06T12:46:47.784Z"
   },
   "western-new-mexico-university": {
     "employer_id": "western-new-mexico-university",
@@ -5826,7 +7061,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.053Z"
+    "imported_at": "2026-07-06T12:46:47.789Z"
   },
   "delta-state-university": {
     "employer_id": "delta-state-university",
@@ -5846,7 +7081,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.073Z"
+    "imported_at": "2026-07-06T12:46:47.811Z"
   },
   "regis-university": {
     "employer_id": "regis-university",
@@ -5866,7 +7101,41 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.077Z"
+    "imported_at": "2026-07-06T12:46:47.815Z"
+  },
+  "morehouse-school-of-medicine": {
+    "employer_id": "morehouse-school-of-medicine",
+    "certified_count_3y": 4,
+    "recent_titles": [
+      "Senior Bioinformatics Scientist",
+      "IT Infrastructure Engineer",
+      "ERP Data & Reporting Specialist"
+    ],
+    "title_classes": {
+      "data_computational": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Senior Bioinformatics Scientist"
+        ],
+        "median_annual_wage": 110000
+      },
+      "engineering_software": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "IT Infrastructure Engineer"
+        ],
+        "median_annual_wage": 102000
+      },
+      "research_associate": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "ERP Data & Reporting Specialist"
+        ],
+        "median_annual_wage": 93000
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.816Z"
   },
   "sul-ross-state-university": {
     "employer_id": "sul-ross-state-university",
@@ -5892,7 +7161,43 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.101Z"
+    "imported_at": "2026-07-06T12:46:47.842Z"
+  },
+  "coastal-carolina-university": {
+    "employer_id": "coastal-carolina-university",
+    "certified_count_3y": 8,
+    "recent_titles": [
+      "Assistant Professor of Digital Culture and Design",
+      "Assistant/Associate Professor of Management and Decision Sci",
+      "Assistant Professor - Instructional Technology",
+      "Associate Professor of Recreation and Sport Management.",
+      "Assistant Women's Lacrosse Coach",
+      "Digital Studio Manager",
+      "Assistant Professor of Public Health",
+      "Assistant Professor of Marine Science, Marine Chemistry"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 7,
+        "sample_titles": [
+          "Assistant Professor of Digital Culture and Design",
+          "Assistant/Associate Professor of Management and Decision Sci",
+          "Assistant Professor - Instructional Technology",
+          "Associate Professor of Recreation and Sport Management.",
+          "Digital Studio Manager"
+        ],
+        "median_annual_wage": 69500
+      },
+      "other": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Assistant Women's Lacrosse Coach"
+        ],
+        "median_annual_wage": 45000
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:47.842Z"
   },
   "meharry-medical-college": {
     "employer_id": "meharry-medical-college",
@@ -5920,7 +7225,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.124Z"
+    "imported_at": "2026-07-06T12:46:47.867Z"
   },
   "the-university-of-texas-at-arlington": {
     "employer_id": "the-university-of-texas-at-arlington",
@@ -6009,7 +7314,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.134Z"
+    "imported_at": "2026-07-06T12:46:47.877Z"
   },
   "winthrop-university": {
     "employer_id": "winthrop-university",
@@ -6029,7 +7334,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.138Z"
+    "imported_at": "2026-07-06T12:46:47.882Z"
   },
   "university-of-northern-iowa": {
     "employer_id": "university-of-northern-iowa",
@@ -6059,7 +7364,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.138Z"
+    "imported_at": "2026-07-06T12:46:47.882Z"
   },
   "fort-lewis-college": {
     "employer_id": "fort-lewis-college",
@@ -6079,7 +7384,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.202Z"
+    "imported_at": "2026-07-06T12:46:47.949Z"
   },
   "east-carolina-university": {
     "employer_id": "east-carolina-university",
@@ -6109,7 +7414,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.217Z"
+    "imported_at": "2026-07-06T12:46:47.966Z"
   },
   "xavier-university": {
     "employer_id": "xavier-university",
@@ -6141,7 +7446,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.219Z"
+    "imported_at": "2026-07-06T12:46:47.968Z"
   },
   "worcester-polytechnic-institute": {
     "employer_id": "worcester-polytechnic-institute",
@@ -6179,7 +7484,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.266Z"
+    "imported_at": "2026-07-06T12:46:48.023Z"
   },
   "scripps-college": {
     "employer_id": "scripps-college",
@@ -6201,7 +7506,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.296Z"
+    "imported_at": "2026-07-06T12:46:48.055Z"
   },
   "harvey-mudd-college": {
     "employer_id": "harvey-mudd-college",
@@ -6227,7 +7532,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.361Z"
+    "imported_at": "2026-07-06T12:46:48.153Z"
   },
   "university-of-san-francisco": {
     "employer_id": "university-of-san-francisco",
@@ -6245,7 +7550,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.381Z"
+    "imported_at": "2026-07-06T12:46:48.176Z"
   },
   "furman-university": {
     "employer_id": "furman-university",
@@ -6263,7 +7568,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.402Z"
+    "imported_at": "2026-07-06T12:46:48.199Z"
   },
   "pomona-college": {
     "employer_id": "pomona-college",
@@ -6283,7 +7588,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.437Z"
+    "imported_at": "2026-07-06T12:46:48.237Z"
   },
   "sarah-lawrence-college": {
     "employer_id": "sarah-lawrence-college",
@@ -6301,7 +7606,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.443Z"
+    "imported_at": "2026-07-06T12:46:48.244Z"
   },
   "bryn-mawr-college": {
     "employer_id": "bryn-mawr-college",
@@ -6325,7 +7630,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.459Z"
+    "imported_at": "2026-07-06T12:46:48.261Z"
   },
   "sam-houston-state-university": {
     "employer_id": "sam-houston-state-university",
@@ -6357,7 +7662,49 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.465Z"
+    "imported_at": "2026-07-06T12:46:48.268Z"
+  },
+  "texas-state-university": {
+    "employer_id": "texas-state-university",
+    "certified_count_3y": 15,
+    "recent_titles": [
+      "Lecturer",
+      "Assistant Professor of Instruction",
+      "Assistant Professor",
+      "Research Program Faculty",
+      "UI/UX Designer",
+      "Research Scientist II",
+      "Program Faculty"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 13,
+        "sample_titles": [
+          "Lecturer",
+          "Assistant Professor of Instruction",
+          "Assistant Professor",
+          "Research Program Faculty",
+          "Program Faculty"
+        ],
+        "median_annual_wage": 75000
+      },
+      "engineering_software": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "UI/UX Designer"
+        ],
+        "median_annual_wage": 65772
+      },
+      "scientist": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Research Scientist II"
+        ],
+        "median_annual_wage": 94000
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:48.275Z"
   },
   "seattle-pacific-university": {
     "employer_id": "seattle-pacific-university",
@@ -6383,7 +7730,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.517Z"
+    "imported_at": "2026-07-06T12:46:48.325Z"
   },
   "saginaw-valley-state-university": {
     "employer_id": "saginaw-valley-state-university",
@@ -6413,7 +7760,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.577Z"
+    "imported_at": "2026-07-06T12:46:48.393Z"
   },
   "washington-university-in-st-louis": {
     "employer_id": "washington-university-in-st-louis",
@@ -6431,7 +7778,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.594Z"
+    "imported_at": "2026-07-06T12:46:48.411Z"
   },
   "saint-leo-university": {
     "employer_id": "saint-leo-university",
@@ -6449,7 +7796,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.637Z"
+    "imported_at": "2026-07-06T12:46:48.456Z"
   },
   "texas-a-m-university-corpus-christi": {
     "employer_id": "texas-a-m-university-corpus-christi",
@@ -6495,7 +7842,25 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.648Z"
+    "imported_at": "2026-07-06T12:46:48.469Z"
+  },
+  "university-of-the-incarnate-word": {
+    "employer_id": "university-of-the-incarnate-word",
+    "certified_count_3y": 1,
+    "recent_titles": [
+      "Assistant Professor"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Assistant Professor"
+        ],
+        "median_annual_wage": 75000
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:48.513Z"
   },
   "berklee-college-of-music": {
     "employer_id": "berklee-college-of-music",
@@ -6513,7 +7878,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.781Z"
+    "imported_at": "2026-07-06T12:46:48.611Z"
   },
   "abilene-christian-university": {
     "employer_id": "abilene-christian-university",
@@ -6535,7 +7900,43 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:26.818Z"
+    "imported_at": "2026-07-06T12:46:48.650Z"
+  },
+  "cleveland-state-university": {
+    "employer_id": "cleveland-state-university",
+    "certified_count_3y": 4,
+    "recent_titles": [
+      "High Performance Computing Architect",
+      "Senior Enterprise Software Engineer",
+      "Assistant Professor",
+      "Post-Doctoral Fellow"
+    ],
+    "title_classes": {
+      "engineering_software": {
+        "certified_count_3y": 2,
+        "sample_titles": [
+          "High Performance Computing Architect",
+          "Senior Enterprise Software Engineer"
+        ],
+        "median_annual_wage": 96594
+      },
+      "faculty": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Assistant Professor"
+        ],
+        "median_annual_wage": 110000
+      },
+      "postdoc": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Post-Doctoral Fellow"
+        ],
+        "median_annual_wage": 57783
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:48.972Z"
   },
   "anderson-university": {
     "employer_id": "anderson-university",
@@ -6553,7 +7954,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:27.172Z"
+    "imported_at": "2026-07-06T12:46:49.040Z"
   },
   "carleton-college": {
     "employer_id": "carleton-college",
@@ -6579,7 +7980,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:27.203Z"
+    "imported_at": "2026-07-06T12:46:49.072Z"
   },
   "soka-university-of-america": {
     "employer_id": "soka-university-of-america",
@@ -6599,7 +8000,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:27.256Z"
+    "imported_at": "2026-07-06T12:46:49.129Z"
   },
   "maryland-institute-college-of-art": {
     "employer_id": "maryland-institute-college-of-art",
@@ -6617,7 +8018,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:27.370Z"
+    "imported_at": "2026-07-06T12:46:49.249Z"
   },
   "chan-zuckerberg-biohub": {
     "employer_id": "chan-zuckerberg-biohub",
@@ -6672,7 +8073,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:27.388Z"
+    "imported_at": "2026-07-06T12:46:49.269Z"
   },
   "emerson-college": {
     "employer_id": "emerson-college",
@@ -6690,7 +8091,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:27.409Z"
+    "imported_at": "2026-07-06T12:46:49.291Z"
   },
   "spelman-college": {
     "employer_id": "spelman-college",
@@ -6708,7 +8109,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:27.426Z"
+    "imported_at": "2026-07-06T12:46:49.310Z"
   },
   "florida-polytechnic-university": {
     "employer_id": "florida-polytechnic-university",
@@ -6726,7 +8127,25 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:27.466Z"
+    "imported_at": "2026-07-06T12:46:49.353Z"
+  },
+  "north-carolina-central-university": {
+    "employer_id": "north-carolina-central-university",
+    "certified_count_3y": 1,
+    "recent_titles": [
+      "Lecturer"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Lecturer"
+        ],
+        "median_annual_wage": 65000
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:49.876Z"
   },
   "union-college": {
     "employer_id": "union-college",
@@ -6746,7 +8165,43 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:28.052Z"
+    "imported_at": "2026-07-06T12:46:49.992Z"
+  },
+  "bridgewater-state-university": {
+    "employer_id": "bridgewater-state-university",
+    "certified_count_3y": 1,
+    "recent_titles": [
+      "Assistant Professor, Computer Science"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Assistant Professor, Computer Science"
+        ],
+        "median_annual_wage": 65230
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:50.092Z"
+  },
+  "fayetteville-state-university": {
+    "employer_id": "fayetteville-state-university",
+    "certified_count_3y": 1,
+    "recent_titles": [
+      "ASSOCIATE PROFESSOR OF FORENSIC SCIENCE"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "ASSOCIATE PROFESSOR OF FORENSIC SCIENCE"
+        ],
+        "median_annual_wage": 105000
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:50.211Z"
   },
   "gannon-university": {
     "employer_id": "gannon-university",
@@ -6764,7 +8219,7 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:28.336Z"
+    "imported_at": "2026-07-06T12:46:50.294Z"
   },
   "southeastern-louisiana-university": {
     "employer_id": "southeastern-louisiana-university",
@@ -6782,6 +8237,24 @@
       }
     },
     "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
-    "imported_at": "2026-07-06T05:37:28.660Z"
+    "imported_at": "2026-07-06T12:46:50.637Z"
+  },
+  "linn-benton-community-college": {
+    "employer_id": "linn-benton-community-college",
+    "certified_count_3y": 1,
+    "recent_titles": [
+      "Economics Faculty"
+    ],
+    "title_classes": {
+      "faculty": {
+        "certified_count_3y": 1,
+        "sample_titles": [
+          "Economics Faculty"
+        ],
+        "median_annual_wage": 92721
+      }
+    },
+    "source": "LCA_Dislclosure_Data_FY2026_Q2.csv",
+    "imported_at": "2026-07-06T12:46:50.754Z"
   }
 }
