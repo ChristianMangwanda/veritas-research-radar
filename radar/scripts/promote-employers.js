@@ -107,8 +107,9 @@ function namesOverlap(a, b) {
  * Commonwealth of Virginia board linked from a member school's site) fails
  * the name match and is skipped instead of mislabeled.
  */
-async function probePeopleAdmin(tenant, expectedName) {
-  const xml = await fetchTextWithTimeout(`https://${tenant}.peopleadmin.com/postings/search.atom`);
+async function probePeopleAdmin(tenantOrHost, expectedName) {
+  const host = tenantOrHost.includes('.') ? tenantOrHost : `${tenantOrHost}.peopleadmin.com`;
+  const xml = await fetchTextWithTimeout(`https://${host}/postings/search.atom`);
   await sleep(PROBE_DELAY_MS);
   if (!xml) return null;
   const totalJobs = (xml.match(/<entry>/g) || []).length;
@@ -117,7 +118,37 @@ async function probePeopleAdmin(tenant, expectedName) {
   if (!namesOverlap(feedTitle, expectedName)) {
     return { mismatch: true, feed_title: feedTitle.trim() };
   }
-  return { tenant, site: null, total_jobs: totalJobs, feed_title: feedTitle.trim() };
+  return { host, tenant: tenantOrHost, site: null, total_jobs: totalJobs, feed_title: feedTitle.trim() };
+}
+
+const WORKDAY_TENANT_PATTERN = /https?:\/\/([a-z0-9-]+)\.wd(\d+)\.myworkdayjobs\.com/i;
+
+// Vanity Workday portals leak the real tenant in their HTML (CXS calls, CDN
+// asset URLs); a plain fetch of the portal page is enough to mine it
+async function mineWorkdayTenant(url) {
+  if (!url || !url.startsWith('http')) return null;
+  const html = await fetchTextWithTimeout(url);
+  const match = (html || '').match(WORKDAY_TENANT_PATTERN);
+  return match ? { tenant: match[1], dc: match[2] } : null;
+}
+
+// SmartRecruiters / Workable already have adapters; probing is one GET each.
+// Workable's widget response includes the org name — free identity check.
+async function probeSmartRecruiters(token) {
+  const response = await fetchJsonWithTimeout(`https://api.smartrecruiters.com/v1/companies/${encodeURIComponent(token)}/postings?limit=1`);
+  await sleep(PROBE_DELAY_MS);
+  const total = Number(response?.totalFound || 0);
+  return total > 0 ? { token, total_jobs: total } : null;
+}
+
+async function probeWorkable(slug, expectedName) {
+  const response = await fetchJsonWithTimeout(`https://apply.workable.com/api/v1/widget/accounts/${encodeURIComponent(slug)}?details=false`);
+  await sleep(PROBE_DELAY_MS);
+  if (!response || !Array.isArray(response.jobs)) return null;
+  if (response.name && !namesOverlap(response.name, expectedName)) {
+    return { mismatch: true, feed_title: response.name };
+  }
+  return { token: slug, total_jobs: response.jobs.length };
 }
 
 function employerType(record) {
@@ -146,7 +177,11 @@ async function buildProposals() {
     const hits = record.ats || [];
     const workdayHit = hits.find((a) => a.provider === 'workday' && a.tenant && !holds.has(a.tenant));
     const peopleAdminHit = hits.find((a) => a.provider === 'peopleadmin' && a.tenant && !holds.has(a.tenant));
-    if (!workdayHit && !peopleAdminHit) continue;
+    const smartRecruitersHit = hits.find((a) => a.provider === 'smartrecruiters' && a.tenant && !holds.has(a.tenant));
+    const workableHit = hits.find((a) => a.provider === 'workable' && a.tenant && !holds.has(a.tenant));
+    const paSignature = hits.find((a) => a.provider === 'peopleadmin' && !a.tenant);
+    const wdSignature = hits.find((a) => a.provider === 'workday' && !a.tenant);
+    if (!workdayHit && !peopleAdminHit && !smartRecruitersHit && !workableHit && !paSignature && !wdSignature) continue;
 
     const id = slugify(record.name);
     if (existingIds.has(id)) {
@@ -181,6 +216,59 @@ async function buildProposals() {
           ats_config: { tenant: probe.tenant },
           total_jobs: probe.total_jobs
         };
+      }
+    }
+    if (!wiring && smartRecruitersHit && !existingTenants.has(smartRecruitersHit.tenant)) {
+      console.log(`probing smartrecruiters:${smartRecruitersHit.tenant} (${record.name})…`);
+      const probe = await probeSmartRecruiters(smartRecruitersHit.tenant);
+      if (probe) {
+        wiring = { ats_provider: 'smartrecruiters', ats_token: probe.token, ats_config: undefined, total_jobs: probe.total_jobs };
+      }
+    }
+    if (!wiring && workableHit && !existingTenants.has(workableHit.tenant)) {
+      console.log(`probing workable:${workableHit.tenant} (${record.name})…`);
+      const probe = await probeWorkable(workableHit.tenant, record.name);
+      if (probe?.mismatch) {
+        skipped.push({ name: record.name, reason: `workable account "${probe.feed_title}" does not match` });
+        continue;
+      }
+      if (probe) {
+        wiring = { ats_provider: 'workable', ats_token: probe.token, ats_config: undefined, total_jobs: probe.total_jobs };
+      }
+    }
+    // Vanity-domain PeopleAdmin: the portal host serves the same Atom feed
+    if (!wiring && paSignature) {
+      const hostCandidates = [...new Set([paSignature.url, record.careers_url]
+        .filter((u) => u && u.startsWith('http'))
+        .map((u) => { try { return new URL(u).host; } catch { return null; } })
+        .filter((h) => h && !holds.has(h) && !existingTenants.has(h)))];
+      for (const host of hostCandidates) {
+        console.log(`probing peopleadmin host ${host} (${record.name})…`);
+        const probe = await probePeopleAdmin(host, record.name);
+        if (probe?.mismatch) {
+          skipped.push({ name: record.name, reason: `peopleadmin feed title "${probe.feed_title}" does not match` });
+          break;
+        }
+        if (probe) {
+          wiring = { ats_provider: 'peopleadmin', ats_token: probe.host, ats_config: { host: probe.host }, total_jobs: probe.total_jobs };
+          break;
+        }
+      }
+    }
+    // Vanity Workday: mine the real tenant from the portal HTML, then probe
+    if (!wiring && wdSignature) {
+      const mined = (await mineWorkdayTenant(wdSignature.url)) || (await mineWorkdayTenant(record.careers_url));
+      if (mined && !holds.has(mined.tenant) && !existingTenants.has(mined.tenant)) {
+        console.log(`probing mined workday:${mined.tenant} (${record.name})…`);
+        const probe = await probeWorkday(mined.tenant, mined.dc || '5', null);
+        if (probe) {
+          wiring = {
+            ats_provider: 'workday',
+            ats_token: probe.tenant,
+            ats_config: { host: probe.host, tenant: probe.tenant, site: probe.site },
+            total_jobs: probe.total_jobs
+          };
+        }
       }
     }
     if (!wiring) {

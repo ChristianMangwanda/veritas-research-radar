@@ -778,7 +778,9 @@ function mapPeopleAdminEntry(entry, employer) {
 }
 
 async function fetchPeopleAdminJobs(employer) {
-  const xml = await fetchText(`https://${employer.ats_token}.peopleadmin.com/postings/search.atom`);
+  // Vanity-domain instances (jobs.university.edu) serve the same Atom feed
+  const host = employer.ats_config?.host || `${employer.ats_token}.peopleadmin.com`;
+  const xml = await fetchText(`https://${host}/postings/search.atom`);
   return parsePeopleAdminAtom(xml)
     .filter((entry) => entry.url.startsWith('http'))
     .map((entry) => mapPeopleAdminEntry(entry, employer));
