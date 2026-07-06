@@ -1,9 +1,9 @@
 {
-  "refreshed_at": "2026-07-05T22:30:14.521Z",
-  "employer_count": 48,
-  "ats_enabled_employer_count": 28,
-  "job_count": 3495,
-  "active_job_count": 3495,
+  "refreshed_at": "2026-07-06T00:41:45.812Z",
+  "employer_count": 141,
+  "ats_enabled_employer_count": 121,
+  "job_count": 3588,
+  "active_job_count": 3588,
   "closed_job_count": 0,
   "newly_closed_count": 0,
   "errored_employers": 0,
@@ -499,6 +499,936 @@
       "ats_provider": "workday",
       "ats_token": "umd",
       "fetched_jobs": 21,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-southern-california",
+      "name": "University of Southern California",
+      "ats_provider": "workday",
+      "ats_token": "usc",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "clemson-university",
+      "name": "Clemson University",
+      "ats_provider": "workday",
+      "ats_token": "clemson",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "kean-university",
+      "name": "Kean University",
+      "ats_provider": "workday",
+      "ats_token": "kean",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "florida-institute-of-technology",
+      "name": "Florida Institute of Technology",
+      "ats_provider": "workday",
+      "ats_token": "floridatech",
+      "fetched_jobs": 3,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "colby-college",
+      "name": "Colby College",
+      "ats_provider": "workday",
+      "ats_token": "colby",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "wake-forest-university",
+      "name": "Wake Forest University",
+      "ats_provider": "workday",
+      "ats_token": "wfu",
+      "fetched_jobs": 3,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "montclair-state-university",
+      "name": "Montclair State University",
+      "ats_provider": "workday",
+      "ats_token": "montclair",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "ball-state-university",
+      "name": "Ball State University",
+      "ats_provider": "workday",
+      "ats_token": "bsu",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "bucknell-university",
+      "name": "Bucknell University",
+      "ats_provider": "workday",
+      "ats_token": "bucknell",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "new-jersey-city-university",
+      "name": "New Jersey City University",
+      "ats_provider": "workday",
+      "ats_token": "kean",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "ivy-tech-community-college",
+      "name": "Ivy Tech Community College",
+      "ats_provider": "workday",
+      "ats_token": "ivytech",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "bentley-university",
+      "name": "Bentley University",
+      "ats_provider": "workday",
+      "ats_token": "bentley",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "wesleyan-university",
+      "name": "Wesleyan University",
+      "ats_provider": "workday",
+      "ats_token": "wesleyan",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "the-new-school",
+      "name": "The New School",
+      "ats_provider": "workday",
+      "ats_token": "newschool",
+      "fetched_jobs": 4,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "seattle-pacific-university",
+      "name": "Seattle Pacific University",
+      "ats_provider": "workday",
+      "ats_token": "spu",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "texas-a-m-university-kingsville",
+      "name": "Texas A&M University-Kingsville",
+      "ats_provider": "workday",
+      "ats_token": "tamus",
+      "fetched_jobs": 5,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-north-florida",
+      "name": "University of North Florida",
+      "ats_provider": "workday",
+      "ats_token": "unf",
+      "fetched_jobs": 6,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "northwest-missouri-state-university",
+      "name": "Northwest Missouri State University",
+      "ats_provider": "workday",
+      "ats_token": "nwmissouri",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "tarleton-state-university",
+      "name": "Tarleton State University",
+      "ats_provider": "workday",
+      "ats_token": "tamus",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "southeastern-louisiana-university",
+      "name": "Southeastern Louisiana University",
+      "ats_provider": "workday",
+      "ats_token": "ulsselu",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "grand-valley-state-university",
+      "name": "Grand Valley State University",
+      "ats_provider": "workday",
+      "ats_token": "gvsu",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "union-college",
+      "name": "Union College",
+      "ats_provider": "workday",
+      "ats_token": "unioncollege",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "prairie-view-a-m-university",
+      "name": "Prairie View A & M University",
+      "ats_provider": "workday",
+      "ats_token": "tamus",
+      "fetched_jobs": 19,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-san-francisco",
+      "name": "University of San Francisco",
+      "ats_provider": "workday",
+      "ats_token": "usfca",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "fairfield-university",
+      "name": "Fairfield University",
+      "ats_provider": "workday",
+      "ats_token": "ffd",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "depauw-university",
+      "name": "DePauw University",
+      "ats_provider": "workday",
+      "ats_token": "depauw",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "mount-holyoke-college",
+      "name": "Mount Holyoke College",
+      "ats_provider": "workday",
+      "ats_token": "mtholyoke",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "dickinson-college",
+      "name": "Dickinson College",
+      "ats_provider": "workday",
+      "ats_token": "dickinson",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "the-university-of-tampa",
+      "name": "The University of Tampa",
+      "ats_provider": "workday",
+      "ats_token": "utampa",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "northeastern-illinois-university",
+      "name": "Northeastern Illinois University",
+      "ats_provider": "workday",
+      "ats_token": "neiu",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "washington-state-university",
+      "name": "Washington State University",
+      "ats_provider": "workday",
+      "ats_token": "wsu",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-northern-iowa",
+      "name": "University of Northern Iowa",
+      "ats_provider": "workday",
+      "ats_token": "uni",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "northern-kentucky-university",
+      "name": "Northern Kentucky University",
+      "ats_provider": "workday",
+      "ats_token": "nku",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "minnesota-state-university-mankato",
+      "name": "Minnesota State University-Mankato",
+      "ats_provider": "workday",
+      "ats_token": "minnstate",
+      "fetched_jobs": 6,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "washington-and-lee-university",
+      "name": "Washington and Lee University",
+      "ats_provider": "workday",
+      "ats_token": "wlu",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "campbellsville-university",
+      "name": "Campbellsville University",
+      "ats_provider": "workday",
+      "ats_token": "campbellsville",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "saginaw-valley-state-university",
+      "name": "Saginaw Valley State University",
+      "ats_provider": "workday",
+      "ats_token": "svsu",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "carleton-college",
+      "name": "Carleton College",
+      "ats_provider": "workday",
+      "ats_token": "carleton",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "texas-a-m-university-central-texas",
+      "name": "Texas A&M University-Central Texas",
+      "ats_provider": "workday",
+      "ats_token": "tamus",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "fort-lewis-college",
+      "name": "Fort Lewis College",
+      "ats_provider": "workday",
+      "ats_token": "fortlewiscollege",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "berklee-college-of-music",
+      "name": "Berklee College of Music",
+      "ats_provider": "workday",
+      "ats_token": "berklee",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "florida-polytechnic-university",
+      "name": "Florida Polytechnic University",
+      "ats_provider": "workday",
+      "ats_token": "flpoly",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "meharry-medical-college",
+      "name": "Meharry Medical College",
+      "ats_provider": "workday",
+      "ats_token": "meharrymedicalcollege",
+      "fetched_jobs": 3,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-wisconsin-whitewater",
+      "name": "University of Wisconsin-Whitewater",
+      "ats_provider": "workday",
+      "ats_token": "wisconsin",
+      "fetched_jobs": 4,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "texas-a-m-university-san-antonio",
+      "name": "Texas A&M University-San Antonio",
+      "ats_provider": "workday",
+      "ats_token": "tamus",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "barnard-college",
+      "name": "Barnard College",
+      "ats_provider": "workday",
+      "ats_token": "barnard",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "bryn-mawr-college",
+      "name": "Bryn Mawr College",
+      "ats_provider": "workday",
+      "ats_token": "brynmawr",
+      "fetched_jobs": 3,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "claremont-mckenna-college",
+      "name": "Claremont McKenna College",
+      "ats_provider": "workday",
+      "ats_token": "theclaremontcolleges",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "colorado-mesa-university",
+      "name": "Colorado Mesa University",
+      "ats_provider": "workday",
+      "ats_token": "coloradomesa",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "metropolitan-state-university-of-denver",
+      "name": "Metropolitan State University of Denver",
+      "ats_provider": "workday",
+      "ats_token": "msudenver",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "emerson-college",
+      "name": "Emerson College",
+      "ats_provider": "workday",
+      "ats_token": "emerson",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "park-university",
+      "name": "Park University",
+      "ats_provider": "workday",
+      "ats_token": "park",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "texas-a-m-international-university",
+      "name": "Texas A & M International University",
+      "ats_provider": "workday",
+      "ats_token": "tamus",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "harvey-mudd-college",
+      "name": "Harvey Mudd College",
+      "ats_provider": "workday",
+      "ats_token": "theclaremontcolleges",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "adams-state-university",
+      "name": "Adams State University",
+      "ats_provider": "workday",
+      "ats_token": "adams",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "guilford-college",
+      "name": "Guilford College",
+      "ats_provider": "workday",
+      "ats_token": "guilford",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "ohio-northern-university",
+      "name": "Ohio Northern University",
+      "ats_provider": "workday",
+      "ats_token": "onu",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "rhodes-college",
+      "name": "Rhodes College",
+      "ats_provider": "workday",
+      "ats_token": "rhodes",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "regis-university",
+      "name": "Regis University",
+      "ats_provider": "workday",
+      "ats_token": "regis",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "saint-leo-university",
+      "name": "Saint Leo University",
+      "ats_provider": "workday",
+      "ats_token": "saintleo",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "maryland-institute-college-of-art",
+      "name": "Maryland Institute College of Art",
+      "ats_provider": "workday",
+      "ats_token": "mica",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "macalester-college",
+      "name": "Macalester College",
+      "ats_provider": "workday",
+      "ats_token": "macalester",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "saint-anselm-college",
+      "name": "Saint Anselm College",
+      "ats_provider": "workday",
+      "ats_token": "anselm",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "xavier-university",
+      "name": "Xavier University",
+      "ats_provider": "workday",
+      "ats_token": "xavier",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "lewis-clark-college",
+      "name": "Lewis & Clark College",
+      "ats_provider": "workday",
+      "ats_token": "lewisandclark",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "philadelphia-college-of-osteopathic-medicine",
+      "name": "Philadelphia College of Osteopathic Medicine",
+      "ats_provider": "workday",
+      "ats_token": "pcom",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "furman-university",
+      "name": "Furman University",
+      "ats_provider": "workday",
+      "ats_token": "furman",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "pomona-college",
+      "name": "Pomona College",
+      "ats_provider": "workday",
+      "ats_token": "theclaremontcolleges",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "scripps-college",
+      "name": "Scripps College",
+      "ats_provider": "workday",
+      "ats_token": "theclaremontcolleges",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "colorado-state-university-pueblo",
+      "name": "Colorado State University Pueblo",
+      "ats_provider": "workday",
+      "ats_token": "csusystem",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "western-colorado-university",
+      "name": "Western Colorado University",
+      "ats_provider": "workday",
+      "ats_token": "western",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "northern-new-mexico-college",
+      "name": "Northern New Mexico College",
+      "ats_provider": "workday",
+      "ats_token": "chess",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "wingate-university",
+      "name": "Wingate University",
+      "ats_provider": "workday",
+      "ats_token": "wingate",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "willamette-university",
+      "name": "Willamette University",
+      "ats_provider": "workday",
+      "ats_token": "willamette",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "muhlenberg-college",
+      "name": "Muhlenberg College",
+      "ats_provider": "workday",
+      "ats_token": "muhlenberg",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "wofford-college",
+      "name": "Wofford College",
+      "ats_provider": "workday",
+      "ats_token": "wofford",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "soka-university-of-america",
+      "name": "Soka University of America",
+      "ats_provider": "workday",
+      "ats_token": "soka",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "pitzer-college",
+      "name": "Pitzer College",
+      "ats_provider": "workday",
+      "ats_token": "theclaremontcolleges",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "ringling-college-of-art-and-design",
+      "name": "Ringling College of Art and Design",
+      "ats_provider": "workday",
+      "ats_token": "ringling",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "anderson-university",
+      "name": "Anderson University",
+      "ats_provider": "workday",
+      "ats_token": "andersonuniversity",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "the-university-of-findlay",
+      "name": "The University of Findlay",
+      "ats_provider": "workday",
+      "ats_token": "findlay",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "abilene-christian-university",
+      "name": "Abilene Christian University",
+      "ats_provider": "workday",
+      "ats_token": "acu",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "texas-a-m-university-corpus-christi",
+      "name": "Texas A & M University-Corpus Christi",
+      "ats_provider": "workday",
+      "ats_token": "tamus",
+      "fetched_jobs": 4,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "texas-a-m-university-texarkana",
+      "name": "Texas A&M University-Texarkana",
+      "ats_provider": "workday",
+      "ats_token": "tamus",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-wisconsin-milwaukee",
+      "name": "University of Wisconsin-Milwaukee",
+      "ats_provider": "workday",
+      "ats_token": "wisconsin",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "claremont-graduate-university",
+      "name": "Claremont Graduate University",
+      "ats_provider": "workday",
+      "ats_token": "theclaremontcolleges",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "samuel-merritt-university",
+      "name": "Samuel Merritt University",
+      "ats_provider": "workday",
+      "ats_token": "samuelmerritt",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "goucher-college",
+      "name": "Goucher College",
+      "ats_provider": "workday",
+      "ats_token": "goucher",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "montgomery-college",
+      "name": "Montgomery College",
+      "ats_provider": "workday",
+      "ats_token": "mc",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "endicott-college",
+      "name": "Endicott College",
+      "ats_provider": "workday",
+      "ats_token": "endicott",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "dunwoody-college-of-technology",
+      "name": "Dunwoody College of Technology",
+      "ats_provider": "workday",
+      "ats_token": "dunwoody",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "clarkson-college",
+      "name": "Clarkson College",
+      "ats_provider": "workday",
+      "ats_token": "nebraskamed",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "san-juan-college",
+      "name": "San Juan College",
+      "ats_provider": "workday",
+      "ats_token": "chess",
+      "fetched_jobs": 0,
       "skipped": false,
       "error": null,
       "closed_jobs": 0
