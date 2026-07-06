@@ -134,6 +134,16 @@ async function mineWorkdayTenant(url) {
 
 // SmartRecruiters / Workable already have adapters; probing is one GET each.
 // Workable's widget response includes the org name — free identity check.
+// iCIMS boards are JS-rendered (the weekly scout drives them with a browser),
+// but the sitemap is plain XML — a cheap liveness probe with a job count
+async function probeIcimsSitemap(tenant) {
+  const xml = await fetchTextWithTimeout(`https://${tenant}.icims.com/sitemap.xml`);
+  await sleep(PROBE_DELAY_MS);
+  if (!xml) return null;
+  const total = (xml.match(/\/jobs\/\d+\//g) || []).length;
+  return total > 0 ? { tenant, total_jobs: total } : null;
+}
+
 async function probeGreenhouse(token) {
   const response = await fetchJsonWithTimeout(`https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(token)}/jobs`);
   await sleep(PROBE_DELAY_MS);
@@ -202,10 +212,15 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     const greenhouseHit = hits.find((a) => a.provider === 'greenhouse' && a.tenant && !holds.has(a.tenant));
     const leverHit = hits.find((a) => a.provider === 'lever' && a.tenant && !holds.has(a.tenant));
     const ashbyHit = hits.find((a) => a.provider === 'ashby' && a.tenant && !holds.has(a.tenant));
+    // Prefer faculty boards; never internal/login boards
+    const icimsHits = hits.filter((a) => a.provider === 'icims' && a.tenant
+      && !/internal|login/i.test(a.tenant) && !holds.has(a.tenant));
+    icimsHits.sort((a, b) => (/faculty/i.test(b.tenant) ? 1 : 0) - (/faculty/i.test(a.tenant) ? 1 : 0));
+    const icimsHit = icimsHits[0];
     const workableHit = hits.find((a) => a.provider === 'workable' && a.tenant && !holds.has(a.tenant));
     const paSignature = hits.find((a) => a.provider === 'peopleadmin' && !a.tenant);
     const wdSignature = hits.find((a) => a.provider === 'workday' && !a.tenant);
-    const anyHit = workdayHit || peopleAdminHit || smartRecruitersHit || workableHit || greenhouseHit || leverHit || ashbyHit || paSignature || wdSignature;
+    const anyHit = workdayHit || peopleAdminHit || smartRecruitersHit || workableHit || greenhouseHit || leverHit || ashbyHit || icimsHit || paSignature || wdSignature;
     if (!anyHit && !(includeScoutFallback && record.careers_url)) continue;
 
     const id = slugify(record.name);
@@ -311,6 +326,21 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
         }
       }
     }
+    // iCIMS: registry entry is scout-covered (ats_provider null); the scout's
+    // icims driver renders the board and extracts full descriptions
+    if (!wiring && icimsHit && !existingTenants.has(icimsHit.tenant)) {
+      console.log(`probing icims sitemap:${icimsHit.tenant} (${record.name})…`);
+      const probe = await probeIcimsSitemap(icimsHit.tenant);
+      if (probe) {
+        wiring = {
+          ats_provider: null,
+          ats_token: null,
+          ats_config: undefined,
+          total_jobs: probe.total_jobs,
+          icims_board: `https://${probe.tenant}.icims.com/jobs/search?ss=1`
+        };
+      }
+    }
     if (!wiring && includeScoutFallback && record.careers_url && record.careers_url.startsWith('http')) {
       wiring = { ats_provider: null, ats_token: null, ats_config: undefined, total_jobs: 0, scout_fallback: true };
     }
@@ -340,9 +370,9 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
       ats_provider: wiring.ats_provider,
       ats_token: wiring.ats_token,
       ats_config: wiring.ats_config,
-      careers_url: record.careers_url || record.website,
+      careers_url: wiring.icims_board || record.careers_url || record.website,
       research_areas: [],
-      notes: `${wiring.scout_fallback ? 'Careers-page scout coverage (no machine-readable ATS found). ' : ''}Auto-wired from ATS discovery crawl (${record.crawled_at?.slice(0, 10)}); probe saw ${wiring.total_jobs} live postings. USCIS ${dirEntry.uscis_approvals_3y || 0} approvals / DOL ${dirEntry.dol_certified_3y || 0} research LCAs (3y).`,
+      notes: `${wiring.icims_board ? 'iCIMS board, scout-driven (browser-rendered; sitemap-verified). ' : ''}${wiring.scout_fallback ? 'Careers-page scout coverage (no machine-readable ATS found). ' : ''}Auto-wired from ATS discovery crawl (${record.crawled_at?.slice(0, 10)}); probe saw ${wiring.total_jobs} live postings. USCIS ${dirEntry.uscis_approvals_3y || 0} approvals / DOL ${dirEntry.dol_certified_3y || 0} research LCAs (3y).`,
       probe_total_jobs: wiring.total_jobs
     });
   }

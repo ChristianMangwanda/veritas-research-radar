@@ -227,8 +227,123 @@ def _extract_description(html: str) -> str:
         return ""
 
 
+ICIMS_JOB_LINK = re.compile(r"/jobs/(\d+)/[^/]+/job", re.I)
+ICIMS_MAX_LIST_PAGES = 8
+ICIMS_MIN_BUDGET = 40
+
+
+def _frame_links(page_obj) -> list[tuple[str | None, str]]:
+    """Anchors from every frame — iCIMS renders results inside an iframe the
+    main-frame collector never sees."""
+    links: list[tuple[str | None, str]] = []
+    for frame in page_obj.frames:
+        try:
+            links.extend(
+                (el.get_attribute("href"), el.inner_text())
+                for el in frame.query_selector_all("a[href]"))
+        except Exception:
+            continue
+    return links
+
+
+def _icims_job_text(page_obj) -> tuple[str, str]:
+    """(title, body_text) from whichever frame carries the job content."""
+    for frame in page_obj.frames:
+        try:
+            content = frame.query_selector(".iCIMS_JobContent, .iCIMS_JobsTable")
+            if content:
+                heading = frame.query_selector("h1")
+                title = " ".join(((heading.inner_text() if heading else "") or "").split())
+                return title, content.inner_text()
+        except Exception:
+            continue
+    try:
+        return "", page_obj.inner_text("body")
+    except Exception:
+        return "", ""
+
+
+def scout_icims_board(target: JobsScoutTarget, budget: int, headless: bool = True) -> dict:
+    """iCIMS portals are JS-rendered iframes with ?pr=N pagination. Walks the
+    search pages, then fetches job pages and reads the rendered content frame.
+    No research-title filter: inclusion over exclusion (owner decision) — the
+    radar's scoring layers rank downstream."""
+    from playwright.sync_api import sync_playwright
+
+    budget = max(budget, ICIMS_MIN_BUDGET)
+    base = target.listing_url
+    if "ss=1" not in base:
+        base = base + ("&" if "?" in base else "?") + "ss=1"
+
+    jobs: list[dict] = []
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=headless)
+        context = browser.new_context(user_agent=UA)
+        page = context.new_page()
+        fetched = 0
+        detail_urls: list[str] = []
+        seen: set[str] = set()
+        try:
+            for page_no in range(ICIMS_MAX_LIST_PAGES):
+                if fetched >= budget:
+                    break
+                url = f"{base}&pr={page_no}"
+                throttle(url, 3)
+                fetched += 1
+                page.goto(url, wait_until="networkidle", timeout=GOTO_TIMEOUT_MS)
+                page.wait_for_timeout(1500)
+                new_on_page = 0
+                for href, _text in _frame_links(page):
+                    if not href or not ICIMS_JOB_LINK.search(href):
+                        continue
+                    clean = href.split("?")[0]
+                    if clean not in seen:
+                        seen.add(clean)
+                        detail_urls.append(clean)
+                        new_on_page += 1
+                if new_on_page == 0:
+                    break
+
+            if not detail_urls:
+                return build_snapshot(target.employer_id, target.listing_url, [], "no_listings_found")
+
+            for url in detail_urls:
+                if fetched >= budget:
+                    break
+                throttle(url, 3)
+                fetched += 1
+                try:
+                    page.goto(url, wait_until="networkidle", timeout=GOTO_TIMEOUT_MS)
+                    page.wait_for_timeout(1000)
+                except Exception as error:
+                    log.warning("icims_detail_failed", employer=target.employer_id, url=url, error=str(error))
+                    continue
+                title, body = _icims_job_text(page)
+                if not title:
+                    slug = url.rstrip("/").split("/")[-2] if "/" in url else ""
+                    title = slug.replace("-", " ").title()
+                if not title or not body:
+                    continue
+                jobs.append({
+                    "title": title,
+                    "url": url,
+                    "description_text": " ".join(body.split())[:8000],
+                })
+        except Exception as error:
+            log.warning("icims_scout_failed", employer=target.employer_id, error=str(error))
+        finally:
+            browser.close()
+
+    log.info("icims_scout_done", employer=target.employer_id, jobs=len(jobs), list_urls=len(detail_urls))
+    return build_snapshot(target.employer_id, target.listing_url, jobs, None if jobs else "no_listings_found")
+
+
 def scout_employer(target: JobsScoutTarget, budget: int = DEFAULT_FETCH_BUDGET, headless: bool = True) -> dict:
     from playwright.sync_api import sync_playwright
+
+    host = (urlparse(target.listing_url).hostname or "").lower()
+    if host.endswith(".icims.com"):
+        return scout_icims_board(target, budget=budget, headless=headless)
 
     if not robots_allows(target.listing_url):
         log.info("robots_disallow", employer=target.employer_id, url=target.listing_url)
