@@ -134,6 +134,27 @@ async function mineWorkdayTenant(url) {
 
 // SmartRecruiters / Workable already have adapters; probing is one GET each.
 // Workable's widget response includes the org name — free identity check.
+async function probeGreenhouse(token) {
+  const response = await fetchJsonWithTimeout(`https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(token)}/jobs`);
+  await sleep(PROBE_DELAY_MS);
+  const total = Array.isArray(response?.jobs) ? response.jobs.length : 0;
+  return total > 0 ? { token, total_jobs: total } : null;
+}
+
+async function probeLever(token) {
+  const response = await fetchJsonWithTimeout(`https://api.lever.co/v0/postings/${encodeURIComponent(token)}?mode=json`);
+  await sleep(PROBE_DELAY_MS);
+  const total = Array.isArray(response) ? response.length : 0;
+  return total > 0 ? { token, total_jobs: total } : null;
+}
+
+async function probeAshby(token) {
+  const response = await fetchJsonWithTimeout(`https://api.ashbyhq.com/posting-api/job-board/${encodeURIComponent(token)}`);
+  await sleep(PROBE_DELAY_MS);
+  const total = Array.isArray(response?.jobs) ? response.jobs.length : 0;
+  return total > 0 ? { token, total_jobs: total } : null;
+}
+
 async function probeSmartRecruiters(token) {
   const response = await fetchJsonWithTimeout(`https://api.smartrecruiters.com/v1/companies/${encodeURIComponent(token)}/postings?limit=1`);
   await sleep(PROBE_DELAY_MS);
@@ -158,7 +179,7 @@ function employerType(record) {
     : 'nonprofit_research_org';
 }
 
-async function buildProposals() {
+async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } = {}) {
   const discovery = JSON.parse(await fsp.readFile(DISCOVERY_PATH, 'utf8'));
   const directory = JSON.parse(await fsp.readFile(path.join(DATA_DIR, 'cap-exempt-directory.json'), 'utf8')).entries;
   const employers = JSON.parse(await fsp.readFile(EMPLOYERS_PATH, 'utf8'));
@@ -178,10 +199,14 @@ async function buildProposals() {
     const workdayHit = hits.find((a) => a.provider === 'workday' && a.tenant && !holds.has(a.tenant));
     const peopleAdminHit = hits.find((a) => a.provider === 'peopleadmin' && a.tenant && !holds.has(a.tenant));
     const smartRecruitersHit = hits.find((a) => a.provider === 'smartrecruiters' && a.tenant && !holds.has(a.tenant));
+    const greenhouseHit = hits.find((a) => a.provider === 'greenhouse' && a.tenant && !holds.has(a.tenant));
+    const leverHit = hits.find((a) => a.provider === 'lever' && a.tenant && !holds.has(a.tenant));
+    const ashbyHit = hits.find((a) => a.provider === 'ashby' && a.tenant && !holds.has(a.tenant));
     const workableHit = hits.find((a) => a.provider === 'workable' && a.tenant && !holds.has(a.tenant));
     const paSignature = hits.find((a) => a.provider === 'peopleadmin' && !a.tenant);
     const wdSignature = hits.find((a) => a.provider === 'workday' && !a.tenant);
-    if (!workdayHit && !peopleAdminHit && !smartRecruitersHit && !workableHit && !paSignature && !wdSignature) continue;
+    const anyHit = workdayHit || peopleAdminHit || smartRecruitersHit || workableHit || greenhouseHit || leverHit || ashbyHit || paSignature || wdSignature;
+    if (!anyHit && !(includeScoutFallback && record.careers_url)) continue;
 
     const id = slugify(record.name);
     if (existingIds.has(id)) {
@@ -217,6 +242,21 @@ async function buildProposals() {
           total_jobs: probe.total_jobs
         };
       }
+    }
+    if (!wiring && greenhouseHit && !existingTenants.has(greenhouseHit.tenant)) {
+      console.log(`probing greenhouse:${greenhouseHit.tenant} (${record.name})…`);
+      const probe = await probeGreenhouse(greenhouseHit.tenant);
+      if (probe) wiring = { ats_provider: 'greenhouse', ats_token: probe.token, ats_config: undefined, total_jobs: probe.total_jobs };
+    }
+    if (!wiring && leverHit && !existingTenants.has(leverHit.tenant)) {
+      console.log(`probing lever:${leverHit.tenant} (${record.name})…`);
+      const probe = await probeLever(leverHit.tenant);
+      if (probe) wiring = { ats_provider: 'lever', ats_token: probe.token, ats_config: undefined, total_jobs: probe.total_jobs };
+    }
+    if (!wiring && ashbyHit && !existingTenants.has(ashbyHit.tenant)) {
+      console.log(`probing ashby:${ashbyHit.tenant} (${record.name})…`);
+      const probe = await probeAshby(ashbyHit.tenant);
+      if (probe) wiring = { ats_provider: 'ashby', ats_token: probe.token, ats_config: undefined, total_jobs: probe.total_jobs };
     }
     if (!wiring && smartRecruitersHit && !existingTenants.has(smartRecruitersHit.tenant)) {
       console.log(`probing smartrecruiters:${smartRecruitersHit.tenant} (${record.name})…`);
@@ -271,12 +311,20 @@ async function buildProposals() {
         }
       }
     }
+    if (!wiring && includeScoutFallback && record.careers_url && record.careers_url.startsWith('http')) {
+      wiring = { ats_provider: null, ats_token: null, ats_config: undefined, total_jobs: 0, scout_fallback: true };
+    }
     if (!wiring) {
       skipped.push({ name: record.name, reason: 'no live feed found on probes' });
       continue;
     }
 
     const dirEntry = directory[key] || {};
+    const evidenceScore = (dirEntry.uscis_approvals_3y || 0) + 2 * (dirEntry.dol_certified_3y || 0);
+    if (wiring.scout_fallback && evidenceScore < minEvidence) {
+      skipped.push({ name: record.name, reason: `scout fallback below evidence threshold (${evidenceScore})` });
+      continue;
+    }
     proposals.push({
       id,
       name: record.name,
@@ -294,7 +342,7 @@ async function buildProposals() {
       ats_config: wiring.ats_config,
       careers_url: record.careers_url || record.website,
       research_areas: [],
-      notes: `Auto-wired from ATS discovery crawl (${record.crawled_at?.slice(0, 10)}); probe saw ${wiring.total_jobs} live postings. USCIS ${dirEntry.uscis_approvals_3y || 0} approvals / DOL ${dirEntry.dol_certified_3y || 0} research LCAs (3y).`,
+      notes: `${wiring.scout_fallback ? 'Careers-page scout coverage (no machine-readable ATS found). ' : ''}Auto-wired from ATS discovery crawl (${record.crawled_at?.slice(0, 10)}); probe saw ${wiring.total_jobs} live postings. USCIS ${dirEntry.uscis_approvals_3y || 0} approvals / DOL ${dirEntry.dol_certified_3y || 0} research LCAs (3y).`,
       probe_total_jobs: wiring.total_jobs
     });
   }
@@ -324,7 +372,10 @@ async function approveProposals() {
 
 if (require.main === module) {
   const approve = process.argv.includes('--approve');
-  (approve ? approveProposals() : buildProposals()).catch((error) => {
+  const includeScoutFallback = process.argv.includes('--scout-fallback');
+  const minEvidenceArg = process.argv.indexOf('--min-evidence');
+  const minEvidence = minEvidenceArg >= 0 ? Number(process.argv[minEvidenceArg + 1]) : 0;
+  (approve ? approveProposals() : buildProposals({ includeScoutFallback, minEvidence })).catch((error) => {
     console.error(error);
     process.exitCode = 1;
   });

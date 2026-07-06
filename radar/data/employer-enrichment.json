@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-05T21:24:25.922Z",
+  "generated_at": "2026-07-06T14:54:38.267Z",
   "sources": {
     "ipeds": {
       "year": 2024,
@@ -8,7 +8,7 @@
     },
     "irs_eo_bmf": {
       "files_loaded": 4,
-      "kept_rows": 16848
+      "kept_rows": 19222
     },
     "uscis": {
       "years": [
@@ -265,7 +265,7 @@
         }
       },
       "uscis_approvals_3y": 560,
-      "dol_certified_3y": 194,
+      "dol_certified_3y": 184,
       "cap_exempt_score": 85,
       "score_components": {
         "ipeds": 40,
@@ -465,13 +465,13 @@
         }
       },
       "irs": {
-        "ein": "823595718",
-        "ntee_cd": "T50",
+        "ein": "510254936",
+        "ntee_cd": "",
         "subsection": "03",
-        "name": "GRADUATE STUDENT ASSOCIATION OF THE UNIVERSITY OF CALIFORNIA BERKELEY",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
         "match": {
-          "strategy": "containment",
-          "confidence": 0.75
+          "strategy": "exact",
+          "confidence": 1
         }
       },
       "uscis_approvals_3y": 349,
@@ -730,10 +730,10 @@
         }
       },
       "irs": {
-        "ein": "264367036",
+        "ein": "050583699",
         "ntee_cd": "",
         "subsection": "03",
-        "name": "CLEVELAND CLINIC NEVADA",
+        "name": "TOASTMASTERS INTERNATIONAL",
         "match": {
           "strategy": "containment",
           "confidence": 0.75
@@ -792,6 +792,6874 @@
       "score_components": {},
       "suggested_status": "unknown",
       "evidence_tags": []
+    },
+    "washington-university-in-st-louis": {
+      "ipeds": {
+        "unitid": "179867",
+        "instnm": "Washington University in St Louis",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237101570",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "AMERICAN SOCIETY OF HEATING REFRIGERATING & A-C ENGINEERS",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 538,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 70,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:179867",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "cornell-university": {
+      "ipeds": {
+        "unitid": "190415",
+        "instnm": "Cornell University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "150532082",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "CORNELL UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 302,
+      "dol_certified_3y": 83,
+      "cap_exempt_score": 84,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 19,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:190415",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "northeastern-university": {
+      "ipeds": {
+        "unitid": "167358",
+        "instnm": "Northeastern University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "041679980",
+        "ntee_cd": "B83",
+        "subsection": "03",
+        "name": "NORTHEASTERN UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 263,
+      "dol_certified_3y": 49,
+      "cap_exempt_score": 82,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 17,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:167358",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "carnegie-mellon-university": {
+      "ipeds": {
+        "unitid": "211440",
+        "instnm": "Carnegie Mellon University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "250969449",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "CARNEGIE MELLON UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 251,
+      "dol_certified_3y": 60,
+      "cap_exempt_score": 83,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 18,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:211440",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-miami": {
+      "ipeds": {
+        "unitid": "135726",
+        "instnm": "University of Miami",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "596194117",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 239,
+      "dol_certified_3y": 93,
+      "cap_exempt_score": 85,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 20,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:135726",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "brown-university": {
+      "ipeds": {
+        "unitid": "217156",
+        "instnm": "Brown University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "050258809",
+        "ntee_cd": "S412",
+        "subsection": "03",
+        "name": "BROWN UNIVERSITY OF PROVIDENCE",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 184,
+      "dol_certified_3y": 75,
+      "cap_exempt_score": 84,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 19,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:217156",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-rochester": {
+      "ipeds": {
+        "unitid": "195030",
+        "instnm": "University of Rochester",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "160743209",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "UNIVERSITY OF ROCHESTER",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 205,
+      "dol_certified_3y": 64,
+      "cap_exempt_score": 83,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 18,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:195030",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-nevada-reno": {
+      "ipeds": {
+        "unitid": "182290",
+        "instnm": "University of Nevada-Reno",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "954691866",
+        "ntee_cd": "",
+        "subsection": "07",
+        "name": "PHI ALPHA DELTA LAW FRATERNITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 198,
+      "dol_certified_3y": 19,
+      "cap_exempt_score": 68,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 13,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:182290",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "georgetown-university": {
+      "ipeds": {
+        "unitid": "131496",
+        "instnm": "Georgetown University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237333567",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 171,
+      "dol_certified_3y": 52,
+      "cap_exempt_score": 82,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 17,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:131496",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "medical-college-of-wisconsin": {
+      "ipeds": {
+        "unitid": "239169",
+        "instnm": "Medical College of Wisconsin",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "390806261",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "THE MEDICAL COLLEGE OF WISCONSIN INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 142,
+      "dol_certified_3y": 53,
+      "cap_exempt_score": 82,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 17,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:239169",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-arkansas-for-medical-sciences": {
+      "ipeds": {
+        "unitid": "106263",
+        "instnm": "University of Arkansas for Medical Sciences",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": null,
+      "uscis_approvals_3y": 148,
+      "dol_certified_3y": 59,
+      "cap_exempt_score": 73,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 18,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:106263",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "thomas-jefferson-university": {
+      "ipeds": {
+        "unitid": "216366",
+        "instnm": "Thomas Jefferson University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "231352651",
+        "ntee_cd": "B500",
+        "subsection": "03",
+        "name": "THOMAS JEFFERSON UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 123,
+      "dol_certified_3y": 50,
+      "cap_exempt_score": 82,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 17,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:216366",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-louisville": {
+      "ipeds": {
+        "unitid": "157289",
+        "instnm": "University of Louisville",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237078461",
+        "ntee_cd": "B110",
+        "subsection": "03",
+        "name": "UNIVERSITY OF LOUISVILLE FOUNDATION INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 111,
+      "dol_certified_3y": 17,
+      "cap_exempt_score": 78,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 13,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:157289",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-arkansas": {
+      "ipeds": {
+        "unitid": "106397",
+        "instnm": "University of Arkansas",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "900137491",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 99,
+      "dol_certified_3y": 48,
+      "cap_exempt_score": 82,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 17,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:106397",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-mississippi": {
+      "ipeds": {
+        "unitid": "176017",
+        "instnm": "University of Mississippi",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237069093",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 75,
+      "dol_certified_3y": 76,
+      "cap_exempt_score": 83,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 19,
+        "uscis": 14
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:176017",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "stevens-institute-of-technology": {
+      "ipeds": {
+        "unitid": "186867",
+        "instnm": "Stevens Institute of Technology",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "221487354",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "THE TRUSTEES OF THE STEVENS INSTITUTE OF TECHNOLOGY",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 72,
+      "dol_certified_3y": 19,
+      "cap_exempt_score": 77,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 13,
+        "uscis": 14
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:186867",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-central-florida": {
+      "ipeds": {
+        "unitid": "132903",
+        "instnm": "University of Central Florida",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521250084",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 66,
+      "dol_certified_3y": 17,
+      "cap_exempt_score": 77,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 13,
+        "uscis": 14
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:132903",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "rochester-institute-of-technology": {
+      "ipeds": {
+        "unitid": "195003",
+        "instnm": "Rochester Institute of Technology",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "160743140",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "ROCHESTER INSTITUTE OF TECHNOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 55,
+      "dol_certified_3y": 24,
+      "cap_exempt_score": 77,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 14,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:195003",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "worcester-polytechnic-institute": {
+      "ipeds": {
+        "unitid": "168421",
+        "instnm": "Worcester Polytechnic Institute",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "042121659",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "WORCESTER POLYTECHNIC INSTITUTE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 57,
+      "dol_certified_3y": 5,
+      "cap_exempt_score": 71,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 8,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:168421",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "howard-university": {
+      "ipeds": {
+        "unitid": "131520",
+        "instnm": "Howard University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "271711783",
+        "ntee_cd": "",
+        "subsection": "07",
+        "name": "PHI ALPHA DELTA LAW FRATERNITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 52,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 60,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 7,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:131520",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "colorado-school-of-mines": {
+      "ipeds": {
+        "unitid": "126775",
+        "instnm": "Colorado School of Mines",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "510174188",
+        "ntee_cd": "B99I",
+        "subsection": "03",
+        "name": "COLORADO SCHOOL OF MINES BUILDING CORPORATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 46,
+      "dol_certified_3y": 7,
+      "cap_exempt_score": 72,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 9,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:126775",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "western-governors-university": {
+      "ipeds": {
+        "unitid": "433387",
+        "instnm": "Western Governors University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "474365018",
+        "ntee_cd": "B03",
+        "subsection": "03",
+        "name": "WESTERN GOVERNORS UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 44,
+      "dol_certified_3y": 21,
+      "cap_exempt_score": 75,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 13,
+        "uscis": 12
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:433387",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-maryland-college-park": {
+      "ipeds": {
+        "unitid": "163286",
+        "instnm": "University of Maryland-College Park",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237088606",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 105,
+      "cap_exempt_score": 70,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 20
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:163286",
+        "irs_eo_bmf",
+        "dol_lca"
+      ]
+    },
+    "university-of-southern-california": {
+      "ipeds": {
+        "unitid": "123961",
+        "instnm": "University of Southern California",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "951642394",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "UNIVERSITY OF SOUTHERN CALIFORNIA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 445,
+      "dol_certified_3y": 86,
+      "cap_exempt_score": 84,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 19,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:123961",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "clemson-university": {
+      "ipeds": {
+        "unitid": "217882",
+        "instnm": "Clemson University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "770697302",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "CHI ALPHA CLEMSON",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 169,
+      "dol_certified_3y": 26,
+      "cap_exempt_score": 79,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 14,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:217882",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "kean-university": {
+      "ipeds": {
+        "unitid": "185262",
+        "instnm": "Kean University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521538499",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 41,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 69,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 7,
+        "uscis": 12
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:185262",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "florida-institute-of-technology": {
+      "ipeds": {
+        "unitid": "133881",
+        "instnm": "Florida Institute of Technology",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "596046500",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "FLORIDA INSTITUTE OF TECHNOLOGY INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 31,
+      "dol_certified_3y": 16,
+      "cap_exempt_score": 73,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 12,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:133881",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "colby-college": {
+      "ipeds": {
+        "unitid": "161086",
+        "instnm": "Colby College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "010211497",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "PRESIDENT & TRUSTEES OF COLBY COLLEGE",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 38,
+      "dol_certified_3y": 8,
+      "cap_exempt_score": 72,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 12
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:161086",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "wake-forest-university": {
+      "ipeds": {
+        "unitid": "199847",
+        "instnm": "Wake Forest University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521539089",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 34,
+      "dol_certified_3y": 43,
+      "cap_exempt_score": 78,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 16,
+        "uscis": 12
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:199847",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "montclair-state-university": {
+      "ipeds": {
+        "unitid": "185590",
+        "instnm": "Montclair State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237212261",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 30,
+      "dol_certified_3y": 20,
+      "cap_exempt_score": 74,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 13,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:185590",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "ball-state-university": {
+      "ipeds": {
+        "unitid": "150136",
+        "instnm": "Ball State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "351445044",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 27,
+      "dol_certified_3y": 17,
+      "cap_exempt_score": 74,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 13,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:150136",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "bucknell-university": {
+      "ipeds": {
+        "unitid": "211291",
+        "instnm": "Bucknell University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "256087455",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 26,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 67,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 6,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:211291",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "new-jersey-city-university": {
+      "ipeds": {
+        "unitid": "185129",
+        "instnm": "New Jersey City University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "221758950",
+        "ntee_cd": "R60",
+        "subsection": "04",
+        "name": "AMERICAN CIVIL LIBERTIES UNION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 24,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 50,
+      "score_components": {
+        "ipeds": 40,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:185129",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "ivy-tech-community-college": {
+      "ipeds": {
+        "unitid": "150987",
+        "instnm": "Ivy Tech Community College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "541747970",
+        "ntee_cd": "B99",
+        "subsection": "03",
+        "name": "COLLEGE & COMMUNITY INC",
+        "match": {
+          "strategy": "token_overlap",
+          "confidence": 0.6
+        }
+      },
+      "uscis_approvals_3y": 23,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 57,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 7,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:150987",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "bentley-university": {
+      "ipeds": {
+        "unitid": "164739",
+        "instnm": "Bentley University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "041081650",
+        "ntee_cd": "B500",
+        "subsection": "03",
+        "name": "BENTLEY UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 23,
+      "dol_certified_3y": 8,
+      "cap_exempt_score": 70,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:164739",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "wesleyan-university": {
+      "ipeds": {
+        "unitid": "130697",
+        "instnm": "Wesleyan University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "060646959",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "WESLEYAN UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 20,
+      "dol_certified_3y": 15,
+      "cap_exempt_score": 72,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 12,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:130697",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "the-new-school": {
+      "ipeds": {
+        "unitid": "193654",
+        "instnm": "The New School",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "010547297",
+        "ntee_cd": "B25",
+        "subsection": "03",
+        "name": "NEW SCHOOL",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 22,
+      "dol_certified_3y": 10,
+      "cap_exempt_score": 70,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:193654",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "seattle-pacific-university": {
+      "ipeds": {
+        "unitid": "236577",
+        "instnm": "Seattle Pacific University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "910565553",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "SEATTLE PACIFIC UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 22,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:236577",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "texas-a-m-university-kingsville": {
+      "ipeds": {
+        "unitid": "228705",
+        "instnm": "Texas A&M University-Kingsville",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237080123",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 21,
+      "dol_certified_3y": 147,
+      "cap_exempt_score": 80,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 20,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:228705",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-north-florida": {
+      "ipeds": {
+        "unitid": "136172",
+        "instnm": "University of North Florida",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521538522",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 20,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 67,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 7,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:136172",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "northwest-missouri-state-university": {
+      "ipeds": {
+        "unitid": "178624",
+        "instnm": "Northwest Missouri State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237094606",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 19,
+      "dol_certified_3y": 12,
+      "cap_exempt_score": 71,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 11,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:178624",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "tarleton-state-university": {
+      "ipeds": {
+        "unitid": "228529",
+        "instnm": "Tarleton State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "742782530",
+        "ntee_cd": "",
+        "subsection": "06",
+        "name": "ASSOCIATION OF TEXAS PROFESSIONAL EDUCATORS",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 17,
+      "dol_certified_3y": 6,
+      "cap_exempt_score": 57,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 8,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:228529",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "southeastern-louisiana-university": {
+      "ipeds": {
+        "unitid": "160612",
+        "instnm": "Southeastern Louisiana University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "726028821",
+        "ntee_cd": "B43I",
+        "subsection": "03",
+        "name": "SOUTHEASTERN LOUISIANA UNIVERSITY FOUNDATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 18,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:160612",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "grand-valley-state-university": {
+      "ipeds": {
+        "unitid": "170082",
+        "instnm": "Grand Valley State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "381684280",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "GRAND VALLEY STATE UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 18,
+      "dol_certified_3y": 16,
+      "cap_exempt_score": 72,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 12,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:170082",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "union-college": {
+      "ipeds": {
+        "unitid": "196866",
+        "instnm": "Union College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "510241448",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 18,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:196866",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "prairie-view-a-m-university": {
+      "ipeds": {
+        "unitid": "227526",
+        "instnm": "Prairie View A & M University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "454159381",
+        "ntee_cd": "B84",
+        "subsection": "03",
+        "name": "PRAIRIE VIEW A & M UNIVERSITY NATIONAL ALUMNI ASSOCIATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 12,
+      "dol_certified_3y": 11,
+      "cap_exempt_score": 69,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 11,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:227526",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-san-francisco": {
+      "ipeds": {
+        "unitid": "122612",
+        "instnm": "University of San Francisco",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237333588",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 17,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 64,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:122612",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "fairfield-university": {
+      "ipeds": {
+        "unitid": "129242",
+        "instnm": "Fairfield University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "060646623",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "FAIRFIELD UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 17,
+      "dol_certified_3y": 7,
+      "cap_exempt_score": 68,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 9,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:129242",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "depauw-university": {
+      "ipeds": {
+        "unitid": "150400",
+        "instnm": "DePauw University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "350869045",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "DEPAUW UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 17,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 66,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 7,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:150400",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "mount-holyoke-college": {
+      "ipeds": {
+        "unitid": "166939",
+        "instnm": "Mount Holyoke College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "020335684",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALUMNAE ASSOCIATION OF MOUNT HOLYOKE COLLEGE INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 16,
+      "dol_certified_3y": 8,
+      "cap_exempt_score": 69,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:166939",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "dickinson-college": {
+      "ipeds": {
+        "unitid": "212009",
+        "instnm": "Dickinson College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "621408265",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 16,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 64,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:212009",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "the-university-of-tampa": {
+      "ipeds": {
+        "unitid": "137847",
+        "instnm": "The University of Tampa",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "590624459",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "UNIVERSITY OF TAMPA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 15,
+      "dol_certified_3y": 12,
+      "cap_exempt_score": 70,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 11,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:137847",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "northeastern-illinois-university": {
+      "ipeds": {
+        "unitid": "147776",
+        "instnm": "Northeastern Illinois University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237024708",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 15,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 59,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:147776",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "washington-state-university": {
+      "ipeds": {
+        "unitid": "236939",
+        "instnm": "Washington State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "020805839",
+        "ntee_cd": "O52",
+        "subsection": "03",
+        "name": "WASHINGTON STATE UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 38,
+      "cap_exempt_score": 66,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 16
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:236939",
+        "irs_eo_bmf",
+        "dol_lca"
+      ]
+    },
+    "university-of-northern-iowa": {
+      "ipeds": {
+        "unitid": "154095",
+        "instnm": "University of Northern Iowa",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521538330",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 11,
+      "dol_certified_3y": 6,
+      "cap_exempt_score": 66,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 8,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:154095",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "northern-kentucky-university": {
+      "ipeds": {
+        "unitid": "157447",
+        "instnm": "Northern Kentucky University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "611255146",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 11,
+      "dol_certified_3y": 5,
+      "cap_exempt_score": 66,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 8,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:157447",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "minnesota-state-university-mankato": {
+      "ipeds": {
+        "unitid": "173920",
+        "instnm": "Minnesota State University-Mankato",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "911900448",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 11,
+      "dol_certified_3y": 8,
+      "cap_exempt_score": 68,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:173920",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "washington-and-lee-university": {
+      "ipeds": {
+        "unitid": "234207",
+        "instnm": "Washington and Lee University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "540505977",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "WASHINGTON & LEE UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 11,
+      "dol_certified_3y": 5,
+      "cap_exempt_score": 66,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 8,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:234207",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "campbellsville-university": {
+      "ipeds": {
+        "unitid": "156365",
+        "instnm": "Campbellsville University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "610469267",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "CAMPBELLSVILLE UNIVERSITY INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 10,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:156365",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "saginaw-valley-state-university": {
+      "ipeds": {
+        "unitid": "172051",
+        "instnm": "Saginaw Valley State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "381798800",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "SAGINAW VALLEY STATE UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 10,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 7,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:172051",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "carleton-college": {
+      "ipeds": {
+        "unitid": "173258",
+        "instnm": "Carleton College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "410694747",
+        "ntee_cd": "B42Z",
+        "subsection": "03",
+        "name": "CARLETON COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 10,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:173258",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "texas-a-m-university-central-texas": {
+      "ipeds": {
+        "unitid": "483036",
+        "instnm": "Texas A&M University-Central Texas",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "746173764",
+        "ntee_cd": "",
+        "subsection": "06",
+        "name": "TEXAS SOCIETY OF CERTIFIED PUBLIC ACCOUNTANTS",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 10,
+      "dol_certified_3y": 5,
+      "cap_exempt_score": 56,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 8,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:483036",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "fort-lewis-college": {
+      "ipeds": {
+        "unitid": "127185",
+        "instnm": "Fort Lewis College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237122114",
+        "ntee_cd": "B42I",
+        "subsection": "03",
+        "name": "FORT LEWIS COLLEGE FOUNDATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 9,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:127185",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "berklee-college-of-music": {
+      "ipeds": {
+        "unitid": "164748",
+        "instnm": "Berklee College of Music",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "042300472",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "BERKLEE COLLEGE OF MUSIC INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 9,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:164748",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "florida-polytechnic-university": {
+      "ipeds": {
+        "unitid": "482936",
+        "instnm": "Florida Polytechnic University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "461426289",
+        "ntee_cd": "B11",
+        "subsection": "03",
+        "name": "FLORIDA POLYTECHNIC UNIVERSITY FOUNDATION INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 9,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:482936",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "meharry-medical-college": {
+      "ipeds": {
+        "unitid": "220792",
+        "instnm": "Meharry Medical College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "620488046",
+        "ntee_cd": "B500",
+        "subsection": "03",
+        "name": "MEHARRY MEDICAL COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 8,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 6,
+        "uscis": 7
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:220792",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-wisconsin-whitewater": {
+      "ipeds": {
+        "unitid": "240189",
+        "instnm": "University of Wisconsin-Whitewater",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521538536",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 8,
+      "dol_certified_3y": 8,
+      "cap_exempt_score": 67,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 7
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:240189",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "texas-a-m-university-san-antonio": {
+      "ipeds": {
+        "unitid": "459949",
+        "instnm": "Texas A&M University-San Antonio",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "746055742",
+        "ntee_cd": "",
+        "subsection": "06",
+        "name": "EXECUTIVE WOMEN INTERNATIONAL",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 4,
+      "dol_certified_3y": 5,
+      "cap_exempt_score": 53,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 8,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:459949",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "barnard-college": {
+      "ipeds": {
+        "unitid": "189097",
+        "instnm": "Barnard College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "131628149",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "BARNARD COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 5,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 7,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:189097",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "bryn-mawr-college": {
+      "ipeds": {
+        "unitid": "211273",
+        "instnm": "Bryn Mawr College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "231352621",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "BRYN MAWR COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 7,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 64,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 7,
+        "uscis": 7
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:211273",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "claremont-mckenna-college": {
+      "ipeds": {
+        "unitid": "112260",
+        "instnm": "Claremont McKenna College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "510241411",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 6,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 62,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 6,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:112260",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "colorado-mesa-university": {
+      "ipeds": {
+        "unitid": "127556",
+        "instnm": "Colorado Mesa University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "621357453",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 6,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 56,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:127556",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "metropolitan-state-university-of-denver": {
+      "ipeds": {
+        "unitid": "127565",
+        "instnm": "Metropolitan State University of Denver",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "846050525",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 6,
+      "dol_certified_3y": 24,
+      "cap_exempt_score": 70,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 14,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:127565",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "emerson-college": {
+      "ipeds": {
+        "unitid": "165662",
+        "instnm": "Emerson College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "041286950",
+        "ntee_cd": "B42",
+        "subsection": "03",
+        "name": "EMERSON COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 6,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 59,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:165662",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "park-university": {
+      "ipeds": {
+        "unitid": "178721",
+        "instnm": "Park University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "440562048",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "PARK UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 6,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 56,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:178721",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "texas-a-m-international-university": {
+      "ipeds": {
+        "unitid": "226152",
+        "instnm": "Texas A & M International University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "731338134",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "INTERNATIONAL UNIVERSITY",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 6,
+      "dol_certified_3y": 6,
+      "cap_exempt_score": 64,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 8,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:226152",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "harvey-mudd-college": {
+      "ipeds": {
+        "unitid": "115409",
+        "instnm": "Harvey Mudd College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "951911219",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "HARVEY MUDD COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 5,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:115409",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "adams-state-university": {
+      "ipeds": {
+        "unitid": "126182",
+        "instnm": "Adams State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "846027518",
+        "ntee_cd": "B820",
+        "subsection": "03",
+        "name": "ADAMS STATE UNIVERSITY FOUNDATION INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 5,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 59,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:126182",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "guilford-college": {
+      "ipeds": {
+        "unitid": "198613",
+        "instnm": "Guilford College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "560529982",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "GUILFORD COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 5,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 56,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:198613",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "ohio-northern-university": {
+      "ipeds": {
+        "unitid": "204635",
+        "instnm": "Ohio Northern University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "347596987",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 5,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 56,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:204635",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "rhodes-college": {
+      "ipeds": {
+        "unitid": "221351",
+        "instnm": "Rhodes College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "620476301",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "RHODES COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 5,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 62,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 6,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:221351",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "regis-university": {
+      "ipeds": {
+        "unitid": "127918",
+        "instnm": "Regis University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "840402707",
+        "ntee_cd": "B20",
+        "subsection": "03",
+        "name": "REGIS UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 4,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 60,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:127918",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "saint-leo-university": {
+      "ipeds": {
+        "unitid": "137032",
+        "instnm": "Saint Leo University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "591237047",
+        "ntee_cd": "B43",
+        "subsection": "03",
+        "name": "SAINT LEO UNIVERSITY INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 4,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 58,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:137032",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "maryland-institute-college-of-art": {
+      "ipeds": {
+        "unitid": "163295",
+        "instnm": "Maryland Institute College of Art",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "520591661",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "MARYLAND INSTITUTE",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 4,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 58,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:163295",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "macalester-college": {
+      "ipeds": {
+        "unitid": "173902",
+        "instnm": "Macalester College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "410693962",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "MACALESTER COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 4,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:173902",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "saint-anselm-college": {
+      "ipeds": {
+        "unitid": "183239",
+        "instnm": "Saint Anselm College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "020222182",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "SAINT ANSELM COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 4,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:183239",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "xavier-university": {
+      "ipeds": {
+        "unitid": "206622",
+        "instnm": "Xavier University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "310537516",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "XAVIER UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 4,
+      "dol_certified_3y": 5,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 8,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:206622",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "lewis-clark-college": {
+      "ipeds": {
+        "unitid": "209056",
+        "instnm": "Lewis & Clark College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "930386858",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "LEWIS AND CLARK COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 4,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:209056",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "philadelphia-college-of-osteopathic-medicine": {
+      "ipeds": {
+        "unitid": "215123",
+        "instnm": "Philadelphia College of Osteopathic Medicine",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "231355135",
+        "ntee_cd": "B500",
+        "subsection": "03",
+        "name": "PHILADELPHIA COLLEGE OF OSTEOPATHIC MEDICINE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 4,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:215123",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "furman-university": {
+      "ipeds": {
+        "unitid": "218070",
+        "instnm": "Furman University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "570314395",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "FURMAN UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 4,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 60,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:218070",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "pomona-college": {
+      "ipeds": {
+        "unitid": "121345",
+        "instnm": "Pomona College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "951664112",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "POMONA COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 60,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:121345",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "scripps-college": {
+      "ipeds": {
+        "unitid": "123165",
+        "instnm": "Scripps College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "753237092",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 6,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:123165",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "colorado-state-university-pueblo": {
+      "ipeds": {
+        "unitid": "128106",
+        "instnm": "Colorado State University Pueblo",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "621407459",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 55,
+      "cap_exempt_score": 72,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 17,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:128106",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "western-colorado-university": {
+      "ipeds": {
+        "unitid": "128391",
+        "instnm": "Western Colorado University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "840709935",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "WESTERN COLORADO UNIVERSITY FOUNDATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:128391",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "northern-new-mexico-college": {
+      "ipeds": {
+        "unitid": "188058",
+        "instnm": "Northern New Mexico College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237425316",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "AMERICAN SOCIETY OF HEATING REFRIGERATING & A-C ENGINEERS",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:188058",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "wingate-university": {
+      "ipeds": {
+        "unitid": "199962",
+        "instnm": "Wingate University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "566049935",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "WINGATE UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:199962",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "willamette-university": {
+      "ipeds": {
+        "unitid": "210401",
+        "instnm": "Willamette University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "936042655",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:210401",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "muhlenberg-college": {
+      "ipeds": {
+        "unitid": "214175",
+        "instnm": "Muhlenberg College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "231352664",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "MUHLENBERG COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:214175",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "wofford-college": {
+      "ipeds": {
+        "unitid": "218973",
+        "instnm": "Wofford College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "133781810",
+        "ntee_cd": "U030",
+        "subsection": "03",
+        "name": "ASSOCIATION FOR COMPUTING MACHINERY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 75,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 25,
+        "dol": 5,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:218973",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "soka-university-of-america": {
+      "ipeds": {
+        "unitid": "399911",
+        "instnm": "Soka University of America",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "953909672",
+        "ntee_cd": "B43",
+        "subsection": "03",
+        "name": "SOKA UNIVERSITY OF AMERICA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 6,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:399911",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "pitzer-college": {
+      "ipeds": {
+        "unitid": "121257",
+        "instnm": "Pitzer College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "952261113",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "PITZER COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 54,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:121257",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "ringling-college-of-art-and-design": {
+      "ipeds": {
+        "unitid": "136774",
+        "instnm": "Ringling College of Art and Design",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "590637903",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "RINGLING COLLEGE OF ART AND DESIGN INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 54,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:136774",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "anderson-university": {
+      "ipeds": {
+        "unitid": "150066",
+        "instnm": "Anderson University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "350867954",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "ANDERSON UNIVERSITY INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 57,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:150066",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "the-university-of-findlay": {
+      "ipeds": {
+        "unitid": "202763",
+        "instnm": "The University of Findlay",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "344431169",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "UNIVERSITY OF FINDLAY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 7,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:202763",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "abilene-christian-university": {
+      "ipeds": {
+        "unitid": "222178",
+        "instnm": "Abilene Christian University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "750851900",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ABILENE CHRISTIAN UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 60,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 6,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:222178",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "texas-a-m-university-corpus-christi": {
+      "ipeds": {
+        "unitid": "224147",
+        "instnm": "Texas A & M University-Corpus Christi",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237118323",
+        "ntee_cd": "",
+        "subsection": "04",
+        "name": "ARMY AVIATION ASSOCIATION OF AMERICA INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 8,
+      "cap_exempt_score": 50,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:224147",
+        "irs_eo_bmf",
+        "dol_lca"
+      ]
+    },
+    "texas-a-m-university-texarkana": {
+      "ipeds": {
+        "unitid": "224545",
+        "instnm": "Texas A&M University-Texarkana",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "742905110",
+        "ntee_cd": "",
+        "subsection": "06",
+        "name": "ASSOCIATION OF TEXAS PROFESSIONAL EDUCATORS",
+        "match": {
+          "strategy": "token_overlap",
+          "confidence": 0.6
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 44,
+      "score_components": {
+        "ipeds": 40,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:224545",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-wisconsin-milwaukee": {
+      "ipeds": {
+        "unitid": "240453",
+        "instnm": "University of Wisconsin-Milwaukee",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "352495248",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 13,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:240453",
+        "irs_eo_bmf",
+        "dol_lca"
+      ]
+    },
+    "claremont-graduate-university": {
+      "ipeds": {
+        "unitid": "112251",
+        "instnm": "Claremont Graduate University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "951664100",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "CLAREMONT GRADUATE UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:112251",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "samuel-merritt-university": {
+      "ipeds": {
+        "unitid": "122296",
+        "instnm": "Samuel Merritt University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "942992642",
+        "ntee_cd": "B500",
+        "subsection": "03",
+        "name": "SAMUEL MERRITT UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:122296",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "goucher-college": {
+      "ipeds": {
+        "unitid": "162654",
+        "instnm": "Goucher College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "520591613",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "GOUCHER COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:162654",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "montgomery-college": {
+      "ipeds": {
+        "unitid": "163426",
+        "instnm": "Montgomery College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521267008",
+        "ntee_cd": "B41I",
+        "subsection": "03",
+        "name": "MONTGOMERY COLLEGE FOUNDATION INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:163426",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "endicott-college": {
+      "ipeds": {
+        "unitid": "165699",
+        "instnm": "Endicott College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "042103567",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "ENDICOTT COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:165699",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "dunwoody-college-of-technology": {
+      "ipeds": {
+        "unitid": "175227",
+        "instnm": "Dunwoody College of Technology",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "410693856",
+        "ntee_cd": "B300",
+        "subsection": "03",
+        "name": "DUNWOODY COLLEGE OF TECHNOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:175227",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "clarkson-college": {
+      "ipeds": {
+        "unitid": "180832",
+        "instnm": "Clarkson College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "363649217",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "CLARKSON COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:180832",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "san-juan-college": {
+      "ipeds": {
+        "unitid": "188100",
+        "instnm": "San Juan College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237259630",
+        "ntee_cd": "",
+        "subsection": "06",
+        "name": "UTAH EDUCATION ASSOCIATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 42,
+      "score_components": {
+        "ipeds": 40,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:188100",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-alabama-at-birmingham": {
+      "ipeds": {
+        "unitid": "100663",
+        "instnm": "University of Alabama at Birmingham",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "636062872",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 285,
+      "dol_certified_3y": 161,
+      "cap_exempt_score": 85,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 20,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:100663",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-north-carolina-at-chapel-hill": {
+      "ipeds": {
+        "unitid": "199120",
+        "instnm": "University of North Carolina at Chapel Hill",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "566001393",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "UNIVERSITY OF NORTH CAROLINA AT CHAPEL HILL",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 138,
+      "dol_certified_3y": 49,
+      "cap_exempt_score": 82,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 17,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:199120",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "the-university-of-texas-at-arlington": {
+      "ipeds": {
+        "unitid": "228769",
+        "instnm": "The University of Texas at Arlington",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "900217947",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "token_set",
+          "confidence": 0.9
+        }
+      },
+      "uscis_approvals_3y": 118,
+      "dol_certified_3y": 42,
+      "cap_exempt_score": 81,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 16,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:228769",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "east-carolina-university": {
+      "ipeds": {
+        "unitid": "198464",
+        "instnm": "East Carolina University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "223614253",
+        "ntee_cd": "B118",
+        "subsection": "03",
+        "name": "EUNICE GARNER TR FBO E CAROLINA UNIV",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 71,
+      "dol_certified_3y": 9,
+      "cap_exempt_score": 74,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 14
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:198464",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "marshall-university": {
+      "ipeds": {
+        "unitid": "237525",
+        "instnm": "Marshall University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237149559",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 66,
+      "dol_certified_3y": 7,
+      "cap_exempt_score": 73,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 9,
+        "uscis": 14
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:237525",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "the-university-of-texas-rio-grande-valley": {
+      "ipeds": {
+        "unitid": "227368",
+        "instnm": "The University of Texas Rio Grande Valley",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237329255",
+        "ntee_cd": "",
+        "subsection": "06",
+        "name": "TEXAS SOCIETY OF CERTIFIED PUBLIC ACCOUNTANTS",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 62,
+      "dol_certified_3y": 26,
+      "cap_exempt_score": 67,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 14,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:227368",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "george-washington-university": {
+      "ipeds": {
+        "unitid": "131469",
+        "instnm": "George Washington University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "526081729",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "HILLEL THE FOUNDATION FOR JEWISH CAMPUS LIFE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 51,
+      "dol_certified_3y": 6,
+      "cap_exempt_score": 71,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 8,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:131469",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-idaho": {
+      "ipeds": {
+        "unitid": "142285",
+        "instnm": "University of Idaho",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "854192183",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 48,
+      "dol_certified_3y": 10,
+      "cap_exempt_score": 73,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:142285",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "sam-houston-state-university": {
+      "ipeds": {
+        "unitid": "227881",
+        "instnm": "Sam Houston State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237114769",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 39,
+      "dol_certified_3y": 6,
+      "cap_exempt_score": 70,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 8,
+        "uscis": 12
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:227881",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-south-alabama": {
+      "ipeds": {
+        "unitid": "102094",
+        "instnm": "University of South Alabama",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237212299",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 27,
+      "dol_certified_3y": 16,
+      "cap_exempt_score": 73,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 12,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:102094",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-hartford": {
+      "ipeds": {
+        "unitid": "129525",
+        "instnm": "University of Hartford",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "060731360",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "UNIVERSITY OF HARTFORD",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 25,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:129525",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "hofstra-university": {
+      "ipeds": {
+        "unitid": "191649",
+        "instnm": "Hofstra University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "111630906",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "HOFSTRA UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 21,
+      "dol_certified_3y": 5,
+      "cap_exempt_score": 68,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 8,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:191649",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-the-pacific": {
+      "ipeds": {
+        "unitid": "120883",
+        "instnm": "University of the Pacific",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "941156266",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "UNIVERSITY OF THE PACIFIC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 19,
+      "dol_certified_3y": 10,
+      "cap_exempt_score": 70,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:120883",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "tuskegee-university": {
+      "ipeds": {
+        "unitid": "102377",
+        "instnm": "Tuskegee University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "630288878",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "TUSKEGEE UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 16,
+      "dol_certified_3y": 8,
+      "cap_exempt_score": 69,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:102377",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "gannon-university": {
+      "ipeds": {
+        "unitid": "212601",
+        "instnm": "Gannon University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "250496976",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "GANNON UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 18,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:212601",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-nebraska-medical-center": {
+      "ipeds": {
+        "unitid": "181428",
+        "instnm": "University of Nebraska Medical Center",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "340714460",
+        "ntee_cd": "W120",
+        "subsection": "03",
+        "name": "MEDICAL CENTER COMPANY",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 50,
+      "cap_exempt_score": 67,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 17
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:181428",
+        "irs_eo_bmf",
+        "dol_lca"
+      ]
+    },
+    "spelman-college": {
+      "ipeds": {
+        "unitid": "141060",
+        "instnm": "Spelman College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "311345667",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 10,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:141060",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-new-england": {
+      "ipeds": {
+        "unitid": "161457",
+        "instnm": "University of New England",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "010211810",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "UNIVERSITY OF NEW ENGLAND",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 10,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 58,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:161457",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "connecticut-college": {
+      "ipeds": {
+        "unitid": "128902",
+        "instnm": "Connecticut College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "060646587",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "CONNECTICUT COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 6,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 56,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:128902",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "truman-state-university": {
+      "ipeds": {
+        "unitid": "178615",
+        "instnm": "Truman State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "431257074",
+        "ntee_cd": "",
+        "subsection": "05",
+        "name": "MISSOURI NATIONAL EDUCATION ASSOCIATION",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 6,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 49,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 3,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:178615",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "western-new-mexico-university": {
+      "ipeds": {
+        "unitid": "188304",
+        "instnm": "Western New Mexico University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "850214211",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "WATTS-WESTERN NEW MEXICO UNIVERSITY FOUNDATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 6,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 62,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 6,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:188304",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "la-salle-university": {
+      "ipeds": {
+        "unitid": "213367",
+        "instnm": "La Salle University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "231352654",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "LA SALLE UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 6,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 56,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:213367",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "chicago-state-university": {
+      "ipeds": {
+        "unitid": "144005",
+        "instnm": "Chicago State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": null,
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 45,
+      "score_components": {
+        "ipeds": 40,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:144005",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "hillsdale-college": {
+      "ipeds": {
+        "unitid": "170286",
+        "instnm": "Hillsdale College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "381374230",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "HILLSDALE COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:170286",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "northeast-ohio-medical-university": {
+      "ipeds": {
+        "unitid": "204477",
+        "instnm": "Northeast Ohio Medical University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "222711153",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "BROWN ALUMNI ASSOCIATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 62,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 7,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:204477",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-portland": {
+      "ipeds": {
+        "unitid": "209825",
+        "instnm": "University of Portland",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "621415634",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:209825",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "delta-state-university": {
+      "ipeds": {
+        "unitid": "175616",
+        "instnm": "Delta State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "640577592",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "BAPTIST STUDENT UNION OF DELTA STATE UNIVERSITY",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 59,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:175616",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "sarah-lawrence-college": {
+      "ipeds": {
+        "unitid": "195304",
+        "instnm": "Sarah Lawrence College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237223216",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "SARAH LAWRENCE COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 57,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:195304",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "winthrop-university": {
+      "ipeds": {
+        "unitid": "218964",
+        "instnm": "Winthrop University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237167667",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 59,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:218964",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "sul-ross-state-university": {
+      "ipeds": {
+        "unitid": "228501",
+        "instnm": "Sul Ross State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "753138496",
+        "ntee_cd": "B114",
+        "subsection": "03",
+        "name": "SUL ROSS STATE UNIVERSITY FOUNDATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 60,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 6,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:228501",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "northeast-iowa-community-college": {
+      "ipeds": {
+        "unitid": "154110",
+        "instnm": "Northeast Iowa Community College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "421178729",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "NORTHEAST IOWA COMMUNITY COLLEGE FOUNDATION INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:154110",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "morehead-state-university": {
+      "ipeds": {
+        "unitid": "157386",
+        "instnm": "Morehead State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "611091791",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "MOREHEAD STATE UNIVERSITY ALUMNI ASSOCIATION INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:157386",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "howard-community-college": {
+      "ipeds": {
+        "unitid": "162779",
+        "instnm": "Howard Community College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521272329",
+        "ntee_cd": "B41I",
+        "subsection": "03",
+        "name": "HOWARD COMMUNITY COLLEGE EDUCATIONAL FOUNDATION INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:162779",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "missouri-western-state-university": {
+      "ipeds": {
+        "unitid": "178387",
+        "instnm": "Missouri Western State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237035423",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "MISSOURI WESTERN STATE UNIVERSITY FOUNDATION INC N00008837",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:178387",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-nebraska-at-omaha": {
+      "ipeds": {
+        "unitid": "181394",
+        "instnm": "University of Nebraska at Omaha",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521538370",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:181394",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-nebraska-lincoln": {
+      "ipeds": {
+        "unitid": "181464",
+        "instnm": "University of Nebraska-Lincoln",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "476045947",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 289,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:181464",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-kentucky": {
+      "ipeds": {
+        "unitid": "157085",
+        "instnm": "University of Kentucky",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "616034308",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 272,
+      "dol_certified_3y": 63,
+      "cap_exempt_score": 83,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 18,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:157085",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "oregon-state-university": {
+      "ipeds": {
+        "unitid": "209542",
+        "instnm": "Oregon State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "936042654",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 179,
+      "dol_certified_3y": 55,
+      "cap_exempt_score": 82,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 17,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:209542",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "the-university-of-texas-at-dallas": {
+      "ipeds": {
+        "unitid": "228787",
+        "instnm": "The University of Texas at Dallas",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "760781859",
+        "ntee_cd": "B03",
+        "subsection": "04",
+        "name": "THE UNIVERSITY OF TEXAS AT DALLAS RETIREE ASSOCIATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 112,
+      "dol_certified_3y": 51,
+      "cap_exempt_score": 72,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 17,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:228787",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "south-dakota-state-university": {
+      "ipeds": {
+        "unitid": "219356",
+        "instnm": "South Dakota State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "311345666",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 95,
+      "dol_certified_3y": 16,
+      "cap_exempt_score": 77,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 12,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:219356",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-vermont": {
+      "ipeds": {
+        "unitid": "231174",
+        "instnm": "University of Vermont",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "043361949",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 86,
+      "dol_certified_3y": 63,
+      "cap_exempt_score": 83,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 18,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:231174",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "montana-state-university": {
+      "ipeds": {
+        "unitid": "180461",
+        "instnm": "Montana State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237078291",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 76,
+      "dol_certified_3y": 14,
+      "cap_exempt_score": 76,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 12,
+        "uscis": 14
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:180461",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "dartmouth-college": {
+      "ipeds": {
+        "unitid": "182670",
+        "instnm": "Dartmouth College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "020222111",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "TRUSTEES OF DARTMOUTH COLLEGE",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 74,
+      "dol_certified_3y": 27,
+      "cap_exempt_score": 78,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 14,
+        "uscis": 14
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:182670",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-memphis": {
+      "ipeds": {
+        "unitid": "220862",
+        "instnm": "University of Memphis",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "205400381",
+        "ntee_cd": "B19",
+        "subsection": "03",
+        "name": "UNIVERSITY OF MEMPHIS RESEARCHFOUNDATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 59,
+      "dol_certified_3y": 11,
+      "cap_exempt_score": 74,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 11,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:220862",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-rhode-island": {
+      "ipeds": {
+        "unitid": "217484",
+        "instnm": "University of Rhode Island",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "364644408",
+        "ntee_cd": "U99",
+        "subsection": "03",
+        "name": "UNIVERSITY OF RHODE ISLAND RESEARCH FOUNDATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 57,
+      "dol_certified_3y": 14,
+      "cap_exempt_score": 90,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 25,
+        "dol": 12,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:217484",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "texas-state-university": {
+      "ipeds": {
+        "unitid": "228459",
+        "instnm": "Texas State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521538549",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 49,
+      "dol_certified_3y": 15,
+      "cap_exempt_score": 75,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 12,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:228459",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "marquette-university": {
+      "ipeds": {
+        "unitid": "239105",
+        "instnm": "Marquette University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237134038",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 45,
+      "dol_certified_3y": 16,
+      "cap_exempt_score": 74,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 12,
+        "uscis": 12
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:239105",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "loyola-university-chicago": {
+      "ipeds": {
+        "unitid": "146719",
+        "instnm": "Loyola University Chicago",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "361408475",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "LOYOLA UNIVERSITY OF CHICAGO",
+        "match": {
+          "strategy": "token_set",
+          "confidence": 0.9
+        }
+      },
+      "uscis_approvals_3y": 44,
+      "dol_certified_3y": 10,
+      "cap_exempt_score": 72,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 12
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:146719",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "northern-illinois-university": {
+      "ipeds": {
+        "unitid": "147703",
+        "instnm": "Northern Illinois University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "363717888",
+        "ntee_cd": "",
+        "subsection": "04",
+        "name": "STATE UNIVERSITIES ANNUITANTS ASSOCIATION ILLINOIS",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 40,
+      "dol_certified_3y": 14,
+      "cap_exempt_score": 64,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 12,
+        "uscis": 12
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:147703",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "oakland-university": {
+      "ipeds": {
+        "unitid": "171571",
+        "instnm": "Oakland University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "900472529",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 34,
+      "dol_certified_3y": 7,
+      "cap_exempt_score": 71,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 9,
+        "uscis": 12
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:171571",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "central-michigan-university": {
+      "ipeds": {
+        "unitid": "169248",
+        "instnm": "Central Michigan University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237100659",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 31,
+      "dol_certified_3y": 10,
+      "cap_exempt_score": 71,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:169248",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "portland-state-university": {
+      "ipeds": {
+        "unitid": "209807",
+        "instnm": "Portland State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "931247425",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 28,
+      "dol_certified_3y": 6,
+      "cap_exempt_score": 69,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 8,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:209807",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "eastern-washington-university": {
+      "ipeds": {
+        "unitid": "235097",
+        "instnm": "Eastern Washington University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "510232846",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 29,
+      "dol_certified_3y": 11,
+      "cap_exempt_score": 72,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 11,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:235097",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "cleveland-state-university": {
+      "ipeds": {
+        "unitid": "202134",
+        "instnm": "Cleveland State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "900137483",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 27,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 68,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 7,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:202134",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "bowdoin-college": {
+      "ipeds": {
+        "unitid": "161004",
+        "instnm": "Bowdoin College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "010215213",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "BOWDOIN COLLEGE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 19,
+      "dol_certified_3y": 6,
+      "cap_exempt_score": 68,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 8,
+        "uscis": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:161004",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "troy-university": {
+      "ipeds": {
+        "unitid": "102368",
+        "instnm": "Troy University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237447797",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 17,
+      "dol_certified_3y": 7,
+      "cap_exempt_score": 68,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 9,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:102368",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "coastal-carolina-university": {
+      "ipeds": {
+        "unitid": "218724",
+        "instnm": "Coastal Carolina University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "474156836",
+        "ntee_cd": "B11",
+        "subsection": "03",
+        "name": "COASTAL CAROLINA UNIVERSITY RESEARCH FOUNDATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 17,
+      "dol_certified_3y": 8,
+      "cap_exempt_score": 69,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:218724",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "morehouse-school-of-medicine": {
+      "ipeds": {
+        "unitid": "140562",
+        "instnm": "Morehouse School of Medicine",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "581438873",
+        "ntee_cd": "B500",
+        "subsection": "03",
+        "name": "MOREHOUSE SCHOOL OF MEDICINE INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 13,
+      "dol_certified_3y": 4,
+      "cap_exempt_score": 66,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 7,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:140562",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-central-arkansas": {
+      "ipeds": {
+        "unitid": "106704",
+        "instnm": "University of Central Arkansas",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "371620424",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 12,
+      "dol_certified_3y": 10,
+      "cap_exempt_score": 68,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 10,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:106704",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "lewis-university": {
+      "ipeds": {
+        "unitid": "146612",
+        "instnm": "Lewis University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "362167773",
+        "ntee_cd": "B40",
+        "subsection": "03",
+        "name": "LEWIS UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 12,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:146612",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "slippery-rock-university-of-pennsylvania": {
+      "ipeds": {
+        "unitid": "216038",
+        "instnm": "Slippery Rock University of Pennsylvania",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": null,
+      "uscis_approvals_3y": 12,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 53,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 5,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:216038",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "murray-state-university": {
+      "ipeds": {
+        "unitid": "157401",
+        "instnm": "Murray State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "616052107",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 8,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 6,
+        "uscis": 7
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:157401",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "nicholls-state-university": {
+      "ipeds": {
+        "unitid": "159966",
+        "instnm": "Nicholls State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "900453254",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "CHI ALPHA CHRISTIAN FELLOWSHIP",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 10,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 58,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:159966",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "angelo-state-university": {
+      "ipeds": {
+        "unitid": "222831",
+        "instnm": "Angelo State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "751585285",
+        "ntee_cd": "B84Z",
+        "subsection": "03",
+        "name": "ANGELO STATE UNIVERSITY FOUNDATION INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 10,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:222831",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-the-incarnate-word": {
+      "ipeds": {
+        "unitid": "225627",
+        "instnm": "University of the Incarnate Word",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "912021438",
+        "ntee_cd": "",
+        "subsection": "04",
+        "name": "PHI ALPHA DELTA LAW FRATERNITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 8,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 50,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 3,
+        "uscis": 7
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:225627",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "oregon-institute-of-technology": {
+      "ipeds": {
+        "unitid": "209506",
+        "instnm": "Oregon Institute of Technology",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "710885549",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 7,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 6,
+        "uscis": 7
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:209506",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "kettering-university": {
+      "ipeds": {
+        "unitid": "169983",
+        "instnm": "Kettering University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "382410852",
+        "ntee_cd": "B500",
+        "subsection": "03",
+        "name": "KETTERING UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 6,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:169983",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "south-dakota-school-of-mines-and-technology": {
+      "ipeds": {
+        "unitid": "219347",
+        "instnm": "South Dakota School of Mines and Technology",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "460440455",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "LUTHERAN CAMPUS MINISTRY AT SOUTH DAKOTA SCHOOL OF MINES & TECH",
+        "match": {
+          "strategy": "token_overlap",
+          "confidence": 0.6
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 9,
+      "cap_exempt_score": 50,
+      "score_components": {
+        "ipeds": 40,
+        "dol": 10
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:219347",
+        "dol_lca"
+      ]
+    },
+    "western-university-of-health-sciences": {
+      "ipeds": {
+        "unitid": "112525",
+        "instnm": "Western University of Health Sciences",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "953127273",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "WESTERN UNIVERSITY OF HEALTH SCIENCES",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 5,
+      "dol_certified_3y": 2,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 5,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:112525",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "fayetteville-state-university": {
+      "ipeds": {
+        "unitid": "198543",
+        "instnm": "Fayetteville State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "562206305",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 5,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 59,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:198543",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "north-carolina-central-university": {
+      "ipeds": {
+        "unitid": "199157",
+        "instnm": "North Carolina Central University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521164624",
+        "ntee_cd": "V03",
+        "subsection": "03",
+        "name": "NATIONAL ASSOCIATION OF BLACKS IN CRIMINAL JUSTICE INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 5,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 74,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 25,
+        "dol": 3,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:199157",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "north-park-university": {
+      "ipeds": {
+        "unitid": "147679",
+        "instnm": "North Park University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "361557840",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "NORTH PARK UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 4,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:147679",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "des-moines-area-community-college": {
+      "ipeds": {
+        "unitid": "153214",
+        "instnm": "Des Moines Area Community College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237229486",
+        "ntee_cd": "B12",
+        "subsection": "03",
+        "name": "DES MOINES AREA COMMUNITY COLLEGE FOUNDATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:153214",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "ashland-university": {
+      "ipeds": {
+        "unitid": "201104",
+        "instnm": "Ashland University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "341821273",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:201104",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "linn-benton-community-college": {
+      "ipeds": {
+        "unitid": "209074",
+        "instnm": "Linn-Benton Community College",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237212073",
+        "ntee_cd": "B11",
+        "subsection": "03",
+        "name": "LINN-BENTON COMMUNITY COLLEGE FOUNDATION INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 3,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 58,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 5
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:209074",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "university-of-north-carolina-at-charlotte": {
+      "ipeds": {
+        "unitid": "199139",
+        "instnm": "University of North Carolina at Charlotte",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "331127376",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "UNIVERSITY OF NORTH CAROLINA AT CHARLOTTE INST FOR SOCIAL CPTL INC",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 17,
+      "cap_exempt_score": 63,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:199139",
+        "irs_eo_bmf",
+        "dol_lca"
+      ]
+    },
+    "concord-university": {
+      "ipeds": {
+        "unitid": "237330",
+        "instnm": "Concord University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "550769622",
+        "ntee_cd": "U99",
+        "subsection": "03",
+        "name": "CONCORD UNIVERSITY RESEARCH AND DEVELOPMENT CORPORATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 72,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 25,
+        "dol": 3,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:237330",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "roosevelt-university": {
+      "ipeds": {
+        "unitid": "148487",
+        "instnm": "Roosevelt University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "362167854",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ROOSEVELT UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:148487",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "bridgewater-state-university": {
+      "ipeds": {
+        "unitid": "165024",
+        "instnm": "Bridgewater State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "521539091",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "PSI CHI THE INTERNATIONAL HONOR SOCIETY IN PSYCHOLOGY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 1,
+      "cap_exempt_score": 55,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "dol": 3,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:165024",
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
     }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-05T21:24:25.922Z",
+  "generated_at": "2026-07-06T14:54:38.267Z",
   "sources": {
     "ipeds": {
       "year": 2024,
@@ -7,7 +7,7 @@
     },
     "irs_eo_bmf": {
       "files_loaded": 4,
-      "kept_rows": 16848
+      "kept_rows": 19222
     },
     "uscis": {
       "years": [
@@ -23,14 +23,36 @@
     }
   },
   "registry": {
-    "employer_count": 25,
-    "ipeds_matched": 14,
-    "irs_matched": 24,
-    "with_uscis_activity": 19,
-    "with_dol_signal": 22,
-    "verified_suggested": 20
+    "employer_count": 220,
+    "ipeds_matched": 209,
+    "irs_matched": 216,
+    "with_uscis_activity": 207,
+    "with_dol_signal": 174,
+    "verified_suggested": 215
   },
-  "weak_matches": [],
+  "weak_matches": [
+    {
+      "employer_id": "ivy-tech-community-college",
+      "source": "irs_eo_bmf",
+      "candidate_name": "COLLEGE & COMMUNITY INC",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    },
+    {
+      "employer_id": "texas-a-m-university-texarkana",
+      "source": "irs_eo_bmf",
+      "candidate_name": "ASSOCIATION OF TEXAS PROFESSIONAL EDUCATORS",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    },
+    {
+      "employer_id": "south-dakota-school-of-mines-and-technology",
+      "source": "irs_eo_bmf",
+      "candidate_name": "LUTHERAN CAMPUS MINISTRY AT SOUTH DAKOTA SCHOOL OF MINES & TECH",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    }
+  ],
   "unmatched": [
     {
       "employer_id": "salk-institute",
@@ -61,6 +83,306 @@
       "employer_id": "uw-madison",
       "missing_sources": [
         "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-maryland-college-park",
+      "missing_sources": [
+        "uscis"
+      ]
+    },
+    {
+      "employer_id": "new-jersey-city-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "northeastern-illinois-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "washington-state-university",
+      "missing_sources": [
+        "uscis"
+      ]
+    },
+    {
+      "employer_id": "colorado-mesa-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "park-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "guilford-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "ohio-northern-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "macalester-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "saint-anselm-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "lewis-clark-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "philadelphia-college-of-osteopathic-medicine",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "western-colorado-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "northern-new-mexico-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "wingate-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "willamette-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "muhlenberg-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "pitzer-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "ringling-college-of-art-and-design",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "texas-a-m-university-corpus-christi",
+      "missing_sources": [
+        "uscis"
+      ]
+    },
+    {
+      "employer_id": "texas-a-m-university-texarkana",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-wisconsin-milwaukee",
+      "missing_sources": [
+        "uscis"
+      ]
+    },
+    {
+      "employer_id": "claremont-graduate-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "samuel-merritt-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "goucher-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "montgomery-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "endicott-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "dunwoody-college-of-technology",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "clarkson-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "san-juan-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-hartford",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-nebraska-medical-center",
+      "missing_sources": [
+        "uscis"
+      ]
+    },
+    {
+      "employer_id": "university-of-new-england",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "connecticut-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "la-salle-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "chicago-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "hillsdale-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-portland",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "northeast-iowa-community-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "morehead-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "howard-community-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-nebraska-at-omaha",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-nebraska-lincoln",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "nicholls-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "south-dakota-school-of-mines-and-technology",
+      "missing_sources": [
+        "uscis"
+      ]
+    },
+    {
+      "employer_id": "north-park-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "des-moines-area-community-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "ashland-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-north-carolina-at-charlotte",
+      "missing_sources": [
+        "uscis"
+      ]
+    },
+    {
+      "employer_id": "roosevelt-university",
+      "missing_sources": [
         "dol"
       ]
     }
