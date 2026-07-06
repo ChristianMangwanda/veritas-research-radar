@@ -136,12 +136,33 @@ async function mineWorkdayTenant(url) {
 // Workable's widget response includes the org name — free identity check.
 // iCIMS boards are JS-rendered (the weekly scout drives them with a browser),
 // but the sitemap is plain XML — a cheap liveness probe with a job count
-async function probeIcimsSitemap(tenant) {
+// 'ucla', 'ohsu', 'tuftscareers' — board tenants use acronyms and fused
+// substrings that word-overlap can't see
+function tenantMatchesName(tenant, name) {
+  const cleaned = tenant.toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (const token of distinctiveTokens(name)) {
+    if (token.length >= 4 && cleaned.includes(token.toLowerCase())) return true;
+  }
+  const initialsSource = String(name).toUpperCase().replace(/[^A-Z ]+/g, ' ').split(/\s+/)
+    .filter((t) => t && !['OF', 'THE', 'AT', 'AND', 'FOR', 'IN'].includes(t));
+  const acronym = initialsSource.map((t) => t[0]).join('').toLowerCase();
+  return acronym.length >= 3 && cleaned.includes(acronym);
+}
+
+async function probeIcims(tenant, expectedName) {
+  // Identity first: the board shell's <title> names the institution
+  // ("Emory Careers | Job Listings") — a shared board fails the match
+  const shell = await fetchTextWithTimeout(`https://${tenant}.icims.com/jobs/search?ss=1`);
+  await sleep(PROBE_DELAY_MS);
+  if (!shell || !/icims/i.test(shell)) return null;
+  const title = (shell.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || '';
+  if (!namesOverlap(title, expectedName) && !tenantMatchesName(tenant, expectedName)) {
+    return { mismatch: true, feed_title: title.trim() || tenant };
+  }
   const xml = await fetchTextWithTimeout(`https://${tenant}.icims.com/sitemap.xml`);
   await sleep(PROBE_DELAY_MS);
-  if (!xml) return null;
-  const total = (xml.match(/\/jobs\/\d+\//g) || []).length;
-  return total > 0 ? { tenant, total_jobs: total } : null;
+  const total = (xml?.match(/\/jobs\/\d+\//g) || []).length;
+  return { tenant, total_jobs: total };
 }
 
 async function probeGreenhouse(token) {
@@ -214,7 +235,7 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     const ashbyHit = hits.find((a) => a.provider === 'ashby' && a.tenant && !holds.has(a.tenant));
     // Prefer faculty boards; never internal/login boards
     const icimsHits = hits.filter((a) => a.provider === 'icims' && a.tenant
-      && !/internal|login/i.test(a.tenant) && !holds.has(a.tenant));
+      && !/internal|login/i.test(a.tenant) && !/^www\d*$/i.test(a.tenant) && !holds.has(a.tenant));
     icimsHits.sort((a, b) => (/faculty/i.test(b.tenant) ? 1 : 0) - (/faculty/i.test(a.tenant) ? 1 : 0));
     const icimsHit = icimsHits[0];
     const workableHit = hits.find((a) => a.provider === 'workable' && a.tenant && !holds.has(a.tenant));
@@ -328,17 +349,25 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     }
     // iCIMS: registry entry is scout-covered (ats_provider null); the scout's
     // icims driver renders the board and extracts full descriptions
-    if (!wiring && icimsHit && !existingTenants.has(icimsHit.tenant)) {
-      console.log(`probing icims sitemap:${icimsHit.tenant} (${record.name})…`);
-      const probe = await probeIcimsSitemap(icimsHit.tenant);
-      if (probe) {
-        wiring = {
-          ats_provider: null,
-          ats_token: null,
-          ats_config: undefined,
-          total_jobs: probe.total_jobs,
-          icims_board: `https://${probe.tenant}.icims.com/jobs/search?ss=1`
-        };
+    if (!wiring) {
+      for (const candidate of icimsHits) {
+        if (existingTenants.has(candidate.tenant)) continue;
+        console.log(`probing icims:${candidate.tenant} (${record.name})…`);
+        const probe = await probeIcims(candidate.tenant, record.name);
+        if (probe?.mismatch) {
+          skipped.push({ name: record.name, reason: `icims board title "${probe.feed_title}" does not match — likely a shared board` });
+          continue;
+        }
+        if (probe) {
+          wiring = {
+            ats_provider: null,
+            ats_token: null,
+            ats_config: undefined,
+            total_jobs: probe.total_jobs,
+            icims_board: `https://${probe.tenant}.icims.com/jobs/search?ss=1`
+          };
+          break;
+        }
       }
     }
     if (!wiring && includeScoutFallback && record.careers_url && record.careers_url.startsWith('http')) {
@@ -380,7 +409,10 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
   await fsp.writeFile(PROPOSALS_PATH, `${JSON.stringify({ generated_at: new Date().toISOString(), proposals, skipped }, null, 2)}\n`, 'utf8');
   console.log(`\n${proposals.length} proposals written to ${path.relative(process.cwd(), PROPOSALS_PATH)} (${skipped.length} skipped)`);
   for (const proposal of proposals) {
-    console.log(`  + ${proposal.name} — workday:${proposal.ats_config.tenant}/${proposal.ats_config.site} (${proposal.probe_total_jobs} postings)`);
+    const wiringLabel = proposal.ats_provider
+      ? `${proposal.ats_provider}:${proposal.ats_config?.tenant || proposal.ats_token}${proposal.ats_config?.site ? '/' + proposal.ats_config.site : ''}`
+      : `scout:${proposal.careers_url}`;
+    console.log(`  + ${proposal.name} — ${wiringLabel} (${proposal.probe_total_jobs} postings)`);
   }
   for (const skip of skipped) console.log(`  - ${skip.name}: ${skip.reason}`);
 }
