@@ -1,0 +1,8 @@
+{
+  "notes": "Tenants the owner has explicitly declined to wire. promote-employers.js consults this list so a held decision survives probe reruns.",
+  "holds": [
+    { "tenant": "aah", "name": "Queens University of Charlotte", "reason": "tenant is Advocate Aurora Health — wrong identity" },
+    { "tenant": "massgeneralbrigham", "name": "MGH Institute of Health Professions", "reason": "system-wide health board; deserves a properly named Mass General Brigham entry" },
+    { "tenant": "adventhealth", "name": "AdventHealth University", "reason": "system-wide health board on a school name" }
+  ]
+}

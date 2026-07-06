@@ -1,2267 +1,1234 @@
 {
-  "generated_at": "2026-07-06T00:16:12.790Z",
+  "generated_at": "2026-07-06T05:20:51.196Z",
   "proposals": [
     {
-      "id": "university-of-southern-california",
-      "name": "University of Southern California",
+      "id": "university-of-alabama-at-birmingham",
+      "name": "University of Alabama at Birmingham",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:123961"
+        "ipeds:100663"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "usc",
+      "ats_provider": "peopleadmin",
+      "ats_token": "uab",
       "ats_config": {
-        "host": "usc.wd5.myworkdayjobs.com",
-        "tenant": "usc",
-        "site": "USCAdvancementCareers"
+        "tenant": "uab"
       },
-      "careers_url": "https://usccareers.usc.edu/?utm_campaign=Brand&utm_medium=referral&utm_source=USC%20Homepage&utm_term=footer",
+      "careers_url": "https://www.uab.edu/humanresources/home/careers",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 1 live postings. USCIS 445 approvals / DOL 24 research LCAs (3y).",
-      "probe_total_jobs": 1
-    },
-    {
-      "id": "clemson-university",
-      "name": "Clemson University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:217882"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "clemson",
-      "ats_config": {
-        "host": "clemson.wd12.myworkdayjobs.com",
-        "tenant": "clemson",
-        "site": "Clemson_Careers"
-      },
-      "careers_url": "https://www.clemson.edu/human-resources/careers/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 2 live postings. USCIS 169 approvals / DOL 5 research LCAs (3y).",
-      "probe_total_jobs": 2
-    },
-    {
-      "id": "kean-university",
-      "name": "Kean University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:185262"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "kean",
-      "ats_config": {
-        "host": "kean.wd503.myworkdayjobs.com",
-        "tenant": "kean",
-        "site": "Kean"
-      },
-      "careers_url": "https://www.kean.edu/offices/human-resources/employment",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 52 live postings. USCIS 41 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 52
-    },
-    {
-      "id": "florida-institute-of-technology",
-      "name": "Florida Institute of Technology",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:133881"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "floridatech",
-      "ats_config": {
-        "host": "floridatech.wd5.myworkdayjobs.com",
-        "tenant": "floridatech",
-        "site": "FloridaTechCareers"
-      },
-      "careers_url": "https://www.fit.edu/employment/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 51 live postings. USCIS 31 approvals / DOL 4 research LCAs (3y).",
-      "probe_total_jobs": 51
-    },
-    {
-      "id": "colby-college",
-      "name": "Colby College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:161086"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "colby",
-      "ats_config": {
-        "host": "colby.wd5.myworkdayjobs.com",
-        "tenant": "colby",
-        "site": "ColbyCareers"
-      },
-      "careers_url": "https://www.colby.edu/humanresources/employment/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 25 live postings. USCIS 38 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 25
-    },
-    {
-      "id": "wake-forest-university",
-      "name": "Wake Forest University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:199847"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "wfu",
-      "ats_config": {
-        "host": "wfu.wd1.myworkdayjobs.com",
-        "tenant": "wfu",
-        "site": "Staff_Career_Website_live"
-      },
-      "careers_url": "https://www.wfu.careers/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 73 live postings. USCIS 34 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 73
-    },
-    {
-      "id": "montclair-state-university",
-      "name": "Montclair State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:185590"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "montclair",
-      "ats_config": {
-        "host": "montclair.wd1.myworkdayjobs.com",
-        "tenant": "montclair",
-        "site": "JobOpportunities"
-      },
-      "careers_url": "https://www.montclair.edu/human-resources/job-seekers/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 31 live postings. USCIS 30 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 31
-    },
-    {
-      "id": "ball-state-university",
-      "name": "Ball State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:150136"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "bsu",
-      "ats_config": {
-        "host": "bsu.wd12.myworkdayjobs.com",
-        "tenant": "bsu",
-        "site": "External"
-      },
-      "careers_url": "https://www.bsu.edu/about/administrativeoffices/humanresources/jobs",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 61 live postings. USCIS 27 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 61
-    },
-    {
-      "id": "bucknell-university",
-      "name": "Bucknell University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:211291"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "bucknell",
-      "ats_config": {
-        "host": "bucknell.wd1.myworkdayjobs.com",
-        "tenant": "bucknell",
-        "site": "External"
-      },
-      "careers_url": "https://www.bucknell.edu/azdirectory/talent-culture-human-resources/careers-bucknell",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 22 live postings. USCIS 26 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 22
-    },
-    {
-      "id": "new-jersey-city-university",
-      "name": "New Jersey City University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:185129"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "kean",
-      "ats_config": {
-        "host": "kean.wd503.myworkdayjobs.com",
-        "tenant": "kean",
-        "site": "Kean"
-      },
-      "careers_url": "https://www.kean.edu/offices/human-resources/employment",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 52 live postings. USCIS 24 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 52
-    },
-    {
-      "id": "ivy-tech-community-college",
-      "name": "Ivy Tech Community College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:150987"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "ivytech",
-      "ats_config": {
-        "host": "ivytech.wd1.myworkdayjobs.com",
-        "tenant": "ivytech",
-        "site": "Ivy_Tech_Careers"
-      },
-      "careers_url": "https://www.ivytech.edu/careers/search/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 489 live postings. USCIS 23 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 489
-    },
-    {
-      "id": "bentley-university",
-      "name": "Bentley University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:164739"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "bentley",
-      "ats_config": {
-        "host": "bentley.wd503.myworkdayjobs.com",
-        "tenant": "bentley",
-        "site": "faculty"
-      },
-      "careers_url": "https://www.bentley.edu/offices/human-resources/careers",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 23 live postings. USCIS 23 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 23
-    },
-    {
-      "id": "wesleyan-university",
-      "name": "Wesleyan University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:130697"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "wesleyan",
-      "ats_config": {
-        "host": "wesleyan.wd5.myworkdayjobs.com",
-        "tenant": "wesleyan",
-        "site": "careers"
-      },
-      "careers_url": "https://www.wesleyan.edu/about/careers.html",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 27 live postings. USCIS 20 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 27
-    },
-    {
-      "id": "the-new-school",
-      "name": "The New School",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:193654"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "newschool",
-      "ats_config": {
-        "host": "newschool.wd1.myworkdayjobs.com",
-        "tenant": "newschool",
-        "site": "External"
-      },
-      "careers_url": "https://www.newschool.edu/human-resources/talent-job-opportunities/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 55 live postings. USCIS 22 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 55
-    },
-    {
-      "id": "seattle-pacific-university",
-      "name": "Seattle Pacific University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:236577"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "spu",
-      "ats_config": {
-        "host": "spu.wd12.myworkdayjobs.com",
-        "tenant": "spu",
-        "site": "SPU"
-      },
-      "careers_url": "https://spu.edu/about-spu/employment-at-spu",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 30 live postings. USCIS 22 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 30
-    },
-    {
-      "id": "texas-a-m-university-kingsville",
-      "name": "Texas A&M University-Kingsville",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:228705"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "tamus",
-      "ats_config": {
-        "host": "tamus.wd1.myworkdayjobs.com",
-        "tenant": "tamus",
-        "site": "TAMUK_External"
-      },
-      "careers_url": "https://www.tamuk.edu/employee-services/careers/index.html",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 31 live postings. USCIS 21 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 31
-    },
-    {
-      "id": "university-of-north-florida",
-      "name": "University of North Florida",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:136172"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "unf",
-      "ats_config": {
-        "host": "unf.wd5.myworkdayjobs.com",
-        "tenant": "unf",
-        "site": "unfjobs"
-      },
-      "careers_url": "https://www.unf.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 108 live postings. USCIS 20 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 108
-    },
-    {
-      "id": "northwest-missouri-state-university",
-      "name": "Northwest Missouri State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:178624"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "nwmissouri",
-      "ats_config": {
-        "host": "nwmissouri.wd108.myworkdayjobs.com",
-        "tenant": "nwmissouri",
-        "site": "External"
-      },
-      "careers_url": "https://www.nwmissouri.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 2 live postings. USCIS 19 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 2
-    },
-    {
-      "id": "tarleton-state-university",
-      "name": "Tarleton State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:228529"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "tamus",
-      "ats_config": {
-        "host": "tamus.wd1.myworkdayjobs.com",
-        "tenant": "tamus",
-        "site": "TARLETON_External"
-      },
-      "careers_url": "https://www.tarleton.edu/employment/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 133 live postings. USCIS 17 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 133
-    },
-    {
-      "id": "southeastern-louisiana-university",
-      "name": "Southeastern Louisiana University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:160612"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "ulsselu",
-      "ats_config": {
-        "host": "ulsselu.wd503.myworkdayjobs.com",
-        "tenant": "ulsselu",
-        "site": "SLU"
-      },
-      "careers_url": "https://www.southeastern.edu/admin/hr/jobs/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 19 live postings. USCIS 18 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 19
-    },
-    {
-      "id": "grand-valley-state-university",
-      "name": "Grand Valley State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:170082"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "gvsu",
-      "ats_config": {
-        "host": "gvsu.wd1.myworkdayjobs.com",
-        "tenant": "gvsu",
-        "site": "careers"
-      },
-      "careers_url": "https://www.gvsu.edu/jobs.htm",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 21 live postings. USCIS 18 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 21
-    },
-    {
-      "id": "union-college",
-      "name": "Union College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:196866"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "unioncollege",
-      "ats_config": {
-        "host": "unioncollege.wd5.myworkdayjobs.com",
-        "tenant": "unioncollege",
-        "site": "UnionCollegeCareers"
-      },
-      "careers_url": "https://www.union.edu/human-resources/careers",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 33 live postings. USCIS 18 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 33
-    },
-    {
-      "id": "prairie-view-a-m-university",
-      "name": "Prairie View A & M University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:227526"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "tamus",
-      "ats_config": {
-        "host": "tamus.wd1.myworkdayjobs.com",
-        "tenant": "tamus",
-        "site": "PVAMU_External"
-      },
-      "careers_url": "https://www.pvamu.edu/hr/careers/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 80 live postings. USCIS 12 approvals / DOL 3 research LCAs (3y).",
-      "probe_total_jobs": 80
-    },
-    {
-      "id": "university-of-san-francisco",
-      "name": "University of San Francisco",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:122612"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "usfca",
-      "ats_config": {
-        "host": "usfca.wd5.myworkdayjobs.com",
-        "tenant": "usfca",
-        "site": "USF_Full-Time_Faculty"
-      },
-      "careers_url": "https://www.usfca.edu/hr",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 9 live postings. USCIS 17 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 9
-    },
-    {
-      "id": "fairfield-university",
-      "name": "Fairfield University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:129242"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "ffd",
-      "ats_config": {
-        "host": "ffd.wd1.myworkdayjobs.com",
-        "tenant": "ffd",
-        "site": "EmploymentOpportunities"
-      },
-      "careers_url": "https://www.fairfield.edu/about/offices-and-departments/human-resources/work-at-fairfield/index.html",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 51 live postings. USCIS 17 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 51
-    },
-    {
-      "id": "depauw-university",
-      "name": "DePauw University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:150400"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "depauw",
-      "ats_config": {
-        "host": "depauw.wd5.myworkdayjobs.com",
-        "tenant": "depauw",
-        "site": "DePauw_University"
-      },
-      "careers_url": "https://www.depauw.edu/offices/human-resources/employment/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 15 live postings. USCIS 17 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 15
-    },
-    {
-      "id": "mount-holyoke-college",
-      "name": "Mount Holyoke College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:166939"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "mtholyoke",
-      "ats_config": {
-        "host": "mtholyoke.wd504.myworkdayjobs.com",
-        "tenant": "mtholyoke",
-        "site": "External"
-      },
-      "careers_url": "https://www.mtholyoke.edu/careers-mount-holyoke",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 24 live postings. USCIS 16 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 24
-    },
-    {
-      "id": "dickinson-college",
-      "name": "Dickinson College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:212009"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "dickinson",
-      "ats_config": {
-        "host": "dickinson.wd108.myworkdayjobs.com",
-        "tenant": "dickinson",
-        "site": "Jobs"
-      },
-      "careers_url": "https://jobs.dickinson.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 34 live postings. USCIS 16 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 34
-    },
-    {
-      "id": "the-university-of-tampa",
-      "name": "The University of Tampa",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:137847"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "utampa",
-      "ats_config": {
-        "host": "utampa.wd1.myworkdayjobs.com",
-        "tenant": "utampa",
-        "site": "Faculty"
-      },
-      "careers_url": "https://www.ut.edu/about-utampa/university-services/human-resources/employment-opportunities",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 69 live postings. USCIS 15 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 69
-    },
-    {
-      "id": "northeastern-illinois-university",
-      "name": "Northeastern Illinois University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:147776"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "neiu",
-      "ats_config": {
-        "host": "neiu.wd1.myworkdayjobs.com",
-        "tenant": "neiu",
-        "site": "NEIU"
-      },
-      "careers_url": "https://www.neiu.edu/employment",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 10 live postings. USCIS 15 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 10
-    },
-    {
-      "id": "washington-state-university",
-      "name": "Washington State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:236939"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "wsu",
-      "ats_config": {
-        "host": "wsu.wd5.myworkdayjobs.com",
-        "tenant": "wsu",
-        "site": "WSU_Jobs"
-      },
-      "careers_url": "https://wsu.edu/jobs/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 52 live postings. USCIS 0 approvals / DOL 6 research LCAs (3y).",
-      "probe_total_jobs": 52
-    },
-    {
-      "id": "university-of-northern-iowa",
-      "name": "University of Northern Iowa",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:154095"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "uni",
-      "ats_config": {
-        "host": "uni.wd5.myworkdayjobs.com",
-        "tenant": "uni",
-        "site": "UNI"
-      },
-      "careers_url": "https://careers.uni.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 32 live postings. USCIS 11 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 32
-    },
-    {
-      "id": "northern-kentucky-university",
-      "name": "Northern Kentucky University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:157447"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "nku",
-      "ats_config": {
-        "host": "nku.wd108.myworkdayjobs.com",
-        "tenant": "nku",
-        "site": "NKU_External"
-      },
-      "careers_url": "https://www.nku.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 54 live postings. USCIS 11 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 54
-    },
-    {
-      "id": "minnesota-state-university-mankato",
-      "name": "Minnesota State University-Mankato",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:173920"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "minnstate",
-      "ats_config": {
-        "host": "minnstate.wd115.myworkdayjobs.com",
-        "tenant": "minnstate",
-        "site": "Minnesota_State_Careers"
-      },
-      "careers_url": "https://admin.mnsu.edu/human-resources/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 164 live postings. USCIS 11 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 164
-    },
-    {
-      "id": "washington-and-lee-university",
-      "name": "Washington and Lee University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:234207"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "wlu",
-      "ats_config": {
-        "host": "wlu.wd5.myworkdayjobs.com",
-        "tenant": "wlu",
-        "site": "WLUCareers"
-      },
-      "careers_url": "https://www.wlu.edu/employment-opportunities",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 21 live postings. USCIS 11 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 21
-    },
-    {
-      "id": "campbellsville-university",
-      "name": "Campbellsville University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:156365"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "campbellsville",
-      "ats_config": {
-        "host": "campbellsville.wd1.myworkdayjobs.com",
-        "tenant": "campbellsville",
-        "site": "CU"
-      },
-      "careers_url": "https://www.campbellsville.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 45 live postings. USCIS 10 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 45
-    },
-    {
-      "id": "saginaw-valley-state-university",
-      "name": "Saginaw Valley State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:172051"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "svsu",
-      "ats_config": {
-        "host": "svsu.wd503.myworkdayjobs.com",
-        "tenant": "svsu",
-        "site": "External"
-      },
-      "careers_url": "https://www.svsu.edu/hr/employmentinformation/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 85 live postings. USCIS 10 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 85
-    },
-    {
-      "id": "carleton-college",
-      "name": "Carleton College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:173258"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "carleton",
-      "ats_config": {
-        "host": "carleton.wd1.myworkdayjobs.com",
-        "tenant": "carleton",
-        "site": "CarletonCareers"
-      },
-      "careers_url": "https://www.carleton.edu/jobs/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 20 live postings. USCIS 10 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 20
-    },
-    {
-      "id": "texas-a-m-university-central-texas",
-      "name": "Texas A&M University-Central Texas",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:483036"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "tamus",
-      "ats_config": {
-        "host": "tamus.wd1.myworkdayjobs.com",
-        "tenant": "tamus",
-        "site": "TAMUCT_External"
-      },
-      "careers_url": "https://www.tamuct.edu/human-resources-jobs/employment-opportunities/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 11 live postings. USCIS 10 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 11
-    },
-    {
-      "id": "fort-lewis-college",
-      "name": "Fort Lewis College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:127185"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "fortlewiscollege",
-      "ats_config": {
-        "host": "fortlewiscollege.wd1.myworkdayjobs.com",
-        "tenant": "fortlewiscollege",
-        "site": "FLC"
-      },
-      "careers_url": "https://www.fortlewis.edu/jobs",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 5 live postings. USCIS 9 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 5
-    },
-    {
-      "id": "berklee-college-of-music",
-      "name": "Berklee College of Music",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:164748"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "berklee",
-      "ats_config": {
-        "host": "berklee.wd1.myworkdayjobs.com",
-        "tenant": "berklee",
-        "site": "BerkleeCareers"
-      },
-      "careers_url": "https://www.berklee.edu/jobs",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 50 live postings. USCIS 9 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 50
-    },
-    {
-      "id": "florida-polytechnic-university",
-      "name": "Florida Polytechnic University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:482936"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "flpoly",
-      "ats_config": {
-        "host": "flpoly.wd1.myworkdayjobs.com",
-        "tenant": "flpoly",
-        "site": "External-Staff"
-      },
-      "careers_url": "https://floridapoly.edu/about/departments/human-resources/careers/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 13 live postings. USCIS 9 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 13
-    },
-    {
-      "id": "meharry-medical-college",
-      "name": "Meharry Medical College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:220792"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "meharrymedicalcollege",
-      "ats_config": {
-        "host": "meharrymedicalcollege.wd12.myworkdayjobs.com",
-        "tenant": "meharrymedicalcollege",
-        "site": "external"
-      },
-      "careers_url": "https://meharry.edu/meet-meharry/working-at-meharry/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 38 live postings. USCIS 8 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 38
-    },
-    {
-      "id": "university-of-wisconsin-whitewater",
-      "name": "University of Wisconsin-Whitewater",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:240189"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "wisconsin",
-      "ats_config": {
-        "host": "wisconsin.wd1.myworkdayjobs.com",
-        "tenant": "wisconsin",
-        "site": "UW_Comprehensives"
-      },
-      "careers_url": "https://www.uww.edu/employment/employment-opportunities",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 372 live postings. USCIS 8 approvals / DOL 0 research LCAs (3y).",
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 372 live postings. USCIS 285 approvals / DOL 10 research LCAs (3y).",
       "probe_total_jobs": 372
     },
     {
-      "id": "texas-a-m-university-san-antonio",
-      "name": "Texas A&M University-San Antonio",
+      "id": "university-of-north-carolina-at-chapel-hill",
+      "name": "University of North Carolina at Chapel Hill",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:459949"
+        "ipeds:199120"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "tamus",
+      "ats_provider": "peopleadmin",
+      "ats_token": "unc",
       "ats_config": {
-        "host": "tamus.wd1.myworkdayjobs.com",
-        "tenant": "tamus",
-        "site": "TAMUSA_External"
+        "tenant": "unc"
       },
-      "careers_url": "https://www.tamusa.edu/about-us/employment-opportunities/index.html",
+      "careers_url": "https://hr.unc.edu/work-at-carolina/employment-opportunities/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 19 live postings. USCIS 4 approvals / DOL 2 research LCAs (3y).",
-      "probe_total_jobs": 19
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 459 live postings. USCIS 138 approvals / DOL 17 research LCAs (3y).",
+      "probe_total_jobs": 459
     },
     {
-      "id": "barnard-college",
-      "name": "Barnard College",
+      "id": "the-university-of-texas-at-arlington",
+      "name": "The University of Texas at Arlington",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:189097"
+        "ipeds:228769"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "barnard",
+      "ats_provider": "peopleadmin",
+      "ats_token": "uta",
       "ats_config": {
-        "host": "barnard.wd1.myworkdayjobs.com",
-        "tenant": "barnard",
-        "site": "Faculty"
+        "tenant": "uta"
       },
-      "careers_url": "https://barnard.edu/human-resources/employment-barnard",
+      "careers_url": "https://www.uta.edu/about/careers-at-uta",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 8 live postings. USCIS 5 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 8
-    },
-    {
-      "id": "bryn-mawr-college",
-      "name": "Bryn Mawr College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:211273"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "brynmawr",
-      "ats_config": {
-        "host": "brynmawr.wd12.myworkdayjobs.com",
-        "tenant": "brynmawr",
-        "site": "External"
-      },
-      "careers_url": "https://www.brynmawr.edu/inside/offices-services/human-resources/join-our-team",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 22 live postings. USCIS 7 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 22
-    },
-    {
-      "id": "claremont-mckenna-college",
-      "name": "Claremont McKenna College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:112260"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "theclaremontcolleges",
-      "ats_config": {
-        "host": "theclaremontcolleges.wd1.myworkdayjobs.com",
-        "tenant": "theclaremontcolleges",
-        "site": "CMC_Staff"
-      },
-      "careers_url": "https://www.cmc.edu/employment-opportunities-at-cmc",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 18 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 18
-    },
-    {
-      "id": "colorado-mesa-university",
-      "name": "Colorado Mesa University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:127556"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "coloradomesa",
-      "ats_config": {
-        "host": "coloradomesa.wd501.myworkdayjobs.com",
-        "tenant": "coloradomesa",
-        "site": "CMUCareers"
-      },
-      "careers_url": "https://www.coloradomesa.edu/jobs/index.html",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 24 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 24
-    },
-    {
-      "id": "metropolitan-state-university-of-denver",
-      "name": "Metropolitan State University of Denver",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:127565"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "msudenver",
-      "ats_config": {
-        "host": "msudenver.wd1.myworkdayjobs.com",
-        "tenant": "msudenver",
-        "site": "MSUDenver"
-      },
-      "careers_url": "https://www.msudenver.edu/careers/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 113 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 113
-    },
-    {
-      "id": "emerson-college",
-      "name": "Emerson College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:165662"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "emerson",
-      "ats_config": {
-        "host": "emerson.wd5.myworkdayjobs.com",
-        "tenant": "emerson",
-        "site": "Emerson_College_Staff"
-      },
-      "careers_url": "https://emerson.edu/departments/human-resources/careers",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 33 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 33
-    },
-    {
-      "id": "park-university",
-      "name": "Park University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:178721"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "park",
-      "ats_config": {
-        "host": "park.wd1.myworkdayjobs.com",
-        "tenant": "park",
-        "site": "ParkUniversityCareers"
-      },
-      "careers_url": "https://www.park.edu/careers/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 13 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 13
-    },
-    {
-      "id": "texas-a-m-international-university",
-      "name": "Texas A & M International University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:226152"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "tamus",
-      "ats_config": {
-        "host": "tamus.wd1.myworkdayjobs.com",
-        "tenant": "tamus",
-        "site": "TAMIU_External"
-      },
-      "careers_url": "https://employment.tamiu.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 63 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 63 live postings. USCIS 118 approvals / DOL 11 research LCAs (3y).",
       "probe_total_jobs": 63
     },
     {
-      "id": "harvey-mudd-college",
-      "name": "Harvey Mudd College",
+      "id": "east-carolina-university",
+      "name": "East Carolina University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:115409"
+        "ipeds:198464"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "theclaremontcolleges",
+      "ats_provider": "peopleadmin",
+      "ats_token": "ecu",
       "ats_config": {
-        "host": "theclaremontcolleges.wd1.myworkdayjobs.com",
-        "tenant": "theclaremontcolleges",
-        "site": "HMC_Careers"
+        "tenant": "ecu"
       },
-      "careers_url": "https://www.hmc.edu/human-resources/employment-at-harvey-mudd/",
+      "careers_url": "https://jobs.ecu.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 11 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 11
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 152 live postings. USCIS 71 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 152
     },
     {
-      "id": "adams-state-university",
-      "name": "Adams State University",
+      "id": "marshall-university",
+      "name": "Marshall University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:126182"
+        "ipeds:237525"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "adams",
+      "ats_provider": "peopleadmin",
+      "ats_token": "marshall",
       "ats_config": {
-        "host": "adams.wd1.myworkdayjobs.com",
-        "tenant": "adams",
-        "site": "ASU"
+        "tenant": "marshall"
       },
-      "careers_url": "https://www.adams.edu/hr/employment/",
+      "careers_url": "https://www.marshall.edu/human-resources/job-opportunities/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 25 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 25
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 114 live postings. USCIS 66 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 114
     },
     {
-      "id": "guilford-college",
-      "name": "Guilford College",
+      "id": "the-university-of-texas-rio-grande-valley",
+      "name": "The University of Texas Rio Grande Valley",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:198613"
+        "ipeds:227368"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "guilford",
+      "ats_provider": "peopleadmin",
+      "ats_token": "utrgv-sb",
       "ats_config": {
-        "host": "guilford.wd1.myworkdayjobs.com",
-        "tenant": "guilford",
-        "site": "Guilford_Careers"
+        "tenant": "utrgv-sb"
       },
-      "careers_url": "https://www.guilford.edu/",
+      "careers_url": "https://careers.utrgv.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 22 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y).",
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 151 live postings. USCIS 62 approvals / DOL 1 research LCAs (3y).",
+      "probe_total_jobs": 151
+    },
+    {
+      "id": "george-washington-university",
+      "name": "George Washington University",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:131469"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "gwu-studentemployment",
+      "ats_config": {
+        "tenant": "gwu-studentemployment"
+      },
+      "careers_url": "https://careers.gwu.edu/?utm_medium=link&utm_campaign=gwhomepage-footer&utm_source=careers",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 22 live postings. USCIS 51 approvals / DOL 1 research LCAs (3y).",
       "probe_total_jobs": 22
     },
     {
-      "id": "ohio-northern-university",
-      "name": "Ohio Northern University",
+      "id": "university-of-idaho",
+      "name": "University of Idaho",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:204635"
+        "ipeds:142285"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "onu",
+      "ats_provider": "peopleadmin",
+      "ats_token": "uidaho",
       "ats_config": {
-        "host": "onu.wd501.myworkdayjobs.com",
-        "tenant": "onu",
-        "site": "ONU"
+        "tenant": "uidaho"
       },
-      "careers_url": "https://www.onu.edu/about/human-resources",
+      "careers_url": "https://www.uidaho.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 14 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 14
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 145 live postings. USCIS 48 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 145
     },
     {
-      "id": "rhodes-college",
-      "name": "Rhodes College",
+      "id": "sam-houston-state-university",
+      "name": "Sam Houston State University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:221351"
+        "ipeds:227881"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "rhodes",
+      "ats_provider": "peopleadmin",
+      "ats_token": "shsu",
       "ats_config": {
-        "host": "rhodes.wd5.myworkdayjobs.com",
-        "tenant": "rhodes",
-        "site": "Rhodes_Careers"
+        "tenant": "shsu"
       },
-      "careers_url": "https://www.rhodes.edu/employment",
+      "careers_url": "https://www.shsu.edu/hiring/index.php",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 16 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 16
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 383 live postings. USCIS 39 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 383
     },
     {
-      "id": "regis-university",
-      "name": "Regis University",
+      "id": "university-of-south-alabama",
+      "name": "University of South Alabama",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:127918"
+        "ipeds:102094"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "regis",
+      "ats_provider": "peopleadmin",
+      "ats_token": "southalabama",
       "ats_config": {
-        "host": "regis.wd501.myworkdayjobs.com",
-        "tenant": "regis",
-        "site": "RegisUniversity"
+        "tenant": "southalabama"
       },
-      "careers_url": "https://www.regis.edu/about/offices-services/human-resources/careers.html",
+      "careers_url": "https://www.southalabama.edu/departments/financialaffairs/hr/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 26 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 26
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 39 live postings. USCIS 27 approvals / DOL 2 research LCAs (3y).",
+      "probe_total_jobs": 39
     },
     {
-      "id": "saint-leo-university",
-      "name": "Saint Leo University",
+      "id": "university-of-hartford",
+      "name": "University of Hartford",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:137032"
+        "ipeds:129525"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "saintleo",
+      "ats_provider": "peopleadmin",
+      "ats_token": "hartford",
       "ats_config": {
-        "host": "saintleo.wd503.myworkdayjobs.com",
-        "tenant": "saintleo",
-        "site": "SLU"
+        "tenant": "hartford"
       },
-      "careers_url": "https://www.saintleo.edu/",
+      "careers_url": "https://www.hartford.edu/about/offices-divisions/human-resources-development-archive/employment-opportunities.aspx",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 81 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 81
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 17 live postings. USCIS 25 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 17
     },
     {
-      "id": "maryland-institute-college-of-art",
-      "name": "Maryland Institute College of Art",
+      "id": "hofstra-university",
+      "name": "Hofstra University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:163295"
+        "ipeds:191649"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "mica",
+      "ats_provider": "peopleadmin",
+      "ats_token": "hofstra",
       "ats_config": {
-        "host": "mica.wd5.myworkdayjobs.com",
-        "tenant": "mica",
-        "site": "Student"
+        "tenant": "hofstra"
       },
-      "careers_url": "https://www.mica.edu/about-mica/offices-divisions/human-resources/careers-at-mica/",
+      "careers_url": "https://www.hofstra.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 32 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 32
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 89 live postings. USCIS 21 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 89
     },
     {
-      "id": "macalester-college",
-      "name": "Macalester College",
+      "id": "university-of-the-pacific",
+      "name": "University of the Pacific",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:173902"
+        "ipeds:120883"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "macalester",
+      "ats_provider": "peopleadmin",
+      "ats_token": "pacific",
       "ats_config": {
-        "host": "macalester.wd108.myworkdayjobs.com",
-        "tenant": "macalester",
-        "site": "humanresources-careers"
+        "tenant": "pacific"
       },
-      "careers_url": "https://www.macalester.edu/employmentservices/jobs/",
+      "careers_url": "https://www.pacific.edu/about-pacific/administrative-offices/business-and-finance-division/human-resources",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 2 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 2
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 101 live postings. USCIS 19 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 101
     },
     {
-      "id": "saint-anselm-college",
-      "name": "Saint Anselm College",
+      "id": "tuskegee-university",
+      "name": "Tuskegee University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:183239"
+        "ipeds:102377"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "anselm",
+      "ats_provider": "peopleadmin",
+      "ats_token": "tuskegee",
       "ats_config": {
-        "host": "anselm.wd1.myworkdayjobs.com",
-        "tenant": "anselm",
-        "site": "Anselm"
+        "tenant": "tuskegee"
       },
-      "careers_url": "https://www.anselm.edu/about/offices-centers-institutes/finance-administration/human-resources/employment-opportunities",
+      "careers_url": "https://www.tuskegee.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 10 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 10
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 111 live postings. USCIS 16 approvals / DOL 1 research LCAs (3y).",
+      "probe_total_jobs": 111
     },
     {
-      "id": "xavier-university",
-      "name": "Xavier University",
+      "id": "gannon-university",
+      "name": "Gannon University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:206622"
+        "ipeds:212601"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "xavier",
+      "ats_provider": "peopleadmin",
+      "ats_token": "gannon",
       "ats_config": {
-        "host": "xavier.wd108.myworkdayjobs.com",
-        "tenant": "xavier",
-        "site": "XavierCareers"
+        "tenant": "gannon"
       },
-      "careers_url": "https://www.xavier.edu/working-at-xavier/index",
+      "careers_url": "https://www.gannon.edu/employment-at-gannon/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 44 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 44
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 59 live postings. USCIS 18 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 59
     },
     {
-      "id": "lewis-clark-college",
-      "name": "Lewis & Clark College",
+      "id": "university-of-nebraska-medical-center",
+      "name": "University of Nebraska Medical Center",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:209056"
+        "ipeds:181428"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "lewisandclark",
+      "ats_provider": "peopleadmin",
+      "ats_token": "unmc",
       "ats_config": {
-        "host": "lewisandclark.wd5.myworkdayjobs.com",
-        "tenant": "lewisandclark",
-        "site": "staff"
+        "tenant": "unmc"
       },
-      "careers_url": "https://www.lclark.edu/offices/human_resources/jobs/",
+      "careers_url": "https://jobs.unmc.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 14 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 14
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 217 live postings. USCIS 0 approvals / DOL 8 research LCAs (3y).",
+      "probe_total_jobs": 217
     },
     {
-      "id": "philadelphia-college-of-osteopathic-medicine",
-      "name": "Philadelphia College of Osteopathic Medicine",
+      "id": "spelman-college",
+      "name": "Spelman College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:215123"
+        "ipeds:141060"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "pcom",
+      "ats_provider": "peopleadmin",
+      "ats_token": "spelman",
       "ats_config": {
-        "host": "pcom.wd108.myworkdayjobs.com",
-        "tenant": "pcom",
-        "site": "External"
+        "tenant": "spelman"
       },
-      "careers_url": "https://www.pcom.edu/about/departments/human-resources/career-opportunities/",
+      "careers_url": "https://www.spelman.edu/about/careers-at-spelman.html",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 23 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 23
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 33 live postings. USCIS 10 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 33
     },
     {
-      "id": "furman-university",
-      "name": "Furman University",
+      "id": "university-of-new-england",
+      "name": "University of New England",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:218070"
+        "ipeds:161457"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "furman",
+      "ats_provider": "peopleadmin",
+      "ats_token": "une",
       "ats_config": {
-        "host": "furman.wd115.myworkdayjobs.com",
-        "tenant": "furman",
-        "site": "Furman_Careers"
+        "tenant": "une"
       },
-      "careers_url": "https://www.furman.edu/offices-services/human-resources/employment/",
+      "careers_url": "https://www.une.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 18 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 18
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 71 live postings. USCIS 10 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 71
     },
     {
-      "id": "pomona-college",
-      "name": "Pomona College",
+      "id": "connecticut-college",
+      "name": "Connecticut College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:121345"
+        "ipeds:128902"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "theclaremontcolleges",
+      "ats_provider": "peopleadmin",
+      "ats_token": "conncoll",
       "ats_config": {
-        "host": "theclaremontcolleges.wd1.myworkdayjobs.com",
-        "tenant": "theclaremontcolleges",
-        "site": "POM_Careers"
+        "tenant": "conncoll"
       },
-      "careers_url": "https://www.pomona.edu/employment",
+      "careers_url": "https://www.conncoll.edu/employment/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 21 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 21 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
       "probe_total_jobs": 21
     },
     {
-      "id": "scripps-college",
-      "name": "Scripps College",
+      "id": "truman-state-university",
+      "name": "Truman State University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:123165"
+        "ipeds:178615"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "theclaremontcolleges",
+      "ats_provider": "peopleadmin",
+      "ats_token": "trumansu",
       "ats_config": {
-        "host": "theclaremontcolleges.wd1.myworkdayjobs.com",
-        "tenant": "theclaremontcolleges",
-        "site": "SCR_Career_Staff"
+        "tenant": "trumansu"
       },
-      "careers_url": "http://www.scrippscollege.edu/hr/staff-postings",
+      "careers_url": "https://employment.truman.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 18 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 18
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 22 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 22
     },
     {
-      "id": "colorado-state-university-pueblo",
-      "name": "Colorado State University Pueblo",
+      "id": "western-new-mexico-university",
+      "name": "Western New Mexico University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:128106"
+        "ipeds:188304"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "csusystem",
+      "ats_provider": "peopleadmin",
+      "ats_token": "wnmu",
       "ats_config": {
-        "host": "csusystem.wd12.myworkdayjobs.com",
-        "tenant": "csusystem",
-        "site": "pueblo_careers"
+        "tenant": "wnmu"
       },
-      "careers_url": "https://www.csupueblo.edu/human-resources/employment/current-opportunities.html",
+      "careers_url": "https://wnmu.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 21 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 21
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 59 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 59
     },
     {
-      "id": "western-colorado-university",
-      "name": "Western Colorado University",
+      "id": "la-salle-university",
+      "name": "La Salle University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:128391"
+        "ipeds:213367"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "western",
+      "ats_provider": "peopleadmin",
+      "ats_token": "lasalle",
       "ats_config": {
-        "host": "western.wd1.myworkdayjobs.com",
-        "tenant": "western",
-        "site": "WESTERN"
+        "tenant": "lasalle"
       },
-      "careers_url": "https://western.edu/about/directory/human-resources/careers-at-western/",
+      "careers_url": "https://www.lasalle.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 3 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 3
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 95 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 95
     },
     {
-      "id": "northern-new-mexico-college",
-      "name": "Northern New Mexico College",
+      "id": "chicago-state-university",
+      "name": "Chicago State University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:188058"
+        "ipeds:144005"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "chess",
+      "ats_provider": "peopleadmin",
+      "ats_token": "chicagostate",
       "ats_config": {
-        "host": "chess.wd1.myworkdayjobs.com",
-        "tenant": "chess",
-        "site": "nnmcjobs"
+        "tenant": "chicagostate"
       },
-      "careers_url": "https://nnmc.edu/",
+      "careers_url": "https://www.csu.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 11 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 11
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 86 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 86
     },
     {
-      "id": "wingate-university",
-      "name": "Wingate University",
+      "id": "hillsdale-college",
+      "name": "Hillsdale College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:199962"
+        "ipeds:170286"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "wingate",
+      "ats_provider": "peopleadmin",
+      "ats_token": "hillsdale",
       "ats_config": {
-        "host": "wingate.wd5.myworkdayjobs.com",
-        "tenant": "wingate",
-        "site": "WU"
+        "tenant": "hillsdale"
       },
-      "careers_url": "https://www.wingate.edu/quicklinks/careers",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 32 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 32
-    },
-    {
-      "id": "willamette-university",
-      "name": "Willamette University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:210401"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "willamette",
-      "ats_config": {
-        "host": "willamette.wd501.myworkdayjobs.com",
-        "tenant": "willamette",
-        "site": "WillametteUniversityJobs"
-      },
-      "careers_url": "https://willamette.edu/about/careers",
+      "careers_url": "https://careers.hillsdale.edu/",
       "research_areas": [],
       "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 14 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
       "probe_total_jobs": 14
     },
     {
-      "id": "muhlenberg-college",
-      "name": "Muhlenberg College",
+      "id": "northeast-ohio-medical-university",
+      "name": "Northeast Ohio Medical University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:214175"
+        "ipeds:204477"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "muhlenberg",
+      "ats_provider": "peopleadmin",
+      "ats_token": "neomed",
       "ats_config": {
-        "host": "muhlenberg.wd1.myworkdayjobs.com",
-        "tenant": "muhlenberg",
-        "site": "MuhlenbergCareers"
+        "tenant": "neomed"
       },
-      "careers_url": "https://www.muhlenberg.edu/about-us/our-team/college-offices/human-resources/",
+      "careers_url": "https://www.neomed.edu/hr/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 15 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 15
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 39 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 39
     },
     {
-      "id": "wofford-college",
-      "name": "Wofford College",
+      "id": "university-of-portland",
+      "name": "University of Portland",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:218973"
+        "ipeds:209825"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "wofford",
+      "ats_provider": "peopleadmin",
+      "ats_token": "uportland",
       "ats_config": {
-        "host": "wofford.wd5.myworkdayjobs.com",
-        "tenant": "wofford",
-        "site": "Wofford"
+        "tenant": "uportland"
       },
-      "careers_url": "https://www.wofford.edu/",
+      "careers_url": "https://www.up.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 14 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 14
-    },
-    {
-      "id": "soka-university-of-america",
-      "name": "Soka University of America",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:399911"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "soka",
-      "ats_config": {
-        "host": "soka.wd5.myworkdayjobs.com",
-        "tenant": "soka",
-        "site": "sokacareersite"
-      },
-      "careers_url": "https://www.soka.edu/jobs",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 4 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 4
-    },
-    {
-      "id": "pitzer-college",
-      "name": "Pitzer College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:121257"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "theclaremontcolleges",
-      "ats_config": {
-        "host": "theclaremontcolleges.wd1.myworkdayjobs.com",
-        "tenant": "theclaremontcolleges",
-        "site": "PIT_Staff"
-      },
-      "careers_url": "https://www.pitzer.edu/offices/human-resources/working-at-pitzer",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 8 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 8
-    },
-    {
-      "id": "ringling-college-of-art-and-design",
-      "name": "Ringling College of Art and Design",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:136774"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "ringling",
-      "ats_config": {
-        "host": "ringling.wd1.myworkdayjobs.com",
-        "tenant": "ringling",
-        "site": "RinglingExternalCareersFaculty"
-      },
-      "careers_url": "https://www.ringling.edu/about/employment-opportunities/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 7 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 7
-    },
-    {
-      "id": "anderson-university",
-      "name": "Anderson University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:217633"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "andersonuniversity",
-      "ats_config": {
-        "host": "andersonuniversity.wd1.myworkdayjobs.com",
-        "tenant": "andersonuniversity",
-        "site": "AndersonUniversity"
-      },
-      "careers_url": "https://andersonuniversity.edu/employment/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 45 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 45 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
       "probe_total_jobs": 45
     },
     {
-      "id": "the-university-of-findlay",
-      "name": "The University of Findlay",
+      "id": "delta-state-university",
+      "name": "Delta State University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:202763"
+        "ipeds:175616"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "findlay",
+      "ats_provider": "peopleadmin",
+      "ats_token": "deltastate",
       "ats_config": {
-        "host": "findlay.wd5.myworkdayjobs.com",
-        "tenant": "findlay",
-        "site": "careers"
+        "tenant": "deltastate"
       },
-      "careers_url": "https://findlay.edu/",
+      "careers_url": "https://www.deltastate.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 43 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 43
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 44 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 44
     },
     {
-      "id": "abilene-christian-university",
-      "name": "Abilene Christian University",
+      "id": "sarah-lawrence-college",
+      "name": "Sarah Lawrence College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:222178"
+        "ipeds:195304"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "acu",
+      "ats_provider": "peopleadmin",
+      "ats_token": "slc",
       "ats_config": {
-        "host": "acu.wd108.myworkdayjobs.com",
-        "tenant": "acu",
-        "site": "ACUCareers"
+        "tenant": "slc"
       },
-      "careers_url": "https://acu.edu/about/careers/",
+      "careers_url": "https://www.sarahlawrence.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 90 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 90
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 22 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 22
     },
     {
-      "id": "texas-a-m-university-corpus-christi",
-      "name": "Texas A & M University-Corpus Christi",
+      "id": "winthrop-university",
+      "name": "Winthrop University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:224147"
+        "ipeds:218964"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "tamus",
+      "ats_provider": "peopleadmin",
+      "ats_token": "winthrop",
       "ats_config": {
-        "host": "tamus.wd1.myworkdayjobs.com",
-        "tenant": "tamus",
-        "site": "TAMUCC_External"
+        "tenant": "winthrop"
       },
-      "careers_url": "https://www.tamucc.edu/human-resources/careers/index.php?utm_source=topnav&utm_campaign=tamucc.edu&utm_medium=careers",
+      "careers_url": "https://www.winthrop.edu/hr/employment-opportunities-and-jobs.aspx",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 25 live postings. USCIS 0 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 25
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 57 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 57
     },
     {
-      "id": "texas-a-m-university-texarkana",
-      "name": "Texas A&M University-Texarkana",
+      "id": "sul-ross-state-university",
+      "name": "Sul Ross State University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:224545"
+        "ipeds:228501"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "tamus",
+      "ats_provider": "peopleadmin",
+      "ats_token": "sulross",
       "ats_config": {
-        "host": "tamus.wd1.myworkdayjobs.com",
-        "tenant": "tamus",
-        "site": "TAMUT_External"
+        "tenant": "sulross"
       },
-      "careers_url": "https://www.tamut.edu/administration/human-resources/employment/index.html",
+      "careers_url": "https://www.sulross.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 54 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 54
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 88 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 88
     },
     {
-      "id": "university-of-wisconsin-milwaukee",
-      "name": "University of Wisconsin-Milwaukee",
+      "id": "northeast-iowa-community-college",
+      "name": "Northeast Iowa Community College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:240453"
+        "ipeds:154110"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "wisconsin",
+      "ats_provider": "peopleadmin",
+      "ats_token": "nicc",
       "ats_config": {
-        "host": "wisconsin.wd1.myworkdayjobs.com",
-        "tenant": "wisconsin",
-        "site": "UW_Milwaukee"
+        "tenant": "nicc"
       },
-      "careers_url": "https://uwm.edu/jobs/",
+      "careers_url": "https://www.nicc.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 32 live postings. USCIS 0 approvals / DOL 1 research LCAs (3y).",
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 32 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
       "probe_total_jobs": 32
     },
     {
-      "id": "claremont-graduate-university",
-      "name": "Claremont Graduate University",
+      "id": "morehead-state-university",
+      "name": "Morehead State University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:112251"
+        "ipeds:157386"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "theclaremontcolleges",
+      "ats_provider": "peopleadmin",
+      "ats_token": "moreheadstate",
       "ats_config": {
-        "host": "theclaremontcolleges.wd1.myworkdayjobs.com",
-        "tenant": "theclaremontcolleges",
-        "site": "CGU_Careers"
+        "tenant": "moreheadstate"
       },
-      "careers_url": "https://www.cgu.edu/employment-opportunities/",
+      "careers_url": "https://www.moreheadstate.edu/about-msu/leadership/administration/human-resources/careers",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 5 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 5
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 36 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 36
     },
     {
-      "id": "samuel-merritt-university",
-      "name": "Samuel Merritt University",
+      "id": "howard-community-college",
+      "name": "Howard Community College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:122296"
+        "ipeds:162779"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "samuelmerritt",
+      "ats_provider": "peopleadmin",
+      "ats_token": "howardcc",
       "ats_config": {
-        "host": "samuelmerritt.wd1.myworkdayjobs.com",
-        "tenant": "samuelmerritt",
-        "site": "SMUCareers"
+        "tenant": "howardcc"
       },
-      "careers_url": "https://www.samuelmerritt.edu/",
+      "careers_url": "https://www.howardcc.edu/about-us/offices--departments/human-resources/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 60 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 60
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 115 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 115
     },
     {
-      "id": "goucher-college",
-      "name": "Goucher College",
+      "id": "missouri-western-state-university",
+      "name": "Missouri Western State University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:162654"
+        "ipeds:178387"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "goucher",
+      "ats_provider": "peopleadmin",
+      "ats_token": "mwsu",
       "ats_config": {
-        "host": "goucher.wd1.myworkdayjobs.com",
-        "tenant": "goucher",
-        "site": "Goucher_Careers"
+        "tenant": "mwsu"
       },
-      "careers_url": "https://www.goucher.edu/human-resources/employment-opportunities.html",
+      "careers_url": "https://www.missouriwestern.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 14 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 14
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 23 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 23
     },
     {
-      "id": "montgomery-college",
-      "name": "Montgomery College",
+      "id": "university-of-nebraska-at-omaha",
+      "name": "University of Nebraska at Omaha",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:163426"
+        "ipeds:181394"
       ],
       "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "mc",
+      "ats_provider": "peopleadmin",
+      "ats_token": "unomaha",
       "ats_config": {
-        "host": "mc.wd1.myworkdayjobs.com",
-        "tenant": "mc",
-        "site": "external"
+        "tenant": "unomaha"
       },
-      "careers_url": "https://www.montgomerycollege.edu/about-mc/careers/index.html",
+      "careers_url": "https://www.unomaha.edu/human-resources/employment/index.php",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 42 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 42
-    },
-    {
-      "id": "endicott-college",
-      "name": "Endicott College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:165699"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "endicott",
-      "ats_config": {
-        "host": "endicott.wd1.myworkdayjobs.com",
-        "tenant": "endicott",
-        "site": "Endicott"
-      },
-      "careers_url": "https://www.endicott.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 31 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 31
-    },
-    {
-      "id": "dunwoody-college-of-technology",
-      "name": "Dunwoody College of Technology",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:175227"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "dunwoody",
-      "ats_config": {
-        "host": "dunwoody.wd108.myworkdayjobs.com",
-        "tenant": "dunwoody",
-        "site": "External"
-      },
-      "careers_url": "https://dunwoody.edu/about/employment-at-dunwoody/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 28 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 28
-    },
-    {
-      "id": "clarkson-college",
-      "name": "Clarkson College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:180832"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "nebraskamed",
-      "ats_config": {
-        "host": "nebraskamed.wd5.myworkdayjobs.com",
-        "tenant": "nebraskamed",
-        "site": "Clarkson"
-      },
-      "careers_url": "https://www.clarksoncollege.edu/about/employment-opportunities",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 9 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 9
-    },
-    {
-      "id": "san-juan-college",
-      "name": "San Juan College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:188100"
-      ],
-      "tier": "auto",
-      "ats_provider": "workday",
-      "ats_token": "chess",
-      "ats_config": {
-        "host": "chess.wd1.myworkdayjobs.com",
-        "tenant": "chess",
-        "site": "SJC"
-      },
-      "careers_url": "https://www.sanjuancollege.edu/careers/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 46 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 46
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 58 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 58
     }
   ],
   "skipped": [
     {
       "name": "University of Chicago",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Washington University in St Louis",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
+    },
+    {
+      "name": "University of Southern California",
+      "reason": "registry id exists"
     },
     {
       "name": "Cornell University",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Northeastern University",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Carnegie Mellon University",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "University of Miami",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Brown University",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "University of Rochester",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "University of Nevada-Reno",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Georgetown University",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Clemson University",
+      "reason": "registry id exists"
     },
     {
       "name": "Medical College of Wisconsin",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "University of Arkansas for Medical Sciences",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Thomas Jefferson University",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "University of Louisville",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "University of Arkansas",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Old Dominion University",
+      "reason": "peopleadmin feed title \"Commonwealth of Virginia Panoramic: All Jobs\" does not match — likely a shared instance"
     },
     {
       "name": "University of Mississippi",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Stevens Institute of Technology",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "University of Central Florida",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Rochester Institute of Technology",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Worcester Polytechnic Institute",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Howard University",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Colorado School of Mines",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "Western Governors University",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
     },
     {
       "name": "University of Maryland-College Park",
-      "reason": "tenant already wired"
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Kean University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Florida Institute of Technology",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Colby College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Wake Forest University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Montclair State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Ball State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Bucknell University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "New Jersey City University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Ivy Tech Community College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Bentley University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Wesleyan University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "The New School",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Seattle Pacific University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Texas A&M University-Kingsville",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Weber State University",
+      "reason": "no live feed found on probes"
+    },
+    {
+      "name": "University of North Florida",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Northwest Missouri State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Tarleton State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Southeastern Louisiana University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Grand Valley State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Union College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Prairie View A & M University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "University of San Francisco",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Fairfield University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "DePauw University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Mount Holyoke College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Dickinson College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "The University of Tampa",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Northeastern Illinois University",
+      "reason": "registry id exists"
     },
     {
       "name": "University of Nevada-Las Vegas",
-      "reason": "tenant already wired"
+      "reason": "no live feed found on probes"
+    },
+    {
+      "name": "Washington State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "University of Northern Iowa",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Northern Kentucky University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Minnesota State University-Mankato",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Washington and Lee University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Campbellsville University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Saginaw Valley State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Carleton College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Texas A&M University-Central Texas",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Fort Lewis College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Berklee College of Music",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Florida Polytechnic University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Meharry Medical College",
+      "reason": "registry id exists"
     },
     {
       "name": "Norfolk State University",
-      "reason": "workday:nsu probe found no live site"
-    }
-  ],
-  "held": [
-    {
-      "name": "MGH Institute of Health Professions",
-      "tenant": "massgeneralbrigham",
-      "reason": "health-system board on a school name — needs a properly named registry entry"
+      "reason": "no live feed found on probes"
     },
     {
-      "name": "AdventHealth University",
-      "tenant": "adventhealth",
-      "reason": "health-system board on a school name — needs a properly named registry entry"
+      "name": "University of Wisconsin-Whitewater",
+      "reason": "registry id exists"
     },
     {
-      "name": "Queens University of Charlotte",
-      "tenant": "aah",
-      "reason": "health-system board on a school name — needs a properly named registry entry"
+      "name": "Texas A&M University-San Antonio",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Barnard College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Bryn Mawr College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Christopher Newport University",
+      "reason": "peopleadmin feed title \"Commonwealth of Virginia Panoramic: All Jobs\" does not match — likely a shared instance"
+    },
+    {
+      "name": "Claremont McKenna College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Colorado Mesa University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Metropolitan State University of Denver",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Emerson College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Park University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Texas A & M International University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Harvey Mudd College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Adams State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Guilford College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Ohio Northern University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Rhodes College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Regis University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Saint Leo University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Maryland Institute College of Art",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Macalester College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Saint Anselm College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Xavier University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Lewis & Clark College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Philadelphia College of Osteopathic Medicine",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Furman University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Pomona College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Scripps College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Colorado State University Pueblo",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Western Colorado University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Northern New Mexico College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Wingate University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Willamette University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Muhlenberg College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Wofford College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Soka University of America",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Pitzer College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Ringling College of Art and Design",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Anderson University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "The University of Findlay",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Lincoln Memorial University",
+      "reason": "no live feed found on probes"
+    },
+    {
+      "name": "Abilene Christian University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Texas A & M University-Corpus Christi",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Texas A&M University-Texarkana",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "University of Wisconsin-Milwaukee",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Claremont Graduate University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Samuel Merritt University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Goucher College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Montgomery College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Endicott College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Dunwoody College of Technology",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Clarkson College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "San Juan College",
+      "reason": "registry id exists"
     }
   ]
 }

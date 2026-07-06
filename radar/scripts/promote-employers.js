@@ -22,6 +22,7 @@ const DATA_DIR = path.resolve(__dirname, '../data');
 const DISCOVERY_PATH = path.join(DATA_DIR, 'ats-discovery.json');
 const PROPOSALS_PATH = path.join(DATA_DIR, 'registry-proposals.json');
 const EMPLOYERS_PATH = path.resolve(__dirname, '../employers.json');
+const HOLDS_PATH = path.join(DATA_DIR, 'registry-holds.json');
 
 const WORKDAY_SITE_CANDIDATES = ['External', 'Careers', 'careers', 'jobs', 'External_Career_Site', 'Career', 'externalsite'];
 const PROBE_TIMEOUT_MS = 15000;
@@ -131,6 +132,11 @@ async function buildProposals() {
   const directory = JSON.parse(await fsp.readFile(path.join(DATA_DIR, 'cap-exempt-directory.json'), 'utf8')).entries;
   const employers = JSON.parse(await fsp.readFile(EMPLOYERS_PATH, 'utf8'));
   const existingTenants = new Set(employers.filter((e) => e.ats_config?.tenant).map((e) => e.ats_config.tenant));
+  // Owner-declined tenants stay declined across probe reruns
+  let holds = new Set();
+  try {
+    holds = new Set(JSON.parse(await fsp.readFile(HOLDS_PATH, 'utf8')).holds.map((h) => h.tenant));
+  } catch { /* no holds file */ }
   const existingIds = new Set(employers.map((e) => e.id));
 
   const proposals = [];
@@ -138,8 +144,8 @@ async function buildProposals() {
 
   for (const [key, record] of Object.entries(discovery.employers)) {
     const hits = record.ats || [];
-    const workdayHit = hits.find((a) => a.provider === 'workday' && a.tenant);
-    const peopleAdminHit = hits.find((a) => a.provider === 'peopleadmin' && a.tenant);
+    const workdayHit = hits.find((a) => a.provider === 'workday' && a.tenant && !holds.has(a.tenant));
+    const peopleAdminHit = hits.find((a) => a.provider === 'peopleadmin' && a.tenant && !holds.has(a.tenant));
     if (!workdayHit && !peopleAdminHit) continue;
 
     const id = slugify(record.name);
