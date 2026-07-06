@@ -1,11 +1,11 @@
 {
-  "refreshed_at": "2026-07-06T04:53:38.011Z",
-  "employer_count": 141,
-  "ats_enabled_employer_count": 121,
-  "job_count": 3601,
-  "active_job_count": 3592,
-  "closed_job_count": 9,
-  "newly_closed_count": 8,
+  "refreshed_at": "2026-07-06T05:59:12.367Z",
+  "employer_count": 176,
+  "ats_enabled_employer_count": 156,
+  "job_count": 5649,
+  "active_job_count": 5639,
+  "closed_job_count": 10,
+  "newly_closed_count": 1,
   "errored_employers": 0,
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
@@ -408,10 +408,10 @@
       "name": "University of Arkansas",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 4,
+      "fetched_jobs": 3,
       "skipped": false,
       "error": null,
-      "closed_jobs": 0
+      "closed_jobs": 1
     },
     {
       "employer_id": "university-of-mississippi",
@@ -1429,6 +1429,356 @@
       "ats_provider": "workday",
       "ats_token": "chess",
       "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-alabama-at-birmingham",
+      "name": "University of Alabama at Birmingham",
+      "ats_provider": "peopleadmin",
+      "ats_token": "uab",
+      "fetched_jobs": 372,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-north-carolina-at-chapel-hill",
+      "name": "University of North Carolina at Chapel Hill",
+      "ats_provider": "peopleadmin",
+      "ats_token": "unc",
+      "fetched_jobs": 439,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "the-university-of-texas-at-arlington",
+      "name": "The University of Texas at Arlington",
+      "ats_provider": "peopleadmin",
+      "ats_token": "uta",
+      "fetched_jobs": 62,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "east-carolina-university",
+      "name": "East Carolina University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "ecu",
+      "fetched_jobs": 73,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "marshall-university",
+      "name": "Marshall University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "marshall",
+      "fetched_jobs": 104,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "the-university-of-texas-rio-grande-valley",
+      "name": "The University of Texas Rio Grande Valley",
+      "ats_provider": "peopleadmin",
+      "ats_token": "utrgv-sb",
+      "fetched_jobs": 127,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "george-washington-university",
+      "name": "George Washington University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "gwu-studentemployment",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-idaho",
+      "name": "University of Idaho",
+      "ats_provider": "peopleadmin",
+      "ats_token": "uidaho",
+      "fetched_jobs": 119,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "sam-houston-state-university",
+      "name": "Sam Houston State University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "shsu",
+      "fetched_jobs": 127,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-south-alabama",
+      "name": "University of South Alabama",
+      "ats_provider": "peopleadmin",
+      "ats_token": "southalabama",
+      "fetched_jobs": 4,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-hartford",
+      "name": "University of Hartford",
+      "ats_provider": "peopleadmin",
+      "ats_token": "hartford",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "hofstra-university",
+      "name": "Hofstra University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "hofstra",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-the-pacific",
+      "name": "University of the Pacific",
+      "ats_provider": "peopleadmin",
+      "ats_token": "pacific",
+      "fetched_jobs": 100,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "tuskegee-university",
+      "name": "Tuskegee University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "tuskegee",
+      "fetched_jobs": 52,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "gannon-university",
+      "name": "Gannon University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "gannon",
+      "fetched_jobs": 32,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-nebraska-medical-center",
+      "name": "University of Nebraska Medical Center",
+      "ats_provider": "peopleadmin",
+      "ats_token": "unmc",
+      "fetched_jobs": 207,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "spelman-college",
+      "name": "Spelman College",
+      "ats_provider": "peopleadmin",
+      "ats_token": "spelman",
+      "fetched_jobs": 6,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-new-england",
+      "name": "University of New England",
+      "ats_provider": "peopleadmin",
+      "ats_token": "une",
+      "fetched_jobs": 21,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "connecticut-college",
+      "name": "Connecticut College",
+      "ats_provider": "peopleadmin",
+      "ats_token": "conncoll",
+      "fetched_jobs": 2,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "truman-state-university",
+      "name": "Truman State University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "trumansu",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "western-new-mexico-university",
+      "name": "Western New Mexico University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "wnmu",
+      "fetched_jobs": 3,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "la-salle-university",
+      "name": "La Salle University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "lasalle",
+      "fetched_jobs": 12,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "chicago-state-university",
+      "name": "Chicago State University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "chicagostate",
+      "fetched_jobs": 6,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "hillsdale-college",
+      "name": "Hillsdale College",
+      "ats_provider": "peopleadmin",
+      "ats_token": "hillsdale",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "northeast-ohio-medical-university",
+      "name": "Northeast Ohio Medical University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "neomed",
+      "fetched_jobs": 36,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-portland",
+      "name": "University of Portland",
+      "ats_provider": "peopleadmin",
+      "ats_token": "uportland",
+      "fetched_jobs": 0,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "delta-state-university",
+      "name": "Delta State University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "deltastate",
+      "fetched_jobs": 14,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "sarah-lawrence-college",
+      "name": "Sarah Lawrence College",
+      "ats_provider": "peopleadmin",
+      "ats_token": "slc",
+      "fetched_jobs": 7,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "winthrop-university",
+      "name": "Winthrop University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "winthrop",
+      "fetched_jobs": 11,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "sul-ross-state-university",
+      "name": "Sul Ross State University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "sulross",
+      "fetched_jobs": 85,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "northeast-iowa-community-college",
+      "name": "Northeast Iowa Community College",
+      "ats_provider": "peopleadmin",
+      "ats_token": "nicc",
+      "fetched_jobs": 1,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "morehead-state-university",
+      "name": "Morehead State University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "moreheadstate",
+      "fetched_jobs": 3,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "howard-community-college",
+      "name": "Howard Community College",
+      "ats_provider": "peopleadmin",
+      "ats_token": "howardcc",
+      "fetched_jobs": 5,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "missouri-western-state-university",
+      "name": "Missouri Western State University",
+      "ats_provider": "peopleadmin",
+      "ats_token": "mwsu",
+      "fetched_jobs": 4,
+      "skipped": false,
+      "error": null,
+      "closed_jobs": 0
+    },
+    {
+      "employer_id": "university-of-nebraska-at-omaha",
+      "name": "University of Nebraska at Omaha",
+      "ats_provider": "peopleadmin",
+      "ats_token": "unomaha",
+      "fetched_jobs": 10,
       "skipped": false,
       "error": null,
       "closed_jobs": 0
