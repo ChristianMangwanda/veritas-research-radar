@@ -24,6 +24,8 @@ jobs:
           node-version: "20"
       - name: Run monthly enrichment (IPEDS + IRS EO BMF + USCIS joins)
         run: npm run radar:enrich -- --force
+      - name: Rebase onto latest main (humans push while CI runs)
+        run: git pull --rebase --autostash
       - name: Commit enrichment outputs
         uses: stefanzweifel/git-auto-commit-action@v5
         with:

@@ -39,6 +39,8 @@ jobs:
           USAJOBS_EMAIL: ${{ secrets.USAJOBS_EMAIL }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      - name: Rebase onto latest main (humans push while CI runs)
+        run: git pull --rebase --autostash
       - name: Commit firehose data
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
