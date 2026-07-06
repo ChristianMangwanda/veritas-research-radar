@@ -138,8 +138,10 @@ async function tryJson(url) {
 }
 
 async function loadJobs() {
+  // An empty local file (fresh clone — jobs.json is untracked now) must not
+  // shadow the live database
   const local = await tryJson('/api/jobs');
-  if (local) return local;
+  if (Array.isArray(local) && local.length) return local;
   try {
     // Count first, then fetch every page in parallel — sequential paging made
     // first paint wait ~4x longer than it needs to
