@@ -1,926 +1,266 @@
 {
-  "generated_at": "2026-07-06T06:30:21.870Z",
+  "generated_at": "2026-07-06T15:04:18.785Z",
   "proposals": [
     {
-      "id": "university-of-nebraska-lincoln",
-      "name": "University of Nebraska-Lincoln",
+      "id": "memorial-sloan-kettering-cancer-center",
+      "name": "MEMORIAL SLOAN-KETTERING CANCER CENTER",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:181464"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "employment.unl.edu",
+      "ats_provider": "workday",
+      "ats_token": "msk",
       "ats_config": {
-        "host": "employment.unl.edu"
+        "host": "msk.wd108.myworkdayjobs.com",
+        "tenant": "msk",
+        "site": "MSKCC_Careers_Primary"
       },
-      "careers_url": "https://news.unl.edu/article/bachman-to-cap-43-year-career-with-a-final-commencement",
+      "careers_url": "https://careers.mskcc.org/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 178 live postings. USCIS 289 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 178
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 84 live postings. USCIS 392 approvals / DOL 52 research LCAs (3y).",
+      "probe_total_jobs": 84
     },
     {
-      "id": "university-of-kentucky",
-      "name": "University of Kentucky",
+      "id": "dana-farber-cancer-institute",
+      "name": "DANA-FARBER CANCER INSTITUTE",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:157085"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "ukjobs.uky.edu",
+      "ats_provider": "workday",
+      "ats_token": "danafarber",
       "ats_config": {
-        "host": "ukjobs.uky.edu"
+        "host": "danafarber.wd5.myworkdayjobs.com",
+        "tenant": "danafarber",
+        "site": "dana-farber"
       },
-      "careers_url": "https://ukjobs.uky.edu/",
+      "careers_url": "https://careers.dana-farber.org/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 633 live postings. USCIS 272 approvals / DOL 7 research LCAs (3y).",
-      "probe_total_jobs": 633
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 374 live postings. USCIS 338 approvals / DOL 9 research LCAs (3y).",
+      "probe_total_jobs": 374
     },
     {
-      "id": "oregon-state-university",
-      "name": "Oregon State University",
+      "id": "howard-hughes-medical-institute",
+      "name": "HOWARD HUGHES MEDICAL INSTITUTE",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:209542"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.oregonstate.edu",
+      "ats_provider": "workday",
+      "ats_token": "hhmi",
       "ats_config": {
-        "host": "jobs.oregonstate.edu"
+        "host": "hhmi.wd1.myworkdayjobs.com",
+        "tenant": "hhmi",
+        "site": "External"
       },
-      "careers_url": "https://ecampus.oregonstate.edu/news/asumi-suzuki-online-computer-science-postbaccalaureate-program/",
+      "careers_url": "https://www.hhmi.org/careers",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 114 live postings. USCIS 179 approvals / DOL 10 research LCAs (3y).",
-      "probe_total_jobs": 114
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 37 live postings. USCIS 215 approvals / DOL 19 research LCAs (3y).",
+      "probe_total_jobs": 37
     },
     {
-      "id": "the-university-of-texas-at-dallas",
-      "name": "The University of Texas at Dallas",
+      "id": "jackson-laboratory",
+      "name": "JACKSON LABORATORY",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:228787"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.utdallas.edu",
+      "ats_provider": "workday",
+      "ats_token": "thejacksonlaboratory",
       "ats_config": {
-        "host": "jobs.utdallas.edu"
+        "host": "thejacksonlaboratory.wd503.myworkdayjobs.com",
+        "tenant": "thejacksonlaboratory",
+        "site": "External_JAX"
       },
-      "careers_url": "https://jobs.utdallas.edu/",
+      "careers_url": "https://www.jax.org/careers-and-training",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 137 live postings. USCIS 112 approvals / DOL 13 research LCAs (3y).",
-      "probe_total_jobs": 137
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 56 live postings. USCIS 148 approvals / DOL 12 research LCAs (3y).",
+      "probe_total_jobs": 56
     },
     {
-      "id": "south-dakota-state-university",
-      "name": "South Dakota State University",
+      "id": "van-andel-research-institute",
+      "name": "VAN ANDEL RESEARCH INSTITUTE",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:219356"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "yourfuture.sdbor.edu",
+      "ats_provider": "workday",
+      "ats_token": "vai",
       "ats_config": {
-        "host": "yourfuture.sdbor.edu"
+        "host": "vai.wd1.myworkdayjobs.com",
+        "tenant": "vai",
+        "site": "VAICareers"
       },
-      "careers_url": "https://www.sdstate.edu/human-resources/office-title-ixequal-opportunity/equal-access-opportunity",
+      "careers_url": "https://www.vai.org/careers/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 132 live postings. USCIS 95 approvals / DOL 4 research LCAs (3y).",
-      "probe_total_jobs": 132
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 17 live postings. USCIS 49 approvals / DOL 15 research LCAs (3y).",
+      "probe_total_jobs": 17
     },
     {
-      "id": "university-of-vermont",
-      "name": "University of Vermont",
+      "id": "j-david-gladstone-institutes",
+      "name": "J DAVID GLADSTONE INSTITUTES",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:231174"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "www.uvmjobs.com",
+      "ats_provider": "workday",
+      "ats_token": "gladstone",
       "ats_config": {
-        "host": "www.uvmjobs.com"
+        "host": "gladstone.wd503.myworkdayjobs.com",
+        "tenant": "gladstone",
+        "site": "careers"
       },
-      "careers_url": "https://www.uvm.edu/human-resources/total-rewards",
+      "careers_url": "https://gladstone.org/careers",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 103 live postings. USCIS 86 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 103
-    },
-    {
-      "id": "montana-state-university",
-      "name": "Montana State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:180461"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.montana.edu",
-      "ats_config": {
-        "host": "jobs.montana.edu"
-      },
-      "careers_url": "https://jobs.montana.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 178 live postings. USCIS 76 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 178
-    },
-    {
-      "id": "dartmouth-college",
-      "name": "Dartmouth College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:182670"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "searchjobs.dartmouth.edu",
-      "ats_config": {
-        "host": "searchjobs.dartmouth.edu"
-      },
-      "careers_url": "https://searchjobs.dartmouth.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 148 live postings. USCIS 74 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 148
-    },
-    {
-      "id": "university-of-memphis",
-      "name": "University of Memphis",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:220862"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "workforum.memphis.edu",
-      "ats_config": {
-        "host": "workforum.memphis.edu"
-      },
-      "careers_url": "https://workforum.memphis.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 1 live postings. USCIS 59 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 1
-    },
-    {
-      "id": "university-of-rhode-island",
-      "name": "University of Rhode Island",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:217484"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.uri.edu",
-      "ats_config": {
-        "host": "jobs.uri.edu"
-      },
-      "careers_url": "https://career.uri.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 64 live postings. USCIS 57 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 64
-    },
-    {
-      "id": "texas-state-university",
-      "name": "Texas State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:228459"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.hr.txstate.edu",
-      "ats_config": {
-        "host": "jobs.hr.txstate.edu"
-      },
-      "careers_url": "https://jobs.hr.txstate.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 142 live postings. USCIS 49 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 142
-    },
-    {
-      "id": "marquette-university",
-      "name": "Marquette University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:239105"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "employment.marquette.edu",
-      "ats_config": {
-        "host": "employment.marquette.edu"
-      },
-      "careers_url": "https://myjob.mu.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 98 live postings. USCIS 45 approvals / DOL 2 research LCAs (3y).",
-      "probe_total_jobs": 98
-    },
-    {
-      "id": "loyola-university-chicago",
-      "name": "Loyola University Chicago",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:146719"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "www.careers.luc.edu",
-      "ats_config": {
-        "host": "www.careers.luc.edu"
-      },
-      "careers_url": "https://www.careers.luc.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 112 live postings. USCIS 44 approvals / DOL 2 research LCAs (3y).",
-      "probe_total_jobs": 112
-    },
-    {
-      "id": "northern-illinois-university",
-      "name": "Northern Illinois University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:147703"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "employment.niu.edu",
-      "ats_config": {
-        "host": "employment.niu.edu"
-      },
-      "careers_url": "https://calendar.niu.edu/event/how-to-build-a-professional-network-in-a-new-career-field?utm_campaign=widget&utm_medium=widget&utm_source=NIU+Events+Calendar",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 31 live postings. USCIS 40 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 31
-    },
-    {
-      "id": "oakland-university",
-      "name": "Oakland University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:171571"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.oakland.edu",
-      "ats_config": {
-        "host": "jobs.oakland.edu"
-      },
-      "careers_url": "https://www.oakland.edu/cldc/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 186 live postings. USCIS 34 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 186
-    },
-    {
-      "id": "central-michigan-university",
-      "name": "Central Michigan University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:169248"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "www.jobs.cmich.edu",
-      "ats_config": {
-        "host": "www.jobs.cmich.edu"
-      },
-      "careers_url": "https://www.cmich.edu/undergraduate/central-guarantee",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 79 live postings. USCIS 31 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 79
-    },
-    {
-      "id": "portland-state-university",
-      "name": "Portland State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:209807"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.hrc.pdx.edu",
-      "ats_config": {
-        "host": "jobs.hrc.pdx.edu"
-      },
-      "careers_url": "https://www.pdx.edu/human-resources/career",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 65 live postings. USCIS 28 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 65
-    },
-    {
-      "id": "eastern-washington-university",
-      "name": "Eastern Washington University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:235097"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.hr.ewu.edu",
-      "ats_config": {
-        "host": "jobs.hr.ewu.edu"
-      },
-      "careers_url": "http://jobs.hr.ewu.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 25 live postings. USCIS 29 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 25
-    },
-    {
-      "id": "cleveland-state-university",
-      "name": "Cleveland State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:202134"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "hrjobs.csuohio.edu",
-      "ats_config": {
-        "host": "hrjobs.csuohio.edu"
-      },
-      "careers_url": "https://www.csuohio.edu/hrd/hr-employment",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 100 live postings. USCIS 27 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 100
-    },
-    {
-      "id": "bowdoin-college",
-      "name": "Bowdoin College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:161004"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "careers.bowdoin.edu",
-      "ats_config": {
-        "host": "careers.bowdoin.edu"
-      },
-      "careers_url": "https://www.bowdoin.edu/employment/index.html",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 20 live postings. USCIS 19 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 20
-    },
-    {
-      "id": "troy-university",
-      "name": "Troy University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:102368"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "www.troyuniversityjobs.com",
-      "ats_config": {
-        "host": "www.troyuniversityjobs.com"
-      },
-      "careers_url": "https://www.troyuniversityjobs.com/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 234 live postings. USCIS 17 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 234
-    },
-    {
-      "id": "coastal-carolina-university",
-      "name": "Coastal Carolina University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:218724"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.coastal.edu",
-      "ats_config": {
-        "host": "jobs.coastal.edu"
-      },
-      "careers_url": "https://www.coastal.edu/hreo/careersatcoastal/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 45 live postings. USCIS 17 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 45
-    },
-    {
-      "id": "morehouse-school-of-medicine",
-      "name": "Morehouse School of Medicine",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:140562"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "careers.msm.edu",
-      "ats_config": {
-        "host": "careers.msm.edu"
-      },
-      "careers_url": "https://www.msm.edu/work-at-msm/index.php",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 68 live postings. USCIS 13 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 68
-    },
-    {
-      "id": "university-of-central-arkansas",
-      "name": "University of Central Arkansas",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:106704"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.uca.edu",
-      "ats_config": {
-        "host": "jobs.uca.edu"
-      },
-      "careers_url": "http://uca.edu/career/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 51 live postings. USCIS 12 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 51
-    },
-    {
-      "id": "lewis-university",
-      "name": "Lewis University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:146612"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.lewisu.edu",
-      "ats_config": {
-        "host": "jobs.lewisu.edu"
-      },
-      "careers_url": "https://www.lewisu.edu/welcome/offices/hr/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 86 live postings. USCIS 12 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 86
-    },
-    {
-      "id": "slippery-rock-university-of-pennsylvania",
-      "name": "Slippery Rock University of Pennsylvania",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:216038"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "careers.sru.edu",
-      "ats_config": {
-        "host": "careers.sru.edu"
-      },
-      "careers_url": "https://www.sru.edu/life-at-sru/center-for-career-and-academic-progress",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 23 live postings. USCIS 12 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 23
-    },
-    {
-      "id": "murray-state-university",
-      "name": "Murray State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:157401"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "www.murraystatejobs.com",
-      "ats_config": {
-        "host": "www.murraystatejobs.com"
-      },
-      "careers_url": "https://www.murraystate.edu/about/Offices/HumanResources/index.aspx",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 25 live postings. USCIS 8 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 25
-    },
-    {
-      "id": "nicholls-state-university",
-      "name": "Nicholls State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:159966"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.nicholls.edu",
-      "ats_config": {
-        "host": "jobs.nicholls.edu"
-      },
-      "careers_url": "https://www.nicholls.edu/human-resources/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 13 live postings. USCIS 10 approvals / DOL 0 research LCAs (3y).",
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 13 live postings. USCIS 49 approvals / DOL 6 research LCAs (3y).",
       "probe_total_jobs": 13
     },
     {
-      "id": "angelo-state-university",
-      "name": "Angelo State University",
+      "id": "nationwide-childrens-hospital-inc",
+      "name": "NATIONWIDE CHILDRENS HOSPITAL INC",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:222831"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "employment.angelo.edu",
+      "ats_provider": "workday",
+      "ats_token": "nationwidechildrens",
       "ats_config": {
-        "host": "employment.angelo.edu"
+        "host": "nationwidechildrens.wd5.myworkdayjobs.com",
+        "tenant": "nationwidechildrens",
+        "site": "NCHCareers"
       },
-      "careers_url": "https://www.angelo.edu/career/",
+      "careers_url": "https://www.nationwidechildrens.org/careers",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 115 live postings. USCIS 10 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 115
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 634 live postings. USCIS 29 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 634
     },
     {
-      "id": "university-of-the-incarnate-word",
-      "name": "University of the Incarnate Word",
+      "id": "urban-institute",
+      "name": "URBAN INSTITUTE",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:225627"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.uiw.edu",
+      "ats_provider": "workday",
+      "ats_token": "urban",
       "ats_config": {
-        "host": "jobs.uiw.edu"
+        "host": "urban.wd115.myworkdayjobs.com",
+        "tenant": "urban",
+        "site": "Urban-Careers"
       },
-      "careers_url": "https://jobs.uiw.edu/",
+      "careers_url": "https://www.urban.org/about/careers",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 147 live postings. USCIS 8 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 147
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 8 live postings. USCIS 14 approvals / DOL 3 research LCAs (3y).",
+      "probe_total_jobs": 8
     },
     {
-      "id": "oregon-institute-of-technology",
-      "name": "Oregon Institute of Technology",
+      "id": "arc-research-institute",
+      "name": "ARC RESEARCH INSTITUTE",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:209506"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.oit.edu",
-      "ats_config": {
-        "host": "jobs.oit.edu"
-      },
-      "careers_url": "https://jobs.oit.edu/",
+      "ats_provider": "greenhouse",
+      "ats_token": "arcinstitute",
+      "careers_url": "https://arcinstitute.org/jobs",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 43 live postings. USCIS 7 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 43
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 25 live postings. USCIS 0 approvals / DOL 5 research LCAs (3y).",
+      "probe_total_jobs": 25
     },
     {
-      "id": "kettering-university",
-      "name": "Kettering University",
+      "id": "woods-hole-oceanographic-institution",
+      "name": "WOODS HOLE OCEANOGRAPHIC INSTITUTION",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:169983"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.kettering.edu",
+      "ats_provider": "workday",
+      "ats_token": "whoi",
       "ats_config": {
-        "host": "jobs.kettering.edu"
+        "host": "whoi.wd5.myworkdayjobs.com",
+        "tenant": "whoi",
+        "site": "WHOI-External"
       },
-      "careers_url": "https://www.kettering.edu/careers",
+      "careers_url": "https://careers.whoi.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 11 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 11
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 14 live postings. USCIS 0 approvals / DOL 3 research LCAs (3y).",
+      "probe_total_jobs": 14
     },
     {
-      "id": "south-dakota-school-of-mines-and-technology",
-      "name": "South Dakota School of Mines and Technology",
+      "id": "institute-for-protein-innovation-inc",
+      "name": "INSTITUTE FOR PROTEIN INNOVATION INC",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:219347"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "yourfuture.sdbor.edu",
-      "ats_config": {
-        "host": "yourfuture.sdbor.edu"
-      },
-      "careers_url": "https://www.sdsmt.edu/about/offices-and-administration/human-resources/careers-at-mines.html",
+      "ats_provider": "lever",
+      "ats_token": "InstituteforProteinInnovation",
+      "careers_url": "https://proteininnovation.org/careers/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 132 live postings. USCIS 0 approvals / DOL 3 research LCAs (3y).",
-      "probe_total_jobs": 132
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 2 live postings. USCIS 1 approvals / DOL 2 research LCAs (3y).",
+      "probe_total_jobs": 2
     },
     {
-      "id": "western-university-of-health-sciences",
-      "name": "Western University of Health Sciences",
+      "id": "convergent-research-inc",
+      "name": "CONVERGENT RESEARCH INC",
       "aliases": [],
-      "type": "institution_of_higher_education",
+      "type": "nonprofit_research_org",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:112525"
+        "irs_eo_bmf"
       ],
       "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.westernu.edu",
-      "ats_config": {
-        "host": "jobs.westernu.edu"
-      },
-      "careers_url": "https://jobs.westernu.edu/",
+      "ats_provider": "lever",
+      "ats_token": "convergentresearch",
+      "careers_url": "https://www.convergentresearch.org/careers",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 96 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 96
-    },
-    {
-      "id": "fayetteville-state-university",
-      "name": "Fayetteville State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:198543"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.uncfsu.edu",
-      "ats_config": {
-        "host": "jobs.uncfsu.edu"
-      },
-      "careers_url": "http://jobs.uncfsu.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 80 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 80
-    },
-    {
-      "id": "north-carolina-central-university",
-      "name": "North Carolina Central University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:199157"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.nccu.edu",
-      "ats_config": {
-        "host": "jobs.nccu.edu"
-      },
-      "careers_url": "https://www.nccu.edu/events/ai-career-immersion-day-camp-7132026-7172026",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 58 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 58
-    },
-    {
-      "id": "north-park-university",
-      "name": "North Park University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:147679"
-      ],
-      "tier": "auto",
-      "ats_provider": "workable",
-      "ats_token": "north-park-university",
-      "careers_url": "https://www.northpark.edu/about-north-park-university/human-resources/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 33 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 33
-    },
-    {
-      "id": "des-moines-area-community-college",
-      "name": "Des Moines Area Community College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:153214"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.dmacc.edu",
-      "ats_config": {
-        "host": "jobs.dmacc.edu"
-      },
-      "careers_url": "https://www.dmacc.edu/careertraining/index.html",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 55 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 55
-    },
-    {
-      "id": "ashland-university",
-      "name": "Ashland University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:201104"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.ashland.edu",
-      "ats_config": {
-        "host": "jobs.ashland.edu"
-      },
-      "careers_url": "https://jobs.ashland.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 43 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 43
-    },
-    {
-      "id": "linn-benton-community-college",
-      "name": "Linn-Benton Community College",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:209074"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "www.jobs.linnbenton.edu",
-      "ats_config": {
-        "host": "www.jobs.linnbenton.edu"
-      },
-      "careers_url": "https://www.linnbenton.edu/about/hr/index.php",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 81 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 81
-    },
-    {
-      "id": "university-of-north-carolina-at-charlotte",
-      "name": "University of North Carolina at Charlotte",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:199139"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.charlotte.edu",
-      "ats_config": {
-        "host": "jobs.charlotte.edu"
-      },
-      "careers_url": "https://jobs.charlotte.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 104 live postings. USCIS 0 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 104
-    },
-    {
-      "id": "concord-university",
-      "name": "Concord University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:237330"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.concord.edu",
-      "ats_config": {
-        "host": "jobs.concord.edu"
-      },
-      "careers_url": "https://www.concord.edu/about/important-offices-and-centers/human-resources",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 18 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 18
-    },
-    {
-      "id": "roosevelt-university",
-      "name": "Roosevelt University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:148487"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.roosevelt.edu",
-      "ats_config": {
-        "host": "jobs.roosevelt.edu"
-      },
-      "careers_url": "http://jobs.roosevelt.edu/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 41 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 41
-    },
-    {
-      "id": "bridgewater-state-university",
-      "name": "Bridgewater State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:165024"
-      ],
-      "tier": "auto",
-      "ats_provider": "peopleadmin",
-      "ats_token": "jobs.bridgew.edu",
-      "ats_config": {
-        "host": "jobs.bridgew.edu"
-      },
-      "careers_url": "https://www.bridgew.edu/office/human-resources-and-talent-management",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 190 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 190
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 16 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 16
     }
   ],
   "skipped": [
@@ -934,6 +274,22 @@
     },
     {
       "name": "University of Southern California",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Johns Hopkins University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Harvard University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Northwestern University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Baylor College of Medicine",
       "reason": "registry id exists"
     },
     {
@@ -953,6 +309,14 @@
       "reason": "registry id exists"
     },
     {
+      "name": "University of Nebraska-Lincoln",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "University of Kentucky",
+      "reason": "registry id exists"
+    },
+    {
       "name": "University of Miami",
       "reason": "registry id exists"
     },
@@ -962,6 +326,10 @@
     },
     {
       "name": "University of Rochester",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Oregon State University",
       "reason": "registry id exists"
     },
     {
@@ -997,6 +365,10 @@
       "reason": "registry id exists"
     },
     {
+      "name": "The University of Texas at Dallas",
+      "reason": "registry id exists"
+    },
+    {
       "name": "University of Louisville",
       "reason": "registry id exists"
     },
@@ -1009,7 +381,23 @@
       "reason": "peopleadmin feed title \"Commonwealth of Virginia Panoramic: All Jobs\" does not match — likely a shared instance"
     },
     {
+      "name": "South Dakota State University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "University of Mississippi",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "University of Vermont",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Montana State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Dartmouth College",
       "reason": "registry id exists"
     },
     {
@@ -1033,7 +421,15 @@
       "reason": "registry id exists"
     },
     {
+      "name": "University of Memphis",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Rochester Institute of Technology",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "University of Rhode Island",
       "reason": "registry id exists"
     },
     {
@@ -1049,11 +445,23 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Texas State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Marquette University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Colorado School of Mines",
       "reason": "registry id exists"
     },
     {
       "name": "University of Idaho",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Loyola University Chicago",
       "reason": "registry id exists"
     },
     {
@@ -1069,6 +477,10 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Northern Illinois University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Florida Institute of Technology",
       "reason": "registry id exists"
     },
@@ -1081,7 +493,15 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Oakland University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Wake Forest University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Central Michigan University",
       "reason": "registry id exists"
     },
     {
@@ -1093,7 +513,19 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Portland State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Eastern Washington University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Ball State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Cleveland State University",
       "reason": "registry id exists"
     },
     {
@@ -1137,15 +569,15 @@
       "reason": "registry id exists"
     },
     {
-      "name": "Weber State University",
-      "reason": "no live feed found on probes"
-    },
-    {
       "name": "University of North Florida",
       "reason": "registry id exists"
     },
     {
       "name": "University of the Pacific",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Bowdoin College",
       "reason": "registry id exists"
     },
     {
@@ -1181,6 +613,10 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Troy University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "University of San Francisco",
       "reason": "registry id exists"
     },
@@ -1190,6 +626,10 @@
     },
     {
       "name": "DePauw University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Coastal Carolina University",
       "reason": "registry id exists"
     },
     {
@@ -1205,11 +645,11 @@
       "reason": "registry id exists"
     },
     {
-      "name": "Gettysburg College",
-      "reason": "no live feed found on probes"
+      "name": "The University of Tampa",
+      "reason": "registry id exists"
     },
     {
-      "name": "The University of Tampa",
+      "name": "Morehouse School of Medicine",
       "reason": "registry id exists"
     },
     {
@@ -1217,8 +657,16 @@
       "reason": "registry id exists"
     },
     {
-      "name": "University of Nevada-Las Vegas",
-      "reason": "no live feed found on probes"
+      "name": "University of Central Arkansas",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Lewis University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Slippery Rock University of Pennsylvania",
+      "reason": "registry id exists"
     },
     {
       "name": "Washington State University",
@@ -1231,10 +679,6 @@
     {
       "name": "Northern Kentucky University",
       "reason": "registry id exists"
-    },
-    {
-      "name": "Hope College",
-      "reason": "no live feed found on probes"
     },
     {
       "name": "Minnesota State University-Mankato",
@@ -1253,6 +697,14 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Murray State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Nicholls State University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "University of New England",
       "reason": "registry id exists"
     },
@@ -1265,6 +717,10 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Angelo State University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Texas A&M University-Central Texas",
       "reason": "registry id exists"
     },
@@ -1273,12 +729,116 @@
       "reason": "registry id exists"
     },
     {
+      "name": "University of Bridgeport",
+      "reason": "scout fallback below evidence threshold (9)"
+    },
+    {
+      "name": "Delaware State University",
+      "reason": "scout fallback below evidence threshold (9)"
+    },
+    {
+      "name": "Bradley University",
+      "reason": "scout fallback below evidence threshold (9)"
+    },
+    {
       "name": "Berklee College of Music",
       "reason": "registry id exists"
     },
     {
+      "name": "Merrimack College",
+      "reason": "scout fallback below evidence threshold (9)"
+    },
+    {
+      "name": "Wellesley College",
+      "reason": "scout fallback below evidence threshold (9)"
+    },
+    {
+      "name": "New York Medical College",
+      "reason": "scout fallback below evidence threshold (9)"
+    },
+    {
+      "name": "Augustana University",
+      "reason": "scout fallback below evidence threshold (9)"
+    },
+    {
+      "name": "Bridgewater College",
+      "reason": "scout fallback below evidence threshold (9)"
+    },
+    {
+      "name": "University of Mary Washington",
+      "reason": "scout fallback below evidence threshold (9)"
+    },
+    {
       "name": "Florida Polytechnic University",
       "reason": "registry id exists"
+    },
+    {
+      "name": "California State University-Dominguez Hills",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Colorado College",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Sacred Heart University",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "University of West Florida",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Georgia Southern University",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Augustana College",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Cornell College",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Washburn University",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "College for Creative Studies",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Eastern Michigan University",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Kalamazoo College",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Drew University",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Alfred University",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Pace University",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "University of Mary",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Youngstown State University",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Mercyhurst University",
+      "reason": "scout fallback below evidence threshold (8)"
     },
     {
       "name": "Meharry Medical College",
@@ -1286,11 +846,23 @@
     },
     {
       "name": "Tennessee State University",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "University of the Incarnate Word",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Bennington College",
+      "reason": "scout fallback below evidence threshold (8)"
     },
     {
       "name": "Norfolk State University",
       "reason": "no live feed found on probes"
+    },
+    {
+      "name": "Shenandoah University",
+      "reason": "scout fallback below evidence threshold (8)"
     },
     {
       "name": "University of Wisconsin-Whitewater",
@@ -1301,15 +873,83 @@
       "reason": "registry id exists"
     },
     {
+      "name": "The University of Tennessee Health Science Center",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "Jacksonville State University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "California State University-San Bernardino",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "California Institute of the Arts",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Golden Gate University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Lynn University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Jacksonville University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Albany State University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
       "name": "Northwestern College",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Loyola University New Orleans",
+      "reason": "scout fallback below evidence threshold (7)"
     },
     {
       "name": "Washington College",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "St Olaf College",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "William Carey University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Southeast Missouri State University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "New Mexico Military Institute",
+      "reason": "scout fallback below evidence threshold (7)"
     },
     {
       "name": "Barnard College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "St Bonaventure University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "St Lawrence University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Tiffin University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Oregon Institute of Technology",
       "reason": "registry id exists"
     },
     {
@@ -1317,12 +957,52 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Susquehanna University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Texas Christian University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Utah Tech University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
       "name": "Christopher Newport University",
       "reason": "peopleadmin feed title \"Commonwealth of Virginia Panoramic: All Jobs\" does not match — likely a shared instance"
     },
     {
+      "name": "Radford University",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Virginia Military Institute",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "Milwaukee School of Engineering",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "University of West Alabama",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "California State University-Long Beach",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
       "name": "Claremont McKenna College",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Pacific Union College",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Southwestern College",
+      "reason": "scout fallback below evidence threshold (6)"
     },
     {
       "name": "Colorado Mesa University",
@@ -1337,12 +1017,64 @@
       "reason": "registry id exists"
     },
     {
+      "name": "School of the Art Institute of Chicago",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Knox College",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Indiana University-Indianapolis",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Rose-Hulman Institute of Technology",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Kirkwood Community College",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Upper Iowa University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Kentucky State University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
       "name": "Emerson College",
       "reason": "registry id exists"
     },
     {
+      "name": "New England College of Optometry",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Western New England University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Kettering University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Lake Superior State University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
       "name": "Augsburg University",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Gustavus Adolphus College",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Cottey College",
+      "reason": "scout fallback below evidence threshold (6)"
     },
     {
       "name": "Truman State University",
@@ -1353,15 +1085,87 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Westminster College",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Seton Hall University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Navajo Technical University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "New Mexico Highlands University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
       "name": "Western New Mexico University",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Minot State University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Cedarville University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "University of Mount Union",
+      "reason": "scout fallback below evidence threshold (6)"
     },
     {
       "name": "La Salle University",
       "reason": "registry id exists"
     },
     {
+      "name": "York College of Pennsylvania",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "South Dakota School of Mines and Technology",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Belmont University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Southern Adventist University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Dallas Baptist University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
       "name": "Texas A & M International University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Texas Tech University Health Sciences Center",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "University of Puget Sound",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Walla Walla University",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "Lyon College",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "John Brown University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Western University of Health Sciences",
       "reason": "registry id exists"
     },
     {
@@ -1373,20 +1177,160 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Palm Beach Atlantic University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Berry College",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Georgia College & State University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "National Louis University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Taylor University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Kansas Wesleyan University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Grambling State University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "St. John's College",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "MGH Institute of Health Professions",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
       "name": "Stonehill College",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Worcester State University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Northern Michigan University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "A T Still University of Health Sciences",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Bellevue University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Ithaca College",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Niagara University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Wagner College",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Fayetteville State University",
+      "reason": "registry id exists"
     },
     {
       "name": "Guilford College",
       "reason": "registry id exists"
     },
     {
+      "name": "North Carolina Central University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Valley City State University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Muskingum University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
       "name": "Ohio Northern University",
       "reason": "registry id exists"
     },
     {
+      "name": "Misericordia University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Wilkes University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "South Carolina State University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Carson-Newman University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
       "name": "Rhodes College",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Southwestern University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Averett University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Longwood University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Bellevue College",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "ECPI University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Middle Georgia State University",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "Oakwood University",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "University of the Ozarks",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Menlo College",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "University of Redlands",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Westmont College",
+      "reason": "scout fallback below evidence threshold (4)"
     },
     {
       "name": "Regis University",
@@ -1397,12 +1341,60 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Fort Valley State University",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "North Park University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Butler University",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Trine University",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Wabash College",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Loras College",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Wartburg College",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "McPherson College",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Pittsburg State University",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "University of Pikeville",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Louisiana State University Health Sciences Center-New Orleans",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Louisiana Christian University",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
       "name": "Maryland Institute College of Art",
       "reason": "registry id exists"
     },
     {
       "name": "Ferris State University",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (4)"
     },
     {
       "name": "Macalester College",
@@ -1413,6 +1405,14 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Ramapo College of New Jersey",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Arnot Ogden Medical Center",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
       "name": "Xavier University",
       "reason": "registry id exists"
     },
@@ -1421,16 +1421,44 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Franklin and Marshall College",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Messiah University",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
       "name": "Philadelphia College of Osteopathic Medicine",
       "reason": "registry id exists"
     },
     {
       "name": "Bryant University",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Roger Williams University",
+      "reason": "scout fallback below evidence threshold (4)"
     },
     {
       "name": "Furman University",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Lipscomb University",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "The University of the South",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "Dallas Theological Seminary",
+      "reason": "scout fallback below evidence threshold (4)"
+    },
+    {
+      "name": "St. Mary's University",
+      "reason": "scout fallback below evidence threshold (4)"
     },
     {
       "name": "Pomona College",
@@ -1441,6 +1469,10 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Community College of Aurora",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
       "name": "Colorado State University Pueblo",
       "reason": "registry id exists"
     },
@@ -1449,24 +1481,192 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Albertus Magnus College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "AdventHealth University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Dalton State College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Wesleyan College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Adler University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
       "name": "Chicago State University",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Rosalind Franklin University of Medicine and Science",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Illinois Wesleyan University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Judson University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Lake Forest College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Monmouth College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Dominican University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Trinity Christian College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Oakland City University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Briar Cliff University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Coe College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Des Moines Area Community College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Benedictine College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Hutchinson Community College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Neosho County Community College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Asbury University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Centenary College of Louisiana",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "University of Holy Cross",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Hult International Business School",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Quinsigamond Community College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Simmons University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Alma College",
+      "reason": "scout fallback below evidence threshold (3)"
     },
     {
       "name": "Hillsdale College",
       "reason": "registry id exists"
     },
     {
+      "name": "Northwood University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Millsaps College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Tougaloo College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "University of Health Sciences and Pharmacy in St. Louis",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Central Community College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Saint Peter's University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
       "name": "Northern New Mexico College",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Bank Street College of Education",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Touro University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Davidson College",
+      "reason": "scout fallback below evidence threshold (3)"
     },
     {
       "name": "Wingate University",
       "reason": "registry id exists"
     },
     {
+      "name": "Ashland University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Northeast Ohio Medical University",
       "reason": "registry id exists"
+    },
+    {
+      "name": "University of Rio Grande",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Oklahoma Wesleyan University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Langston University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Oklahoma City University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Linn-Benton Community College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Pacific University",
+      "reason": "scout fallback below evidence threshold (3)"
     },
     {
       "name": "University of Portland",
@@ -1477,52 +1677,372 @@
       "reason": "registry id exists"
     },
     {
+      "name": "DeSales University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "East Stroudsburg University of Pennsylvania",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Elizabethtown College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Grove City College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "King's College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Lebanon Valley College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Marywood University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
       "name": "Muhlenberg College",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Lander University",
+      "reason": "scout fallback below evidence threshold (3)"
     },
     {
       "name": "Wofford College",
       "reason": "registry id exists"
     },
     {
+      "name": "Fisk University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "University of Dallas",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "LeTourneau University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "University of Mary Hardin-Baylor",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Regent University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Ferrum College",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "Carroll University",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "New College of Florida",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
+      "name": "California State University-San Marcos",
+      "reason": "scout fallback below evidence threshold (3)"
+    },
+    {
       "name": "Soka University of America",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Faulkner University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Miles College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Samford University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "National Park College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Sofia University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Five Branches University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Southern California University of Health Sciences",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Occidental College",
+      "reason": "scout fallback below evidence threshold (2)"
     },
     {
       "name": "Pitzer College",
       "reason": "registry id exists"
     },
     {
+      "name": "Dongguk University Los Angeles",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Eastern Connecticut State University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Bethune-Cookman University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
       "name": "Ringling College of Art and Design",
       "reason": "registry id exists"
+    },
+    {
+      "name": "The College of Idaho",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Columbia College Chicago",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Illinois College",
+      "reason": "scout fallback below evidence threshold (2)"
     },
     {
       "name": "Anderson University",
       "reason": "registry id exists"
     },
     {
+      "name": "University of Indianapolis",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Indiana State University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Saint Mary-of-the-Woods College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Central College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Dordt University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Newman University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Pratt Community College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Berea College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Lindsey Wilson College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Albion College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Calvin University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Saint Johns University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
       "name": "Delta State University",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Holmes Community College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Jones County Junior College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Logan University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Missouri Southern State University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Rockhurst University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Webster University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Dawson Community College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "University of Providence",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "D'Youville  University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Fashion Institute of Technology",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Hartwick College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Mount Saint Mary College",
+      "reason": "scout fallback below evidence threshold (2)"
     },
     {
       "name": "Sarah Lawrence College",
       "reason": "registry id exists"
     },
     {
+      "name": "Campbell University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Gardner-Webb University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Lenoir-Rhyne University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "McDowell Technical Community College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Methodist University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "University of North Carolina at Charlotte",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Queens University of Charlotte",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Nueta Hidatsa Sahnish College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Capital University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
       "name": "The University of Findlay",
       "reason": "registry id exists"
     },
     {
+      "name": "James A. Rhodes State College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Marietta College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "George Fox University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Western Oregon University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Arcadia University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Salus University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Saint Vincent College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Shippensburg University of Pennsylvania",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
       "name": "Washington & Jefferson College",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Citadel Military College of South Carolina",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Claflin University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Coker University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Converse University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Francis Marion University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Newberry College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Presbyterian College",
+      "reason": "scout fallback below evidence threshold (2)"
     },
     {
       "name": "Winthrop University",
       "reason": "registry id exists"
     },
     {
+      "name": "King University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
       "name": "Lincoln Memorial University",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (2)"
     },
     {
       "name": "Abilene Christian University",
@@ -1537,24 +2057,324 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Lone Star College System",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "South Texas College of Law Houston",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Southwestern Adventist University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
       "name": "Sul Ross State University",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Texas Lutheran University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Salt Lake Community College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Hollins University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Mary Baldwin University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Centralia College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Everett Community College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Heritage University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Olympic College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Concord University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Glenville State University",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Beloit College",
+      "reason": "scout fallback below evidence threshold (2)"
     },
     {
       "name": "University of Wisconsin-Milwaukee",
       "reason": "registry id exists"
     },
     {
+      "name": "Erikson Institute",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "College of Menominee Nation",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Little Priest Tribal College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Georgia Gwinnett College",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Touro University Nevada",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Washington University of Science and Technology",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Western Michigan University Homer Stryker M.D. School of Medicine",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Hackensack Meridian School of Medicine",
+      "reason": "scout fallback below evidence threshold (2)"
+    },
+    {
+      "name": "Central Alabama Community College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Spring Hill College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Stillman College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Alaska Pacific University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Arizona Western College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Prescott College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Art Center College of Design",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Azusa Pacific University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "University of California-Santa Barbara",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
       "name": "Claremont Graduate University",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Cuesta College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Dominican University of California",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Fresno Pacific University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Foothill-De Anza Community College District",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Fuller Theological Seminary",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Life Chiropractic College West",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Naval Postgraduate School",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Palo Alto University",
+      "reason": "scout fallback below evidence threshold (1)"
     },
     {
       "name": "Samuel Merritt University",
       "reason": "registry id exists"
     },
     {
+      "name": "William Jessup University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Simpson University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Saint Mary's College of California",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Colorado Christian University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Community College of Denver",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Denver Seminary",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Quinnipiac University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Eckerd College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Florida SouthWestern State College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Florida State College at Jacksonville",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Florida College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Florida Memorial University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Truett McConnell University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Northwest Nazarene University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Aurora University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Bethany Theological Seminary",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Eureka College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Illinois College of Optometry",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Olivet Nazarene University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Quincy University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Roosevelt University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "St. Augustine College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Bethel University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "University of Evansville",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Hanover College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Holy Cross College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Anabaptist Mennonite Biblical Seminary",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "University of Dubuque",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Emmaus Bible College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Grand View University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Luther College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Morningside University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
       "name": "Northeast Iowa Community College",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Simpson College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "William Penn University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Hesston College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Tabor College",
+      "reason": "scout fallback below evidence threshold (1)"
     },
     {
       "name": "Morehead State University",
@@ -1562,11 +2382,27 @@
     },
     {
       "name": "Spalding University",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Transylvania University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Kentucky Community and Technical College System",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Bossier Parish Community College",
+      "reason": "scout fallback below evidence threshold (1)"
     },
     {
       "name": "New Orleans Baptist Theological Seminary",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "College of the Atlantic",
+      "reason": "scout fallback below evidence threshold (1)"
     },
     {
       "name": "Goucher College",
@@ -1581,40 +2417,335 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Bridgewater State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Bristol Community College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Bunker Hill Community College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
       "name": "Endicott College",
       "reason": "registry id exists"
     },
     {
+      "name": "Fisher College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Gordon-Conwell Theological Seminary",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Massachusetts Maritime Academy",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Middlesex Community College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Quincy College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Adrian College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Davenport University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
       "name": "Cornerstone University",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Grand Rapids Community College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Northwestern Michigan College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Sacred Heart Major Seminary",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Northwestern Health Sciences University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "College of Saint Benedict",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Crown College",
+      "reason": "scout fallback below evidence threshold (1)"
     },
     {
       "name": "Dunwoody College of Technology",
       "reason": "registry id exists"
     },
     {
+      "name": "East Mississippi Community College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Itawamba Community College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Pearl River Community College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Culver-Stockton College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Midwestern Baptist Theological Seminary",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Missouri Valley College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
       "name": "Missouri Western State University",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Nazarene Theological Seminary",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Southwest Baptist University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Montana State University Billings",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Montana State University-Northern",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Rocky Mountain College",
+      "reason": "scout fallback below evidence threshold (1)"
     },
     {
       "name": "Clarkson College",
       "reason": "registry id exists"
     },
     {
+      "name": "Midland University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
       "name": "University of Nebraska at Omaha",
       "reason": "registry id exists"
+    },
+    {
+      "name": "Franklin Pierce University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Rivier University",
+      "reason": "scout fallback below evidence threshold (1)"
     },
     {
       "name": "San Juan College",
       "reason": "registry id exists"
     },
     {
+      "name": "University of the Southwest",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Elmira College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Five Towns College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Hilbert College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Keuka College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Manhattan School of Music",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Ripon College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Sistema Universitario Ana G. Mendez",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Parker University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
       "name": "Antioch University",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Lac Courte Oreilles Ojibwe University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Ogeechee Technical College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Lake Erie College of Osteopathic Medicine",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Phillips Theological Seminary",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Klamath Community College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Won Institute of Graduate Studies",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Tohono O'odham Community College",
+      "reason": "scout fallback below evidence threshold (1)"
     },
     {
       "name": "Career Care Institute",
-      "reason": "no live feed found on probes"
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "University of the West",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "American College of Education",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Gurnick Academy of Medical Arts",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "New York Film Academy",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Los Angeles Pacific University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Georgia Military College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Husson University",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Regional Center for Border Health",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Sattler College",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "Western Maricopa Education Center",
+      "reason": "scout fallback below evidence threshold (1)"
+    },
+    {
+      "name": "ALLEN INSTITUTE",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "DONALD DANFORTH PLANT SCIENCE CENTER",
+      "reason": "scout fallback below evidence threshold (9)"
+    },
+    {
+      "name": "AMERICAN ENTERPRISE INSTITUTE FOR PUBLIC POLICY RESEARCH",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "GMTO CORPORATION",
+      "reason": "scout fallback below evidence threshold (8)"
+    },
+    {
+      "name": "CLIMATEWORKS FOUNDATION",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "J CRAIG VENTER INSTITUTE INC",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "LOVELACE BIOMEDICAL RESEARCH INSTITUTE",
+      "reason": "scout fallback below evidence threshold (7)"
+    },
+    {
+      "name": "CORIELL INSTITUTE FOR MEDICAL RESEARCH INC",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "LIEBER INSTITUTE INC",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "INDIANA BIOSCIENCES RESEARCH INSTITUTE INC",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "GREENWOOD GENETIC CENTER INC",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "FLORIDA INSTITUTE FOR HUMAN AND MACHINE COGNITION",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "CRITICAL PATH INSTITUTE",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "SETI INSTITUTE",
+      "reason": "scout fallback below evidence threshold (6)"
+    },
+    {
+      "name": "BAIM INSTITUTE FOR CLINICAL RESEARCH INC",
+      "reason": "scout fallback below evidence threshold (5)"
+    },
+    {
+      "name": "NEW JERSEY INNOVATION INSTITUTE INC",
+      "reason": "scout fallback below evidence threshold (5)"
+    }
+  ],
+  "held": [
+    {
+      "tenant": "chanzuckerberginitiative",
+      "name": "CHAN ZUCKERBERG BIOHUB INC",
+      "reason": "CZI foundation board, not the Biohub — Biohub already wired"
     }
   ]
 }
