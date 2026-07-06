@@ -1,28 +1,39 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-04T22:41:43.449Z",
+  "updated_at": "2026-07-06T06:59:13.623Z",
   "snapshots": {
     "nature-careers": {
-      "scouted_at": "2026-07-04T22:01:01.770766Z",
-      "job_count": 27,
+      "scouted_at": "2026-07-06T06:57:45.820024Z",
+      "job_count": 28,
       "scraped_count": 300,
       "dropped": {
         "covered_by_live_ats": 0,
-        "not_cap_exempt": 273,
+        "not_cap_exempt": 272,
         "invalid": 0
       },
       "skipped_reason": null
     },
     "science-careers": {
-      "scouted_at": "2026-07-04T22:03:13.860277Z",
-      "job_count": 83,
-      "scraped_count": 251,
+      "scouted_at": "2026-07-06T06:59:07.414173Z",
+      "job_count": 74,
+      "scraped_count": 241,
       "dropped": {
-        "covered_by_live_ats": 2,
-        "not_cap_exempt": 166,
+        "covered_by_live_ats": 11,
+        "not_cap_exempt": 156,
         "invalid": 0
       },
       "skipped_reason": null
+    },
+    "higheredjobs": {
+      "scouted_at": "2026-07-06T06:59:13.262148Z",
+      "job_count": 0,
+      "scraped_count": 0,
+      "dropped": {
+        "covered_by_live_ats": 0,
+        "not_cap_exempt": 0,
+        "invalid": 0
+      },
+      "skipped_reason": "no_listings_found"
     }
   },
   "jobs": [
@@ -42,7 +53,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "e80bd3db7ac2",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:ade7253d0522",
@@ -60,7 +71,25 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "ade7253d0522",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
+    },
+    {
+      "id": "agg:nature-careers:0aad27eddc20",
+      "employer_id": "agg:st-jude-children-s-research-hospital",
+      "employer_name": "St Jude Children's Research Hospital",
+      "employer_kind": "registry",
+      "registry_employer_id": "st-jude",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "Faculty Position, Department of Surgery",
+      "department": "",
+      "location": "Memphis, Tennessee",
+      "url": "https://www.nature.com/naturecareers/job/12861398/faculty-position-department-of-surgery/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "0aad27eddc20",
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:4524a986dc29",
@@ -78,7 +107,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "4524a986dc29",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:265a2b373cdb",
@@ -96,7 +125,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "265a2b373cdb",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:e4ae746ee882",
@@ -114,25 +143,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "e4ae746ee882",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
-    },
-    {
-      "id": "agg:nature-careers:d87365af2644",
-      "employer_id": "agg:st-jude-children-s-research-hospital",
-      "employer_name": "St Jude Children's Research Hospital",
-      "employer_kind": "registry",
-      "registry_employer_id": "st-jude",
-      "directory_evidence": null,
-      "cap_exempt_score": 0,
-      "title": "Sr Clinical Applications Analyst: Epic Hospital Billing/Claims",
-      "department": "",
-      "location": "Remote, United States",
-      "url": "https://www.nature.com/naturecareers/job/12861377/sr-clinical-applications-analyst-epic-hospital-billing-claims/",
-      "description_text": "",
-      "posted_or_updated_at": null,
-      "source": "nature-careers",
-      "source_job_id": "d87365af2644",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:d8c8e3d96f8a",
@@ -150,7 +161,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "d8c8e3d96f8a",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:2bd003e0a4fe",
@@ -168,7 +179,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "2bd003e0a4fe",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:cc23964306f5",
@@ -186,7 +197,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "cc23964306f5",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:ae4a251b69f7",
@@ -210,7 +221,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "ae4a251b69f7",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:0976bd5f81a4",
@@ -234,7 +245,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "0976bd5f81a4",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:912179cb192a",
@@ -258,7 +269,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "912179cb192a",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:6481e7122083",
@@ -282,7 +293,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "6481e7122083",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:11997f9de6c9",
@@ -300,7 +311,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "11997f9de6c9",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:a6dd6df4f4b1",
@@ -318,7 +329,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "a6dd6df4f4b1",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:f7cd8d5163c7",
@@ -336,7 +347,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "f7cd8d5163c7",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:c54eec202161",
@@ -354,7 +365,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "c54eec202161",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:0a44da8a806a",
@@ -372,7 +383,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "0a44da8a806a",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:f9b8cf41111c",
@@ -396,7 +407,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "f9b8cf41111c",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:31469853ce54",
@@ -420,7 +431,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "31469853ce54",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:eac56b1efd29",
@@ -438,7 +449,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "eac56b1efd29",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:0e28b0b79bae",
@@ -456,7 +467,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "0e28b0b79bae",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:9ffccfd1d382",
@@ -474,7 +485,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "9ffccfd1d382",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:c27acb0b446a",
@@ -492,7 +503,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "c27acb0b446a",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:d51b37ec6204",
@@ -510,7 +521,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "d51b37ec6204",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:3269d9023847",
@@ -528,7 +539,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "3269d9023847",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:nature-careers:44c512a2878e",
@@ -552,7 +563,25 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "44c512a2878e",
-      "last_scouted_at": "2026-07-04T22:01:01.770766Z"
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
+    },
+    {
+      "id": "agg:nature-careers:1c80fa52e31b",
+      "employer_id": "agg:st-jude-children-s-research-hospital",
+      "employer_name": "St Jude Children's Research Hospital",
+      "employer_kind": "registry",
+      "registry_employer_id": "st-jude",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "Sr Computational Research Scientist- MA's Lab",
+      "department": "",
+      "location": "Memphis, Tennessee",
+      "url": "https://www.nature.com/naturecareers/job/12861170/sr-computational-research-scientist-ma-s-lab/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "1c80fa52e31b",
+      "last_scouted_at": "2026-07-06T06:57:45.820024Z"
     },
     {
       "id": "agg:science-careers:8373e52f75c6",
@@ -576,7 +605,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "8373e52f75c6",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:ec86e929f9dc",
@@ -600,7 +629,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ec86e929f9dc",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:292725152de8",
@@ -624,7 +653,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "292725152de8",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:25632c585462",
@@ -642,7 +671,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "25632c585462",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:af8ef9641afc",
@@ -666,7 +695,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "af8ef9641afc",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:81eff53402a2",
@@ -690,7 +719,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "81eff53402a2",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:a7dc75b3ad3d",
@@ -708,7 +737,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "a7dc75b3ad3d",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:43f8ccf57722",
@@ -732,7 +761,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "43f8ccf57722",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:c9b542668af0",
@@ -756,7 +785,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "c9b542668af0",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:ce4020c44820",
@@ -780,7 +809,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ce4020c44820",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:dfaad30ca794",
@@ -804,7 +833,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "dfaad30ca794",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:6d4f9d451e02",
@@ -828,7 +857,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "6d4f9d451e02",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:09654605a8e3",
@@ -852,7 +881,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "09654605a8e3",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:17dd422dd38d",
@@ -876,7 +905,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "17dd422dd38d",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:dc590b931aaa",
@@ -900,7 +929,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "dc590b931aaa",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:f2485477de1e",
@@ -924,31 +953,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "f2485477de1e",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
-    },
-    {
-      "id": "agg:science-careers:785da52692cc",
-      "employer_id": "agg:worcester-polytechnic-institute",
-      "employer_name": "Worcester Polytechnic Institute",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "168421",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 57,
-        "dol_certified_3y": 0
-      },
-      "cap_exempt_score": 53,
-      "title": "Assistant Professor Biology & Biotechnology",
-      "department": "",
-      "location": "Worcester",
-      "url": "https://jobs.sciencecareers.org/job/679187/assistant-professor-biology-and-biotechnology/",
-      "description_text": "Assistant Professor Biology & Biotechnology - Employer - Worcester Polytechnic Institute - Location - Worcester - Salary - See job description. - Closing date - Jul 26, 2026 View more categoriesView less categories - Discipline - Life Sciences, Biology - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details JOB TITLE Assistant Professor | Biology & Biotechnology LOCATION Worcester DEPARTMENT NAME Biology & Biotechnology DIVISION NAME Worcester Polytechnic Institute - WPI JOB DESCRIPTION SUMMARY The Department of Biology and Biotechnology at Worcester Polytechnic Institute invites applications for a full-time tenure track position. The appointment will be at any rank, with an anticipated start date of July 1, 2027. JOB DESCRIPTION We seek an outstanding biologist who will enhance and complement the Department's strengths in cell and molecular biology, microbiology, genomics, bioinformatics, and neuroscience. We are particularly interested in candidates who integrate computational, quantitative, and/or AI-driven approaches with experimentally grounded biological research programs. Competitive applicants will leverage cutting-edge methods in machine learning, systems biology, genomics, imaging, modeling, and/or bioinformatics to address fundamental questions in biology with relevance to biomedical, biotechnological, or environmental applications. Importantly, applicants must demonstrate a strong commitment to experimentally driven research, including a substantive wet-laboratory component within their research program. We seek candidates whose work bridges computation and experimentation. Candidates must hold a Ph.D. in Biology or a related field (e.g., Computational Biology, Systems Biology, Bioinformatics, Molecular and Cellular Biology, Synthetic Biology, Genetics, or related disciplines), possess substantial postdoctoral experience, and demonstrate a strong record of impactful research. In addition, we expect a commitment to teaching and mentoring of undergraduate and graduate students. This will be demonstrated by strong endorsements from referees, any teaching experience and accomplishments highlighted as part of the application, a statement of teaching philosophy, and sample course materials and teaching evaluations if available. The successful candidate will be expected to pursue vigorous, innovative, and independent internationally recognized research and to establish an outstanding, competitive, and externally funded research program. For more information about the Department of Biology & Biotechnology please visit https://www.wpi.edu/academics/departments/biology-biotechnology and associated research facilities please visit https://www.wpi.edu/research/core-research-facilities/life-sciences-bioengineering-center. Our department has strong links to and shared facilities with the University of Massachusetts Chan Medical School (https://www.umassmed.edu/) in Worcester as well as other institutions in the greater Boston Area. WPI is an outstanding scientific environment with a highly interactive community of researchers recognized globally and nationally for - Interdisciplinary, project-based education that continues to serve as a national model for experiential learning and innovation in STEM education, including recognition with the NAE Bernard M. Gordon Prize - A faculty culture that values excellence in both teaching and scholarship within a newly designated R1 research university experiencing rapid growth in research and innovation - Progressive promotion and tenure pathways that recognize multiple forms of scholarship and provide meaningful avenues for advancement across teaching, research, and institutional impact - A highly collaborative academic environment consistently recognized for faculty satisfaction with interdisciplinary work, mentoring, and collegiality, including top rankings among peer institutions in the COACHE Faculty Job Satisfaction Survey Worcester is a vibrant and cosmopolitan city, home to the WooSox and an family-friendly place in which to work and live. To Apply: Applicants must submit a cover letter, a current curriculum vitae (including a link to a Google Scholar profile or similar), a research statement outlining current and future research interests (3 pages), and a statement of teaching philosophy and dossier as appropriate (1-2 pages). Applicants must provide the name and contact information of three references. Review of applications will begin on September 11, 2026 and continue until the position is filled. Compensation: Academic Year Salary: $90,000 - $100,000 per year. Salary is based on related experience, expertise, and internal equity. WPI's benefits package includes a robust retirement match, wellness perks, tuition assistance and more! FLSA STATUS United States of America (Exempt) WPI is an Equal Opportunity Employer. All qualified candidates will receive consideration for employment without regard to race, color, age, religion, sex, sexual orientation, gender identity, national origin, veteran status, or disability. It seeks individuals from all backgrounds and experiences who will contribute to a culture of creativity, collaboration, inclusion, problem solving, innovation, high performance, and change making. It is committed to maintaining a campus environment free of harassment and discrimination. To apply, visit: https://wpi.wd5.myworkdayjobs.com/en-US/WPI_External_Career_Site/job/Worcester/Assistant-Professor---Biology---Biotechnology_R0003488 About WPI WPI is a vibrant, active, and diverse community of extraordinary students, world-renowned faculty, and state of the art research facilities. At WPI, we have competitive and comprehensive benefits, including health insurance, long-term care, retirement, tuition assistance, flexible spending accounts, work-life balance and much more. Diversity & Inclusion at WPI WPI is committed to creating an inclusive workplace where everyone feels valued and respected; a place where every student, faculty and staff member can be themselves, so that they can study, live, and work comfortably, to reach their full potential, and make meaningful contributions in order to meet departmental and institutional goals. WPI thrives on innovative practice and welcomes diverse perspectives, insight, and people from diverse lived experiences, to enhance the community environment and propel the institution to the next level in a competitive, global marketplace. Copyright 2025 Jobelephant.com Inc. All rights reserved. Posted by the FREE value-added recruitment advertising agency jeid-2f04ba8ac6e5d34e90147c952735eb4e Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "785da52692cc",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:05b64898ec7d",
@@ -972,7 +977,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "05b64898ec7d",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:f275c32afa37",
@@ -996,7 +1001,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "f275c32afa37",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:6623b9dde205",
@@ -1020,7 +1025,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "6623b9dde205",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:a54be6a8e9a3",
@@ -1038,7 +1043,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "a54be6a8e9a3",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:398dc319f0d8",
@@ -1056,7 +1061,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "398dc319f0d8",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:1b38f5e6dba3",
@@ -1074,7 +1079,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "1b38f5e6dba3",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:7cfa40627733",
@@ -1098,7 +1103,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "7cfa40627733",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:9eadf1b883e4",
@@ -1122,7 +1127,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "9eadf1b883e4",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:21be628f44fc",
@@ -1146,7 +1151,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "21be628f44fc",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:17fb0905b59f",
@@ -1170,31 +1175,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "17fb0905b59f",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
-    },
-    {
-      "id": "agg:science-careers:f2cd65ea688e",
-      "employer_id": "agg:tarleton-state-university",
-      "employer_name": "Tarleton State University",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "228529",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 17,
-        "dol_certified_3y": 1
-      },
-      "cap_exempt_score": 52,
-      "title": "Vice President for Research and Innovation",
-      "department": "",
-      "location": "Stephenville, Texas (US)",
-      "url": "https://jobs.sciencecareers.org/job/679133/vice-president-for-research-and-innovation/",
-      "description_text": "Vice President for Research and Innovation - Employer - Tarleton State University - Location - Stephenville, Texas (US) - Salary - Competitive - Closing date - Jul 19, 2026 View more categoriesView less categories - Discipline - Health Sciences, Clinical Research, Translational Research - Position Type - Full Time - Job Type - President/CEO/Director/VP - Organization Type - Academia Job Details Tarleton State University Vice President for Research and Innovation About Tarleton State University Established on September 4, 1899, Tarleton State University (Tarleton State) offers the value of the Texas A&M University System with its own brand of personal attention, individual opportunities, history, and community. Tarleton State is an energetic, comprehensive Carnegie R2 Doctoral University with the elective Community Engagement classification and a member of the Association of Public and Land-grant Universities (APLU). The fastest-growing public institution in Texas, Tarleton State has experienced record enrollment growth and now serves approximately 21,000 students across multiple campuses and locations. The university offers 90 bachelor’s, 44 master’s, and six doctoral degree options through a broad array of academic colleges and programs. As a proud member of the Texas A&M University System, Tarleton State combines a student-focused mission with a rapidly expanding research enterprise and growing national prominence. Position Summary The Vice President for Research and Innovation (VPRI) serves as the University’s Chief Research Officer and provides executive leadership for all research and innovation activities. This role is responsible for advancing the institution’s research enterprise and fostering a culture of scholarship and innovation. The VPRI serves as a member of the President’s Executive Team and collaborates with academic, industry, and government partners to expand research capacity, secure external funding, and enhance interdisciplinary initiatives. Duties and Responsibilities Executive Leadership & Strategy - Provide strategic leadership and vision for the university’s research, innovation, and economic development enterprise. - Lead institutional planning efforts for research growth, sponsored programs, and technology transfer. - Serve as a key advisor to the President on research priorities and emerging opportunities. - Participate in executive decision-making regarding university planning, budgeting, and policy development. Research Administration & Program Oversight - Oversee the planning, coordination, and administration of all research and economic development initiatives. - Lead the Division of Research, Innovation & Economic Development, including affiliated research centers and programs. - Facilitate multidisciplinary research and campus-wide initiatives. - Promote faculty and student research at both undergraduate and graduate levels. Sponsored Programs & Funding - Oversee grant development, submission, and negotiation of contracts for complex research initiatives. - Ensure effective pre-award and post-award administration of sponsored programs. - Expand external funding through federal, state, industry, and private sources. Compliance & Regulatory Oversight - Ensure compliance with federal, state, and system-level research regulations and policies. - Oversee research compliance programs including IRB, IACUC, Conflict of Interest, Institutional Biosafety Committee, and Export Controls. - Coordinate with system and governmental entities on research-related requirements. Innovation - Lead initiatives that drive innovation and community engagement at regional and national levels. - Partner with industry and community stakeholders to align research with workforce and economic needs. Partnerships & External Relations - Build and sustain strategic partnerships across academia, industry, and government. - Serve as an ambassador for the university’s research mission. - Collaborate with peer institutions and research leaders to advance shared initiatives. Minimum Requirements Required Education & Experience - Doctoral degree in a relevant discipline. - Minimum of 10 years of leadership experience in research administration and sponsored programs to include: - Demonstrated success in securing and managing externally funded research. - Experience leading cross-disciplinary research initiatives. Required competencies, knowledge, skills, and abilities - Demonstrated strategic and visionary leadership with the ability to execute and drive organizational outcomes. - Proven ability to lead and manage complex research portfolios, including oversight of budgets, personnel, and operations. - Strong financial, analytical, and problem-solving skills, with the ability to make data-informed decisions. - Excellent communication and interpersonal skills, including the ability to build relationships, collaborate effectively, and influence diverse stakeholders. - Ability to establish and maintain positive, productive working relationships with students, faculty, staff, administrators, and external partners. - Demonstrated integrity, professionalism, sound judgment, and commitment to ethical leadership and confidentiality. - Knowledge of research administration, including compliance, export controls, and environmental health and safety regulations. - Ability to manage multiple priorities, work collaboratively, and operate effectively in a complex organizational environment. - Entrepreneurial and innovative mindset with the ability to foster growth, partnerships, and new opportunities. - Demonstrated commitment to promoting and advancing student engagement in research at all levels. Preferred Qualifications - Experience in economic development, particularly rural or regional initiatives. - Track record in technology transfer and commercialization. - Experience working in a multi-campus or system-based institution. - Experience transitioning an institution from R2 to R1 status. Key Impact Areas - Expansion of externally funded research portfolio - Growth in interdisciplinary and collaborative research initiatives - Strengthened institutional reputation in research and innovation Institutional Profile Tarleton State University is an energetic, comprehensive Carnegie R2 Doctoral University with the elective Community Engagement classification, and a member of the Association of Public and Land-grant Universities (APLU). The fastest-growing public institution in Texas, Tarleton State has experienced record enrollment increases in each of the last six years –– increasing enrollment 48.58% since fall 2022, well above the state total for public institutions at 6.36%. With the success of our dual-enrollment program Tarleton State Today, we saw another all-time high enrollment in Fall 2025 at approximately 21,000 students. Our enrollment surges are proof that Tarleton State is quickly becoming one of the country’s fastest growing comprehensive public universities in enrollment, research and national prominence. The university offers 90 bachelor’s, 44 master’s, and six doctoral degree options. For their majors, students choose from 10 academic colleges — College of Agriculture and Natural Resources; College of Education; College of Liberal and Fine Arts; College of Science and Mathematics; Dr. Sam Pack College of Business; College of Leadership and Military Studies; Mayfield College of Engineering; College of Graduate Studies; Honors College; and the College of General and Applied Studies –– as well as three colleges within the Division of Health Sciences, which includes the College of Nursing, College of Kinesiology and Sport Science, and the College of Health and Clinical Professions. Tarleton State University is a proud member of the Texas A&M University System, and serves students on the main campus in Stephenville, its growing Fort Worth campus, in Waco, on the A&M RELLIS campus in Bryan, globally online, and through the Tarleton State Today dual-enrollment",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "f2cd65ea688e",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:ae1050651e62",
@@ -1218,7 +1199,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ae1050651e62",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:84c6edd42d35",
@@ -1242,7 +1223,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "84c6edd42d35",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:329243f8203b",
@@ -1266,7 +1247,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "329243f8203b",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:d1097c417442",
@@ -1284,7 +1265,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "d1097c417442",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:0a6fddac53bd",
@@ -1308,7 +1289,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "0a6fddac53bd",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:9f5a2520bf19",
@@ -1332,7 +1313,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "9f5a2520bf19",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:8ad1688db8ed",
@@ -1356,7 +1337,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "8ad1688db8ed",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:2b9957c4e47d",
@@ -1380,7 +1361,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "2b9957c4e47d",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:c8316b53e32c",
@@ -1404,7 +1385,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "c8316b53e32c",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:ff7bec79aa7a",
@@ -1422,7 +1403,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ff7bec79aa7a",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:beb28890c976",
@@ -1440,7 +1421,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "beb28890c976",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:557d2ae205d4",
@@ -1464,31 +1445,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "557d2ae205d4",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
-    },
-    {
-      "id": "agg:science-careers:9c8b158d9584",
-      "employer_id": "agg:university-of-alabama-at-birmingham",
-      "employer_name": "University of Alabama at Birmingham",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "100663",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 285,
-        "dol_certified_3y": 10
-      },
-      "cap_exempt_score": 65,
-      "title": "Open Rank - Molecular and Cellular Pathology Faculty",
-      "department": "",
-      "location": "Birmingham, Alabama (US)",
-      "url": "https://jobs.sciencecareers.org/job/679094/open-rank-molecular-and-cellular-pathology-faculty/",
-      "description_text": "Open Rank - Molecular and Cellular Pathology Faculty - Employer - University of Alabama at Birmingham - Location - Birmingham, Alabama (US) - Salary - Competitive - Closing date - Jul 12, 2026 View more categoriesView less categories - Discipline - Life Sciences, Health Sciences, Pathology, Cancer Research - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details Department of Pathology University of Alabama at Birmingham Department of Pathology The Department of Pathology, Heersink School of Medicine, at the University of Alabama at Birmingham (UAB) is inviting applications from qualified candidates at any rank the for one full- time, open tenure earning positions to strengthen our research programs across the following broad areas: Cardiovascular and Cardiometabolic Disease, Cancer, Neurodegeneration, Infectious disease and Immunity Driven by an intensely collaborative and entrepreneurial character, UAB is one of the leading economic engines of the State. UAB is Alabama’s largest employer with more than 23,000 employees with total research expenditures exceeding $750 million in 2026. The Department of Pathology with >90 full time faculty, including >35 research intensive faculty, has a major commitment to clinical care, research and education ranking in the top 12 for Pathology Departments in 2025 in the US, by the Blue Ridge Institute for Medical Research. Research within the department focuses on understanding the molecular basis underlying a wide range of diverse disease processes, identifying new therapeutic targets, and developing new treatments for patients. Candidates must have an M.D. and/or Ph.D. in relevant disciplines. Successful candidates will have a demonstrated record of originality and productivity in research and scholarly activity including previous and current significant extramural funding as principal investigator. Candidates should also have an interest in graduate and/or medical education. A pre-employment background investigation is performed on candidates selected for employment. Interested candidates should apply here: https://uab.peopleadmin.com/postings/27689 Interested candidates should submit a cover letter and application packet including curriculum vitae, research interest/expertise, and the names of three references. Evaluation of applications will occur as they are received and will continue until the position is filled. For additional information about the Department of Pathology, please visit http://uab.edu/medicine/pathology. To learn more about the University of Alabama at Birmingham, please visit http://uab.edu/home. UAB is an Equal Employment/Equal Educational Opportunity Institution dedicated to providing equal opportunities and equal access to all individuals regardless of race, color, religion, ethnic or national origin, sex (including pregnancy), genetic information, age, disability, religion, and veteran’s status. As required by Title IX, UAB prohibits sex discrimination in any education program or activity that it operates. Individuals may report concerns or questions to UAB’s Assistant Vice President and Senior Title IX Coordinator. The Title IX notice of nondiscrimination is located at uab.edu/titleix. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "9c8b158d9584",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:7e053942904b",
@@ -1512,7 +1469,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "7e053942904b",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:4405ef3d1bb6",
@@ -1536,7 +1493,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "4405ef3d1bb6",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:438c60fee0bf",
@@ -1560,7 +1517,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "438c60fee0bf",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:4225b9346562",
@@ -1584,7 +1541,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "4225b9346562",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:af7d5df1b17e",
@@ -1608,7 +1565,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "af7d5df1b17e",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:3e71757e7e9f",
@@ -1632,7 +1589,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "3e71757e7e9f",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:ff3438a4d4c0",
@@ -1656,7 +1613,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ff3438a4d4c0",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:c43ffb9d4a38",
@@ -1680,31 +1637,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "c43ffb9d4a38",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
-    },
-    {
-      "id": "agg:science-careers:34e834ccd30f",
-      "employer_id": "agg:cornell-university",
-      "employer_name": "Cornell University",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "190415",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 302,
-        "dol_certified_3y": 16
-      },
-      "cap_exempt_score": 67,
-      "title": "Judy Wilpon Professor of Cancer Biology",
-      "department": "",
-      "location": "Ithaca, New York",
-      "url": "https://jobs.sciencecareers.org/job/679052/judy-wilpon-professor-of-cancer-biology/",
-      "description_text": "Judy Wilpon Professor of Cancer Biology - Employer - Cornell University - Location - Ithaca, New York - Salary - $165,000 - $250,000 - Closing date - Aug 7, 2026 View more categoriesView less categories - Discipline - Life Sciences, Cancer Research - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details Judy Wilpon Endowed Chair in Cancer Biology Baker Institute for Animal Health, College of Veterinary Medicine, Cornell University The Baker Institute for Animal Health at Cornell University seeks a distinguished scientist to join our faculty as the Judy Wilpon Endowed Chair in Cancer Biology at the rank of Associate or Full Professor. This prestigious appointment will advance our leadership in comparative cancer biology research. For 75 years, the Baker Institute has defined excellence in animal health research, establishing the scientific foundations that drive breakthrough discoveries in comparative medicine. Our distinguished faculty lead multidisciplinary investigations that have advanced understanding of host biology, pathogen mechanisms, and critical host-pathogen interactions. Grounded in cutting-edge molecular and cellular biosciences, genomics and computational biology, our research programs command significant support from premier federal health and agriculture agencies alongside specialized foundations. Faculty maintain influential collaborative networks spanning The College of Veterinary Medicine and other Ithaca-based units including the Meinig School of Biomedical Engineering, the Weill Institute for Cell and Molecular Biology, and the Department of Computational Biology, as well as Weill Cornell Medicine and the Meyer Cancer Center in New York City. Through our One Health approach, Baker researchers generate discoveries that establish new paradigms relevant to both animal and human medicine. This legacy of scientific impact, built through decades of close engagement with veterinarians and clinicians nationwide, positions the Institute to drive transformative advances across the full translational spectrum—from computational innovation to clinical breakthrough. This position will expand our expertise in cancer biology through research. We welcome candidates with expertise across the full spectrum of fundamental and translational cancer biology subspecialties, including tumor initiation, progression, and metastasis; tumor microenvironment and immuno-oncology; and novel models and technologies for the discovery and development of cancer diagnostics and therapies. The successful candidate will play a pivotal role in fostering interdisciplinary research collaborations within the Baker Institute and throughout the College of Veterinary Medicine. Teaching responsibilities and allocation of effort will be determined based on the candidate's interests and qualifications, while academic service will focus on mentorship and supporting service commitments within the Institute and broader College of Veterinary Medicine and University Initiatives. Cornell University provides an exceptional research environment with outstanding resources that will support cutting-edge cancer biology research, including state-of-the-art facilities for computational biology, genomics, epigenomics, proteomics, metabolomics, single-cell and spatial transcriptomics, advanced microscopy and imaging, histology and flow cytometry. The university hosts several campus-wide initiatives directly relevant to cancer research, including the Genomics Innovation Hub (GIH), established by the Provost's Genome Biology Task Force, the Center for Vertebrate Genomics (CVG), the Cancer Metabolism Focus Group (CMFG), and the DNA replication, recombination and repair (R3) group. Qualifications - DVM/Ph.D., MD/Ph.D., or Ph.D. in biomedical sciences Established, internationally recognized research program in cancer biology with an emphasis on companion animals or potential for significant impact in human and veterinary medicine Demonstrated ability to foster interdisciplinary collaborations Strong record of scholarly achievement appropriate for tenured Associate or Full Professor rank Vision for impactful cancer research that attracts extramural grant support Interested candidates should submit the following materials: (i) Cover letter, (ii) Curriculum Vitae, (iii) Statement of research goals (3 pages maximum), (iv) Statement of teaching experience and philosophy (1 page maximum) and (v) Contact information for three professional references. Application Process Applications will be reviewed starting on July 22, 2026 and will continue to be reviewed until the position is filled. For further information about this position, please email the search committee chair, Dr. Robert Weiss at rsw26@cornell.edu. Consistent with Cornell’s practice, appointment to academic positions requires candidates to disclose relevant information about their prior employment including whether they have been found to have violated institutional or employer policies related to or governing unlawful discrimination and harassment, academic and research misconduct, or financial misconduct. Apply for Judy Wilpon Professor of Cancer Biology Already uploaded your CV? Sign in to apply instantly Fields marked with an asterisk (*) are required Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "34e834ccd30f",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:ad6c9d9520fe",
@@ -1722,7 +1655,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ad6c9d9520fe",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:e42306ff9f60",
@@ -1746,103 +1679,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "e42306ff9f60",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
-    },
-    {
-      "id": "agg:science-careers:134f422aafae",
-      "employer_id": "agg:midwestern-university-downers-grove",
-      "employer_name": "Midwestern University - Downers Grove",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "143853",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 0,
-        "dol_certified_3y": 0
-      },
-      "cap_exempt_score": 40,
-      "title": "Assistant Professor- AZ- Cardiovascular Sciences Program",
-      "department": "",
-      "location": "Glendale, Arizona (US)",
-      "url": "https://jobs.sciencecareers.org/job/679051/-assistant-professor-az-cardiovascular-sciences-program/",
-      "description_text": "Assistant Professor- AZ- Cardiovascular Sciences Program - Employer - Midwestern University - Downers Grove - Location - Glendale, Arizona (US) - Salary - Negotiable - Closing date - Jul 5, 2026 View more categoriesView less categories - Discipline - Life Sciences, Other Life Science - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details The College of Health Sciences at Midwestern University invites applications for the full-time position of Assistant Professor in the Cardiovascular Science Program, Glendale, AZ campus. The candidate must have a Masters degree with a minimum of 2 years clinical practice. Documented academic experience with a record of teaching is preferred. Rank will commensurate with experience. Salary and benefits are competitive for this faculty position. In addition to teaching in the practical laboratory and didactic courses, the candidate will participate in scholarship and service. Specific areas of responsibility will vary depending on the individual’s educational background and experience. The Cardiovascular Science Perfusion Program matriculates 44 students each year and awards the Master of Science in Cardiovascular Science degree after successful completion of the 21-month curriculum. The curriculum includes three-quarters of didactic and laboratory education, including a state-of-the-art simulation laboratory, followed by four quarters of clinical education practicums off campus at various affiliated hospitals located throughout the country. The Program is accredited by the Commission on Accreditation of Allied Health Education Programs (CAAHEP) and has eight faculty members and three support staff members. Midwestern University is an independent institution of higher education committed to the education of healthcare professionals. The Glendale campus is located on a spacious 143-acre campus in Glendale, AZ and is home to the Arizona College of Osteopathic Medicine, the Arizona College of Podiatric Medicine, the College of Pharmacy, the College of Dental Medicine, the College of Optometry, the College of Veterinary Medicine, College of Graduate Studies and the College of Health Sciences. The Cardiovascular Science program is housed in the College of Health Sciences which also houses programs in Nurse Anesthesia, Physician Assistant Studies, Physical Therapy, Occupational Therapy, Clinical Psychology and Speech-Language Pathology. The University is accredited by The Higher Learning Commission, a Commission of the North Central Association of Colleges and Schools. Interested applicants should submit a letter of application, curriculum vitae, and contact information for three professional references to their Midwestern University Online Application. Review of applications will begin immediately and continue until the position is filled. Questions about the position should be directed to Dr. Kyle Dana, Program Director, at kdana@midwestern.edu or 623.572-3691 We offer a comprehensive benefits package that includes medical, dental, and vision insurance plans as well as life insurance, short/long term disability and pet insurance. We offer flexible spending accounts including healthcare reimbursement and child/dependent care account. We offer a work life balance with competitive time off package including paid holiday’s, sick/flex days, personal days and vacation days. We offer a 403(b) retirement plan, tuition reimbursement, child care subsidy reimbursement program, identity theft protection and an employee assistance program. Wellness is important to us and we offer a wellness facility on-site with a fully equipped fitness facility. Midwestern University is an Equal Opportunity/Affirmative Action employer that does not discriminate against an employee or applicant based upon race; color; religion; creed; national origin or ancestry; ethnicity; sex (including pregnancy); gender (including gender expressions, gender identity; and sexual orientation); marital status; age; disability; citizenship; past, current, or prospective service in the uniformed services; genetic information; or any other protected class, in accord with all federal, state and local laws and regulations. Midwestern University complies with the Smoke-Free Arizona Act (A.R.S. 36-601.01) and the Smoke Free Illinois Act (410 ILCS 82/). Midwestern University complies with the Illinois Equal Pay Act of 2003 and Arizona Equal Pay Acts. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "134f422aafae",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
-    },
-    {
-      "id": "agg:science-careers:a04fbefe64ca",
-      "employer_id": "agg:university-of-california-irvine",
-      "employer_name": "University of California, Irvine",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "110653",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 159,
-        "dol_certified_3y": 0
-      },
-      "cap_exempt_score": 55,
-      "title": "Assistant Professor In-Residence - University of California, Irvine",
-      "department": "",
-      "location": "Irvine, California (US)",
-      "url": "https://jobs.sciencecareers.org/job/679048/assistant-professor-in-residence-university-of-california-irvine/",
-      "description_text": "Assistant Professor In-Residence - University of California, Irvine - Employer - University of California, Irvine - Location - Irvine, California (US) - Salary - The salary range for this position is $93,700 - $121,400. The posted UC salary scales set the minimum pay determined by rank and step at appointment. - Closing date - Jul 4, 2026 View more categoriesView less categories - Discipline - Life Sciences, Biomedical Sciences - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details The Department of Physiology & Biophysics in School of Medicine is committed to academic excellence and diversity within the faculty, staff, and student body. The Department is currently recruiting for up to two (2) In Residence faculty positions for researchers who will participate in teaching; research and creative work; academic activity; university and public service in an academic medical center environment. This is largely a grant-supported position. The Department provides excellent opportunities for teaching, mentorship and other academic interest opportunities to medical and graduate students, residents, fellows, and faculty. Successful research scientist candidates should have research interests aimed at elucidating mechanisms of cardiac arrhythmias in cardiovascular disease using multiple approaches that may include cellular and tissue-level electrophysiology, multi-modal imaging, excitation-contraction coupling, pharmacology, and molecular biology. The incumbent will be expected to develop extramurally funded research programs on the cutting edge, to provide leadership in cardiac electrophysiology research, and to engage in grant-supported collaborative studies with other departmental faculty, in which cardiac physiology and ion channel biophysics are central themes. The candidate will also have the opportunity to access outstanding resources and strengths of UCI Health, School of Medicine, and partners across the UCI campus. The appropriate step of the Assistant Professor In-Residence appointment will be based on the candidate’s qualifications and experience. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "a04fbefe64ca",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
-    },
-    {
-      "id": "agg:science-careers:1a5fc81100ef",
-      "employer_id": "agg:midwestern-university-downers-grove",
-      "employer_name": "Midwestern University - Downers Grove",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "143853",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 0,
-        "dol_certified_3y": 0
-      },
-      "cap_exempt_score": 40,
-      "title": "Assistant Professor- AZ- Pathology",
-      "department": "",
-      "location": "Glendale, Arizona (US)",
-      "url": "https://jobs.sciencecareers.org/job/679045/assistant-professor-az-pathology/",
-      "description_text": "Assistant Professor- AZ- Pathology - Employer - Midwestern University - Downers Grove - Location - Glendale, Arizona (US) - Salary - Negotiable - Closing date - Jul 4, 2026 View more categoriesView less categories - Discipline - Health Sciences, Pathology - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details The Department of Pathology, College of Graduate Studies invites applications for a full-time, tenure-track faculty position at the rank of Assistant Professor in the Department of Pathology. The successful candidate will participate in team-taught Pathology courses within our medical and health professions programs and will be expected to establish an independent research program. Applicants with demonstrated teaching expertise will be prioritized. Review of applications will begin immediately and will close when the position is filled. Qualifications are MD or DO with a completion of a pathology residency or a PhD with at least 2 years of postdoctoral experience with demonstrated expertise in Pathology. The candidate will work under the supervision of the Chair and be responsible for assigned lectures in the School of Medicine Pathology courses as well as the Dental/Optometry basic science courses. Service to university committees, etc., is also expected. Tenure track candidates will pursue research and academic promotion according to university guidelines. Detailed Description: Specific responsibilities - Provide instruction to students in the Doctor of Osteopathy, Podiatric Medicine, Dental Medicine and Optometry programs, primarily via in person lecture based didactic presentations which mirror and expound upon the subject matter covered in the primary course texts (Robbins & Cotran, Pathologic Basis of Disease and Robbins, Basic Pathology) as assigned and coordinated by the Course Director or Department Chair. Additional instructional responsibilities may be assigned. - Develop and prepare examination questions appropriate to the content delivered via lecture and aid in evaluation of student performance. Proctor and/or assist in post-exam reviews as needed. - Assist in departmental curricular goals, meeting departmental objectives or other educational missions of the department. - Participate in mentoring and supporting students’ academic needs. - Participate in the summer retake courses. - Participate in service to the University and its Colleges and the community via volunteering to conduct prospective student candidate interviews, participate in assigned or elected university committees, promote student research opportunities, and other activities of importance to the university. - Tenure track candidates will be expected conduct research and be productive in their academic field of interest. Academic productivity and academic promotion are evaluated as per university guidelines. If you would like to learn more about this position, please submit your application through Midwestern University’s online job board at https://www.midwestern.edu/employment-mwu. Your application packet must include the following information in attachments: - Cover letter - CV - Application - Contact information for 3 references - Statement of Teaching Philosophy and Research Interests Applicants may send inquiries to Tony Tullot, MD., Search Committee Chair, Department of Pathology, College of Graduate Studies, Midwestern University, 19555 N. 59th Avenue, Glendale, AZ 85308; ttullot@midwestern.edu. However, applications must be submitted online. Midwestern University is a private, not-for-profit organization that provides graduate and post-graduate education in the health sciences. The University has two campuses, one in Downers Grove, Illinois and the other in Glendale, Arizona. More than 6,000 full-time students are enrolled in graduate programs in osteopathic medicine, dentistry, pharmacy, physician assistant studies, physical therapy, occupational therapy, nurse anesthesia, cardiovascular perfusion, podiatry, optometry, clinical psychology, speech language pathology, biomedical sciences and veterinary medicine. Over 500 full-time faculty members and 400 staff members are dedicated to the education and development of our students in an environment that encourages learning, respect for all members of the health care team, service, interdisciplinary scholarly activity, and personal growth. We offer a comprehensive benefits package that includes medical, dental, and vision insurance plans as well as life insurance, short/long term disability and pet insurance. We offer flexible spending accounts including healthcare reimbursement and child/dependent care account. We offer a work life balance with competitive time off package including paid holiday’s, sick/flex days, personal days and vacation days. We offer a 403(b) retirement plan, tuition reimbursement, child care subsidy reimbursement program, identity theft protection and an employee assistance program. Wellness is important to us and we offer a wellness facility on-site with a fully equipped fitness facility. Midwestern University is an Equal Opportunity/Affirmative Action employer that does not discriminate against an employee or applicant based upon race; color; religion; creed; national origin or ancestry; ethnicity; sex (including pregnancy); gender (including gender expressions, gender identity; and sexual orientation); marital status; age; disability; citizenship; past, current, or prospective service in the uniformed services; genetic information; or any other protected class, in accord with all federal, state and local laws and regulations. Midwestern University complies with the Smoke-Free Arizona Act (A.R.S. 36-601.01) and the Smoke Free Illinois Act (410 ILCS 82/). Midwestern University complies with the Illinois Equal Pay Act of 2003 and Arizona Equal Pay Acts. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "1a5fc81100ef",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
-    },
-    {
-      "id": "agg:science-careers:7397c25cab14",
-      "employer_id": "agg:midwestern-university-downers-grove",
-      "employer_name": "Midwestern University - Downers Grove",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "143853",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 0,
-        "dol_certified_3y": 0
-      },
-      "cap_exempt_score": 40,
-      "title": "Post Doctoral Fellow, Neuropharmacology- IL- Precision Medicine Program",
-      "department": "",
-      "location": "Downers Grove, Illinois",
-      "url": "https://jobs.sciencecareers.org/job/679043/-post-doctoral-fellow-neuropharmacology-il-precision-medicine-program/",
-      "description_text": "Post Doctoral Fellow, Neuropharmacology- IL- Precision Medicine Program - Employer - Midwestern University - Downers Grove - Location - Downers Grove, Illinois - Salary - $61,008 USD per year - Closing date - Jul 4, 2026 View more categoriesView less categories - Discipline - Health Sciences, Medicine - Position Type - Full Time - Job Type - Postdoc Fellowship - Organization Type - Academia Job Details The He Lab in the Precision Medicine Program at Midwestern University (Downers Grove) is seeking a postdoctoral research fellow to join our research program focused on chronic pain and addiction pharmacology. Review of applications will begin immediately and continue until the position is filled. The successful candidate may begin as soon as available. The appointment is for up to four years, renewable annually. The postdoctoral fellow will be expected to work on our project related to chronic pain and opioid pharmacology. Your responsibilities will be, including but not limited to, designing and carrying out experiments, presenting research results in oral presentations, drafting manuscripts, and mentoring graduate and professional students. Essential Duties and Responsibilities - Design and carry out experiments - Report findings, in oral and written forms, and draft manuscripts - Maintain detailed and accurate experimental records for publication and reporting purposes - Participate in weekly lab meetings, journal clubs and campus-wise seminars - Mentor and guide graduate and professional students in the lab - Present the results at scientific meetings. Research experience in one or more of the following areas will be considered an advantage, but not required. - Research experience in neuroscience - Research experience in pain or addiction - Experience working with rodents - Experience with optogenetics, chemogenetics, or stereotaxic microinjection Qualifications To perform this job successfully, an individual must be able to perform each essential duty satisfactorily. The requirements listed below are representative of the knowledge, skill, and/or ability required. The individual must be able to work in a constant state of alertness and safe manner and have regular in-person attendance Reasonable accommodations may be made to enable individuals with disabilities to perform the essential functions. Education and/or Experience Ph.D. in a relevant biomedical discipline (e.g., neuroscience, pharmacology, biochemistry, biological psychology, etc.) or evidence of completion by the start date is required. Experience in epigenetics, molecular biology techniques, immunohistochemistry and rodent behavioral studies (e.g., pain or addiction models) will be considered an advantage. The successful candidate must have excellent communication skills and be able to work independently and as part of a team. Please include the following in your application: 1) a CV/Resume, 2) a cover letter describing your research background and interest, and 3) the name and contact information of three professional references. Computer Skills Computer proficiency in MS Office (Word, Excel, Outlook) and software related to scientific literature, statistical analysis such as GraphPad Prism and graphics. Other Skills and Ability Applicants must possess strong organizational, interpersonal and communication skills; must be highly motivated, productive team players with the ability to adapt to new projects and to work on multiple projects. Physical Demands The physical demands described here are representative of those that must be met by an employee to successfully perform the essential functions of this job. Reasonable accommodations may be made to enable individuals with disabilities to perform the essential functions. While performing the duties of this job, the employee is frequently required to stand, walk; use hands to handle or feel; reach with hands and arms. The employee is regularly required to sit, climb or balance; talk or hear. The employee is occasionally required to stoop, kneel, or crouch. The employee is frequently required to lift up to 10 pounds; regularly required to lift up to 25 pounds and occasionally lift up to 50 pounds. Work Environment The work environment characteristics described here are representative of those an employee encounters while performing the essential functions of this job. Reasonable accommodations may be made to enable individuals with disabilities to perform the essential functions. This position is occasionally exposed to fumes or airborne particles. The noise level in the work environment is usually moderate. To apply, please visit midwestern.edu/faculty-and-staff/employment. For primary consideration, applications should be submitted by November 1st, 2025. Applications will be reviewed on a rolling basis thereafter. Information on Midwestern University and its graduate programs is available at www.midwestern.edu. Inquires about the position should be directed to Dr. He at yhe@midwestern.edu. Midwestern University is a private, not-for-profit organization that provides graduate and post-graduate education in the health sciences. The University has two campuses, one in Downers Grove, Illinois and the other in Glendale, Arizona. More than 6,000 full-time students are enrolled in graduate programs in osteopathic medicine, dentistry, pharmacy, physician assistant studies, physical therapy, occupational therapy, nurse anesthesia, cardiovascular perfusion, podiatry, optometry, clinical psychology, speech language pathology, biomedical sciences and veterinary medicine. Over 500 full-time faculty members and 400 staff members are dedicated to the education and development of our students in an environment that encourages learning, respect for all members of the health care team, service, interdisciplinary scholarly activity, and personal growth. We offer a comprehensive benefits package that includes medical, dental, and vision insurance plans as well as life insurance, short/long term disability and pet insurance. We offer flexible spending accounts including healthcare reimbursement and child/dependent care account. We offer a work life balance with competitive time off package including paid holiday’s, sick/flex days, personal days and vacation days. We offer a 403(b) retirement plan, tuition reimbursement, child care subsidy reimbursement program, identity theft protection and an employee assistance program. Wellness is important to us and we offer a wellness facility on-site with a fully equipped fitness facility. Midwestern University is an Equal Opportunity/Affirmative Action employer that does not discriminate against an employee or applicant based upon race; color; religion; creed; national origin or ancestry; ethnicity; sex (including pregnancy); gender (including gender expressions, gender identity; and sexual orientation); marital status; age; disability; citizenship; past, current, or prospective service in the uniformed services; genetic information; or any other protected class, in accord with all federal, state and local laws and regulation. Midwestern University complies with the Smoke-Free Arizona Act (A.R.S. 36-601.01) and the Smoke Free Illinois Act (410 ILCS 82/). Midwestern University complies with the Illinois Equal Pay Act of 2003 and Arizona Equal Pay Acts. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "7397c25cab14",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:d04e6e4e18c3",
@@ -1866,7 +1703,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "d04e6e4e18c3",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:fc14f9c1ca46",
@@ -1890,7 +1727,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "fc14f9c1ca46",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:7b109363aaf9",
@@ -1910,11 +1747,11 @@
       "department": "",
       "location": "Iowa City, Iowa",
       "url": "https://jobs.sciencecareers.org/job/679036/assistant-or-associate-professor-in-virology/",
-      "description_text": "",
+      "description_text": "Assistant or Associate Professor in Virology - Employer - University of Iowa - Location - Iowa City, Iowa - Salary - Commensurate - Closing date - Jul 24, 2026 View more categoriesView less categories - Discipline - Life Sciences, Microbiology - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details The Department of Microbiology and Immunology in the Carver College of Medicine at the University of Iowa invites applications for a faculty position in virology at the Assistant or Associate Professor level. This tenure-track position includes a 12-month appointment, full fringe benefits, competitive start-up package, office and laboratory space, and access to state-of-the-art core facilities, instrumentation, and BSL3 and animal BSL3 space. The primary appointment of the faculty member will be in the Department of Microbiology and Immunology. Successful applicants will be expected to establish an extramurally funded research program and to participate in teaching and mentoring activities in the Department. Applicants must have a Ph.D. and/or M.D., postdoctoral research experience, and a strong record of research accomplishments. Applicants at the Associate Professor level must have an established and NIH-funded research program and demonstrated ability to mentor and teach Ph.D. graduate students. Teaching responsibilities may include molecular virology or viral immunology and pathogenesis. We seek applicants studying all aspects of virology, including but not limited to candidates employing innovative experimental and computational approaches to investigate host-pathogen interactions, antiviral immunity, virus structure and assembly, viral pathogenesis, emerging and re-emerging viruses, and therapeutic development. To learn more about the Department of Microbiology and Immunology, please visit https://medicine.uiowa.edu/microbiology/. The Department consists of 27 primary and 8 secondary faculty members with robust research programs, substantial extramural funding and two long-standing NIH T32 training grants in Virology and Parasitism. The University is in Iowa City, one of the ten best college towns in America. With a metro population over 170,000, the area offers a vibrant mix of academic excellence, cultural richness, and a thriving literary scene as a UNESCO City of Literature. With a lively downtown, restaurants, and scenic outdoor spaces along the Iowa River, it’s the perfect place to balance work, study, and leisure. Affordable living, a welcoming community, and a strong economy make Iowa City an ideal destination for students, professionals, and families alike! In addition, the university is less than 250 miles from the major metropolitan areas of Chicago, Omaha, and St. Louis. To apply for this position, please visit https://jobs.uiowa.edu/faculty/view/75955, where you will be asked to submit a curriculum vitae, letter of interest, a 2-3-page statement of research interests, and a 1-page teaching statement. For selected candidates, we will request that three letters of recommendation be sent to Search Committee #75955 at microbiology-hr@uiowa.edu. Review of applications will begin in late-July 2026 and will continue until the position is filled. Anticipated start date is flexible. Questions about the position or the department should be directed to Search Committee #75955 at microbiology-hr@uiowa.edu Successful candidates will be required to self-disclose any misconduct history or pending research misconduct investigation including but not limited to sexual misconduct in prior employment and provide a related release and will be subject to a criminal background and credential check. The University of Iowa is an equal opportunity employer. All qualified applicants are encouraged to apply and will receive consideration for employment free from discrimination on the basis of race, creed, color, religion, national origin, age, sex, pregnancy (including childbirth and related conditions), disability, genetic information, status as a U.S. veteran, service in the U.S. military, sexual orientation, or associational preferences. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "7b109363aaf9",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:840badef7a6b",
@@ -1934,11 +1771,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/679032/postdoctoral-associate-cancer-epidemiology/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate - cancer epidemiology - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 View more categoriesView less categories - Discipline - Life Sciences, Cancer Research - Position Type - Full Time - Job Type - Other - Organization Type - Academia Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary The Section of Epidemiology and Population Sciences at Baylor College of Medicine invites applications for a Postdoctoral Associate position for our Cancer Epidemiology with Real-World Data (RWD) Training Program. The Training Program provides epidemiology and bioinformatics Postdoctoral Associates with training in how to combine traditional epidemiologic research methods with RWD and modern technologies, like artificial intelligence and natural language processing, for impactful cancer research. Exciting opportunities also exist to work with faculty from MD Anderson Cancer Center, Rice University and UTHealth School of Biomedical Informatics. Baylor College of Medicine typically follows similar to the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary The Section of Epidemiology and Population Sciences at Baylor College of Medicine invites applications for a Postdoctoral Associate position for our Cancer Epidemiology with Real-World Data (RWD) Training Program. The Training Program provides epidemiology and bioinformatics Postdoctoral Associates with training in how to combine traditional epidemiologic research methods with RWD and modern technologies, like artificial intelligence and natural language processing, for impactful cancer research. Exciting opportunities also exist to work with faculty from MD Anderson Cancer Center, Rice University and UTHealth School of Biomedical Informatics. Baylor College of Medicine typically follows similar to the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties - Analyzes large data sets. - Analyzes next generation sequencing data (e.g., RNA-seq, whole genome/ exome sequencing) to address complex biological and translational research questions. - Uses state-of-the-art bioinformatical and statistical tools. - Develops new statistical methods to answer biological questions that arise in the research. - Prepares manuscripts, abstracts, and presentations for peer-reviewed journals and scientific conferences. - Ensures compliance with institutional, sponsor and data security guidelines for handling sensitive genomic and clinical data. - Conducts advanced analysis of large-scale biomedical and population health datasets to support ongoing research within the section. - Collaborates with multidisciplinary teams that includes faculty investigators, statisticians, clinicians, and trainees, in a highly team-oriented research environment. - Participates in the Section's sponsored training program by contributing to collaborative projects, mentoring trainees, and engaging in programmatic activities such as seminars, workshops, and collaborative research initiatives. - Develops methodologies and tools for use in the electronic medical records that will strengthen the Learn Health System and improve patient outcomes. - Performs other job-related duties as assigned. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - Ph.D. in Epidemiology or Bioinformatics or related field. - Prior experience in analysis with real-world data, high-dimensional data, causal inference, and/or machine learning /artificial intelligence in a plus. - Knowledge in cancer biology or genetics is desired. - Excellent writing skills in English. - Ability to work in a team environment. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "840badef7a6b",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:3ba709e3dd6d",
@@ -1958,11 +1795,11 @@
       "department": "",
       "location": "Bar Harbor, Maine (US)",
       "url": "https://jobs.sciencecareers.org/job/678993/assistant-associate-and-full-professor-positions/",
-      "description_text": "",
+      "description_text": "Assistant, Associate, and Full Professor positions - Employer - Mount Desert Island Biological Laboratory - Location - Bar Harbor, Maine (US) - Salary - Junior faculty $110k-$130k; Senior faculty $140k-$180k - Closing date - Aug 26, 2026 View more categoriesView less categories - Discipline - Life Sciences, Biomedical Sciences - Position Type - Full Time - Job Type - Faculty - Organization Type - Non-Profit Job Details The Mount Desert Island Biological Laboratory (MDI Bio Lab) in Bar Harbor, ME, invites applications for Assistant, Associate, and Full Professor positions in the Kathryn W. Davis Center for Regenerative Biology and Aging. Established 125 years ago, MDI Bio Lab is a renowned research institution located on the coast of Maine, adjacent to Acadia National Park, and in proximity to the Jackson Laboratory. Our vibrant community comprises ten year-round research labs and collaborating visiting summer scientists that utilize Drosophila, C. elegans, axolotl, zebrafish, and aging. MDI Bio Lab faculty members benefit from state-of-the-art core facilities in bioinformatics, microscopy, and animal models in addition to grant-writing and administrative support. The microscopy core is among the best in the northeast region. Candidates utilizing non-mammalian organisms to address fundamental biological questions in the areas of stem cell and tissue regeneration, germline development, ribonucleoprotein (RNP) assemblies, and aging are particularly suited for this position. Candidates utilizing computational, data science and artificial intelligence approaches to biological problems are also encouraged to apply. Successful candidates will be expected to develop and maintain an independent and externally funded research program, mentor Ph.D. students and postdoctoral fellows, teach laboratory-based undergraduate short courses, participate in summer student research programs, foster visiting scientist collaborations, and engage in service activities within MDI Bio Lab and the broader scientific community. Candidates for senior faculty with experience in Center grant management and direction are well-suited for this position. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "3ba709e3dd6d",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:f9739513eee1",
@@ -1982,11 +1819,11 @@
       "department": "",
       "location": "Tucson, Arizona",
       "url": "https://jobs.sciencecareers.org/job/678984/assistant-associate-or-full-professor-immunobiology-t-te-/",
-      "description_text": "",
+      "description_text": "Assistant, Associate or Full Professor - Immunobiology (T/TE) - Employer - University of Arizona - Location - Tucson, Arizona - Salary - DOE - Closing date - Aug 25, 2026 View more categoriesView less categories - Discipline - Life Sciences, Cancer Research - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details The Departments of Immunobiology and Dermatology invite applications for a jointly appointed tenure-track faculty position at the rank of Assistant, Associate, or Full Professor. The successful applicant will also be an associate member of the University of Arizona Comprehensive Cancer Center. Academic rank, start-up package, and compensation, which includes a generous fringe benefits package are dependent upon qualifications. We are particularly interested in candidates who have research experience in innate and adaptive immunology applicable to a broad range of cutaneous biology. Applicants with an interest in skin cancer are strongly encouraged to apply. The Department of Immunobiology is home to a diverse group of scientists, educators, and trainees dedicated to understanding how immune and microbial processes influence health and disease. Faculty research spans from fundamental basic research to translational applications, with strengths in immune processes as well as host-microbial and immune-cancer interactions. The department has strong connections across campus and the state, creating opportunities for collaboration with the Cancer Center, BIO5 Institute, Valley Fever Center, and programs in precision health, Indigenous health, and environmental sciences. With robust graduate and medical educational programs and participation in undergraduate programs, the department is committed to training the next generation of scientists, physicians, and leaders in the life sciences The Department of Dermatology is growing rapidly following its recent transition from a Division to a Department. This change reflects an institutional commitment to expanding dermatologic science, education, and innovation. With 10 core faculty and 9 residents, the department integrates clinical excellence with emerging research strengths in inflammatory skin diseases, cutaneous oncology, and translational imaging, supported by established community and institutional partnerships. This positions the department to accelerate its scientific contributions through multidisciplinary collaboration and to advance discovery in skin-immune interactions and skin cancer biology. Founded in 1976, the University of Arizona Cancer Center (UACC) is one of just 57 NCI-Designed Comprehensive Cancer Centers; a distinction that places it among the celebrated top tier of cancer centers across the country. Entering an exciting new era of strategic growth and active transformation under the helm of Dan Theodorescu, MD, PhD, the UACC is poised for unparalleled success across all its missions. The University of Arizona Skin Cancer Institute (SCI) is a national leader in skin cancer research, bringing together innovative science, clinical care, and community engagement to advance prevention, early detection, and treatment. A central strength of SCI is its Patient Registry, Imaging Database, and Tissue Bank (PRIT), an integrated resource that links detailed clinical and demographic data with high-resolution dermatologic imaging and well-annotated biospecimens. This comprehensive skin cancer data ecosystem enables investigators to connect patient characteristics directly to tissue- and image-based analyses, accelerating both basic discovery and translational research. SCI investigators are embedded within the UACC, collaborating across disciplines to develop and test new diagnostic technologies, biomarkers, and preventive or therapeutic strategies. This unique infrastructure enables research that spans from mechanistic laboratory science to prospective clinical studies and real-world patient outcomes, providing an exceptional platform for innovation and career development in skin cancer research. The University of Arizona College of Medicine-Tucson anchors the University of Arizona Health Sciences campus. The College inspires and trains individuals to become exemplary physicians, scientists, and leaders who are life-long learners and inquisitive scholars. We embrace professionalism, innovation, and collaboration to optimize health and health care for all. The University of Arizona Health Sciences embodies the University’s priorities of engagement, partnership, innovation, and synergy in its world-class academic and research initiatives, with clinical facilities throughout Greater Tucson and across the State. The campus also houses the UA Colleges of Public Health, Engineering, Science, Pharmacy, and Nursing, as well as multiple Centers of Excellence. Duties & Responsibilities - Develop and/or maintain an extramurally-funded research program focused on the immunological basis of skin immunology and skin related pathologies including cancer. - Produce impactful peer-reviewed research publications. - Provide instruction in professional, graduate, and undergraduate degree programs, as assigned. - Lead or contribute to \"team science\" based interdisciplinary research grants/projects. - Train emerging biomedical researchers at various levels. Knowledge, Skills & Abilities - Demonstrated commitment to collaborative research with colleagues across disciplines and specialties. Minimum Qualifications - PhD or equivalent doctoral degree in a relevant biomedical field. - Demonstrated track record of distinction in research in an academic department of medicine or equivalent environment. - Successful track record of working with trainees and students. - Accomplished history of impactful publications and federal funding, commensurate with career stage. - Faculty appointment within The University of Arizona College of Medicine-Tucson is required for this position. Candidates who do not currently hold such an appointment must successfully complete the College of Medicine faculty review process, including submission of required documentation and committee approval, in accordance with institutional policies. Preferred Qualifications - Research Interest in barrier immunology and its intersection with skin cancer - Experience in the development and successful implementation of new academic (educational and research) programs and services. - Evidence of a continuous, independent NIH- or other federally funded sponsored research portfolio in line with academic rank. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "f9739513eee1",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:9fd6621ae767",
@@ -2006,11 +1843,11 @@
       "department": "",
       "location": "Tucson, Arizona",
       "url": "https://jobs.sciencecareers.org/job/678983/physician-scientist-assistant-associate-professor-full-professor-dermatology-t-te-/",
-      "description_text": "",
+      "description_text": "Physician-Scientist, Assistant/Associate Professor/Full Professor, Dermatology (T/TE) - Employer - University of Arizona - Location - Tucson, Arizona - Salary - DOE - Closing date - Aug 25, 2026 View more categoriesView less categories - Discipline - Life Sciences, Cancer Research - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details The Departments of Dermatology and Immunobiology invite applications for a jointly appointed tenure-track physician-scientist faculty position at the rank of Assistant, Associate, or Full Professor. The successful applicant will also be an associate member of the University of Arizona Comprehensive Cancer Center. Academic rank, start-up package, and compensation, which includes a generous fringe benefits package are dependent upon qualifications. We are particularly interested in candidates who have research experience in innate and adaptive immunology applicable to a broad range of cutaneous biology. Applicants with an interest in skin cancer are strongly encouraged to apply. The Department of Dermatology is growing rapidly following its recent transition from Division to Department status. This change reflects an institutional commitment to expanding dermatologic science, education, and innovation. With 10 core faculty and 9 residents, the department integrates clinical excellence with emerging research strengths in inflammatory skin diseases, cutaneous oncology, and translational imaging, supported by established community and institutional partnerships. This positions the department to accelerate its scientific contributions through multidisciplinary collaboration and to advance discovery in skin-immune interactions and skin cancer biology. The Department of Immunobiology is home to a diverse group of scientists, educators, and trainees dedicated to understanding how immune and microbial processes influence health and disease. Faculty research spans from fundamental basic research to translational applications, with strengths in immune processes as well as host-microbial and immune-cancer interactions. The department has strong connections across campus and the state, creating opportunities for collaboration with the Cancer Center, BIO5 Institute, Valley Fever Center, and programs in precision health, Indigenous health, and environmental sciences. With robust graduate and medical educational programs and participation in undergraduate programs, the department is committed to training the next generation of scientists, physicians, and leaders in the life sciences. Founded in 1976, the University of Arizona Cancer Center (UACC) is one of just 57 NCI-Designed Comprehensive Cancer Centers; a distinction that places it among the celebrated top tier of cancer centers across the country. Entering an exciting new era of strategic growth and active transformation under the helm of Dan Theodorescu, MD, PhD, the UACC is poised for unparalleled success across all its missions. The University of Arizona Skin Cancer Institute (SCI) is a national leader in skin cancer research, bringing together innovative science, clinical care, and community engagement to advance prevention, early detection, and treatment. A central strength of SCI is its Patient Registry, Imaging Database, and Tissue Bank (PRIT), an integrated resource that links detailed clinical and demographic data with high-resolution dermatologic imaging and well-annotated biospecimens. This comprehensive skin cancer data ecosystem enables investigators to connect patient characteristics directly to tissue- and image-based analyses, accelerating both basic discovery and translational research. SCI investigators are embedded within the UACC, collaborating across disciplines to develop and test new diagnostic technologies, biomarkers, and preventive or therapeutic strategies. This unique infrastructure enables research that spans from mechanistic laboratory science to prospective clinical studies and real-world patient outcomes, providing an exceptional platform for innovation and career development in skin cancer research. The University of Arizona College of Medicine-Tucson anchors the University of Arizona Health Sciences campus. The College inspires and trains individuals to become exemplary physicians, scientists, and leaders who are life-long learners and inquisitive scholars. We embrace professionalism, innovation, and collaboration to optimize health and health care for all. The University of Arizona Health Sciences embodies the University’s priorities of engagement, partnership, innovation, and synergy in its world-class academic and research initiatives, with clinical facilities throughout Greater Tucson. The campus also houses the UA Colleges of Public Health, Engineering, Science, Pharmacy, and Nursing, as well as multiple Centers of Excellence. Outstanding UA benefits include health, dental, and vision insurance plans; life insurance and disability programs; paid vacation, sick leave, and holidays; UA/ASU/NAU tuition reduction for the employee and qualified family members; retirement plans; access to UA recreation and cultural activities; and more! Duties & Responsibilities - Provide dermatological clinical services. - Develop and/or maintain an extramurally-funded research program focused on the immunological basis of skin immunology and skin related pathologies including cancer. - Produce impactful peer-reviewed research publications. - Provide instruction in professional, graduate, and undergraduate degree programs, as assigned. - Lead or contribute to \"team science\" based interdisciplinary research grants/projects. - Train emerging biomedical researchers at various levels. Knowledge, Skills, and Abilities - Demonstrated commitment to patient care, reflecting a service-oriented, team-based philosophy with hospital administration and health professional colleagues across disciplines and specialties. Minimum Qualifications - MD or MD/PHD, or equivalent doctoral degree in a relevant field. - Board certified by the American Board of Internal Medicine/Medical Subspecialties and eligible for unrestricted medical licensure in the State of Arizona. - Demonstrated track record of distinction in research in an academic department of medicine or equivalent environment. - Successful track record of working with trainees and students. - Accomplished history of impactful publications and federal funding, commensurate with career stage. - Faculty appointment within The University of Arizona College of Medicine-Tucson is required for this position. Candidates who do not currently hold such an appointment must successfully complete the College of Medicine faculty review process, including submission of required documentation and committee approval, in accordance with institutional policies. Preferred Qualifications - Research Interest in barrier immunology and its intersection with skin cancer. - Experience in the development and successful implementation of new academic (educational, patient care, research) programs and services. - Evidence of a continuous, independent NIH- or other federally funded sponsored research portfolio in line with academic rank. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "9fd6621ae767",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:da28b80b56c4",
@@ -2030,11 +1867,11 @@
       "department": "",
       "location": "Columbia, Missouri",
       "url": "https://jobs.sciencecareers.org/job/678965/senior-scientist/",
-      "description_text": "",
+      "description_text": "Senior Scientist - Employer - University of Missouri-Columbia . - Location - Columbia, Missouri - Salary - $72,000.00 - $110,000.00 per year - Closing date - Jul 24, 2026 View more categoriesView less categories - Discipline - Life Sciences, Immunology, Microbiology, Veterinary Medicine, Virology, Biomedical Engineering - Position Type - Full Time - Job Type - Manager, Project Manager, Research Scientist, Senior Scientist, Staff Scientist - Organization Type - Academia Job Details Senior Research Scientist Influenza Transmission and Animal Models The Wan Influenza Systems Biology Laboratory at the University of Missouri is seeking highly motivated Research Scientists or Senior Research Scientists to join a rapidly expanding interdisciplinary research program focused on influenza viruses, airborne transmission biology, animal models, and vaccinology. The laboratory integrates experimental, computational, engineering, and translational approaches to study influenza viruses and related respiratory pathogens, with goals of understanding transmission dynamics, improving vaccines and therapeutic strategies, and advancing epidemic and pandemic preparedness, using both human studies and animal models. Major research areas include influenza transmission biology, host-pathogen interactions, pathogenesis, vaccine development and evaluation, host immune responses, and high-throughput experimental and laboratory automation platforms. The successful candidate will play a leading role in infectious disease research programs involving pig and ferret animal models, airborne transmission studies, influenza vaccine evaluation, virology, immunology, and interdisciplinary collaborative research initiatives. Candidates with expertise in influenza virology, respiratory viruses, airborne or aerosol transmission research, animal infection models, vaccinology, immunology, or related areas are strongly encouraged to apply. The Wan Laboratory is affiliated with the Department of Molecular Microbiology and Immunology, School of Medicine; Department of Electrical Engineering and Computer Science, College of Engineering; and Department of Pathobiology and Integrative Biomedical Sciences, College of Veterinary Medicine at the University of Missouri. The laboratory is also affiliated with the Center for Influenza and Emerging Infectious Diseases (CIEID), Bond Life Sciences Center, and the Institute for Data Science and Informatics. The laboratory has access to extensive state-of-the-art research infrastructure, including newly established ABSL-2 animal transmission research facilities, BSL-3 and ABSL-3 biocontainment facilities, advanced laboratory automation systems, and institutional core facilities supporting genomics, proteomics, metabolomics, imaging, bioinformatics, and computational biology. Responsibilities may include: - Designing and conducting influenza transmission and vaccine studies - Leading and coordinating interdisciplinary influenza research projects - Conducting virology, immunology, and animal model experiments using pig and/or ferret systems - Analyzing and interpreting experimental data - Contributing to manuscripts, grant applications, and collaborative publications - Mentoring students and junior research personnel This position offers opportunities for scientific leadership, interdisciplinary collaboration, and career development within a rapidly expanding influenza research program. Minimum qualifications include a PhD, DVM, MD, or equivalent degree in virology, microbiology, immunology, veterinary sciences, biomedical sciences, or related disciplines. Prior postdoc training is preferred. Prior experience with influenza viruses, pig or ferret models, airborne transmission studies, respiratory viruses, vaccine studies, or infectious disease animal models is strongly preferred. Competitive salary and benefits will be commensurate with experience and qualifications. To apply, please submit application materials through the University of Missouri HR website (Job ID 59277), including: - Cover letter - Curriculum vitae - Brief statement of research interests - Contact information for three professional references Review of applications will begin immediately and continue until the position is filled. For questions regarding the position, please contact cieid@missouri.edu. The University of Missouri is an Equal Opportunity Employer committed to developing a diverse and inclusive academic community. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "da28b80b56c4",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:b065107095d7",
@@ -2054,11 +1891,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/678942/postdoctoral-associate/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary The lab is investigating the pathogenesis of myeloproliferative neoplasms (MPN), a group of chronic leukemias caused by gene mutations that are acquired in hematopoietic stem cells. The Postdoctoral Associate role is to investigate the molecular mechanisms of how Dnmt3a mutations collaborate with JAK2-V617F to accelerate conversion from clonal hematopoiesis to MPN. The lab is also studying how JAK2-V617F mutant stem cells gain resistance to therapeutic agents currently used to treat patients with MPN, such as tyrosine kinase inhibitors and interferon-α. An enthusiastic postdoctoral associate who will work on independent and collaborative projects, and who will contribute to the vibrant and team-oriented laboratory environment. The Postdoctoral Associate is expected to drive and take ownership of their research project, design and perform biological experiments with rigor, be highly organized and communicative, and maintain high work ethics. Recent graduates interested in pursuing an independent academic career are welcome to apply for this position. For more information: https://www.bcm.edu/people-search/ctirad-skoda-174296 Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary The lab is investigating the pathogenesis of myeloproliferative neoplasms (MPN), a group of chronic leukemias caused by gene mutations that are acquired in hematopoietic stem cells. The Postdoctoral Associate role is to investigate the molecular mechanisms of how Dnmt3a mutations collaborate with JAK2-V617F to accelerate conversion from clonal hematopoiesis to MPN. The lab is also studying how JAK2-V617F mutant stem cells gain resistance to therapeutic agents currently used to treat patients with MPN, such as tyrosine kinase inhibitors and interferon-α. An enthusiastic postdoctoral associate who will work on independent and collaborative projects, and who will contribute to the vibrant and team-oriented laboratory environment. The Postdoctoral Associate is expected to drive and take ownership of their research project, design and perform biological experiments with rigor, be highly organized and communicative, and maintain high work ethics. Recent graduates interested in pursuing an independent academic career are welcome to apply for this position. For more information: https://www.bcm.edu/people-search/ctirad-skoda-174296 Job Duties - Designs, optimizes, and executes research experiments to answer questions related to research projects. - Works on experimental design. - Analyzes data and results. - Conducts data interpretation independently (with guidance from the PI or other lab members). - Works collaboratively with other lab members, senior researchers, and faculty members at the departmental or inter-institutional levels. - Manages time and multiple projects efficiently while prioritizing deadlines and projects. - Assists PI in training and mentoring research staff and undergraduate and graduate students as appropriate. - Communicates their findings with other scientists at local, national, and international scientific conferences. - Presents and prepares data into figures. - Assists in written project updates and oral presentations that includes lab meetings, journal clubs to support manuscript writing for publication and grant proposals. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - MD or Ph.D. in Molecular Biology, Cell Biology, Biochemistry, or Immunology. - Strong background in molecular biology, cellular biology, biochemistry, or cancer biology is desirable. - Prior research experience in hematopoiesis and hematologic malignancies is desirable. - Previous experience with CRISPR technology and/or CRISPR screens will be considered as an advantage. - Be willing to work with mice and/or be comfortable at mouse handling. - Good interpersonal and communication skills. - Experience in presenting at national or international meetings. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "b065107095d7",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:be81508e8fea",
@@ -2078,11 +1915,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/678932/postdoctoral-associate-immunotherapy-of-hematologic-malignancies/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate - Immunotherapy of hematologic malignancies - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary A newly funded postdoctoral position is available in Dr. Luznik's lab in the Department of Medicine at Baylor College of Medicine for highly motivated individuals interested in immunotherapy of hematologic malignancies. Central to this laboratory’s mission is an in-depth exploration of the basic mechanisms of immune response with a focus on direct clinical application. The long-term goal for the Postdoctoral Associate position is to generate several high-impact manuscripts and competitively apply for extramural funding toward an independent research career. The position can be tailored for physician-scientists with an interest in immunotherapy of leukemias. All the research work is published in leading journals, and the lab is a part of a large and vibrant cancer immunology and immunotherapy research community at Baylor College of Medicine. Baylor College of Medicine typically follows similar to the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary A newly funded postdoctoral position is available in Dr. Luznik's lab in the Department of Medicine at Baylor College of Medicine for highly motivated individuals interested in immunotherapy of hematologic malignancies. Central to this laboratory’s mission is an in-depth exploration of the basic mechanisms of immune response with a focus on direct clinical application. The long-term goal for the Postdoctoral Associate position is to generate several high-impact manuscripts and competitively apply for extramural funding toward an independent research career. The position can be tailored for physician-scientists with an interest in immunotherapy of leukemias. All the research work is published in leading journals, and the lab is a part of a large and vibrant cancer immunology and immunotherapy research community at Baylor College of Medicine. Baylor College of Medicine typically follows similar to the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties - Designs and executes advanced immunological research experiments focused on understanding T-cell dysfunction and immune evasion mechanisms in hematologic malignancies, using both human samples and animal models. - Applies high-dimensional data analysis techniques, including single-cell RNA sequencing (scRNA-seq), multicolor flow cytometry, and systems biology approaches, to uncover novel immune cell states and therapeutic targets. - Develops and optimizes experimental protocols for cellular immunology, including trajectory inference and dimensionality reduction methods such as tSNE and UMAP, tailored to translational immunotherapy applications. - Analyzes and interprets complex datasets using bioinformatics tools (e.g., Seurat, Scanpy) and programming languages such as R or Python, contributing to mechanistic insights and clinical relevance. - Establishes and refines research protocols that integrate molecular biology and computational pipelines to support reproducibility and scalability of immunological assays. - Summarizes research findings in high-impact manuscripts and contributes to grant applications, with the goal of securing extramural funding and advancing toward an independent research career. - Manages laboratory operations that includes oversight of data integrity, compliance with institutional protocols, and coordination of collaborative projects within Baylor’s cancer immunology community. - Uses human samples and animal models, and utilizes systems biology to explore the mechanism of T-cell dysfunction and immune evasion in leukemia. - Mentors junior research staff and trainees. - Fosters a collaborative and intellectually rigorous environment that supports career development and scientific excellence. - Performs other job-related duties as assigned. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - Experience in techniques of cellular immunology, multicolor flow cytometry, molecular biology, bioinformatics, and advanced data analysis. - Experience with single-cell transcriptomic analysis will be given high priority. - Strong interests in both mechanistic and translational aspects of work. - Ability to work independently and in a collaborative environment. - Enthusiasm for science, effective communication skills, self-motivation, and a record of publication. - Be a good team player is important. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "be81508e8fea",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:d0f26713c6d9",
@@ -2100,7 +1937,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "d0f26713c6d9",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:effeabb7ce49",
@@ -2118,31 +1955,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "effeabb7ce49",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
-    },
-    {
-      "id": "agg:science-careers:fd960583e261",
-      "employer_id": "agg:medical-college-of-wisconsin",
-      "employer_name": "Medical College of Wisconsin",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "239169",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 142,
-        "dol_certified_3y": 10
-      },
-      "cap_exempt_score": 65,
-      "title": "Cancer Biology Research Program Co-Leader",
-      "department": "",
-      "location": "Milwaukee, Wisconsin",
-      "url": "https://jobs.sciencecareers.org/job/677819/cancer-biology-research-program-co-leader/",
-      "description_text": "",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "fd960583e261",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:de83c093efe1",
@@ -2162,11 +1975,11 @@
       "department": "",
       "location": "Morgantown, West Virginia (US)",
       "url": "https://jobs.sciencecareers.org/job/677777/assistant-professor/",
-      "description_text": "",
+      "description_text": "Assistant Professor - Employer - West Virginia University - Location - Morgantown, West Virginia (US) - Salary - 109,253 - Closing date - Jul 28, 2026 View more categoriesView less categories - Discipline - Life Sciences, Biochemistry - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details Assistant Professor (tenure-track) faculty position(s) Department of Biochemistry and Molecular Medicine West Virginia University School of Medicine, Morgantown, WV The West Virginia University Department of Biochemistry and Molecular Medicine seeks to fill two tenure-track positions at the Assistant Professor rank. Candidates with innovative research programs focused on fundamental mechanisms underlying human disease are particularly sought. The Department of Biochemistry and Molecular Medicine offers a collaborative, multifaceted academic environment with active research in Sensory and Vision Science; Structural, Cell, and RNA Biology; Cellular Metabolism; and Age-Related Diseases. Faculty benefit from substantial institutional salary support and a highly regarded mentoring program designed to advance the careers of junior faculty. Further, successful candidates may be eligible to participate in an NIH-funded, mentored career development program at WVU and may apply for funding from the Visual Sciences Center of Biomedical Research Excellence (https://medicine.wvu.edu/biochemistry/visual-sciences-center-of-biomedical-research-excellence/). The Department of Biochemistry and Molecular Medicine is part of the Robert C. Byrd Health Sciences Center, which incorporates the WVU Schools of Medicine, Pharmacy, Dentistry, Nursing, and Public Health. Research at the Health Sciences Center is supported by state-of-the-art core facilities at HSC and throughout the WVU campus. West Virginia University is a comprehensive, R1-designated, land-grant University with 190 undergraduate, graduate, and professional programs and approximately 24,000 students. Morgantown is situated in the mountains of northern West Virginia, with proximity to Pittsburgh, PA, and Washington, DC. It is a vibrant college town, offering a safe, family-friendly environment, excellent schools, an affordable cost of living, and outdoor recreation. Morgantown is consistently rated as one of the best small cities in the US. Qualifications The successful candidate will develop and maintain an extramurally funded research program and participate in departmental teaching at the undergraduate, graduate, or professional levels. Minimum qualifications are a terminal degree in biomedical or related fields, at least one year of postdoctoral experience in a related field, and high-quality publications. A candidate with a PhD in another field will be considered, provided they have 2 years of postdoctoral training in the biomedical or biological sciences and have demonstrated successful contributions to biomedical research. Interested candidates should apply online at: https://wvu.taleo.net/careersection/faculty/jobdetail.ftl?job=29386 Applicants should submit a single PDF file containing: 1) a cover letter; 2) a CV; 3) current research accomplishments; 4) future research plans; and 5) contact information for three references. Review of applications will begin immediately and continue until the positions are filled. West Virginia University is a place of purpose and community. We take pride in our profound impact on the state of West Virginia and are committed to the personal and professional growth of our employees. From the groundbreaking R1 research at our flagship campus in Morgantown to the career-oriented programs at WVU Potomac State in Keyser and the technology-intensive programs at WVU Tech in Beckley, the contributions of WVU employees resonate across the state, touching lives and shaping futures. At WVU, you will discover a supportive community that champions work-life balance and fosters a collaborative atmosphere. Our core values — service, curiosity, respect, accountability, and appreciation — unite us as Mountaineers. Join us at West Virginia University, where your work will make a lasting impact. To learn more about WVU, visit wvu.edu. West Virginia University is an Equal Opportunity Employer. We invite all qualified applicants regardless of race, color, religion, sex, national origin, age, disability, genetic information, or Veteran status. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "de83c093efe1",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:f10d350e2e72",
@@ -2186,11 +1999,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/677740/postdoctoral-associate-brain-cancer-epigenomics/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate - Brain Cancer Epigenomics - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 View more categoriesView less categories - Discipline - Life Sciences, Cancer Research - Position Type - Full Time - Job Type - Other - Organization Type - Academia Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary The Postdoctoral Associate will perform independent research on pediatric brain tumors in the Gallo lab. The Postdoctoral Associate will have experience with bioinformatics and computational biology and will be able to guide and supervise the work of other staff and trainees in the lab. Postdoctoral Associate must have a solid knowledge of the biological principles driving brain tumors, and proven experience with implementation of bioinformatics (single-cell genomics, epigenomic platforms, mutation analyses). Baylor College of Medicine typically follows similar to the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary The Postdoctoral Associate will perform independent research on pediatric brain tumors in the Gallo lab. The Postdoctoral Associate will have experience with bioinformatics and computational biology and will be able to guide and supervise the work of other staff and trainees in the lab. Postdoctoral Associate must have a solid knowledge of the biological principles driving brain tumors, and proven experience with implementation of bioinformatics (single-cell genomics, epigenomic platforms, mutation analyses). Baylor College of Medicine typically follows similar to the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties - Integrates several data types that includes, for instance, single-cell transcriptomic and epigenomic data to generate hypotheses that will be tested functionally, using tumor models. - Discovers a putative important role for a gene. - Follows up with collaborative functional experiments that will test whether removing/turning off that gene has any effects on behavior and phenotypes of cancer models. - Supervises daily activities by trainees (graduate students, other postdoctoral fellows) and staff (lab technicians). - Performs other job-related duties as assigned. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - PhD in informatics-related fields and/or biological sciences. - Post doctoral Associate less than 5 year from date of Ph.D. conferral date. - Experience with implementation of bioinformatics (single-cell genomics, epigenomic platforms, mutation analyses). - Has solid knowledge of the principles driving brain tumors biology. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "f10d350e2e72",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:ac92489dddd3",
@@ -2210,11 +2023,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/677730/postdoctoral-associate-metabolism/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate - Metabolism - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary The Department of Pediatrics at Baylor College of Medicine is seeking a Postdoctoral Associate to join an interdisciplinary research team investigating how the brain acquires, metabolizes, and distributes lipids, and how imbalances in lipid homeostasis contribute to neurodegenerative diseases and pediatric brain tumors. The laboratory integrates chemical biology, analytical chemistry, mass spectrometry-based omics, advanced imaging, and in vivo models to define the fundamental mechanisms governing brain lipid metabolism. Baylor College of Medicine typically follows similar to the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary The Department of Pediatrics at Baylor College of Medicine is seeking a Postdoctoral Associate to join an interdisciplinary research team investigating how the brain acquires, metabolizes, and distributes lipids, and how imbalances in lipid homeostasis contribute to neurodegenerative diseases and pediatric brain tumors. The laboratory integrates chemical biology, analytical chemistry, mass spectrometry-based omics, advanced imaging, and in vivo models to define the fundamental mechanisms governing brain lipid metabolism. Baylor College of Medicine typically follows similar to the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties - Plans, directs, and conducts specialized and advanced research experiments. - Evaluates, analyzes and presents data. - Establishes new research protocols and procedures. - Summarizes research findings and publishes results in research journals. - Supervises and trains research staff and students. - Performs other job-duties as assigned. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - Ph.D. in Neuroscience, Biochemistry, Cell & Molecular Biology or related field. - Post doctoral Associate less than 2 year from date of Ph.D. conferral date. - Experience in CRISPR based functional genomics, iPSC derived organoids, and murine models. - Experience in molecular biology, CRISPR based cellular models, long-read sequencing, confocal microscopy. - Experience in mass spectrometry, chemical proteomics or lipidomics, sample preparation and data processing. - Strong interest and background in metabolism, neurobiology, or cancer biology. - Be self-motivated and collaborative and has strong organizational skills. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ac92489dddd3",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:a2b28282eb86",
@@ -2234,11 +2047,11 @@
       "department": "",
       "location": "Houston, Texas (US)",
       "url": "https://jobs.sciencecareers.org/job/677704/postdoctoral-fellow-junjie-chen-lab/",
-      "description_text": "",
+      "description_text": "Postdoctoral Fellow - Junjie Chen Lab - Employer - University of Texas MD Anderson Cancer Center - Location - Houston, Texas (US) - Salary - $64,000 annual + benefits (adjustment for more senior candidates) - Closing date - Jul 21, 2026 View more categoriesView less categories - Discipline - Life Sciences, Cancer Research - Position Type - Full Time - Job Type - Postdoc Fellowship - Organization Type - Academia Job Details Postdoctoral Position Available Postdoctoral positions are available immediately to work in the areas of DNA damage repair and cancer biology. The lab focuses on the roles of tumor suppressor genes and oncogenes in DNA repair, cell cycle regulation, and other signaling pathways involved in tumor initiation, progression and metastasis. The approaches we take range from mammalian cell culture, molecular biology, biochemistry to mouse genetics. We also conduct large-scale proteomic studies and whole genome CRISPR sgRNA in vitro and in vivo screens to explore various cancer related signal transduction pathways. We seek applicants who are self-motivated and career-oriented to join an exciting and highly interactive research team. We have track record of training the best and the brightest postdoctoral fellows who have become exceptional independent group leaders in United States and other countries. The research environment at MD Anderson is outstanding and nurturing, especially for applicants who are interested in cancer biology and translational collaborations. MD Anderson Cancer Center is an equal opportunity/affirmative action employer. Highly motivated and energetic applicants are encouraged to contact me by e-mail at jchen8@mdanderson.org or letter to: Dr. Junjie Chen Professor and Chair Department of Experimental Radiation Oncology The University of Texas M. D. Anderson Cancer Center 1515 Holcombe Boulevard, Unit 1052 Houston, Texas 77030 Company The University of Texas MD Anderson Cancer Center in Houston is one of the world's most respected centers focused on cancer patient care, research, education and prevention. It was named the nation's No. 1 hospital for cancer care in U.S. News & World Report's 2023 rankings. It is one of the nation's original three comprehensive cancer centers designated by the National Cancer Institute. Apply for Postdoctoral Fellow - Junjie Chen Lab Already uploaded your CV? Sign in to apply instantly Fields marked with an asterisk (*) are required Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "a2b28282eb86",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:ecd464b5aa45",
@@ -2258,11 +2071,11 @@
       "department": "",
       "location": "Washington D.C.",
       "url": "https://jobs.sciencecareers.org/job/677691/chief-executive-officer-/",
-      "description_text": "",
+      "description_text": "Chief Executive Officer - Employer - American Astronomical Society - Location - Washington D.C. - Salary - $400,000- $450,000. Based on the candidates skill's, experience, and qualifications. - Closing date - Jul 19, 2026 View more categoriesView less categories - Discipline - Physical Sciences, Astronomy/Astrophysics - Position Type - Full Time - Job Type - President/CEO/Director/VP - Organization Type - Non-Profit Job Details Founded in 1899, the American Astronomical Society (AAS) is the leading professional organization for astronomers and astrophysicists in North America, dedicated to advancing the discovery and understanding of the universe. With a membership of roughly 9,000 individuals, the Society brings together researchers, educators, students, science professionals, and amateur enthusiasts from across astronomy, astrophysics, planetary science, and closely related disciplines, as well as colleagues in fields such as physics, mathematics, geology, and engineering. Central to the AAS mission is supporting the professional lives of astronomers at every career stage. The Society organizes a well-defined annual cycle of scientific meetings and conferences that serves as the primary convening platforms for the field. This includes both a winter meeting, held annually and representing the largest gathering of astronomers worldwide, as well as a summer meeting that offers a more focused forum featuring lengthy oral sessions on specific topics. Together with a robust series of topical conferences organized in partnership with the Society’s scientific divisions, these meetings provide essential opportunities for sharing new research, building collaborations, and engaging in dialogue around emerging challenges and opportunities facing the astronomical sciences. Complementing this convening role, AAS provides a broader suite of professional and workforce support services, including the AAS Job Register, professional skills workshops, and targeted programming designed to support career development across academic, industry, and nonacademic pathways. The AAS also publishes many of the field’s most influential peer-reviewed journals and community resources, including The Astronomical Journal, The Astrophysical Journal, The Astrophysical Journal Letters, The Astrophysical Journal Supplement Series, The Planetary Science Journal, and Research Notes of the AAS, and has transitioned its journals program to a fully open-access model with support mechanisms to promote equitable participation in scholarly publishing. Separately, the AAS owns and publishes Sky & Telescope, a flagship magazine serving amateur astronomers and astronomy enthusiasts worldwide. Additionally, as the field’s principal advocate to the federal government, the AAS maintains a sustained and influential public policy program. The AAS engages Congress and federal agencies on issues affecting astronomical research, education, and the scientific workforce, with a particular focus on research funding, science policy, and the responsible use and protection of the space environment. Through direct advocacy, congressional briefings, coalition partnerships, and structured opportunities for member participation, the Society aims to amplify the voice of the astronomical community and helps shape policy decisions critical to the long-term vitality of the field. In parallel, the AAS connects members and partners to education and public engagement efforts, serving as a conduit for coordinated community action that advances teaching and scientific literacy, broadens participation in astronomy and astrophysics, and strengthens connections between research and the public. Together, these activities position the AAS as the central institution shaping the scientific, professional, and policy landscape of the astronomical sciences. Deeply member-oriented by design, the Society’s work is guided by a significant volunteer structure, including elected leaders, divisions, committees, and working groups, which reflect the breadth of the community and extend the AAS’s reach well beyond its staff. Through its convenings, publications, career resources, and advocacy, the AAS seeks to influence the culture of astronomy, domestically and internationally, ensuring the field is well-positioned to address future challenges. FINANCIAL AND OPERATIONAL HIGHLIGHTS As a nonprofit, nonpartisan scientific society, the American Astronomical Society (AAS) is headquartered in Washington, DC with an office in Cambridge, MA. The Society is supported by a professional staff of forty-six employees. In 2025, the AAS reported overall revenues of approximately $23.4M, with an annual operating budget of $20.5M. The organization is governed by a volunteer Board of Trustees and the Strategic Assembly, a leadership body responsible for setting the Society’s long-term strategy. The Board of Trustees is led by President Dr. Dara Norman and President-Elect, Dr. Marcel Agüeros. Amid a period of rapid change across the scientific and research enterprise, the AAS seeks a strategic,mission-driven Chief Executive Officer (CEO) to serve as an inspiring advocate for the discipline, the Society, and its members, ensuring that the astronomical field is effectively championed within an increasingly complex research, education, and policy environment. Partnering closely with the Board of Trustees, the CEO will help shape and advance the Society’s vision, develop organizational strategy, and support the public policy structure in a way that strengthens the field while elevating the AAS’s visibility and impact – particularly through its leadership in education and public engagement and its ability to connect these efforts to foster community-wide action. The CEO will supervise, coordinate, and direct the activities, programs, and staff of the AAS—including all financial, administrative, and programmatic operations such as meetings, publications, educational and member services, and partnerships. The CEO will also serve as a key spokesperson to members, policymakers, funders, media, and allied organizations. KEY RELATIONSHIPS Reports to Board of Trustees Direct reports: - Deputy CEO and Director of External Affairs and Public Policy - Chief Financial and Operating Officer - Director of Human Resources and DEI Director of Scholarly Publishing AAS Journals Editor-in-Chief Various other Program Directors Other key relationships Current and prospective members, including AAS Division leadership AAS publishing partner (currently IOP Publishing) Related academic and research institutions Partner scientific societies and related organizations International authors, researchers, and institutional partners Relevant policymakers and government agencies DESIRED OUTCOMES Maintain the Society’s reputation as the leading professional society for astronomy and astrophysics, and as a trusted thought leader advancing scientific discovery, research integrity, education, and professional growth across the astronomical community. Partner with Board leadership and the Strategic Assembly to help guide the Society’s vision and priorities, anticipating and responding to evolving organizational needs and advancing short- and long-term goals. Ensure the AAS continues to have a strong public voice and external presence by advocating effectively for federal science funding, research infrastructure, education, and policies that support astronomy, astrophysics, and related fields. Strengthen and expand the Society’s programs, services, and convenings, including scientific meetings, publications, and career development initiatives, to support astronomers at all career stages and advance excellence in research and education. Advance the Society’s publications enterprise by ensuring effective oversight of AAS publications and its partnership with IOP Publishing. Remain actively engaged with the broader STEM publishing community to stay ahead of evolving trends related to policy and sustai",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ecd464b5aa45",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:471f730eb82e",
@@ -2282,11 +2095,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/677671/postdoctoral-associate-bioinformatics/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate - Bioinformatics - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 View more categoriesView less categories - Discipline - Life Sciences, Bioinformatics - Position Type - Full Time - Job Type - Other - Organization Type - Academia Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary A postdoctoral bioinformatic position is immediately available in the Taylor laboratory to study, plan, direct and conduct specialized and advanced research experiments within the Pediatric Brain Tumor Research Program. This position will be responsible for evaluation and analyzing large sequencing and multiome data-sets. Baylor College of Medicine typically follows similar to the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary A postdoctoral bioinformatic position is immediately available in the Taylor laboratory to study, plan, direct and conduct specialized and advanced research experiments within the Pediatric Brain Tumor Research Program. This position will be responsible for evaluation and analyzing large sequencing and multiome data-sets. Baylor College of Medicine typically follows similar to the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties - Develop new and innovative strategies for the analysis of cutting-edge single cell transcriptomic datasets to investigate gene function during normal mammalian brain development, and how abnormalities in normal brain development lead to the development of brain cancers. - Mining, analysis and interpretation of data (whole-genome, whole-exome, ChIP-seq and RNAseq) in light of tumour evolution, with the aim of understanding the underlying dynamics of tumour growth, relapse, metastases and progression. - Collect and analyze data and presenting at national/international meetings. - Prepare manuscripts for publication. - Apply for external fellowships. - Mentor junior lab members. - Establish new research protocols and procedures. - Performs other job duties as assigned. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - PhD or MD with previous training in biochemistry or cell biology and possess exceptional computational skills. The most advanced degree must have been conferred within the last 3 years. - Prior experience with brain development, and/or cancer cell biology would be an asset. - Experience with large-scale genomic data would also be advantageous. - Prior first author publications are highly desirable. - Must be self-motivated, well-organized, highly independent, and willing to train new students. - Excellent communication, written and interpersonal skills are mandatory. - A detailed CV and the names and contact information for at least three references should accompany the application. - Candidates with external funding or scholarships to help support their salary will be highly recruited. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "471f730eb82e",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:a1778318600e",
@@ -2306,11 +2119,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/677623/research-postdoctoral-fellow-md-cardiac-surgery-/",
-      "description_text": "",
+      "description_text": "Research Postdoctoral Fellow - MD (Cardiac Surgery) - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 View more categoriesView less categories - Discipline - Other - Position Type - Full Time - Job Type - Postdoc Fellowship, Research Scientist - Organization Type - Academia Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary Baylor College of Medicine, in partnership with the Congenital Heart Surgery Department at Texas Children’s Hospital, is now accepting applications for its Postdoctoral Research Fellowship program. This two-year fellowship is based at the Texas Children’s Heart Center, consistently ranked among the nation’s top Pediatric Cardiology and Cardiac Surgery programs by U.S. News & World Report. This Postdoctoral Research Fellowship is designed for general and cardiothoracic surgery residents seeking academic careers in cardiothoracic or congenital heart surgery. Fellows will gain comprehensive, hands-on experience in clinical and outcomes research in congenital heart surgery, working closely with leading experts in Pediatric Cardiology, Cardiovascular Anesthesiology, and Cardiovascular Critical Care Medicine. Under faculty mentorship, fellows actively participate in all aspects of research, including study design, database development, data collection and multivariate analysis, regulatory compliance, and manuscript and abstract preparation. Fellows are also expected to engage in departmental and institutional seminars, continuing education, and present their work at local and national scientific meetings, with opportunities for publication in high-quality peer-reviewed journals. The CHS Postdoctoral Research Fellowship is a two-year program, running annually from July 1 through June 30. Fellows receive a competitive stipend and comprehensive health benefits for the duration of the program. Research Postdoctoral Fellow have experience in clinical research design, multivariable biostatistical analysis, and manuscript preparation, with a strong interest in pediatric cardiology and/or cardiothoracic surgery research. Applications for the upcoming fellowship cycle are now being accepted and will be reviewed on a rolling basis. Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary Baylor College of Medicine, in partnership with the Congenital Heart Surgery Department at Texas Children’s Hospital, is now accepting applications for its Postdoctoral Research Fellowship program. This two-year fellowship is based at the Texas Children’s Heart Center, consistently ranked among the nation’s top Pediatric Cardiology and Cardiac Surgery programs by U.S. News & World Report. This Postdoctoral Research Fellowship is designed for general and cardiothoracic surgery residents seeking academic careers in cardiothoracic or congenital heart surgery. Fellows will gain comprehensive, hands-on experience in clinical and outcomes research in congenital heart surgery, working closely with leading experts in Pediatric Cardiology, Cardiovascular Anesthesiology, and Cardiovascular Critical Care Medicine. Under faculty mentorship, fellows actively participate in all aspects of research, including study design, database development, data collection and multivariate analysis, regulatory compliance, and manuscript and abstract preparation. Fellows are also expected to engage in departmental and institutional seminars, continuing education, and present their work at local and national scientific meetings, with opportunities for publication in high-quality peer-reviewed journals. The CHS Postdoctoral Research Fellowship is a two-year program, running annually from July 1 through June 30. Fellows receive a competitive stipend and comprehensive health benefits for the duration of the program. Research Postdoctoral Fellow have experience in clinical research design, multivariable biostatistical analysis, and manuscript preparation, with a strong interest in pediatric cardiology and/or cardiothoracic surgery research. Applications for the upcoming fellowship cycle are now being accepted and will be reviewed on a rolling basis. Job Duties - Plans, designs, and conducts research studies. - Develops, executes clinical, and outcomes research projects in congenital heart surgery. - Designs, constructs, and maintains research databases. - Ensures accurate and efficient data management for ongoing studies. - Collects, cleans, and analyzes research data. - Performs multivariate biostatistical analysis to support study outcomes. - Participates in didactic continuing education. - Engages in cardiovascular core curriculum and statistical methodology training. - Writes manuscripts and abstracts. - Prepares research findings for submission to high-quality peer-reviewed journals. - Assists with weekday surgical case conferences. - Supports the planning and executes of departmental case discussions. - Prepares and presents research findings. - Shares results at local and national scientific meetings. - Attends seminars and team meetings. - Participates in departmental and institutional seminars, grand rounds, and research team discussions. - Performs other job-related duties as assigned. Minimum Qualifications - Doctor of Medicine (MD). - No experience required. Preferred Qualifications - Completion of one year of an ACGME accredited cardiothoracic surgery or cardiovascular residency program. - Strong clinical research interest in pediatric cardiothoracic surgery. - Prior experience in clinical outcomes research. - Training in biostatistical multivariate analysis. - Ability to manage multiple projects and commitments simultaneously. - Ability to prioritize task completion to meet deadlines. - Excellent organizational and written/oral communication skills. - Ability to work both independently and as part of a multidisciplinary team. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "a1778318600e",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:10465c8ef18c",
@@ -2328,7 +2141,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "10465c8ef18c",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:9cdc2a2cca8c",
@@ -2348,11 +2161,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/677129/postdoctoral-associate-human-genetics/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate - Human Genetics - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 View more categoriesView less categories - Discipline - Life Sciences, Genetics - Position Type - Full Time - Job Type - Other - Organization Type - Academia Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary The lab of Dr. Pawel Stankiewicz is seeking a Postdoctoral Associate to work on an NIH-funded project focused on studying the molecular bases of lung development in humans. Training will be provided in grant application preparation. At Baylor College of Medicine, postdoctoral associates will have access to daily lectures and seminars at Baylor, and can participate in domestic conferences, meetings, and the annual departmental retreat. Postdoctoral Associate will work with technologies/techniques such as next generation sequencing (whole genome sequencing, exome sequencing, RNA-seq, ChIP-seq, Hi-C), array CGH, droplet digital PCR, and genome editing. Postdoctoral Associate will study the genetic bases of lung development and pathogenesis of lethal lung developmental disorders. Research will use clinical specimens and human cell lines to identify novel genes and mechanisms of gene regulation playing an important role in lung development, as well as biomarkers that can be translated to the clinic. For more information: https://www.bcm.edu/people-search/pawel-stankiewicz-31243 Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary The lab of Dr. Pawel Stankiewicz is seeking a Postdoctoral Associate to work on an NIH-funded project focused on studying the molecular bases of lung development in humans. Training will be provided in grant application preparation. At Baylor College of Medicine, postdoctoral associates will have access to daily lectures and seminars at Baylor, and can participate in domestic conferences, meetings, and the annual departmental retreat. Postdoctoral Associate will work with technologies/techniques such as next generation sequencing (whole genome sequencing, exome sequencing, RNA-seq, ChIP-seq, Hi-C), array CGH, droplet digital PCR, and genome editing. Postdoctoral Associate will study the genetic bases of lung development and pathogenesis of lethal lung developmental disorders. Research will use clinical specimens and human cell lines to identify novel genes and mechanisms of gene regulation playing an important role in lung development, as well as biomarkers that can be translated to the clinic. For more information: https://www.bcm.edu/people-search/pawel-stankiewicz-31243 Job Duties - Designs and conducts logical scientific experiments. - Performs data analysis. - Works with technologies/techniques such as next generation sequencing (whole genome sequencing, exome sequencing, RNA-seq, ChIP-seq, Hi-C), array CGH, droplet digital PCR, and genome editing. - Shows competency in troubleshooting. - Presents results to the research group in weekly meetings. - Participates in domestic conferences, meetings, and the annual departmental retreat. - Summarizes research findings in scientific manuscripts to be published in research or clinical journals, prepare project reports, grant proposals, and abstracts. - Collaborates with the bioinformatics and functional genomics team in the lab. - Establishes new research protocols and procedures. - Maintains laboratory operations. - Supervises research staff. - Performs other job-related duties as assigned. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - Ph.D. in human or molecular genetics. - Experience in genomic analyses techniques that includes next generation sequencing - DNA and transcriptome, chromosomal microarrays, cell culture, qPCR, gene regulation assays, 3D chromatin structure. - Prior experience in the area of developmental genetics. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "9cdc2a2cca8c",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:4561b87dff0a",
@@ -2372,11 +2185,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/677088/postdoctoral-associate-chromatin-regulation-by-fusion-oncoproteins/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate - Chromatin Regulation by Fusion Oncoproteins - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary The Eagen Lab at Baylor College of Medicine is recruiting a highly motivated Postdoctoral Associate. The Postdoctoral Associate will lead interdisciplinary research projects on how oncogenic fusion proteins reprogram chromatin and gene regulation in aggressive cancers. The position integrates third-generation, long-read sequencing, epigenomics, and functional genomics to uncover mechanisms of transcriptional control and genome regulation in fusion-driven cancers. The Postdoctoral Associate will design and execute experiments, develop analytical workflows, and drive projects from conception through publication. This role offers outstanding opportunities to publish high-impact research, present at international conferences, and build a strong professional network within a highly collaborative biomedical environment. About the Eagen Lab The Eagen Lab investigates how fusion oncoproteins drive aggressive cancers at the molecular level. A notable discovery from the lab is that the BRD4-NUT fusion oncoprotein dysregulates DNA folding to activate oncogenic transcriptional programs. The lab has published in journals including Molecular Cell, Nature Genetics, Nature Cell Biology, and Cancer Research, and has received recognition from the NIH Director, the National Cancer Institute, the Cancer Prevention and Research Institute of Texas, and philanthropic organizations. Baylor College of Medicine is located in the Texas Medical Center, the world’s largest biomedical campus, and provides an exceptionally collaborative research environment. The laboratory emphasizes scientific independence, rigor, and professional development, with dedicated support for developing independent research programs and advancing career goals. Interested applicants should submit a cover letter describing research interests and career goals, curriculum vitae, and contact information for three references in the application. Applications will be reviewed on a rolling basis until the position is filled. Baylor College of Medicine typically follows the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary The Eagen Lab at Baylor College of Medicine is recruiting a highly motivated Postdoctoral Associate. The Postdoctoral Associate will lead interdisciplinary research projects on how oncogenic fusion proteins reprogram chromatin and gene regulation in aggressive cancers. The position integrates third-generation, long-read sequencing, epigenomics, and functional genomics to uncover mechanisms of transcriptional control and genome regulation in fusion-driven cancers. The Postdoctoral Associate will design and execute experiments, develop analytical workflows, and drive projects from conception through publication. This role offers outstanding opportunities to publish high-impact research, present at international conferences, and build a strong professional network within a highly collaborative biomedical environment. About the Eagen Lab The Eagen Lab investigates how fusion oncoproteins drive aggressive cancers at the molecular level. A notable discovery from the lab is that the BRD4-NUT fusion oncoprotein dysregulates DNA folding to activate oncogenic transcriptional programs. The lab has published in journals including Molecular Cell, Nature Genetics, Nature Cell Biology, and Cancer Research, and has received recognition from the NIH Director, the National Cancer Institute, the Cancer Prevention and Research Institute of Texas, and philanthropic organizations. Baylor College of Medicine is located in the Texas Medical Center, the world’s largest biomedical campus, and provides an exceptionally collaborative research environment. The laboratory emphasizes scientific independence, rigor, and professional development, with dedicated support for developing independent research programs and advancing career goals. Interested applicants should submit a cover letter describing research interests and career goals, curriculum vitae, and contact information for three references in the application. Applications will be reviewed on a rolling basis until the position is filled. Baylor College of Medicine typically follows the NIH stipulated stipend guidelines for Postdoctoral Associates. Job Duties - Leads independent research projects by designing, executing, troubleshooting, and interpreting experiments in molecular and cellular biology. - Develops and implements third-generation sequencing approaches that includes long-read PacBio and Oxford Nanopore, with a strong emphasis on single-molecule chromatin fiber profiling (e.g. Fiber-seq). - Applies and/or develops epigenomic and transcriptomic assays such as CUT&RUN and RNA-seq (including specialized formats as appropriate). - Analyzes and integrates multi-modal genomic datasets using computational approaches (with access to robust HPC resources). - Evaluates data to plan subsequent stages of projects and collaborates with team members to refine research strategies. - Disseminates findings through first-author publications and presentations at national/international conferences. - Establishes new scientific directions by reading and evaluating scientific literature and integrating new findings into ongoing research projects. - Contributes to an intellectually collaborative lab culture by making essential contributions to exciting problems while ensuring a high standard of biomedical research. - Performs other job-related duties as assigned. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - Experience with one or more of the following: long-read sequencing, Fiber-seq, CUT&RUN/CUT&Tag, RNA-seq, chromatin profiling, or related genomics approaches. - Familiarity with computational analysis (e.g., Python, R, Bash) and/or genome-scale data integration. - Experience with cell culture and functional genomics (e.g., CRISPR/Cas9), cancer models, and/or microscopy. - Strong track record of first-author peer-reviewed publication(s) demonstrating productivity and scientific independence. - Outstanding interpersonal and communication skills and the ability to work independently and in a team environment. - A record of taking initiative to solve problems and working to high-quality standards demonstrated through previous research projects. - Ability to multitask, work and learn independently, and be self-motivated in a fast-paced research environment. - Attention to detail and accurate record keeping. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "4561b87dff0a",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:84a9632bf7f1",
@@ -2396,11 +2209,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/676764/postdoctoral-associate-reproductive-psychiatry/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate- Reproductive Psychiatry - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 View more categoriesView less categories - Discipline - Health Sciences, Psychiatry/Psychology - Position Type - Full Time - Job Type - Other - Organization Type - Academia Job Details Flexible Employment Duration: Full-time FLSA Status: Exempt Division: Obstetrics and Gynecology Work Arrangement: Onsite only Location: Houston, TX Salary Range: $82,000 FLSA Status: Exempt Work Schedule: Flexible Summary The Postdoctoral Associate will work in an apprenticeship mode under Dr. Teni Davoudian in preparation for a career as a reproductive psychologist. The Postdoctoral Associate will be involved in treatment, case conceptualization and clinical research activities at Texas Children's Pavilion for Women in the Division of Reproductive Psychiatry, one of the largest in the United States. For more information, please visit https://www.bcm.edu/healthcare/specialties/obstetrics-and-gynecology/ob-gyn-care-centers/the-womens-place-center-for-reproductive-psychiatry Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Employment Duration: Full-time FLSA Status: Exempt Division: Obstetrics and Gynecology Work Arrangement: Onsite only Location: Houston, TX Salary Range: $82,000 FLSA Status: Exempt Work Schedule: Flexible Summary The Postdoctoral Associate will work in an apprenticeship mode under Dr. Teni Davoudian in preparation for a career as a reproductive psychologist. The Postdoctoral Associate will be involved in treatment, case conceptualization and clinical research activities at Texas Children's Pavilion for Women in the Division of Reproductive Psychiatry, one of the largest in the United States. For more information, please visit https://www.bcm.edu/healthcare/specialties/obstetrics-and-gynecology/ob-gyn-care-centers/the-womens-place-center-for-reproductive-psychiatry Job Duties - Performs activities that may include treatment, case conceptualization, and clinical research under the guidance of faculty who serve as clinical and/or research supervisors. - Provides and documents evidence based psychotherapy services to women with perimenstrual, perinatal and perimenopausal conditions. - Documents clinical activities. - Evaluates and analyzes data independently. - Develops service line focused on peer support services participating in aspects necessary to accomplish this goal. - Develops projects focused on peer support services. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - Experience in a psychiatric inpatient setting. - Experience in a hospital based settings, including obstetrics and gynecology. - Experience administering psychological test batteries, including projective measures. - Experience in an outpatient setting. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "84a9632bf7f1",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:43b754b9193d",
@@ -2420,11 +2233,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/675969/postdoctoral-associate/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary The Postdoctoral Associate will study epigenomic regulation of metabolism and neurocognition by circadian clock and physical exercise, including hormonal regulation of cognition, transgenerational inheritance of metabolic traits, neuronal and metabolic adaptations in exercise, in aging-related diseases, such as heart failure, Alzheimer's disease, diabetes, muscle atrophy, and osteoporosis. For more information of the lab, please visit https://www.bcm.edu/people-search/zheng-sun-31489 . Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary The Postdoctoral Associate will study epigenomic regulation of metabolism and neurocognition by circadian clock and physical exercise, including hormonal regulation of cognition, transgenerational inheritance of metabolic traits, neuronal and metabolic adaptations in exercise, in aging-related diseases, such as heart failure, Alzheimer's disease, diabetes, muscle atrophy, and osteoporosis. For more information of the lab, please visit https://www.bcm.edu/people-search/zheng-sun-31489 . Job Duties - Uses cutting-edge technologies and integrated approaches, include epigenomics, metabolomics, single-cell technique, bioinformatics, genetic animal models, molecular and cellular biology, metabolic tracing, sophisticated virus tools, neurobehavior, opto/chemogenetics, in vivo calcium imaging, and histology. - Performs functional and phenotyping analysis in living animals. - Prepares samples and perform validation studies for omics analysis. - Performs bioinformatics analysis and data interpretation. - Performs molecular biology analysis using primary cells or histology studies. - Documents experiments to ensure that work can be replicated by others. - Writes manuscript to report the findings or grant applications. - Attends department seminar and other scientific events. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - Experience in molecular biology, neuroscience, epigenetics, metabolism, bioinformatics, or animal models. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "43b754b9193d",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:0ef88165d455",
@@ -2444,11 +2257,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/675713/postdoctoral-associate-neurophysiology-transcriptomics/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate- Neurophysiology/Transcriptomics - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary A postdoctoral associate position is available in the NIH-funded laboratory of Dr. Hsiao-Tuan Chao at the Jan and Dan Duncan Neurological Research Institute, which is affiliated with Baylor College of Medicine and Texas Children’s Hospital. We are seeking a highly motivated research scientist to join our team engaged in basic and translational neuroscience and genetics research. Our laboratory focuses on understanding neural circuit development and function, inhibitory neurobiology, cerebellar neural circuits, and synaptic function in neurodevelopmental and neurodegenerative disorders such as epilepsy, autism, ataxia, and leukoencephalopathies. We utilize multiple approaches including fruit fly and mouse models, genomic sequencing for disease gene discovery, state-of-the art imaging, transcriptomics, electrophysiology, molecular biology, molecular genetics, and behavioral techniques. On-going projects address fundamental questions about the transcriptional regulation of inhibitory neuronal development and function in neural circuits, the role of cerebellar circuit dysfunction, and disrupted gene regulatory networks in neurologic disorders. This is an exciting opportunity to work at the interface of basic neuroscience and genetics research with translational potential in a highly collaborative and stimulating environment located in the nation’s largest research and medical center - Texas Medical Center. Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary A postdoctoral associate position is available in the NIH-funded laboratory of Dr. Hsiao-Tuan Chao at the Jan and Dan Duncan Neurological Research Institute, which is affiliated with Baylor College of Medicine and Texas Children’s Hospital. We are seeking a highly motivated research scientist to join our team engaged in basic and translational neuroscience and genetics research. Our laboratory focuses on understanding neural circuit development and function, inhibitory neurobiology, cerebellar neural circuits, and synaptic function in neurodevelopmental and neurodegenerative disorders such as epilepsy, autism, ataxia, and leukoencephalopathies. We utilize multiple approaches including fruit fly and mouse models, genomic sequencing for disease gene discovery, state-of-the art imaging, transcriptomics, electrophysiology, molecular biology, molecular genetics, and behavioral techniques. On-going projects address fundamental questions about the transcriptional regulation of inhibitory neuronal development and function in neural circuits, the role of cerebellar circuit dysfunction, and disrupted gene regulatory networks in neurologic disorders. This is an exciting opportunity to work at the interface of basic neuroscience and genetics research with translational potential in a highly collaborative and stimulating environment located in the nation’s largest research and medical center - Texas Medical Center. Job Duties - Plans, directs and conducts specialized and advanced research experiments. - Evaluates and analyzes data. - Establishes new research protocols and procedures. - Summarizes research findings and publish results in research journals. • - Maintains laboratory operations. - Supervises research staff. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - Strong foundation and publication record in neuroscience, genetics, neurophysiology, transcriptomics, or developmental biology. - Candidate needs to have one of the three following areas of expertise: (1) electrophysiology and neural circuit analysis, (2) transcriptomics and sequencing approaches, or (3) developmental neurobiology. - Prior experience in hiPSC models or genetic model organisms (mouse or fruit fly), and neuroscience research preferred. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "0ef88165d455",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     },
     {
       "id": "agg:science-careers:49835cece504",
@@ -2468,11 +2281,11 @@
       "department": "",
       "location": "Houston, TX",
       "url": "https://jobs.sciencecareers.org/job/675198/postdoctoral-associate-protein-engineering-and-high-throughput-screening/",
-      "description_text": "",
+      "description_text": "Postdoctoral Associate- Protein engineering and High-Throughput Screening - Employer - Baylor College of Medicine - Location - Houston, TX - Closing date - Jul 13, 2026 View more categoriesView less categories - Discipline - Physical Sciences, Engineering - Position Type - Full Time - Job Type - Other - Organization Type - Academia Job Details Monday - Friday, 8 a.m. - 5 p.m. Summary The St-Pierre Lab is seeking a motivated and creative scientist or engineer to develop next-generation tools for interfacing with the brain, including genetically encoded voltage indicators (GEVIs), optogenetic silencers, and fluorescent proteins. We welcome candidates with diverse expertise, which may include: This position offers the opportunity to develop cutting-edge molecular technologies, expand your technical skill set, and contribute to a collaborative, intellectually stimulating research environment. Our work aligns with the St-Pierre Lab’s mission to create and apply innovative tools for perturbing and imaging the brain. For examples of our recent breakthroughs, see our publications in Cell and Nature Communications on advanced voltage indicators for recording electrical dynamics in awake, behaving mice ( https://doi.org/10.1016/j.cell.2022.07.013 ; https://rdcu.be/doqi2) . Application Instructions: Job Duties Minimum Qualifications Preferred Qualifications Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Summary The St-Pierre Lab is seeking a motivated and creative scientist or engineer to develop next-generation tools for interfacing with the brain, including genetically encoded voltage indicators (GEVIs), optogenetic silencers, and fluorescent proteins. We welcome candidates with diverse expertise, which may include: - Protein engineering - Optical system development - High-throughput screening - Electrophysiology - Computational approaches This position offers the opportunity to develop cutting-edge molecular technologies, expand your technical skill set, and contribute to a collaborative, intellectually stimulating research environment. Our work aligns with the St-Pierre Lab’s mission to create and apply innovative tools for perturbing and imaging the brain. For examples of our recent breakthroughs, see our publications in Cell and Nature Communications on advanced voltage indicators for recording electrical dynamics in awake, behaving mice ( https://doi.org/10.1016/j.cell.2022.07.013 ; https://rdcu.be/doqi2) . Application Instructions: - A recent CV - Contact information for 2-3 references (including your Ph.D. advisor; if not possible, provide an explanation in your cover letter) - A short cover letter or paragraph explaining your interest in the position (optional but encouraged) Job Duties - Leads and contributes to research projects, both independently and collaboratively. - Sets up, maintains, and optimizes experimental equipment. - Mentors and trains lab members in techniques and experimental design. - Presents research findings in lab meetings and at scientific conferences. Minimum Qualifications - MD or Ph.D. in Basic Science, Health Science, or a related field. - No experience required. Preferred Qualifications - Publication record: At least one first-author (or co-first-author) paper published in or submitted to a high-impact, peer-reviewed English-language journal. - Manuscripts in preparation can be noted in your CV or cover letter. Baylor College of Medicine is an Equal Opportunity/Affirmative Action/Equal Access Employer. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "49835cece504",
-      "last_scouted_at": "2026-07-04T22:03:13.860277Z"
+      "last_scouted_at": "2026-07-06T06:59:07.414173Z"
     }
   ]
 }
