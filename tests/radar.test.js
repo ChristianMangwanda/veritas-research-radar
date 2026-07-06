@@ -37,6 +37,7 @@ const zlib = require('zlib');
 const { normalizeName, parseCsvLine, annualWage, median } = require('../radar/scripts/import-dol-lca.js');
 const { parseCsv, csvRecords } = require('../radar/scripts/lib/csv.js');
 const { classifyTitle, classLabel } = require('../radar/scripts/lib/title-class.js');
+const { jobRow, supabaseEnv } = require('../radar/scripts/lib/supabase.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
 
 function testSharedAnalyzer() {
@@ -219,6 +220,33 @@ function testTitleClassEvidence() {
   assert.strictEqual(noClass.title_class, 'other');
   assert.strictEqual(noClass.class_evidence, null);
   assert.strictEqual(noClass.sponsor_signal, 'moderate'); // 161 institution-wide, wrong class
+}
+
+function testSupabaseSink() {
+  // Sink stays dormant without credentials — refresh must not need Supabase
+  const savedUrl = process.env.SUPABASE_URL;
+  const savedKey = process.env.SUPABASE_SERVICE_KEY;
+  delete process.env.SUPABASE_URL;
+  delete process.env.SUPABASE_SERVICE_KEY;
+  assert.strictEqual(supabaseEnv(), null);
+  if (savedUrl) process.env.SUPABASE_URL = savedUrl;
+  if (savedKey) process.env.SUPABASE_SERVICE_KEY = savedKey;
+
+  const row = jobRow({
+    id: 'lever:ucsf:1', employer_id: 'ucsf', employer_name: 'UCSF',
+    title: 'Postdoc', title_class: 'postdoc', url: 'https://x.test/1',
+    citizenship_gated: false, status: 'active', source: 'lever',
+    first_seen_at: '2026-07-01T00:00:00Z', posted_or_updated_at: '',
+    class_evidence: { certified_count_3y: 3 }
+  }, '2026-07-06T00:00:00Z');
+  assert.strictEqual(row.id, 'lever:ucsf:1');
+  assert.strictEqual(row.title_class, 'postdoc');
+  assert.strictEqual(row.citizenship_gated, false);
+  // Empty posted dates become SQL NULL, not empty strings (timestamptz rejects '')
+  assert.strictEqual(row.posted_or_updated_at, null);
+  assert.deepStrictEqual(row.class_evidence, { certified_count_3y: 3 });
+  assert.strictEqual(row.payload.id, 'lever:ucsf:1');
+  assert.strictEqual(row.updated_at, '2026-07-06T00:00:00Z');
 }
 
 function testEntityResolution() {
@@ -852,6 +880,7 @@ async function main() {
   await testCsvMultilineRecords();
   testAnalyzerCorpus();
   testTitleClassEvidence();
+  testSupabaseSink();
   testEntityResolution();
   testProviderMappers();
   await testFetchRetry();

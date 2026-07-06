@@ -4,6 +4,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const { analyzeText } = require('../../scripts/keywords.js');
 const { classifyTitle, classLabel } = require('./lib/title-class.js');
+const { syncJobs } = require('./lib/supabase.js');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RADAR_DIR = path.join(ROOT, 'radar');
@@ -925,6 +926,17 @@ async function runRefresh() {
   console.log(`Radar refresh complete: ${allJobs.length} jobs from ${employers.length} employers`);
   if (report.errored_employers) {
     console.log(`${report.errored_employers} employers had fetch errors; see ${path.relative(ROOT, REPORT_PATH)}`);
+  }
+
+  // Dual-write phase: Supabase mirrors the dataset when credentials exist;
+  // git stays canonical, so a sync failure warns but never fails the refresh
+  try {
+    const sync = await syncJobs(allJobs, report);
+    console.log(sync.synced
+      ? `Supabase sync: ${sync.count} jobs mirrored`
+      : `Supabase sync skipped (${sync.reason})`);
+  } catch (error) {
+    console.warn(`Supabase sync failed (git dataset unaffected): ${error.message}`);
   }
   return report;
 }
