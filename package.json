@@ -15,9 +15,13 @@
     "scout:aggregators": "scout/.venv/bin/python scout/scout_aggregators.py",
     "scout:discover": "scout/.venv/bin/python scout/scout_discover.py",
     "radar:websites": "node radar/scripts/fetch-nonprofit-websites.js",
+    "radar:profile": "node radar/scripts/build-profile.js",
     "test": "node tests/radar.test.js"
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.110.0"
   }
 }
