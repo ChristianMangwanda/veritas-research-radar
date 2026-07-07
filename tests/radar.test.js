@@ -49,6 +49,7 @@ const {
   slugify
 } = require('../radar/scripts/build-profile.js');
 const { CLASS_LABELS } = require('../radar/scripts/lib/title-class.js');
+const RadarScoring = require('../radar/public/scoring.js');
 
 function testSharedAnalyzer() {
   assert.strictEqual(analyzeText('Visa sponsorship is available for this role.').state, 'FRIENDLY');
@@ -1009,6 +1010,310 @@ function testProfileIngestion() {
   assert.strictEqual(slugify('___.pdf'), 'variant');
 }
 
+const SCORING_FIXTURE_PROFILE = {
+  schema_version: 2,
+  core: {
+    summary: 'ML person.',
+    career_stage: 'early_career',
+    years_experience: 4,
+    degrees: [
+      { level: 'masters', field: 'Computer Science', status: 'completed' },
+      { level: 'phd', field: 'Computer Science', status: 'in_progress' }
+    ],
+    avoid_signals: ['registered nurse'],
+    notes_for_ranking: ''
+  },
+  variants: [
+    {
+      id: 'ml',
+      label: 'ML Engineer',
+      intent: 'Leads with production ML',
+      title_classes: ['data_computational', 'engineering_software'],
+      domains: ['machine learning'],
+      skills: [
+        { term: 'pytorch', weight: 3, aliases: ['torch'] },
+        { term: 'python', weight: 3, aliases: [] },
+        { term: 'mlops', weight: 2, aliases: [] },
+        { term: 'docker', weight: 1, aliases: [] }
+      ],
+      target_titles: ['machine learning engineer']
+    },
+    {
+      id: 'de',
+      label: 'Data Engineer',
+      intent: 'Leads with pipelines',
+      title_classes: ['engineering_software'],
+      domains: ['data engineering'],
+      skills: [
+        { term: 'airflow', weight: 3, aliases: [] },
+        { term: 'sql', weight: 3, aliases: [] },
+        { term: 'python', weight: 2, aliases: [] }
+      ],
+      target_titles: ['data engineer']
+    }
+  ]
+};
+
+const ML_JOB_DESCRIPTION = 'We use PyTorch and torch internals, Python, MLOps and Docker daily. Machine learning production systems.';
+
+function testDegreeGateParsing() {
+  const { parseDegreeGate, DEGREE_RANK, compileProfile, scoreJob } = RadarScoring;
+
+  const hard = parseDegreeGate('A PhD in biology is required for this role.', 'scientist');
+  assert.strictEqual(hard.required, 'phd');
+  assert.strictEqual(hard.softened, false);
+  assert.strictEqual(hard.source, 'text');
+
+  const softened = parseDegreeGate('PhD preferred but not required.', 'scientist');
+  assert.strictEqual(softened.required, 'phd');
+  assert.strictEqual(softened.softened, true);
+
+  const doctoral = parseDegreeGate('Candidates must hold a doctoral degree in a related field.', 'scientist');
+  assert.strictEqual(doctoral.required, 'phd');
+  assert.strictEqual(doctoral.softened, false);
+
+  const masters = parseDegreeGate("Master's degree required. PhD preferred.", 'scientist');
+  assert.strictEqual(masters.required, 'masters');
+  assert.strictEqual(masters.softened, false);
+
+  const postdoc = parseDegreeGate('Join our lab and do great research.', 'postdoc');
+  assert.strictEqual(postdoc.required, 'phd');
+  assert.strictEqual(postdoc.source, 'title_class');
+
+  const mention = parseDegreeGate('Our team includes PhD scientists collaborating broadly.', 'scientist');
+  assert.strictEqual(mention.required, null);
+
+  const stateAbbrev = parseDegreeGate('Located in Baltimore, MD 21201. Great team and campus.', 'research_support');
+  assert.strictEqual(stateAbbrev.required, null);
+
+  // MD-holders clear PhD gates (equivalent rank)
+  assert(DEGREE_RANK.md >= DEGREE_RANK.phd);
+
+  // in_progress matching degree softens the hard penalty (−12, not −25),
+  // and does not cap the verdict to stretch
+  const compiled = compileProfile(SCORING_FIXTURE_PROFILE);
+  const fit = scoreJob({
+    title: 'Machine Learning Engineer',
+    title_class: 'data_computational',
+    department: '',
+    description_text: `${ML_JOB_DESCRIPTION} PhD required.`,
+    research_relevance_score: 0
+  }, compiled, null);
+  assert.strictEqual(fit.gate.degree.required, 'phd');
+  assert.strictEqual(fit.gate.degree.met, false);
+  assert.strictEqual(fit.gate.degree.penalty, RadarScoring.WEIGHTS.DEGREE_GATE_IN_PROGRESS);
+  assert.notStrictEqual(fit.verdict, 'stretch');
+}
+
+function testVariantScoring() {
+  const { compileProfile, scoreJob } = RadarScoring;
+  const compiled = compileProfile(SCORING_FIXTURE_PROFILE);
+
+  const fit = scoreJob({
+    title: 'Machine Learning Engineer',
+    title_class: 'data_computational',
+    department: '',
+    description_text: ML_JOB_DESCRIPTION,
+    research_relevance_score: 0
+  }, compiled, null);
+
+  const ml = fit.variants.find((variant) => variant.id === 'ml');
+  const de = fit.variants.find((variant) => variant.id === 'de');
+  // pytorch(6, torch alias dedupes) + python(6) + mlops(3) + docker(1) = 16
+  // + primary class 15 + domain 5 + target title 10 = 46
+  assert.strictEqual(ml.score, 46);
+  assert.deepStrictEqual(ml.matched[3], ['pytorch', 'python']);
+  assert.strictEqual(ml.title_class_match, 'primary');
+  assert.strictEqual(ml.target_title_hit, true);
+  // python at weight 2 only; no class/domain/title hits
+  assert.strictEqual(de.score, 3);
+  assert.strictEqual(fit.recommended_variant, 'ml');
+  assert.strictEqual(fit.recommended_source, 'deterministic');
+
+  // employer_name is NOT part of the matchable corpus
+  const nameOnly = scoreJob({
+    title: 'Lab Assistant',
+    title_class: 'research_support',
+    department: '',
+    employer_name: 'PyTorch Machine Learning Institute',
+    description_text: 'Wash glassware and prepare buffers.',
+    research_relevance_score: 0
+  }, compiled, null);
+  const mlNameOnly = nameOnly.variants.find((variant) => variant.id === 'ml');
+  assert.strictEqual(mlNameOnly.score, 0);
+
+  // Skill points cap at SKILL_CAP even with many core terms
+  const wide = compileProfile({
+    schema_version: 2,
+    core: { career_stage: 'early_career', degrees: [], avoid_signals: [] },
+    variants: [{
+      id: 'w',
+      label: 'Wide',
+      skills: Array.from({ length: 10 }, (_, i) => ({ term: `skillterm${i}`, weight: 3, aliases: [] })),
+      title_classes: [],
+      domains: [],
+      target_titles: []
+    }]
+  });
+  const capped = scoreJob({
+    title: 'Role',
+    title_class: 'other',
+    description_text: Array.from({ length: 10 }, (_, i) => `skillterm${i}`).join(' '),
+    research_relevance_score: 0
+  }, wide, null);
+  assert.strictEqual(capped.variants[0].score, RadarScoring.WEIGHTS.SKILL_CAP);
+}
+
+function testReachabilityDemotion() {
+  const { compileProfile, scoreJob, scoreAll } = RadarScoring;
+  const compiled = compileProfile(SCORING_FIXTURE_PROFILE);
+  const base = {
+    title: 'Machine Learning Engineer',
+    title_class: 'data_computational',
+    department: '',
+    description_text: ML_JOB_DESCRIPTION,
+    research_relevance_score: 50
+  };
+
+  // citizenship gate: −30, capped to stretch, and RESTRICTED language is NOT
+  // double-counted on top of it
+  const federal = scoreJob({ ...base, citizenship_gated: true, veritas_state: 'RESTRICTED' }, compiled, null);
+  assert.strictEqual(federal.fit_score, 46 + 5 - 30);
+  assert.strictEqual(federal.verdict, 'stretch');
+  assert.strictEqual(federal.gate.citizenship, true);
+
+  // RESTRICTED-only: −15, no hard-gate cap
+  const restricted = scoreJob({ ...base, veritas_state: 'RESTRICTED' }, compiled, null);
+  assert.strictEqual(restricted.fit_score, 46 + 5 - 15);
+  assert.strictEqual(restricted.verdict, 'weak');
+
+  // avoid signals demote (capped) and stage mismatch flags
+  const avoid = scoreJob({
+    ...base,
+    description_text: `${ML_JOB_DESCRIPTION} Registered nurse duties included.`
+  }, compiled, null);
+  assert.deepStrictEqual(avoid.avoid_hits, ['registered nurse']);
+  assert.strictEqual(avoid.fit_score, 46 + 5 - 8);
+  const senior = scoreJob({ ...base, title: 'Senior Machine Learning Engineer' }, compiled, null);
+  assert.strictEqual(senior.gate.stage_mismatch, true);
+
+  // Reachability never filters: every job in = every job out, all stamped
+  const jobs = [
+    { ...base },
+    { ...base, citizenship_gated: true },
+    { title: 'Postdoctoral Fellow', title_class: 'postdoc', description_text: 'Research role.', research_relevance_score: 0 }
+  ];
+  const out = scoreAll(jobs, compiled, null);
+  assert.strictEqual(out.length, 3);
+  assert(out.every((job) => job.fit && typeof job.fit === 'object'));
+  // the unreachable postdoc is demoted + flagged, still present
+  assert.strictEqual(out[2].fit.verdict, 'stretch');
+  assert.strictEqual(out[2].fit.gate.degree.required, 'phd');
+}
+
+function testVerdictTiers() {
+  const { verdictFor } = RadarScoring;
+  assert.strictEqual(verdictFor(70, false), 'strong');
+  assert.strictEqual(verdictFor(69, false), 'good');
+  assert.strictEqual(verdictFor(55, false), 'good');
+  assert.strictEqual(verdictFor(54, false), 'moderate');
+  assert.strictEqual(verdictFor(40, false), 'moderate');
+  assert.strictEqual(verdictFor(39, false), 'weak');
+  assert.strictEqual(verdictFor(25, false), 'weak');
+  assert.strictEqual(verdictFor(24, false), 'stretch');
+  assert.strictEqual(verdictFor(72, true), 'stretch');
+}
+
+function testRoutingAmbiguity() {
+  const { resolveVariant, compileProfile, scoreAll, profileHash } = RadarScoring;
+
+  const close = [
+    { id: 'a', score: 30, order: 0 },
+    { id: 'b', score: 25, order: 1 }
+  ];
+  const resolved = resolveVariant(close, null);
+  assert.strictEqual(resolved.recommended_variant, 'a');
+  assert.strictEqual(resolved.recommended_source, 'deterministic');
+  assert.strictEqual(resolved.ambiguous, true);
+
+  const clear = resolveVariant([{ id: 'a', score: 40, order: 0 }, { id: 'b', score: 20, order: 1 }], null);
+  assert.strictEqual(clear.ambiguous, false);
+
+  // both scores below the floor: nothing worth routing
+  const floor = resolveVariant([{ id: 'a', score: 10, order: 0 }, { id: 'b', score: 8, order: 1 }], null);
+  assert.strictEqual(floor.ambiguous, false);
+
+  // exact tie: manifest order wins
+  const tie = resolveVariant([{ id: 'b', score: 30, order: 1 }, { id: 'a', score: 30, order: 0 }], null);
+  assert.strictEqual(tie.recommended_variant, 'a');
+
+  // cached verdict overrides; unknown variant ids are ignored
+  const verdictApplied = resolveVariant(close, { variant_id: 'b', reason: 'MLOps-heavy posting' });
+  assert.strictEqual(verdictApplied.recommended_variant, 'b');
+  assert.strictEqual(verdictApplied.recommended_source, 'llm');
+  assert.strictEqual(verdictApplied.llm_reason, 'MLOps-heavy posting');
+  const verdictUnknown = resolveVariant(close, { variant_id: 'zz', reason: 'bad' });
+  assert.strictEqual(verdictUnknown.recommended_variant, 'a');
+  assert.strictEqual(verdictUnknown.recommended_source, 'deterministic');
+
+  // route cache is only honored when its profile_hash matches the live profile
+  const compiled = compileProfile(SCORING_FIXTURE_PROFILE);
+  const job = () => ({
+    id: 'job-1',
+    title: 'Machine Learning Engineer',
+    title_class: 'data_computational',
+    description_text: ML_JOB_DESCRIPTION,
+    research_relevance_score: 0
+  });
+  const stale = scoreAll([job()], compiled, {
+    profile_hash: 'fnv1a:00000000',
+    verdicts: { 'job-1': { variant_id: 'de', reason: 'stale' } }
+  });
+  assert.strictEqual(stale[0].fit.recommended_source, 'deterministic');
+  const fresh = scoreAll([job()], compiled, {
+    profile_hash: profileHash(SCORING_FIXTURE_PROFILE),
+    verdicts: { 'job-1': { variant_id: 'de', reason: 'fresh' } }
+  });
+  assert.strictEqual(fresh[0].fit.recommended_variant, 'de');
+  assert.strictEqual(fresh[0].fit.recommended_source, 'llm');
+}
+
+function testProfileV2() {
+  const { validateProfile, profileHash, compileProfile, scoreAll, emptyFit } = RadarScoring;
+
+  assert.strictEqual(validateProfile(SCORING_FIXTURE_PROFILE), null);
+  assert.match(validateProfile({ ...SCORING_FIXTURE_PROFILE, schema_version: 1 }), /schema_version/);
+  assert.match(validateProfile({ ...SCORING_FIXTURE_PROFILE, variants: [] }), /non-empty/);
+  const dupe = {
+    ...SCORING_FIXTURE_PROFILE,
+    variants: [SCORING_FIXTURE_PROFILE.variants[0], { ...SCORING_FIXTURE_PROFILE.variants[1], id: 'ml' }]
+  };
+  assert.match(validateProfile(dupe), /duplicate/);
+  const shortTerm = {
+    ...SCORING_FIXTURE_PROFILE,
+    variants: [{ ...SCORING_FIXTURE_PROFILE.variants[0], skills: [{ term: 'r', weight: 3 }] }]
+  };
+  assert.match(validateProfile(shortTerm), /shorter/);
+
+  // hash is stable across JSON key order, sensitive to content
+  const reordered = JSON.parse(JSON.stringify(SCORING_FIXTURE_PROFILE));
+  reordered.variants = reordered.variants.map((variant) => {
+    const { skills, id, label, intent, title_classes, domains, target_titles } = variant;
+    return { target_titles, domains, title_classes, skills, intent, label, id };
+  });
+  assert.strictEqual(profileHash(reordered), profileHash(SCORING_FIXTURE_PROFILE));
+  const edited = JSON.parse(JSON.stringify(SCORING_FIXTURE_PROFILE));
+  edited.variants[0].intent = 'Different intent line';
+  assert.notStrictEqual(profileHash(edited), profileHash(SCORING_FIXTURE_PROFILE));
+
+  // invalid profile compiles to null; scoring without a profile stamps emptyFit
+  assert.strictEqual(compileProfile({ schema_version: 1 }), null);
+  const jobs = [{ id: 'x', title: 'Role', description_text: 'text' }];
+  scoreAll(jobs, null, null);
+  assert.strictEqual(jobs[0].fit.fit_score, null);
+  assert.strictEqual(typeof emptyFit().fit_summary, 'string');
+}
+
 async function main() {
   testSharedAnalyzer();
   testNegationGuard();
@@ -1031,6 +1336,12 @@ async function main() {
   testEnrichPipeline();
   testEnrichment();
   testProfileIngestion();
+  testDegreeGateParsing();
+  testVariantScoring();
+  testReachabilityDemotion();
+  testVerdictTiers();
+  testRoutingAmbiguity();
+  testProfileV2();
 
   console.log('Radar tests passed');
 }
