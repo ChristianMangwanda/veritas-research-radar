@@ -40,6 +40,15 @@ const { classifyTitle, classLabel } = require('../radar/scripts/lib/title-class.
 const { parsePeopleAdminAtom, mapPeopleAdminEntry } = require('../radar/scripts/refresh.js');
 const { jobRow, supabaseEnv } = require('../radar/scripts/lib/supabase.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
+const {
+  TITLE_CLASSES,
+  validateManifest,
+  variantCacheKey,
+  normalizeVariantProfile,
+  reconcileCore,
+  slugify
+} = require('../radar/scripts/build-profile.js');
+const { CLASS_LABELS } = require('../radar/scripts/lib/title-class.js');
 
 function testSharedAnalyzer() {
   assert.strictEqual(analyzeText('Visa sponsorship is available for this role.').state, 'FRIENDLY');
@@ -906,6 +915,100 @@ function testEnrichment() {
   assert.deepStrictEqual(enriched.dol_recent_titles, ['Research Scientist']);
 }
 
+function testProfileIngestion() {
+  // Taxonomy stays in lockstep with title-class.js — no hardcoded mirror.
+  assert.deepStrictEqual(TITLE_CLASSES, Object.keys(CLASS_LABELS));
+
+  // Manifest validation
+  const good = {
+    schema_version: 1,
+    variants: [
+      { id: 'ml', label: 'ML Engineer', file: 'ml.pdf', intent: 'Leads with production ML, PyTorch, MLOps' },
+      { id: 'de', label: 'Data Engineer', file: 'de.md', intent: 'Leads with pipelines and warehouse modeling' }
+    ]
+  };
+  assert.strictEqual(validateManifest(good), null);
+  assert.match(validateManifest({ schema_version: 2, variants: good.variants }), /schema_version/);
+  assert.match(validateManifest({ schema_version: 1, variants: [] }), /non-empty/);
+  assert.match(
+    validateManifest({ schema_version: 1, variants: [good.variants[0], { ...good.variants[1], id: 'ml' }] }),
+    /duplicate/
+  );
+  assert.match(
+    validateManifest({ schema_version: 1, variants: [{ ...good.variants[0], intent: 'too short' }] }),
+    /intent/
+  );
+  assert.match(
+    validateManifest({ schema_version: 1, variants: [{ ...good.variants[0], file: 'resume.docx' }] }),
+    /file/
+  );
+  assert.match(
+    validateManifest({ schema_version: 1, variants: [{ ...good.variants[0], id: 'ML Engineer' }] }),
+    /slug/
+  );
+
+  // Cache key: stable for identical inputs, changes on intent edit or new text
+  const variant = good.variants[0];
+  const key = variantCacheKey('resume text body', variant);
+  assert.strictEqual(variantCacheKey('resume text body', variant), key);
+  assert.notStrictEqual(variantCacheKey('resume text body', { ...variant, intent: 'Rewritten intent line here' }), key);
+  assert.notStrictEqual(variantCacheKey('different resume text', variant), key);
+  // Renaming the id must NOT invalidate the cache (id is display/routing only)
+  assert.strictEqual(variantCacheKey('resume text body', { ...variant, id: 'renamed' }), key);
+
+  // Variant profile normalization: short terms dropped, weights clamped,
+  // duplicate terms and self-aliases removed
+  const normalized = normalizeVariantProfile({
+    skills: [
+      { term: 'PyTorch', weight: 5, aliases: ['torch', 'PyTorch', 'x'] },
+      { term: 'r', weight: 3 },
+      { term: 'pytorch', weight: 1 },
+      { term: ' sql ', weight: 0 }
+    ]
+  });
+  assert.deepStrictEqual(normalized.skills, [
+    { term: 'pytorch', weight: 3, aliases: ['torch'] },
+    { term: 'sql', weight: 1, aliases: [] }
+  ]);
+
+  // Core reconciliation: degree union (completed beats in_progress), most
+  // senior stage, max years, avoid-signal union
+  const core = reconcileCore([
+    {
+      summary: 'ML person.',
+      career_stage: 'early_career',
+      years_experience: 3,
+      degrees: [
+        { level: 'masters', field: 'Computer Science', status: 'in_progress' },
+        { level: 'bachelors', field: 'Math', status: 'completed' }
+      ],
+      avoid_signals: ['registered nurse'],
+      notes_for_ranking: 'Prefers computational roles.'
+    },
+    {
+      summary: 'Data person.',
+      career_stage: 'mid_career',
+      years_experience: 5,
+      degrees: [{ level: 'masters', field: 'computer science', status: 'completed' }],
+      avoid_signals: ['Registered Nurse', 'phlebotomy'],
+      notes_for_ranking: 'Prefers computational roles.'
+    }
+  ]);
+  assert.strictEqual(core.career_stage, 'mid_career');
+  assert.strictEqual(core.years_experience, 5);
+  assert.strictEqual(core.summary, 'ML person.');
+  assert.deepStrictEqual(core.degrees, [
+    { level: 'masters', field: 'Computer Science', status: 'completed' },
+    { level: 'bachelors', field: 'Math', status: 'completed' }
+  ]);
+  assert.deepStrictEqual(core.avoid_signals, ['registered nurse', 'phlebotomy']);
+  assert.strictEqual(core.notes_for_ranking, 'Prefers computational roles.');
+
+  // Scaffold id slugs
+  assert.strictEqual(slugify('ML Engineer Resume.pdf'), 'ml-engineer-resume');
+  assert.strictEqual(slugify('___.pdf'), 'variant');
+}
+
 async function main() {
   testSharedAnalyzer();
   testNegationGuard();
@@ -927,6 +1030,7 @@ async function main() {
   testAggregatedImporter();
   testEnrichPipeline();
   testEnrichment();
+  testProfileIngestion();
 
   console.log('Radar tests passed');
 }

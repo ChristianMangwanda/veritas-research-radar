@@ -16,12 +16,14 @@
     "scout:discover": "scout/.venv/bin/python scout/scout_discover.py",
     "radar:websites": "node radar/scripts/fetch-nonprofit-websites.js",
     "radar:profile": "node radar/scripts/build-profile.js",
+    "radar:route": "node radar/scripts/route-resumes.js",
     "test": "node tests/radar.test.js"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.110.0"
+    "@anthropic-ai/sdk": "^0.110.0",
+    "pdf-parse": "^1.1.1"
   }
 }
