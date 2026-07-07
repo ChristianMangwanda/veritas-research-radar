@@ -4,6 +4,41 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Added (Stage 5: resume-variant-aware ranking)
+- **Multi-variant resume ingestion** (`npm run radar:profile`): the user
+  maintains resume variants they wrote themselves (ML engineer, data
+  engineer, …), declared with a label + intent note in
+  `radar/data/resumes/manifest.json` (scaffolded on first run; txt/md/pdf).
+  One cached extraction call per variant builds `profile.json` v2 with
+  weighted matchable skill terms, taxonomy title classes, and a reconciled
+  core (degree union, most senior stage). The system never writes or edits
+  resume content — it only ranks and routes the user's own documents.
+- **Deterministic scoring engine** (`radar/public/scoring.js`, shared by
+  browser and node): per-variant word-boundary matching over posting text +
+  title-class alignment + degree gate parsed from description text (softener
+  and negation aware; postdoc/faculty imply PhD) + citizenship gate +
+  sponsorship-evidence tiebreak. Reachability demotes and flags — never
+  hides a job. Verdict tiers strong/good/moderate/weak/stretch; hard gates
+  cap at stretch. 9k jobs × 5 variants score in ~0.6s.
+- **Dashboard**: profile card (variants, core facts, import/clear), per-row
+  "use <variant>" chip with verdict tier and ⚠ gate flags, and a why panel
+  (per-variant score bars, matched terms grouped by weight, degree-gate
+  evidence snippet, bonus ledger). Local server serves `/api/profile` +
+  `/api/route-cache`; GitHub Pages imports the same files into localStorage.
+  The old pasted-resume heuristic is deleted.
+- **Optional local routing** (`npm run radar:route`): ambiguous variant calls
+  (top two scores within 8 points) are re-judged by a local Ollama model
+  (default qwen3:8b, structured JSON output, temperature 0) and cached in
+  the gitignored `route-cache.json`, keyed to the profile hash so profile
+  edits invalidate verdicts. No Ollama → deterministic routing stands. Job
+  text and skill terms go to the local model only; resumes never leave disk.
+
+### Fixed
+- Pages dashboard rendered 0 jobs once the dataset passed ~9k rows: the
+  fully parallel Supabase page fetch made deep-offset queries 500 under
+  burst, and the loader fell through to an empty static file. Pages now
+  fetch 3 at a time with one retry each (~9s to full data).
+
 ### Added (Stage 4: Supabase backbone — cutover complete)
 - The dataset of record moved from a 22MB git-committed jobs.json to Supabase
   Postgres: CI refreshes upsert every job (dedup fixed: one Workday feed listed

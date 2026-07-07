@@ -282,7 +282,9 @@ async function scaffoldManifest() {
 
 async function loadManifest() {
   const manifest = await readJson(MANIFEST_PATH, null);
-  if (!manifest) {
+  // Missing manifest, or an untouched empty scaffold (user dropped resume
+  // files in after the first run): (re)scaffold from the directory listing.
+  if (!manifest || (Array.isArray(manifest.variants) && manifest.variants.length === 0)) {
     await scaffoldManifest();
     process.exit(1);
   }
