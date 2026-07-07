@@ -5,28 +5,42 @@
  *
  * The user maintains several resume variants they wrote themselves (ML
  * engineer, data engineer, ...), declared in radar/data/resumes/manifest.json
- * with a label and an intent note. For each variant this script has Claude
- * extract a structured, matchable profile (title classes from the radar's own
- * taxonomy, weighted skill terms with aliases, degrees, domains), reconciles
- * the shared facts into a core block, and writes radar/data/profile.json v2.
+ * with a label and an intent note. For each variant this script extracts a
+ * structured, matchable profile (title classes from the radar's own taxonomy,
+ * weighted skill terms with aliases, degrees, domains), reconciles the shared
+ * facts into a core block, and writes radar/data/profile.json v2.
  *
- * Nothing here writes or edits resume content — extraction only. Resume text
- * and the derived profile never leave this machine except the one extraction
- * API call per variant (cached by content hash, so re-runs are free).
+ * Extraction runs on a LOCAL open-source model via Ollama by default, so
+ * resume text never leaves the machine at all. Structured extraction is
+ * shallow work a 7-8B model handles well. A hosted Claude fallback stays
+ * available for when local quality is not enough (--provider anthropic).
+ *
+ * Nothing here writes or edits resume content — extraction only. Results are
+ * cached by content hash + model, so re-runs and added variants are cheap.
  *
  * The dashboard then ranks all jobs deterministically against the variants —
- * no per-job API calls — and recommends which resume to use per job.
+ * no per-job model calls — and recommends which resume to use per job.
  *
  * Usage:
- *   ANTHROPIC_API_KEY=sk-... npm run radar:profile              # manifest mode
- *   ANTHROPIC_API_KEY=sk-... npm run radar:profile -- resume.txt # single file
+ *   npm run radar:profile                          # local Ollama, manifest mode
+ *   npm run radar:profile -- resume.txt            # local Ollama, single file
+ *   npm run radar:profile -- --model qwen2.5:14b-instruct
+ *   ANTHROPIC_API_KEY=sk-... npm run radar:profile -- --provider anthropic
  *   Flags: --force   re-extract even when the cache has an entry
+ *          --provider ollama|anthropic  (default: ollama)
+ *          --model <tag>                override the model (also OLLAMA_MODEL env)
  */
 
 const fsp = require('fs/promises');
 const path = require('path');
 const crypto = require('crypto');
 const { CLASS_LABELS } = require('./lib/title-class.js');
+const {
+  DEFAULT_BASE_URL,
+  DEFAULT_MODEL: OLLAMA_DEFAULT_MODEL,
+  ollamaAvailable,
+  ollamaChat
+} = require('./lib/ollama.js');
 
 const DATA_DIR = path.resolve(__dirname, '../data');
 const RESUMES_DIR = path.join(DATA_DIR, 'resumes');
@@ -34,11 +48,14 @@ const MANIFEST_PATH = path.join(RESUMES_DIR, 'manifest.json');
 const CACHE_PATH = path.join(RESUMES_DIR, '.extract-cache.json');
 const OUT_PATH = path.join(DATA_DIR, 'profile.json');
 
-const MODEL = 'claude-opus-4-8';
+const ANTHROPIC_MODEL = 'claude-opus-4-8';
 const PROFILE_SCHEMA_VERSION = 2;
 const RESUME_EXTENSIONS = ['.txt', '.md', '.pdf'];
 const MIN_RESUME_CHARS = 200;
 const MIN_INTENT_CHARS = 10;
+// Local models default to 128 predicted tokens in some Ollama versions, which
+// truncates a profile mid-JSON — give the structured output room to finish.
+const OLLAMA_NUM_PREDICT = 8192;
 
 const TITLE_CLASSES = Object.keys(CLASS_LABELS);
 
@@ -146,8 +163,11 @@ function validateManifest(manifest) {
   return null;
 }
 
-function variantCacheKey(text, variant, model = MODEL) {
-  const material = JSON.stringify([PROFILE_SCHEMA_VERSION, model, variant.label, variant.intent, text]);
+// modelTag ("ollama:qwen2.5:7b-instruct" or "claude-opus-4-8") is part of the
+// key so switching provider or model re-extracts rather than serving a stale
+// profile made by a different model.
+function variantCacheKey(text, variant, modelTag = ANTHROPIC_MODEL) {
+  const material = JSON.stringify([PROFILE_SCHEMA_VERSION, modelTag, variant.label, variant.intent, text]);
   return crypto.createHash('sha256').update(material).digest('hex');
 }
 
@@ -299,31 +319,53 @@ async function loadManifest() {
 /* ------------------------------------------------------------------------ */
 /* Extraction                                                                */
 
-function createClient() {
-  // Lazy require keeps `npm test` and CI free of the SDK dependency.
-  const Anthropic = require('@anthropic-ai/sdk');
-  return { client: new Anthropic(), Anthropic };
+function variantUserPrompt(text, variant) {
+  return `This resume is the candidate's "${variant.label}" variant. Their declared intent for it: "${variant.intent}". Extract skills, domains, and target titles as they present them in THIS variant.\n\n${text}`;
 }
 
-async function extractVariant(clientBundle, text, variant) {
-  const { client, Anthropic } = clientBundle;
+async function extractVariant(ctx, text, variant) {
+  if (ctx.provider === 'anthropic') return extractVariantAnthropic(ctx, text, variant);
+  return extractVariantOllama(ctx, text, variant);
+}
+
+async function extractVariantOllama(ctx, text, variant) {
+  const parsed = await ollamaChat({
+    baseUrl: ctx.baseUrl,
+    model: ctx.model,
+    system: SYSTEM_PROMPT,
+    user: variantUserPrompt(text, variant),
+    format: VARIANT_SCHEMA,
+    options: { temperature: 0, num_predict: OLLAMA_NUM_PREDICT }
+  });
+  if (!parsed) {
+    console.error(`The local model returned no usable JSON for "${variant.label}".`);
+    console.error(`Try a larger model (e.g. --model qwen2.5:14b-instruct) or the hosted fallback (--provider anthropic).`);
+    process.exit(1);
+  }
+  return normalizeVariantProfile(parsed);
+}
+
+async function extractVariantAnthropic(ctx, text, variant) {
+  if (!ctx.anthropic) {
+    // Lazy require keeps `npm test` and CI free of the SDK dependency.
+    const Anthropic = require('@anthropic-ai/sdk');
+    ctx.anthropic = { client: new Anthropic(), Anthropic };
+  }
+  const { client, Anthropic } = ctx.anthropic;
   let response;
   try {
     response = await client.messages.create({
-      model: MODEL,
+      model: ctx.model,
       max_tokens: 16000,
       thinking: { type: 'adaptive' },
       system: SYSTEM_PROMPT,
       output_config: { format: { type: 'json_schema', schema: VARIANT_SCHEMA } },
-      messages: [{
-        role: 'user',
-        content: `This resume is the candidate's "${variant.label}" variant. Their declared intent for it: "${variant.intent}". Extract skills, domains, and target titles as they present them in THIS variant.\n\n${text}`
-      }]
+      messages: [{ role: 'user', content: variantUserPrompt(text, variant) }]
     });
   } catch (error) {
     if (error instanceof Anthropic.AuthenticationError) {
       console.error('No valid Anthropic credentials. Set ANTHROPIC_API_KEY and rerun:');
-      console.error('  ANTHROPIC_API_KEY=sk-ant-... npm run radar:profile');
+      console.error('  ANTHROPIC_API_KEY=sk-ant-... npm run radar:profile -- --provider anthropic');
       process.exit(1);
     }
     throw error;
@@ -338,18 +380,43 @@ async function extractVariant(clientBundle, text, variant) {
   return normalizeVariantProfile(JSON.parse(textBlock.text));
 }
 
+function parseArgs(argv) {
+  const opts = { force: false, provider: 'ollama', model: null, positional: [] };
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === '--force') opts.force = true;
+    else if (arg === '--provider') opts.provider = argv[++i];
+    else if (arg === '--anthropic') opts.provider = 'anthropic';
+    else if (arg === '--ollama') opts.provider = 'ollama';
+    else if (arg === '--model') opts.model = argv[++i];
+    else if (arg.startsWith('--')) { /* ignore unknown flags */ }
+    else opts.positional.push(arg);
+  }
+  return opts;
+}
+
 /* ------------------------------------------------------------------------ */
 
 async function main() {
-  const args = process.argv.slice(2);
-  const force = args.includes('--force');
-  const positional = args.filter((arg) => !arg.startsWith('--'));
+  const opts = parseArgs(process.argv.slice(2));
+  const { force } = opts;
+
+  if (opts.provider !== 'ollama' && opts.provider !== 'anthropic') {
+    console.error(`Unknown --provider "${opts.provider}". Use ollama (default) or anthropic.`);
+    process.exit(1);
+  }
+
+  const model = opts.provider === 'ollama'
+    ? (opts.model || OLLAMA_DEFAULT_MODEL)
+    : (opts.model || ANTHROPIC_MODEL);
+  const modelTag = opts.provider === 'ollama' ? `ollama:${model}` : model;
+  const ctx = { provider: opts.provider, model, baseUrl: DEFAULT_BASE_URL, anthropic: null, ollamaChecked: false };
 
   let manifest;
   let baseDir;
-  if (positional.length > 0) {
+  if (opts.positional.length > 0) {
     // Legacy single-file mode: one variant named "default".
-    const resumePath = path.resolve(positional[0]);
+    const resumePath = path.resolve(opts.positional[0]);
     manifest = {
       schema_version: 1,
       variants: [{
@@ -368,7 +435,6 @@ async function main() {
   const cache = await readJson(CACHE_PATH, { schema_version: 1, entries: {} });
   if (!cache.entries || typeof cache.entries !== 'object') cache.entries = {};
 
-  let clientBundle = null;
   const variants = [];
   let extractedCount = 0;
   let cachedCount = 0;
@@ -387,14 +453,24 @@ async function main() {
       process.exit(1);
     }
 
-    const key = variantCacheKey(text, variant);
+    const key = variantCacheKey(text, variant, modelTag);
     let entry = force ? null : cache.entries[key];
     if (entry) {
       cachedCount += 1;
     } else {
-      if (!clientBundle) clientBundle = createClient();
-      console.log(`Extracting "${variant.label}" (${MODEL})…`);
-      const profile = await extractVariant(clientBundle, text, variant);
+      // Check the local model is reachable only when we actually need it — an
+      // all-cached run needs no model at all.
+      if (ctx.provider === 'ollama' && !ctx.ollamaChecked) {
+        if (!(await ollamaAvailable(ctx.baseUrl))) {
+          console.error(`Ollama is not reachable at ${ctx.baseUrl}.`);
+          console.error(`Install https://ollama.com, then: ollama pull ${ctx.model}`);
+          console.error('Or use the hosted model: npm run radar:profile -- --provider anthropic');
+          process.exit(1);
+        }
+        ctx.ollamaChecked = true;
+      }
+      console.log(`Extracting "${variant.label}" (${modelTag})…`);
+      const profile = await extractVariant(ctx, text, variant);
       entry = { extracted_at: new Date().toISOString(), variant_profile: profile };
       cache.entries[key] = entry;
       await writeJson(CACHE_PATH, cache);
@@ -416,7 +492,7 @@ async function main() {
   const output = {
     schema_version: PROFILE_SCHEMA_VERSION,
     generated_at: new Date().toISOString(),
-    model: MODEL,
+    model: modelTag,
     core,
     variants: variants.map((variant) => ({
       id: variant.id,
@@ -455,7 +531,9 @@ module.exports = {
   variantCacheKey,
   sourceHash,
   normalizeVariantProfile,
-  reconcileCore
+  reconcileCore,
+  variantUserPrompt,
+  parseArgs
 };
 
 if (require.main === module) {

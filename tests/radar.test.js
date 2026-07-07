@@ -46,7 +46,9 @@ const {
   variantCacheKey,
   normalizeVariantProfile,
   reconcileCore,
-  slugify
+  slugify,
+  variantUserPrompt,
+  parseArgs
 } = require('../radar/scripts/build-profile.js');
 const { CLASS_LABELS } = require('../radar/scripts/lib/title-class.js');
 const RadarScoring = require('../radar/public/scoring.js');
@@ -56,6 +58,7 @@ const {
   buildRoutePrompt,
   askOllama
 } = require('../radar/scripts/route-resumes.js');
+const { ollamaChat } = require('../radar/scripts/lib/ollama.js');
 
 function testSharedAnalyzer() {
   assert.strictEqual(analyzeText('Visa sponsorship is available for this role.').state, 'FRIENDLY');
@@ -1399,6 +1402,65 @@ async function testRouterSelection() {
   }
 }
 
+async function testLocalExtraction() {
+  // Arg parsing: local Ollama is the default; provider/model/positional split
+  assert.deepStrictEqual(parseArgs([]), { force: false, provider: 'ollama', model: null, positional: [] });
+  assert.strictEqual(parseArgs(['--provider', 'anthropic']).provider, 'anthropic');
+  assert.strictEqual(parseArgs(['--anthropic']).provider, 'anthropic');
+  assert.strictEqual(parseArgs(['--model', 'qwen2.5:14b-instruct']).model, 'qwen2.5:14b-instruct');
+  assert.strictEqual(parseArgs(['--force']).force, true);
+  // "--provider anthropic" must not leak its value into positional (single-file) args
+  assert.deepStrictEqual(parseArgs(['--provider', 'anthropic', 'resume.txt']).positional, ['resume.txt']);
+
+  // The extraction prompt carries the variant's declared label + intent
+  const prompt = variantUserPrompt('RESUME BODY', { label: 'ML Engineer', intent: 'Leads with production ML' });
+  assert(prompt.includes('"ML Engineer"'));
+  assert(prompt.includes('Leads with production ML'));
+  assert(prompt.includes('RESUME BODY'));
+
+  // Cache key is model-tag sensitive: a local profile and a hosted profile of
+  // the same resume must not collide
+  const variant = { label: 'ML Engineer', intent: 'Leads with production ML' };
+  const localKey = variantCacheKey('body', variant, 'ollama:qwen2.5:7b-instruct');
+  const hostedKey = variantCacheKey('body', variant, 'claude-opus-4-8');
+  assert.notStrictEqual(localKey, hostedKey);
+  assert.strictEqual(variantCacheKey('body', variant, 'ollama:qwen2.5:7b-instruct'), localKey);
+
+  // Shared Ollama client: structured happy path, parse-fail, and HTTP error
+  const originalFetch = globalThis.fetch;
+  try {
+    let body = null;
+    globalThis.fetch = async (url, init) => {
+      body = JSON.parse(init.body);
+      return { ok: true, json: async () => ({ message: { content: '{"summary":"x","skills":[]}' } }) };
+    };
+    const parsed = await ollamaChat({
+      baseUrl: 'http://stub', model: 'qwen2.5:7b-instruct',
+      system: 'S', user: 'U', format: { type: 'object' }, options: { temperature: 0, num_predict: 8192 }
+    });
+    assert.deepStrictEqual(parsed, { summary: 'x', skills: [] });
+    assert.strictEqual(body.stream, false);
+    assert.strictEqual(body.model, 'qwen2.5:7b-instruct');
+    assert.strictEqual(body.options.num_predict, 8192);
+    assert.deepStrictEqual(body.messages, [{ role: 'system', content: 'S' }, { role: 'user', content: 'U' }]);
+    assert(body.format);
+
+    globalThis.fetch = async () => ({ ok: true, json: async () => ({ message: { content: 'not json' } }) });
+    assert.strictEqual(await ollamaChat({ baseUrl: 'http://stub', model: 'm', user: 'U' }), null);
+
+    globalThis.fetch = async () => ({ ok: false, status: 500, text: async () => 'boom' });
+    let threw = false;
+    try {
+      await ollamaChat({ baseUrl: 'http://stub', model: 'm', user: 'U' });
+    } catch (error) {
+      threw = /ollama 500/.test(error.message);
+    }
+    assert(threw);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
 async function main() {
   testSharedAnalyzer();
   testNegationGuard();
@@ -1428,6 +1490,7 @@ async function main() {
   testRoutingAmbiguity();
   testProfileV2();
   await testRouterSelection();
+  await testLocalExtraction();
 
   console.log('Radar tests passed');
 }

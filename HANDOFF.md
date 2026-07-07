@@ -29,29 +29,38 @@ npm run radar:enrich            # monthly joins (downloads ~350MB, cached 25 day
 npm run radar:enrich -- --offline   # rerun from cache (deterministic)
 npm run radar:import-dol -- path/to/LCA.csv   # manual DOL signal import
 npm run radar:import-scouted    # validate + merge scout snapshots
-npm run radar:profile           # extract resume variants -> profile.json (needs ANTHROPIC_API_KEY)
+npm run radar:profile           # extract resume variants -> profile.json (local Ollama by default)
 npm run radar:route             # optional: local Ollama resolves ambiguous variant calls
 ```
+
+Both resume steps run a local model via Ollama (nothing leaves the machine).
+One shared knob: `OLLAMA_MODEL` (default `qwen2.5:7b-instruct`), `OLLAMA_URL`
+(default localhost). `radar:profile -- --provider anthropic` switches
+extraction to hosted Claude if local quality is not enough.
 
 ## Resume-variant ritual (ranking + routing)
 
 The radar never writes resumes — you do. It ranks jobs against your own
 resume variants and tells you which one to send.
 
+0. Install [Ollama](https://ollama.com) and `ollama pull qwen2.5:7b-instruct`
+   (the same model serves both extraction and routing). Extraction is
+   structured parsing, not deep reasoning — a local 7-8B model handles it and
+   your resume text never leaves the machine.
 1. Drop your resume variants (txt/md/pdf) into `radar/data/resumes/`
    (gitignored). Run `npm run radar:profile` once — it scaffolds
    `manifest.json`; fill in each variant's `label` and one-line `intent`
-   ("Leads with production ML, PyTorch, MLOps") and re-run. One extraction
-   API call per variant, cached by content hash: adding a 6th resume later
-   re-extracts only the new one (`--force` to redo all).
+   ("Leads with production ML, PyTorch, MLOps") and re-run. One local
+   extraction per variant, cached by content hash + model: adding a 6th
+   resume later re-extracts only the new one (`--force` to redo all). If the
+   local profile looks thin, re-run with `-- --provider anthropic`.
 2. Reload the dashboard. Jobs now carry a fit score, a verdict tier, a
    "use <variant>" chip, and ⚠ flags for hard gates (PhD required,
    citizens-only). Gates demote — they never hide a job. The detail pane's
    why panel shows per-variant scores, matched terms, and the posting's own
    degree-requirement sentence.
-3. Optional: install [Ollama](https://ollama.com), `ollama pull qwen3:8b`,
-   then `npm run radar:route` — a local model re-judges only the jobs where
-   two variants scored within 8 points and caches the verdicts
+3. Optional: `npm run radar:route` — the same local model re-judges only the
+   jobs where two variants scored within 8 points and caches the verdicts
    (`route-cache.json`, gitignored, invalidated when the profile changes).
 4. Hosted (Pages) dashboard: import `radar/data/profile.json` (and
    optionally `route-cache.json`) via the sidebar profile card — they
@@ -103,10 +112,11 @@ Any other producer that honors the contract works too.
 GitHub Actions only touches public data (ATS feeds, USAJOBS, IPEDS, IRS,
 USCIS). Resume files (`radar/data/resumes/`), the extracted profile
 (`profile.json`), routing verdicts (`route-cache.json`), and triage state
-(`local-state.json`) are all gitignored and stay local. Resume text leaves
-the machine only for the one extraction API call per variant; the Ollama
-routing step talks to a model on localhost. The DOL raw download stays
-local; only the aggregated per-employer signal is committed.
+(`local-state.json`) are all gitignored and stay local. By default both the
+extraction and routing steps run a local model via Ollama, so resume text
+never leaves the machine at all; only if you opt into `--provider anthropic`
+does resume text go to a hosted model. The DOL raw download stays local;
+only the aggregated per-employer signal is committed.
 
 ## Current data status
 

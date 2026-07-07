@@ -27,14 +27,13 @@
 const fsp = require('fs/promises');
 const path = require('path');
 const RadarScoring = require('../public/scoring.js');
+const { DEFAULT_BASE_URL, DEFAULT_MODEL, ollamaAvailable, ollamaChat } = require('./lib/ollama.js');
 
 const DATA_DIR = path.resolve(__dirname, '../data');
 const PROFILE_PATH = path.join(DATA_DIR, 'profile.json');
 const JOBS_PATH = path.join(DATA_DIR, 'jobs.json');
 const CACHE_PATH = path.join(DATA_DIR, 'route-cache.json');
 
-const DEFAULT_MODEL = process.env.OLLAMA_MODEL || 'qwen3:8b';
-const DEFAULT_BASE_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
 const DESCRIPTION_SLICE = 2500;
 const CONFIDENCE_LEVELS = ['high', 'medium', 'low'];
 
@@ -88,53 +87,27 @@ function buildRoutePrompt(job, profile, fit) {
 }
 
 /* ------------------------------------------------------------------------ */
-/* Ollama                                                                    */
-
-async function ollamaAvailable(baseUrl) {
-  try {
-    const response = await fetch(`${baseUrl}/api/tags`);
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
+/* Ollama (shared client in lib/ollama.js)                                   */
 
 async function askOllama(job, profile, fit, { model, baseUrl }) {
   const variantIds = profile.variants.map((variant) => variant.id);
-  const response = await fetch(`${baseUrl}/api/chat`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      model,
-      stream: false,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: buildRoutePrompt(job, profile, fit) }
-      ],
-      format: {
-        type: 'object',
-        additionalProperties: false,
-        required: ['variant_id', 'confidence', 'reason'],
-        properties: {
-          variant_id: { type: 'string', enum: variantIds },
-          confidence: { type: 'string', enum: CONFIDENCE_LEVELS },
-          reason: { type: 'string' }
-        }
-      },
-      options: { temperature: 0 }
-    })
+  const parsed = await ollamaChat({
+    baseUrl,
+    model,
+    system: SYSTEM_PROMPT,
+    user: buildRoutePrompt(job, profile, fit),
+    format: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['variant_id', 'confidence', 'reason'],
+      properties: {
+        variant_id: { type: 'string', enum: variantIds },
+        confidence: { type: 'string', enum: CONFIDENCE_LEVELS },
+        reason: { type: 'string' }
+      }
+    },
+    options: { temperature: 0 }
   });
-  if (!response.ok) {
-    const body = await response.text().catch(() => '');
-    throw new Error(`ollama ${response.status}: ${body.slice(0, 200)}`);
-  }
-  const data = await response.json();
-  let parsed = null;
-  try {
-    parsed = JSON.parse(data.message?.content ?? '');
-  } catch {
-    return null;
-  }
   return validateVerdict(parsed, variantIds);
 }
 

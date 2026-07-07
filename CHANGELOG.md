@@ -9,10 +9,17 @@ All notable changes to Veritas are documented in this file.
   maintains resume variants they wrote themselves (ML engineer, data
   engineer, …), declared with a label + intent note in
   `radar/data/resumes/manifest.json` (scaffolded on first run; txt/md/pdf).
-  One cached extraction call per variant builds `profile.json` v2 with
-  weighted matchable skill terms, taxonomy title classes, and a reconciled
-  core (degree union, most senior stage). The system never writes or edits
-  resume content — it only ranks and routes the user's own documents.
+  One cached extraction per variant builds `profile.json` v2 with weighted
+  matchable skill terms, taxonomy title classes, and a reconciled core
+  (degree union, most senior stage). The system never writes or edits resume
+  content — it only ranks and routes the user's own documents.
+- **Local-first extraction**: extraction defaults to a local open-source
+  model via Ollama (`qwen2.5:7b-instruct`), so resume text never leaves the
+  machine at all — structured extraction is shallow work a 7-8B model handles
+  well. Hosted Claude stays available as a fallback (`--provider anthropic`);
+  `--model` / `OLLAMA_MODEL` override the model; the cache key includes the
+  model so switching re-extracts. Shared Ollama client in
+  `radar/scripts/lib/ollama.js` (also used by the router).
 - **Deterministic scoring engine** (`radar/public/scoring.js`, shared by
   browser and node): per-variant word-boundary matching over posting text +
   title-class alignment + degree gate parsed from description text (softener
@@ -27,11 +34,11 @@ All notable changes to Veritas are documented in this file.
   `/api/route-cache`; GitHub Pages imports the same files into localStorage.
   The old pasted-resume heuristic is deleted.
 - **Optional local routing** (`npm run radar:route`): ambiguous variant calls
-  (top two scores within 8 points) are re-judged by a local Ollama model
-  (default qwen3:8b, structured JSON output, temperature 0) and cached in
-  the gitignored `route-cache.json`, keyed to the profile hash so profile
-  edits invalidate verdicts. No Ollama → deterministic routing stands. Job
-  text and skill terms go to the local model only; resumes never leave disk.
+  (top two scores within 8 points) are re-judged by the same local Ollama
+  model (structured JSON output, temperature 0) and cached in the gitignored
+  `route-cache.json`, keyed to the profile hash so profile edits invalidate
+  verdicts. No Ollama → deterministic routing stands. Job text and skill
+  terms go to the local model only; resumes never leave disk.
 
 ### Fixed
 - Pages dashboard rendered 0 jobs once the dataset passed ~9k rows: the
