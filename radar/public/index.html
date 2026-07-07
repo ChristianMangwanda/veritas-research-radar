@@ -144,16 +144,20 @@
         </label>
 
         <section class="profile">
-          <h2>Local profile match</h2>
-          <p class="profile-note">Resume text stays in this browser. It is never uploaded or committed.</p>
-          <textarea id="resume" rows="6" placeholder="Paste resume text to score fit against each posting…"></textarea>
+          <h2>Resume profile</h2>
+          <div id="profile-summary" class="profile-summary"></div>
           <div class="profile-actions">
             <label class="file-button">
-              Load file
-              <input id="resume-file" type="file" accept=".txt,.md,.text">
+              Import profile.json
+              <input id="profile-file" type="file" accept=".json,application/json">
+            </label>
+            <label class="file-button">
+              Import route verdicts
+              <input id="route-file" type="file" accept=".json,application/json">
             </label>
             <button id="clear-profile" class="ghost-button" type="button">Clear</button>
           </div>
+          <p class="profile-note">Built locally by <code>npm run radar:profile</code> from your own resumes. Stays in this browser.</p>
         </section>
       </aside>
 
@@ -219,6 +223,7 @@
       </article>
     </template>
 
+    <script src="scoring.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

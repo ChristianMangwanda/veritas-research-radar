@@ -2,7 +2,10 @@ const state = {
   jobs: [],
   employers: [],
   local: { version: 1, triage: {} },
-  profile: null,
+  profile: null,      // profile.json v2 (user's own resume variants)
+  compiled: null,     // RadarScoring.compileProfile(profile)
+  routeCache: null,   // local Ollama routing verdicts (route-cache.json)
+  profileError: null, // validation message when an import is rejected
   lastVisit: null,
   selectedId: null,
   visible: []
@@ -36,14 +39,10 @@ const TRIAGE_COLORS = {
 const VISA_LABELS = { FRIENDLY: 'Friendly', RESTRICTED: 'Restricted', NEUTRAL: 'No visa language' };
 const VISA_TAGS = { FRIENDLY: 'tag-friendly', RESTRICTED: 'tag-restricted', NEUTRAL: '' };
 
-const SKILLS = [
-  'python', 'r', 'sql', 'javascript', 'typescript', 'node', 'react', 'nextflow',
-  'snakemake', 'docker', 'kubernetes', 'aws', 'gcp', 'azure', 'linux', 'bash',
-  'machine learning', 'deep learning', 'pytorch', 'tensorflow', 'scikit-learn',
-  'statistics', 'data visualization', 'bioinformatics', 'genomics', 'rna-seq',
-  'single-cell', 'proteomics', 'clinical research', 'nlp', 'llm', 'postgres',
-  'spark', 'airflow', 'git', 'api', 'etl', 'data engineering'
-];
+const VERDICT_TAGS = { strong: 'tag-friendly', good: 'tag-accent', moderate: '', weak: 'tag-warn', stretch: 'tag-warn' };
+
+// One stable color per resume variant, assigned by manifest order
+const VARIANT_COLORS = ['#7c6ff0', '#2f9e8f', '#d97740', '#c65b8a', '#5b8ac6', '#a3a34a', '#8a6d5b', '#5aa869'];
 
 const DOM = {
   jobs: document.querySelector('#jobs'),
@@ -76,8 +75,9 @@ const DOM = {
   minResearch: document.querySelector('#min-research'),
   minResearchValue: document.querySelector('#min-research-value'),
   resetFilters: document.querySelector('#reset-filters'),
-  resume: document.querySelector('#resume'),
-  resumeFile: document.querySelector('#resume-file'),
+  profileSummary: document.querySelector('#profile-summary'),
+  profileFile: document.querySelector('#profile-file'),
+  routeFile: document.querySelector('#route-file'),
   clearProfile: document.querySelector('#clear-profile'),
   rowTemplate: document.querySelector('#job-row-template'),
   detailPane: document.querySelector('#detail-pane'),
@@ -212,70 +212,102 @@ async function saveLocalState() {
 }
 
 /* ------------------------------------------------------------------------ */
-/* Profile fit scoring (all local; resume text never leaves the browser)     */
+/* Resume-variant profile (all local; built by npm run radar:profile from    */
+/* the user's OWN resumes — nothing here generates resume content)           */
 
-function extractProfile(text) {
-  const lower = text.toLowerCase();
-  const skills = SKILLS.filter((skill) => hasTerm(lower, skill));
-  const degrees = [];
-  if (/\b(ph\.?d|doctorate|doctoral)\b/i.test(text)) degrees.push('phd');
-  if (/\b(master|m\.s\.|msc|m\.sc)\b/i.test(text)) degrees.push('masters');
-  if (/\b(bachelor|b\.s\.|bsc|b\.sc)\b/i.test(text)) degrees.push('bachelors');
-
-  const domains = [];
-  for (const domain of ['bioinformatics', 'genomics', 'computational biology', 'data science', 'machine learning', 'clinical research', 'software engineering']) {
-    if (hasTerm(lower, domain)) domains.push(domain);
-  }
-
-  return { skills, degrees, domains, rawLength: text.trim().length };
-}
+const PROFILE_KEY = 'veritas_radar_profile';
+const ROUTE_CACHE_KEY = 'veritas_radar_route_cache';
 
 function jobText(job) {
   return `${job.title} ${job.department} ${job.employer_name} ${job.description_text}`.toLowerCase();
 }
 
-// Word-boundary term matching: bare includes() made single-letter skills like
-// "r" match every posting and "api" match "rapid"
-const TERM_REGEXES = new Map();
-function hasTerm(text, term) {
-  let regex = TERM_REGEXES.get(term);
-  if (!regex) {
-    regex = new RegExp(`\\b${escapeRegExp(term)}\\b`, 'i');
-    TERM_REGEXES.set(term, regex);
-  }
-  return regex.test(text);
+function loadProfileFromBrowser() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(PROFILE_KEY));
+    if (stored && !RadarScoring.validateProfile(stored)) return stored;
+  } catch { /* corrupted -> none */ }
+  return null;
 }
 
-function scoreFit(job) {
-  if (!state.profile || state.profile.rawLength < 50) {
-    return { fit_score: null, matched_skills: [], missing_skills: [], fit_summary: 'Paste resume text to compute local fit.' };
-  }
-  const text = jobText(job);
-  const matchedSkills = state.profile.skills.filter((skill) => hasTerm(text, skill));
-  const missingSkills = state.profile.skills.filter((skill) => !hasTerm(text, skill)).slice(0, 6);
-  const matchedDomains = state.profile.domains.filter((domain) => hasTerm(text, domain));
-  let score = 20;
-  score += Math.min(matchedSkills.length * 8, 40);
-  score += Math.min(matchedDomains.length * 12, 24);
-  score += Math.round((job.research_relevance_score || 0) * 0.16);
-  score += phdPenalty(text);
-  if (job.veritas_state === 'RESTRICTED') score -= 35;
-  score = Math.max(0, Math.min(100, score));
-  const fit_summary = `${score >= 75 ? 'Strong' : score >= 50 ? 'Possible' : 'Weak'} fit — ${matchedSkills.length} matching skills, ${matchedDomains.length} matching domains.`;
-  return { fit_score: score, matched_skills: matchedSkills, missing_skills: missingSkills, fit_summary };
+function loadRouteCacheFromBrowser() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(ROUTE_CACHE_KEY));
+    if (stored && typeof stored.verdicts === 'object') return stored;
+  } catch { /* corrupted -> none */ }
+  return null;
 }
 
-// Only penalize hard PhD requirements; "PhD preferred" or "or equivalent" should
-// not sink the score for masters/bachelors candidates
-function phdPenalty(text) {
-  if (state.profile.degrees.includes('phd')) return 0;
-  if (!/\b(phd|ph\.d|doctorate|doctoral)\b/i.test(text)) return 0;
-  const softened = /\b(ph\.?d|doctorate|doctoral)\b[^.]{0,60}\b(preferred|desirable|a plus|or equivalent)\b/i.test(text)
-    || /\b(preferred|desirable)\b[^.]{0,60}\b(ph\.?d|doctorate|doctoral)\b/i.test(text);
-  if (softened) return 0;
-  const required = /\b(ph\.?d|doctorate|doctoral degree)\b[^.]{0,60}\b(required|must|necessary)\b/i.test(text)
-    || /\b(requires?|must\s+(hold|have|possess))\b[^.]{0,60}\b(ph\.?d|doctorate|doctoral)\b/i.test(text);
-  return required ? -18 : -4;
+// Compile + score exactly once per profile/route-cache change (9k jobs x
+// variants is far too much work to redo per keystroke); rows read the
+// pre-stamped job.fit afterwards.
+function applyProfile(profile, routeCache) {
+  state.profile = profile || null;
+  state.routeCache = routeCache || null;
+  state.compiled = profile ? RadarScoring.compileProfile(profile) : null;
+  RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
+  renderProfileCard();
+}
+
+function variantColor(variantId) {
+  const index = (state.profile?.variants || []).findIndex((variant) => variant.id === variantId);
+  return VARIANT_COLORS[(index >= 0 ? index : 0) % VARIANT_COLORS.length];
+}
+
+function variantAbbrev(variantId) {
+  return String(variantId || '').toUpperCase().slice(0, 6);
+}
+
+function variantDot(variantId) {
+  const dot = el('span', 'variant-dot');
+  dot.style.background = variantColor(variantId);
+  return dot;
+}
+
+function renderProfileCard() {
+  DOM.profileSummary.replaceChildren();
+
+  if (state.profileError) {
+    DOM.profileSummary.append(el('p', 'profile-error', state.profileError));
+  }
+
+  if (!state.profile) {
+    DOM.profileSummary.append(el('p', 'profile-empty',
+      'No profile loaded. Build one locally from your resumes with npm run radar:profile — the local dashboard picks it up on reload; on the hosted dashboard, import profile.json here.'));
+    return;
+  }
+
+  const core = state.profile.core || {};
+  const degrees = (core.degrees || [])
+    .map((degree) => `${degree.level}${degree.status === 'in_progress' ? '*' : ''}`)
+    .join(', ');
+  DOM.profileSummary.append(el('p', 'profile-core',
+    [degrees || null, (core.career_stage || '').replace(/_/g, ' ') || null,
+      Number.isFinite(core.years_experience) ? `${core.years_experience} yrs` : null]
+      .filter(Boolean).join(' · ')));
+
+  const list = el('ul', 'profile-variants');
+  for (const variant of state.profile.variants) {
+    const item = el('li');
+    item.append(
+      variantDot(variant.id),
+      el('span', 'variant-abbrev', variantAbbrev(variant.id)),
+      el('span', 'variant-label', variant.label),
+      el('span', 'variant-terms', `${(variant.skills || []).length} terms`)
+    );
+    item.title = variant.intent || '';
+    list.append(item);
+  }
+  DOM.profileSummary.append(list);
+
+  if (state.routeCache && state.compiled && state.routeCache.profile_hash !== state.compiled.hash) {
+    DOM.profileSummary.append(el('p', 'profile-error',
+      'Route verdicts were decided against an older profile and are ignored — re-run npm run radar:route.'));
+  } else if (state.routeCache && state.compiled) {
+    const count = Object.keys(state.routeCache.verdicts || {}).length;
+    DOM.profileSummary.append(el('p', 'profile-routing',
+      `${count} routing verdict${count === 1 ? '' : 's'} from ${state.routeCache.model || 'local model'}`));
+  }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -339,8 +371,8 @@ function filteredJobs() {
   const sorter = SORTERS[DOM.sort.value] || SORTERS.fit;
   const source = DOM.source.value;
 
+  // job.fit is pre-stamped by applyProfile()/scoreAll() — never computed here
   return state.jobs
-    .map((job) => ({ ...job, fit: scoreFit(job) }))
     .filter((job) => !job.citizenship_gated || DOM.includeFederal.checked)
     .filter((job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)))
     .filter((job) => !DOM.newOnly.checked || isNewSinceLastVisit(job))
@@ -533,9 +565,21 @@ function buildRow(job) {
   if (job.veritas_state !== 'NEUTRAL') {
     chips.append(tag(VISA_LABELS[job.veritas_state] || job.veritas_state, VISA_TAGS[job.veritas_state] ?? ''));
   }
+  if (job.fit?.fit_score !== null && job.fit?.recommended_variant) {
+    const use = tag(`use ${variantAbbrev(job.fit.recommended_variant)}${job.fit.ambiguous && job.fit.recommended_source === 'deterministic' ? '?' : ''}`, 'tag-variant');
+    use.prepend(variantDot(job.fit.recommended_variant));
+    chips.append(use);
+    chips.append(tag(job.fit.verdict, VERDICT_TAGS[job.fit.verdict] ?? ''));
+    const gate = job.fit.gate;
+    if (gate?.citizenship) {
+      chips.append(tag('⚠ citizens only', 'tag-restricted'));
+    } else if (gate?.degree?.required && !gate.degree.met && !gate.degree.softened) {
+      chips.append(tag(`⚠ ${gate.degree.required} required`, 'tag-warn'));
+    }
+  }
 
   const scores = node.querySelector('.row-scores');
-  if (job.fit.fit_score !== null) {
+  if (job.fit?.fit_score != null) {
     const cell = el('span', 'score-cell', `fit ${job.fit.fit_score}`);
     cell.append(meter(job.fit.fit_score));
     scores.append(cell);
@@ -613,7 +657,7 @@ function renderDetail() {
 
   renderDetailAlerts(job);
   renderDetailSignals(job);
-  renderDetailFit(job);
+  renderDetailWhy(job);
   renderDetailDescription(job);
   DOM.detailDisclaimer.textContent = job.disclaimer || '';
 }
@@ -782,22 +826,100 @@ function renderDetailSignals(job) {
   }
 }
 
-function renderDetailFit(job) {
+// Terms the recommended variant matched in this posting (for highlighting)
+function recommendedMatchedTerms(fit) {
+  const variant = (fit?.variants || []).find((entry) => entry.id === fit.recommended_variant);
+  if (!variant) return [];
+  return [...variant.matched[3], ...variant.matched[2], ...variant.matched[1]];
+}
+
+const WEIGHT_LABELS = { 3: 'Core', 2: 'Solid', 1: 'Familiar' };
+
+function whyLine(label, ...content) {
+  const row = el('div', 'why-line');
+  row.append(el('span', 'why-label', label));
+  const value = el('span', 'why-value');
+  value.append(...content);
+  row.append(value);
+  return row;
+}
+
+function renderDetailWhy(job) {
   DOM.detailFit.replaceChildren();
-  if (job.fit.fit_score === null) {
-    DOM.detailFit.append(el('p', 'fit-skills', job.fit.fit_summary));
+  const fit = job.fit;
+  if (!fit || fit.fit_score === null) {
+    DOM.detailFit.append(el('p', 'fit-skills', fit ? fit.fit_summary : ''));
     return;
   }
-  DOM.detailFit.append(
-    el('p', 'fit-score', `Fit ${job.fit.fit_score} / 100`),
-    el('p', '', job.fit.fit_summary)
-  );
-  if (job.fit.matched_skills.length) {
-    DOM.detailFit.append(el('p', 'fit-skills', `Matched skills: ${job.fit.matched_skills.join(', ')}`));
+
+  const recommended = fit.variants.find((variant) => variant.id === fit.recommended_variant);
+  const headline = el('p', 'fit-score', `Fit ${fit.fit_score} / 100 — ${fit.verdict} fit`);
+  DOM.detailFit.append(headline);
+
+  if (recommended) {
+    const use = el('p', 'why-use');
+    use.append(variantDot(recommended.id), document.createTextNode(` Use your ${recommended.label} resume`));
+    if (fit.recommended_source === 'llm') {
+      use.append(el('span', 'signal-note',
+        `resolved locally by ${state.routeCache?.model || 'local model'}${fit.llm_reason ? `: ${fit.llm_reason}` : ''}`));
+    } else if (fit.ambiguous) {
+      use.append(el('span', 'signal-note',
+        'close call between variants — npm run radar:route resolves these with a local model'));
+    }
+    DOM.detailFit.append(use);
   }
-  if (job.fit.missing_skills.length) {
-    DOM.detailFit.append(el('p', 'fit-skills', `From your resume, not mentioned: ${job.fit.missing_skills.join(', ')}`));
+
+  // Per-variant score bars, best first
+  const variantList = el('div', 'why-variants');
+  for (const variant of fit.variants.slice().sort((a, b) => b.score - a.score || a.order - b.order)) {
+    const row = el('div', 'why-variant');
+    row.append(variantDot(variant.id), el('span', 'variant-label', variant.label), el('span', 'why-score', String(variant.score)));
+    row.append(meter(variant.score));
+    variantList.append(row);
+
+    const matchedParts = [3, 2, 1]
+      .filter((weight) => variant.matched[weight].length)
+      .map((weight) => `${WEIGHT_LABELS[weight]}: ${variant.matched[weight].join(', ')}`);
+    const notes = [];
+    if (variant.title_class_match) notes.push(`${variant.title_class_match} class match`);
+    if (variant.domain_hits.length) notes.push(`domains: ${variant.domain_hits.join(', ')}`);
+    if (variant.target_title_hit) notes.push('title match');
+    if (matchedParts.length || notes.length) {
+      variantList.append(el('p', 'why-matched', [...matchedParts, ...notes].join(' · ')));
+    }
   }
+  DOM.detailFit.append(variantList);
+
+  // Gates + bonuses — the honest "why is this ranked here" ledger
+  const ledger = el('div', 'why-ledger');
+  const degree = fit.gate?.degree;
+  if (degree?.required) {
+    const status = degree.met ? 'met'
+      : degree.softened ? `not met — softened (${degree.penalty})`
+        : degree.penalty === RadarScoring.WEIGHTS.DEGREE_GATE_IN_PROGRESS ? `in progress (${degree.penalty})`
+          : `not met (${degree.penalty})`;
+    const line = whyLine('Degree gate', document.createTextNode(`${degree.required} ${status}`));
+    if (degree.evidence) line.querySelector('.why-value').append(el('span', 'signal-note', `“${degree.evidence}”`));
+    ledger.append(line);
+  }
+  if (fit.gate?.citizenship) {
+    ledger.append(whyLine('Citizenship', document.createTextNode(`US citizens only (${RadarScoring.WEIGHTS.CITIZENSHIP_GATE})`)));
+  } else if (job.veritas_state === 'RESTRICTED') {
+    ledger.append(whyLine('Visa language', document.createTextNode(`restricted language (${RadarScoring.WEIGHTS.RESTRICTED_LANGUAGE})`)));
+  }
+  if (fit.gate?.stage_mismatch) {
+    ledger.append(whyLine('Seniority', document.createTextNode(`senior-titled role vs your stage (${RadarScoring.WEIGHTS.STAGE_MISMATCH})`)));
+  }
+  if (fit.avoid_hits.length) {
+    ledger.append(whyLine('Avoid signals', document.createTextNode(`${fit.avoid_hits.join(', ')}`)));
+  }
+  if (fit.evidence_bonus) {
+    ledger.append(whyLine('Sponsor evidence', document.createTextNode(`employer sponsors this role class (+${fit.evidence_bonus})`)));
+  }
+  if (fit.research_bonus) {
+    ledger.append(whyLine('Research relevance', document.createTextNode(`+${fit.research_bonus}`)));
+  }
+  if (ledger.childElementCount) DOM.detailFit.append(ledger);
 }
 
 function escapeHtml(text) {
@@ -819,7 +941,7 @@ function highlightDescription(job) {
   const visaClass = job.veritas_state === 'RESTRICTED' ? 'm-restricted' : 'm-friendly';
   const layers = [
     { phrases: job.matched_phrases || [], className: visaClass },
-    { phrases: [...(job.research_role_language || []), ...(job.cap_exempt_language || []), ...(job.international_candidate_language || []), ...(job.fit?.matched_skills || [])], className: 'm-skill' }
+    { phrases: [...(job.research_role_language || []), ...(job.cap_exempt_language || []), ...(job.international_candidate_language || []), ...recommendedMatchedTerms(job.fit)], className: 'm-skill' }
   ];
 
   let html = escapeHtml(source);
@@ -1041,23 +1163,61 @@ function bindEvents() {
   DOM.emptyReset.addEventListener('click', resetFilters);
   DOM.filtersToggle.addEventListener('click', () => document.body.classList.toggle('show-filters'));
 
-  DOM.resume.addEventListener('input', () => {
-    state.profile = extractProfile(DOM.resume.value);
+  // Pages-mode import: the local server reads profile.json/route-cache.json
+  // straight off disk; on static hosting the user imports the same files here
+  // and they persist in localStorage only.
+  DOM.profileFile.addEventListener('change', async () => {
+    const file = DOM.profileFile.files?.[0];
+    if (!file) return;
+    DOM.profileFile.value = '';
+    let parsed = null;
+    try {
+      parsed = JSON.parse(await file.text());
+    } catch {
+      state.profileError = 'That file is not valid JSON.';
+      renderProfileCard();
+      return;
+    }
+    const problem = RadarScoring.validateProfile(parsed);
+    if (problem) {
+      state.profileError = `Not a usable profile: ${problem}`;
+      renderProfileCard();
+      return;
+    }
+    state.profileError = null;
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(parsed));
+    applyProfile(parsed, state.routeCache);
     render();
   });
 
-  DOM.resumeFile.addEventListener('change', async () => {
-    const file = DOM.resumeFile.files?.[0];
+  DOM.routeFile.addEventListener('change', async () => {
+    const file = DOM.routeFile.files?.[0];
     if (!file) return;
-    DOM.resume.value = await file.text();
-    state.profile = extractProfile(DOM.resume.value);
+    DOM.routeFile.value = '';
+    let parsed = null;
+    try {
+      parsed = JSON.parse(await file.text());
+    } catch {
+      state.profileError = 'That file is not valid JSON.';
+      renderProfileCard();
+      return;
+    }
+    if (!parsed || typeof parsed.verdicts !== 'object') {
+      state.profileError = 'Not a route-cache file (missing verdicts).';
+      renderProfileCard();
+      return;
+    }
+    state.profileError = null;
+    localStorage.setItem(ROUTE_CACHE_KEY, JSON.stringify(parsed));
+    applyProfile(state.profile, parsed);
     render();
   });
 
   DOM.clearProfile.addEventListener('click', () => {
-    DOM.resume.value = '';
-    DOM.resumeFile.value = '';
-    state.profile = null;
+    localStorage.removeItem(PROFILE_KEY);
+    localStorage.removeItem(ROUTE_CACHE_KEY);
+    state.profileError = null;
+    applyProfile(null, null);
     render();
   });
 
@@ -1082,17 +1242,26 @@ async function init() {
   localStorage.setItem(LAST_VISIT_KEY, new Date().toISOString());
   hydrateFromUrl();
 
-  const [jobs, employers, local, report, discovery] = await Promise.all([
+  const [jobs, employers, local, report, discovery, profile, routeCache] = await Promise.all([
     loadJobs(),
     getJson('/api/employers', []),
     getJson('/api/local-state', null),
     loadRefreshReport(),
-    getJson('/api/discovery', { candidates: [] })
+    getJson('/api/discovery', { candidates: [] }),
+    getJson('/api/profile', null),
+    getJson('/api/route-cache', null)
   ]);
   state.jobs = jobs;
   state.employers = employers;
   // null means no API server (static hosting) -> browser-local triage
   state.local = local || loadTriageFromBrowser();
+  // Same split for the resume profile: disk via the local server, otherwise
+  // whatever the user imported into this browser. A profile served from disk
+  // that fails validation is surfaced, not silently ignored.
+  const diskProblem = profile ? RadarScoring.validateProfile(profile) : null;
+  if (diskProblem) state.profileError = `profile.json is not usable: ${diskProblem}`;
+  applyProfile(!profile || diskProblem ? loadProfileFromBrowser() : profile,
+    routeCache || loadRouteCacheFromBrowser());
   populateSources();
   // Source options only exist now, so re-apply the source filter from the URL
   const sourceParam = new URLSearchParams(window.location.search).get('source');

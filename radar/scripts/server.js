@@ -106,6 +106,18 @@ async function route(request, response) {
     return;
   }
 
+  // Both files are script-owned (radar:profile / radar:route) and gitignored;
+  // read-only here so the dashboard picks them up without any import step.
+  if (request.method === 'GET' && url.pathname === '/api/profile') {
+    send(response, 200, JSON.stringify(await readJson(path.join(DATA_DIR, 'profile.json'), null)));
+    return;
+  }
+
+  if (request.method === 'GET' && url.pathname === '/api/route-cache') {
+    send(response, 200, JSON.stringify(await readJson(path.join(DATA_DIR, 'route-cache.json'), null)));
+    return;
+  }
+
   if (request.method === 'POST' && url.pathname === '/api/local-state') {
     const payload = JSON.parse(await readBody(request) || '{}');
     const state = {
