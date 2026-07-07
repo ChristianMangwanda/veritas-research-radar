@@ -50,6 +50,12 @@ const {
 } = require('../radar/scripts/build-profile.js');
 const { CLASS_LABELS } = require('../radar/scripts/lib/title-class.js');
 const RadarScoring = require('../radar/public/scoring.js');
+const {
+  selectAmbiguousJobs,
+  validateVerdict,
+  buildRoutePrompt,
+  askOllama
+} = require('../radar/scripts/route-resumes.js');
 
 function testSharedAnalyzer() {
   assert.strictEqual(analyzeText('Visa sponsorship is available for this role.').state, 'FRIENDLY');
@@ -1314,6 +1320,85 @@ function testProfileV2() {
   assert.strictEqual(typeof emptyFit().fit_summary, 'string');
 }
 
+async function testRouterSelection() {
+  const fitFor = (score, ambiguous) => ({ fit_score: score, ambiguous, variants: [] });
+  const jobs = [
+    { id: 'a', fit: fitFor(60, true) },
+    { id: 'b', fit: fitFor(50, false) },   // clear call — never routed
+    { id: 'c', fit: fitFor(45, true) },
+    { id: 'd', fit: fitFor(30, true) },
+    { id: 'e', fit: fitFor(null, false) }, // no profile
+    { id: 'f', fit: fitFor(70, true) }
+  ];
+
+  // fit-desc order, ambiguous only
+  assert.deepStrictEqual(
+    selectAmbiguousJobs(jobs, {}, {}).map((job) => job.id),
+    ['f', 'a', 'c', 'd']
+  );
+  // --min-fit and --limit respected
+  assert.deepStrictEqual(
+    selectAmbiguousJobs(jobs, {}, { minFit: 40 }).map((job) => job.id),
+    ['f', 'a', 'c']
+  );
+  assert.deepStrictEqual(
+    selectAmbiguousJobs(jobs, {}, { limit: 2 }).map((job) => job.id),
+    ['f', 'a']
+  );
+  // already-verdicted jobs are skipped
+  assert.deepStrictEqual(
+    selectAmbiguousJobs(jobs, { f: { variant_id: 'ml' } }, {}).map((job) => job.id),
+    ['a', 'c', 'd']
+  );
+
+  // verdict validation
+  assert.strictEqual(validateVerdict({ variant_id: 'zz', confidence: 'high', reason: 'x' }, ['ml', 'de']), null);
+  assert.strictEqual(validateVerdict(null, ['ml']), null);
+  const normalized = validateVerdict({ variant_id: 'ml', confidence: 'certain', reason: 'MLOps heavy' }, ['ml', 'de']);
+  assert.deepStrictEqual(normalized, { variant_id: 'ml', confidence: 'low', reason: 'MLOps heavy' });
+
+  // the prompt grounds the model in the user's declared intents and scores
+  const compiled = RadarScoring.compileProfile(SCORING_FIXTURE_PROFILE);
+  const job = {
+    id: 'j1',
+    title: 'Machine Learning Engineer',
+    department: 'Research IT',
+    title_class: 'data_computational',
+    description_text: ML_JOB_DESCRIPTION,
+    research_relevance_score: 0
+  };
+  RadarScoring.scoreAll([job], compiled, null);
+  const prompt = buildRoutePrompt(job, SCORING_FIXTURE_PROFILE, job.fit);
+  assert(prompt.includes('id: ml'));
+  assert(prompt.includes('Leads with production ML'));
+  assert(prompt.includes('deterministic score for this job: 46'));
+  assert(prompt.includes('Machine Learning Engineer (Research IT)'));
+
+  // stubbed Ollama happy path returns a validated verdict
+  const originalFetch = globalThis.fetch;
+  try {
+    let requestBody = null;
+    globalThis.fetch = async (url, init) => {
+      requestBody = JSON.parse(init.body);
+      return {
+        ok: true,
+        json: async () => ({ message: { content: '{"variant_id":"de","confidence":"high","reason":"Pipeline-heavy posting"}' } })
+      };
+    };
+    const verdict = await askOllama(job, SCORING_FIXTURE_PROFILE, job.fit, { model: 'qwen3:8b', baseUrl: 'http://stub' });
+    assert.deepStrictEqual(verdict, { variant_id: 'de', confidence: 'high', reason: 'Pipeline-heavy posting' });
+    assert.strictEqual(requestBody.model, 'qwen3:8b');
+    assert.strictEqual(requestBody.stream, false);
+    assert.deepStrictEqual(requestBody.format.properties.variant_id.enum, ['ml', 'de']);
+
+    // malformed model output is dropped, not thrown
+    globalThis.fetch = async () => ({ ok: true, json: async () => ({ message: { content: 'not json' } }) });
+    assert.strictEqual(await askOllama(job, SCORING_FIXTURE_PROFILE, job.fit, { model: 'm', baseUrl: 'http://stub' }), null);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
 async function main() {
   testSharedAnalyzer();
   testNegationGuard();
@@ -1342,6 +1427,7 @@ async function main() {
   testVerdictTiers();
   testRoutingAmbiguity();
   testProfileV2();
+  await testRouterSelection();
 
   console.log('Radar tests passed');
 }
