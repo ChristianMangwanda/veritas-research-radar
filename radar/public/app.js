@@ -143,18 +143,34 @@ async function loadJobs() {
   const local = await tryJson('/api/jobs');
   if (Array.isArray(local) && local.length) return local;
   try {
-    // Count first, then fetch every page in parallel — sequential paging made
-    // first paint wait ~4x longer than it needs to
+    // Count first, then fetch pages concurrently — but bounded. A full
+    // parallel burst (10 concurrent deep-offset scans of a ~44MB table)
+    // makes Supabase 500 the high-offset pages and the dashboard loaded 0
+    // jobs; 3 at a time with one retry per page is reliably fast instead.
     const pageSize = 1000;
     const head = await fetch(`${SUPABASE_URL}/rest/v1/jobs?select=id`, {
       headers: { apikey: SUPABASE_ANON_KEY, prefer: 'count=exact', range: '0-0' }
     });
     const total = Number((head.headers.get('content-range') || '').split('/')[1] || 0);
     if (total > 0) {
-      const pages = await Promise.all(
-        Array.from({ length: Math.ceil(total / pageSize) }, (_, page) =>
-          supabaseGet(`/jobs?select=payload&order=id&limit=${pageSize}&offset=${page * pageSize}`))
-      );
+      const pageCount = Math.ceil(total / pageSize);
+      const pages = new Array(pageCount);
+      let nextPage = 0;
+      const fetchPage = async (page) => {
+        const query = `/jobs?select=payload&order=id&limit=${pageSize}&offset=${page * pageSize}`;
+        try {
+          return await supabaseGet(query);
+        } catch {
+          return supabaseGet(query);
+        }
+      };
+      await Promise.all(Array.from({ length: Math.min(3, pageCount) }, async () => {
+        while (nextPage < pageCount) {
+          const page = nextPage;
+          nextPage += 1;
+          pages[page] = await fetchPage(page);
+        }
+      }));
       return pages.flat().map((row) => row.payload);
     }
   } catch { /* fall through */ }
