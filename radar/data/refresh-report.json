@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-07-11T05:55:17.643Z",
+  "refreshed_at": "2026-07-11T08:37:18.758Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
   "job_count": 10134,
-  "active_job_count": 8915,
-  "closed_job_count": 1219,
-  "newly_closed_count": 66,
-  "errored_employers": 1,
+  "active_job_count": 8910,
+  "closed_job_count": 1224,
+  "newly_closed_count": 5,
+  "errored_employers": 0,
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
@@ -376,9 +376,9 @@
       "name": "Medical College of Wisconsin",
       "ats_provider": "workday",
       "ats_token": "mcw",
-      "fetched_jobs": 0,
+      "fetched_jobs": 81,
       "skipped": false,
-      "error": "HTTP 500 Internal Server Error",
+      "error": null,
       "closed_jobs": 11
     },
     {
@@ -496,10 +496,10 @@
       "name": "Western Governors University",
       "ats_provider": "workday",
       "ats_token": "wgu",
-      "fetched_jobs": 26,
+      "fetched_jobs": 24,
       "skipped": false,
       "error": null,
-      "closed_jobs": 9
+      "closed_jobs": 11
     },
     {
       "employer_id": "university-of-maryland-college-park",
@@ -1816,10 +1816,10 @@
       "name": "Oregon State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.oregonstate.edu",
-      "fetched_jobs": 109,
+      "fetched_jobs": 106,
       "skipped": false,
       "error": null,
-      "closed_jobs": 6
+      "closed_jobs": 9
     },
     {
       "employer_id": "the-university-of-texas-at-dallas",
