@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-07-11T04:03:12.108Z",
+  "refreshed_at": "2026-07-11T05:55:17.643Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
-  "job_count": 10126,
-  "active_job_count": 8937,
-  "closed_job_count": 1189,
-  "newly_closed_count": 29,
-  "errored_employers": 0,
+  "job_count": 10134,
+  "active_job_count": 8915,
+  "closed_job_count": 1219,
+  "newly_closed_count": 66,
+  "errored_employers": 1,
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
@@ -279,7 +279,7 @@
       "fetched_jobs": 2500,
       "skipped": false,
       "error": null,
-      "closed_jobs": 201
+      "closed_jobs": 202
     },
     {
       "employer_id": "washington-university-in-st-louis",
@@ -349,7 +349,7 @@
       "fetched_jobs": 78,
       "skipped": false,
       "error": null,
-      "closed_jobs": 10
+      "closed_jobs": 11
     },
     {
       "employer_id": "university-of-nevada-reno",
@@ -376,9 +376,9 @@
       "name": "Medical College of Wisconsin",
       "ats_provider": "workday",
       "ats_token": "mcw",
-      "fetched_jobs": 81,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 11
     },
     {
@@ -386,10 +386,10 @@
       "name": "University of Arkansas for Medical Sciences",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 14,
+      "fetched_jobs": 13,
       "skipped": false,
       "error": null,
-      "closed_jobs": 2
+      "closed_jobs": 3
     },
     {
       "employer_id": "thomas-jefferson-university",
@@ -1456,10 +1456,10 @@
       "name": "University of North Carolina at Chapel Hill",
       "ats_provider": "peopleadmin",
       "ats_token": "unc",
-      "fetched_jobs": 438,
+      "fetched_jobs": 428,
       "skipped": false,
       "error": null,
-      "closed_jobs": 144
+      "closed_jobs": 154
     },
     {
       "employer_id": "the-university-of-texas-at-arlington",
@@ -1806,10 +1806,10 @@
       "name": "University of Kentucky",
       "ats_provider": "peopleadmin",
       "ats_token": "ukjobs.uky.edu",
-      "fetched_jobs": 744,
+      "fetched_jobs": 734,
       "skipped": false,
       "error": null,
-      "closed_jobs": 258
+      "closed_jobs": 268
     },
     {
       "employer_id": "oregon-state-university",
@@ -2006,10 +2006,10 @@
       "name": "Coastal Carolina University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.coastal.edu",
-      "fetched_jobs": 46,
+      "fetched_jobs": 45,
       "skipped": false,
       "error": null,
-      "closed_jobs": 10
+      "closed_jobs": 11
     },
     {
       "employer_id": "morehouse-school-of-medicine",
@@ -2236,10 +2236,10 @@
       "name": "MEMORIAL SLOAN-KETTERING CANCER CENTER",
       "ats_provider": "workday",
       "ats_token": "msk",
-      "fetched_jobs": 9,
+      "fetched_jobs": 8,
       "skipped": false,
       "error": null,
-      "closed_jobs": 7
+      "closed_jobs": 8
     },
     {
       "employer_id": "dana-farber-cancer-institute",
