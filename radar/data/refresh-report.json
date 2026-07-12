@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-07-12T04:15:16.127Z",
+  "refreshed_at": "2026-07-12T06:08:00.149Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
-  "job_count": 10145,
-  "active_job_count": 8901,
-  "closed_job_count": 1244,
-  "newly_closed_count": 4,
-  "errored_employers": 1,
+  "job_count": 10148,
+  "active_job_count": 8900,
+  "closed_job_count": 1248,
+  "newly_closed_count": 5,
+  "errored_employers": 0,
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
@@ -279,17 +279,17 @@
       "fetched_jobs": 2500,
       "skipped": false,
       "error": null,
-      "closed_jobs": 202
+      "closed_jobs": 203
     },
     {
       "employer_id": "washington-university-in-st-louis",
       "name": "Washington University in St Louis",
       "ats_provider": "workday",
       "ats_token": "wustl",
-      "fetched_jobs": 167,
+      "fetched_jobs": 166,
       "skipped": false,
       "error": null,
-      "closed_jobs": 25
+      "closed_jobs": 26
     },
     {
       "employer_id": "cornell-university",
@@ -386,10 +386,10 @@
       "name": "University of Arkansas for Medical Sciences",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 13,
+      "fetched_jobs": 12,
       "skipped": false,
       "error": null,
-      "closed_jobs": 3
+      "closed_jobs": 4
     },
     {
       "employer_id": "thomas-jefferson-university",
@@ -1336,10 +1336,10 @@
       "name": "Texas A & M University-Corpus Christi",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 5,
+      "fetched_jobs": 4,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1
+      "closed_jobs": 2
     },
     {
       "employer_id": "texas-a-m-university-texarkana",
@@ -1496,9 +1496,9 @@
       "name": "The University of Texas Rio Grande Valley",
       "ats_provider": "peopleadmin",
       "ats_token": "utrgv-sb",
-      "fetched_jobs": 0,
+      "fetched_jobs": 127,
       "skipped": false,
-      "error": "This operation was aborted",
+      "error": null,
       "closed_jobs": 0
     },
     {
