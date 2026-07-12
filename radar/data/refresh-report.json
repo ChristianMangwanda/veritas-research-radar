@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-07-11T19:53:17.291Z",
+  "refreshed_at": "2026-07-12T04:15:16.127Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
-  "job_count": 10144,
-  "active_job_count": 8903,
-  "closed_job_count": 1241,
-  "newly_closed_count": 2,
-  "errored_employers": 0,
+  "job_count": 10145,
+  "active_job_count": 8901,
+  "closed_job_count": 1244,
+  "newly_closed_count": 4,
+  "errored_employers": 1,
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
@@ -346,10 +346,10 @@
       "name": "University of Rochester",
       "ats_provider": "workday",
       "ats_token": "rochester",
-      "fetched_jobs": 71,
+      "fetched_jobs": 72,
       "skipped": false,
       "error": null,
-      "closed_jobs": 26
+      "closed_jobs": 25
     },
     {
       "employer_id": "university-of-nevada-reno",
@@ -1456,10 +1456,10 @@
       "name": "University of North Carolina at Chapel Hill",
       "ats_provider": "peopleadmin",
       "ats_token": "unc",
-      "fetched_jobs": 428,
+      "fetched_jobs": 427,
       "skipped": false,
       "error": null,
-      "closed_jobs": 154
+      "closed_jobs": 155
     },
     {
       "employer_id": "the-university-of-texas-at-arlington",
@@ -1496,9 +1496,9 @@
       "name": "The University of Texas Rio Grande Valley",
       "ats_provider": "peopleadmin",
       "ats_token": "utrgv-sb",
-      "fetched_jobs": 127,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "This operation was aborted",
       "closed_jobs": 0
     },
     {
@@ -1506,10 +1506,10 @@
       "name": "George Washington University",
       "ats_provider": "peopleadmin",
       "ats_token": "gwu-studentemployment",
-      "fetched_jobs": 6,
+      "fetched_jobs": 5,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1
+      "closed_jobs": 2
     },
     {
       "employer_id": "university-of-idaho",
@@ -1566,10 +1566,10 @@
       "name": "University of the Pacific",
       "ats_provider": "peopleadmin",
       "ats_token": "pacific",
-      "fetched_jobs": 107,
+      "fetched_jobs": 106,
       "skipped": false,
       "error": null,
-      "closed_jobs": 6
+      "closed_jobs": 7
     },
     {
       "employer_id": "tuskegee-university",
@@ -1806,10 +1806,10 @@
       "name": "University of Kentucky",
       "ats_provider": "peopleadmin",
       "ats_token": "ukjobs.uky.edu",
-      "fetched_jobs": 735,
+      "fetched_jobs": 734,
       "skipped": false,
       "error": null,
-      "closed_jobs": 268
+      "closed_jobs": 269
     },
     {
       "employer_id": "oregon-state-university",
@@ -1946,7 +1946,7 @@
       "name": "Central Michigan University",
       "ats_provider": "peopleadmin",
       "ats_token": "www.jobs.cmich.edu",
-      "fetched_jobs": 68,
+      "fetched_jobs": 69,
       "skipped": false,
       "error": null,
       "closed_jobs": 24
