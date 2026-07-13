@@ -1,11 +1,11 @@
 {
-  "refreshed_at": "2026-07-13T06:19:49.731Z",
+  "refreshed_at": "2026-07-13T07:35:58.681Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
-  "job_count": 10173,
-  "active_job_count": 8843,
-  "closed_job_count": 1330,
-  "newly_closed_count": 8,
+  "job_count": 10221,
+  "active_job_count": 8704,
+  "closed_job_count": 1517,
+  "newly_closed_count": 187,
   "errored_employers": 0,
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
@@ -48,11 +48,11 @@
       "name": "Fred Hutchinson Cancer Center",
       "ats_provider": null,
       "ats_token": null,
-      "fetched_jobs": 7,
+      "fetched_jobs": 0,
       "skipped": false,
       "error": null,
-      "scouted_jobs": 7,
-      "closed_jobs": 0
+      "scouted_jobs": 0,
+      "closed_jobs": 7
     },
     {
       "employer_id": "chan-zuckerberg-biohub",
@@ -80,9 +80,8 @@
       "ats_provider": null,
       "ats_token": null,
       "fetched_jobs": 0,
-      "skipped": false,
+      "skipped": true,
       "error": null,
-      "scouted_jobs": 0,
       "closed_jobs": 0
     },
     {
@@ -104,7 +103,7 @@
       "skipped": false,
       "error": null,
       "scouted_jobs": 10,
-      "closed_jobs": 0
+      "closed_jobs": 1
     },
     {
       "employer_id": "university-of-chicago",
@@ -152,8 +151,9 @@
       "ats_provider": null,
       "ats_token": null,
       "fetched_jobs": 0,
-      "skipped": true,
+      "skipped": false,
       "error": null,
+      "scouted_jobs": 0,
       "closed_jobs": 0
     },
     {
@@ -181,11 +181,11 @@
       "name": "University of Wisconsin-Madison",
       "ats_provider": null,
       "ats_token": null,
-      "fetched_jobs": 4,
+      "fetched_jobs": 6,
       "skipped": false,
       "error": null,
-      "scouted_jobs": 4,
-      "closed_jobs": 0
+      "scouted_jobs": 6,
+      "closed_jobs": 3
     },
     {
       "employer_id": "university-of-washington",
@@ -2356,22 +2356,22 @@
       "name": "Emory University",
       "ats_provider": null,
       "ats_token": null,
-      "fetched_jobs": 112,
+      "fetched_jobs": 32,
       "skipped": false,
       "error": null,
-      "scouted_jobs": 112,
-      "closed_jobs": 0
+      "scouted_jobs": 32,
+      "closed_jobs": 84
     },
     {
       "employer_id": "oregon-health-science-university",
       "name": "Oregon Health & Science University",
       "ats_provider": null,
       "ats_token": null,
-      "fetched_jobs": 109,
+      "fetched_jobs": 29,
       "skipped": false,
       "error": null,
-      "scouted_jobs": 109,
-      "closed_jobs": 0
+      "scouted_jobs": 29,
+      "closed_jobs": 87
     },
     {
       "employer_id": "auburn-university",
@@ -2398,9 +2398,10 @@
       "name": "Clarkson University",
       "ats_provider": null,
       "ats_token": null,
-      "fetched_jobs": 0,
-      "skipped": true,
+      "fetched_jobs": 30,
+      "skipped": false,
       "error": null,
+      "scouted_jobs": 30,
       "closed_jobs": 0
     },
     {
@@ -2418,11 +2419,11 @@
       "name": "Touro University Nevada",
       "ats_provider": null,
       "ats_token": null,
-      "fetched_jobs": 18,
+      "fetched_jobs": 14,
       "skipped": false,
       "error": null,
-      "scouted_jobs": 18,
-      "closed_jobs": 0
+      "scouted_jobs": 14,
+      "closed_jobs": 5
     }
   ]
 }
