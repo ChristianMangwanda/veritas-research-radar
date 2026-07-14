@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-07-14T14:38:31.607Z",
+  "refreshed_at": "2026-07-14T16:35:39.691Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
-  "job_count": 10549,
-  "active_job_count": 8715,
-  "closed_job_count": 1834,
-  "newly_closed_count": 41,
-  "errored_employers": 0,
+  "job_count": 10635,
+  "active_job_count": 8750,
+  "closed_job_count": 1885,
+  "newly_closed_count": 54,
+  "errored_employers": 1,
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
@@ -110,10 +110,10 @@
       "name": "University of Chicago",
       "ats_provider": "workday",
       "ats_token": "uchicago",
-      "fetched_jobs": 134,
+      "fetched_jobs": 133,
       "skipped": false,
       "error": null,
-      "closed_jobs": 17
+      "closed_jobs": 18
     },
     {
       "employer_id": "mit",
@@ -279,7 +279,7 @@
       "fetched_jobs": 2500,
       "skipped": false,
       "error": null,
-      "closed_jobs": 250
+      "closed_jobs": 251
     },
     {
       "employer_id": "washington-university-in-st-louis",
@@ -319,7 +319,7 @@
       "fetched_jobs": 74,
       "skipped": false,
       "error": null,
-      "closed_jobs": 13
+      "closed_jobs": 14
     },
     {
       "employer_id": "university-of-miami",
@@ -346,10 +346,10 @@
       "name": "University of Rochester",
       "ats_provider": "workday",
       "ats_token": "rochester",
-      "fetched_jobs": 73,
+      "fetched_jobs": 74,
       "skipped": false,
       "error": null,
-      "closed_jobs": 29
+      "closed_jobs": 28
     },
     {
       "employer_id": "university-of-nevada-reno",
@@ -436,7 +436,7 @@
       "name": "Stevens Institute of Technology",
       "ats_provider": "workday",
       "ats_token": "stevens",
-      "fetched_jobs": 8,
+      "fetched_jobs": 10,
       "skipped": false,
       "error": null,
       "closed_jobs": 0
@@ -1336,10 +1336,10 @@
       "name": "Texas A & M University-Corpus Christi",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 4,
+      "fetched_jobs": 3,
       "skipped": false,
       "error": null,
-      "closed_jobs": 2
+      "closed_jobs": 3
     },
     {
       "employer_id": "texas-a-m-university-texarkana",
@@ -1456,10 +1456,10 @@
       "name": "University of North Carolina at Chapel Hill",
       "ats_provider": "peopleadmin",
       "ats_token": "unc",
-      "fetched_jobs": 428,
+      "fetched_jobs": 432,
       "skipped": false,
       "error": null,
-      "closed_jobs": 186
+      "closed_jobs": 189
     },
     {
       "employer_id": "the-university-of-texas-at-arlington",
@@ -1506,7 +1506,7 @@
       "name": "George Washington University",
       "ats_provider": "peopleadmin",
       "ats_token": "gwu-studentemployment",
-      "fetched_jobs": 9,
+      "fetched_jobs": 11,
       "skipped": false,
       "error": null,
       "closed_jobs": 2
@@ -1596,10 +1596,10 @@
       "name": "University of Nebraska Medical Center",
       "ats_provider": "peopleadmin",
       "ats_token": "unmc",
-      "fetched_jobs": 207,
+      "fetched_jobs": 206,
       "skipped": false,
       "error": null,
-      "closed_jobs": 23
+      "closed_jobs": 24
     },
     {
       "employer_id": "spelman-college",
@@ -1736,7 +1736,7 @@
       "name": "Sul Ross State University",
       "ats_provider": "peopleadmin",
       "ats_token": "sulross",
-      "fetched_jobs": 68,
+      "fetched_jobs": 69,
       "skipped": false,
       "error": null,
       "closed_jobs": 33
@@ -1806,10 +1806,10 @@
       "name": "University of Kentucky",
       "ats_provider": "peopleadmin",
       "ats_token": "ukjobs.uky.edu",
-      "fetched_jobs": 734,
+      "fetched_jobs": 767,
       "skipped": false,
       "error": null,
-      "closed_jobs": 405
+      "closed_jobs": 419
     },
     {
       "employer_id": "oregon-state-university",
@@ -1826,20 +1826,20 @@
       "name": "The University of Texas at Dallas",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.utdallas.edu",
-      "fetched_jobs": 137,
+      "fetched_jobs": 135,
       "skipped": false,
       "error": null,
-      "closed_jobs": 31
+      "closed_jobs": 33
     },
     {
       "employer_id": "south-dakota-state-university",
       "name": "South Dakota State University",
       "ats_provider": "peopleadmin",
       "ats_token": "yourfuture.sdbor.edu",
-      "fetched_jobs": 51,
+      "fetched_jobs": 50,
       "skipped": false,
       "error": null,
-      "closed_jobs": 21
+      "closed_jobs": 22
     },
     {
       "employer_id": "university-of-vermont",
@@ -1849,7 +1849,7 @@
       "fetched_jobs": 102,
       "skipped": false,
       "error": null,
-      "closed_jobs": 22
+      "closed_jobs": 23
     },
     {
       "employer_id": "montana-state-university",
@@ -1876,9 +1876,9 @@
       "name": "University of Memphis",
       "ats_provider": "peopleadmin",
       "ats_token": "workforum.memphis.edu",
-      "fetched_jobs": 1,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 404 Not Found",
       "closed_jobs": 0
     },
     {
@@ -1886,10 +1886,10 @@
       "name": "University of Rhode Island",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.uri.edu",
-      "fetched_jobs": 27,
+      "fetched_jobs": 26,
       "skipped": false,
       "error": null,
-      "closed_jobs": 10
+      "closed_jobs": 12
     },
     {
       "employer_id": "texas-state-university",
@@ -1926,7 +1926,7 @@
       "name": "Northern Illinois University",
       "ats_provider": "peopleadmin",
       "ats_token": "employment.niu.edu",
-      "fetched_jobs": 33,
+      "fetched_jobs": 34,
       "skipped": false,
       "error": null,
       "closed_jobs": 3
@@ -1946,17 +1946,17 @@
       "name": "Central Michigan University",
       "ats_provider": "peopleadmin",
       "ats_token": "www.jobs.cmich.edu",
-      "fetched_jobs": 70,
+      "fetched_jobs": 68,
       "skipped": false,
       "error": null,
-      "closed_jobs": 34
+      "closed_jobs": 37
     },
     {
       "employer_id": "portland-state-university",
       "name": "Portland State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.hrc.pdx.edu",
-      "fetched_jobs": 31,
+      "fetched_jobs": 32,
       "skipped": false,
       "error": null,
       "closed_jobs": 6
@@ -1969,7 +1969,7 @@
       "fetched_jobs": 19,
       "skipped": false,
       "error": null,
-      "closed_jobs": 23
+      "closed_jobs": 27
     },
     {
       "employer_id": "cleveland-state-university",
@@ -2006,7 +2006,7 @@
       "name": "Coastal Carolina University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.coastal.edu",
-      "fetched_jobs": 44,
+      "fetched_jobs": 45,
       "skipped": false,
       "error": null,
       "closed_jobs": 15
@@ -2086,10 +2086,10 @@
       "name": "University of the Incarnate Word",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.uiw.edu",
-      "fetched_jobs": 47,
+      "fetched_jobs": 46,
       "skipped": false,
       "error": null,
-      "closed_jobs": 5
+      "closed_jobs": 6
     },
     {
       "employer_id": "oregon-institute-of-technology",
@@ -2116,10 +2116,10 @@
       "name": "South Dakota School of Mines and Technology",
       "ats_provider": "peopleadmin",
       "ats_token": "yourfuture.sdbor.edu",
-      "fetched_jobs": 125,
+      "fetched_jobs": 123,
       "skipped": false,
       "error": null,
-      "closed_jobs": 20
+      "closed_jobs": 22
     },
     {
       "employer_id": "western-university-of-health-sciences",
@@ -2199,7 +2199,7 @@
       "fetched_jobs": 60,
       "skipped": false,
       "error": null,
-      "closed_jobs": 6
+      "closed_jobs": 7
     },
     {
       "employer_id": "concord-university",
@@ -2246,10 +2246,10 @@
       "name": "DANA-FARBER CANCER INSTITUTE",
       "ats_provider": "workday",
       "ats_token": "danafarber",
-      "fetched_jobs": 79,
+      "fetched_jobs": 78,
       "skipped": false,
       "error": null,
-      "closed_jobs": 26
+      "closed_jobs": 27
     },
     {
       "employer_id": "howard-hughes-medical-institute",
