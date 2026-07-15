@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-07-15T14:31:43.114Z",
+  "refreshed_at": "2026-07-15T16:39:50.514Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
-  "job_count": 10820,
-  "active_job_count": 8713,
-  "closed_job_count": 2107,
-  "newly_closed_count": 34,
-  "errored_employers": 0,
+  "job_count": 10856,
+  "active_job_count": 8725,
+  "closed_job_count": 2131,
+  "newly_closed_count": 25,
+  "errored_employers": 1,
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
@@ -110,10 +110,10 @@
       "name": "University of Chicago",
       "ats_provider": "workday",
       "ats_token": "uchicago",
-      "fetched_jobs": 131,
+      "fetched_jobs": 130,
       "skipped": false,
       "error": null,
-      "closed_jobs": 20
+      "closed_jobs": 21
     },
     {
       "employer_id": "mit",
@@ -279,14 +279,14 @@
       "fetched_jobs": 2500,
       "skipped": false,
       "error": null,
-      "closed_jobs": 279
+      "closed_jobs": 282
     },
     {
       "employer_id": "washington-university-in-st-louis",
       "name": "Washington University in St Louis",
       "ats_provider": "workday",
       "ats_token": "wustl",
-      "fetched_jobs": 162,
+      "fetched_jobs": 165,
       "skipped": false,
       "error": null,
       "closed_jobs": 36
@@ -346,7 +346,7 @@
       "name": "University of Rochester",
       "ats_provider": "workday",
       "ats_token": "rochester",
-      "fetched_jobs": 72,
+      "fetched_jobs": 74,
       "skipped": false,
       "error": null,
       "closed_jobs": 30
@@ -376,30 +376,30 @@
       "name": "Medical College of Wisconsin",
       "ats_provider": "workday",
       "ats_token": "mcw",
-      "fetched_jobs": 80,
+      "fetched_jobs": 81,
       "skipped": false,
       "error": null,
-      "closed_jobs": 12
+      "closed_jobs": 13
     },
     {
       "employer_id": "university-of-arkansas-for-medical-sciences",
       "name": "University of Arkansas for Medical Sciences",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 11,
+      "fetched_jobs": 9,
       "skipped": false,
       "error": null,
-      "closed_jobs": 5
+      "closed_jobs": 7
     },
     {
       "employer_id": "thomas-jefferson-university",
       "name": "Thomas Jefferson University",
       "ats_provider": "workday",
       "ats_token": "jeffersonhealth",
-      "fetched_jobs": 41,
+      "fetched_jobs": 40,
       "skipped": false,
       "error": null,
-      "closed_jobs": 14
+      "closed_jobs": 15
     },
     {
       "employer_id": "university-of-louisville",
@@ -426,9 +426,9 @@
       "name": "University of Mississippi",
       "ats_provider": "workday",
       "ats_token": "olemiss",
-      "fetched_jobs": 7,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "This operation was aborted",
       "closed_jobs": 0
     },
     {
@@ -476,7 +476,7 @@
       "name": "Howard University",
       "ats_provider": "workday",
       "ats_token": "howard",
-      "fetched_jobs": 25,
+      "fetched_jobs": 26,
       "skipped": false,
       "error": null,
       "closed_jobs": 2
@@ -496,10 +496,10 @@
       "name": "Western Governors University",
       "ats_provider": "workday",
       "ats_token": "wgu",
-      "fetched_jobs": 23,
+      "fetched_jobs": 24,
       "skipped": false,
       "error": null,
-      "closed_jobs": 15
+      "closed_jobs": 14
     },
     {
       "employer_id": "university-of-maryland-college-park",
@@ -656,10 +656,10 @@
       "name": "Seattle Pacific University",
       "ats_provider": "workday",
       "ats_token": "spu",
-      "fetched_jobs": 1,
+      "fetched_jobs": 0,
       "skipped": false,
       "error": null,
-      "closed_jobs": 0
+      "closed_jobs": 1
     },
     {
       "employer_id": "texas-a-m-university-kingsville",
@@ -736,7 +736,7 @@
       "name": "Prairie View A & M University",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 18,
+      "fetched_jobs": 19,
       "skipped": false,
       "error": null,
       "closed_jobs": 3
@@ -1456,10 +1456,10 @@
       "name": "University of North Carolina at Chapel Hill",
       "ats_provider": "peopleadmin",
       "ats_token": "unc",
-      "fetched_jobs": 426,
+      "fetched_jobs": 429,
       "skipped": false,
       "error": null,
-      "closed_jobs": 209
+      "closed_jobs": 212
     },
     {
       "employer_id": "the-university-of-texas-at-arlington",
@@ -1516,20 +1516,20 @@
       "name": "University of Idaho",
       "ats_provider": "peopleadmin",
       "ats_token": "uidaho",
-      "fetched_jobs": 120,
+      "fetched_jobs": 121,
       "skipped": false,
       "error": null,
-      "closed_jobs": 21
+      "closed_jobs": 22
     },
     {
       "employer_id": "sam-houston-state-university",
       "name": "Sam Houston State University",
       "ats_provider": "peopleadmin",
       "ats_token": "shsu",
-      "fetched_jobs": 130,
+      "fetched_jobs": 128,
       "skipped": false,
       "error": null,
-      "closed_jobs": 15
+      "closed_jobs": 17
     },
     {
       "employer_id": "university-of-south-alabama",
@@ -1596,20 +1596,20 @@
       "name": "University of Nebraska Medical Center",
       "ats_provider": "peopleadmin",
       "ats_token": "unmc",
-      "fetched_jobs": 208,
+      "fetched_jobs": 207,
       "skipped": false,
       "error": null,
-      "closed_jobs": 27
+      "closed_jobs": 28
     },
     {
       "employer_id": "spelman-college",
       "name": "Spelman College",
       "ats_provider": "peopleadmin",
       "ats_token": "spelman",
-      "fetched_jobs": 5,
+      "fetched_jobs": 4,
       "skipped": false,
       "error": null,
-      "closed_jobs": 2
+      "closed_jobs": 3
     },
     {
       "employer_id": "university-of-new-england",
@@ -1736,7 +1736,7 @@
       "name": "Sul Ross State University",
       "ats_provider": "peopleadmin",
       "ats_token": "sulross",
-      "fetched_jobs": 65,
+      "fetched_jobs": 66,
       "skipped": false,
       "error": null,
       "closed_jobs": 37
@@ -1806,7 +1806,7 @@
       "name": "University of Kentucky",
       "ats_provider": "peopleadmin",
       "ats_token": "ukjobs.uky.edu",
-      "fetched_jobs": 748,
+      "fetched_jobs": 757,
       "skipped": false,
       "error": null,
       "closed_jobs": 488
@@ -1856,10 +1856,10 @@
       "name": "Montana State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.montana.edu",
-      "fetched_jobs": 166,
+      "fetched_jobs": 165,
       "skipped": false,
       "error": null,
-      "closed_jobs": 26
+      "closed_jobs": 28
     },
     {
       "employer_id": "dartmouth-college",
@@ -1896,10 +1896,10 @@
       "name": "Texas State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.hr.txstate.edu",
-      "fetched_jobs": 60,
+      "fetched_jobs": 59,
       "skipped": false,
       "error": null,
-      "closed_jobs": 27
+      "closed_jobs": 28
     },
     {
       "employer_id": "marquette-university",
@@ -1916,10 +1916,10 @@
       "name": "Loyola University Chicago",
       "ats_provider": "peopleadmin",
       "ats_token": "www.careers.luc.edu",
-      "fetched_jobs": 59,
+      "fetched_jobs": 58,
       "skipped": false,
       "error": null,
-      "closed_jobs": 5
+      "closed_jobs": 6
     },
     {
       "employer_id": "northern-illinois-university",
@@ -1939,14 +1939,14 @@
       "fetched_jobs": 178,
       "skipped": false,
       "error": null,
-      "closed_jobs": 21
+      "closed_jobs": 22
     },
     {
       "employer_id": "central-michigan-university",
       "name": "Central Michigan University",
       "ats_provider": "peopleadmin",
       "ats_token": "www.jobs.cmich.edu",
-      "fetched_jobs": 68,
+      "fetched_jobs": 69,
       "skipped": false,
       "error": null,
       "closed_jobs": 40
@@ -2246,7 +2246,7 @@
       "name": "DANA-FARBER CANCER INSTITUTE",
       "ats_provider": "workday",
       "ats_token": "danafarber",
-      "fetched_jobs": 78,
+      "fetched_jobs": 79,
       "skipped": false,
       "error": null,
       "closed_jobs": 29
@@ -2296,10 +2296,10 @@
       "name": "NATIONWIDE CHILDRENS HOSPITAL INC",
       "ats_provider": "workday",
       "ats_token": "nationwidechildrens",
-      "fetched_jobs": 60,
+      "fetched_jobs": 59,
       "skipped": false,
       "error": null,
-      "closed_jobs": 10
+      "closed_jobs": 11
     },
     {
       "employer_id": "urban-institute",
