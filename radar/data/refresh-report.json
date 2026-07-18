@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-07-18T03:52:09.995Z",
+  "refreshed_at": "2026-07-18T05:36:39.184Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
-  "job_count": 11556,
-  "active_job_count": 8736,
-  "closed_job_count": 2820,
-  "newly_closed_count": 16,
-  "errored_employers": 0,
+  "job_count": 11587,
+  "active_job_count": 8710,
+  "closed_job_count": 2877,
+  "newly_closed_count": 59,
+  "errored_employers": 20,
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
@@ -279,7 +279,7 @@
       "fetched_jobs": 2500,
       "skipped": false,
       "error": null,
-      "closed_jobs": 343
+      "closed_jobs": 366
     },
     {
       "employer_id": "washington-university-in-st-louis",
@@ -426,9 +426,9 @@
       "name": "University of Mississippi",
       "ats_provider": "workday",
       "ats_token": "olemiss",
-      "fetched_jobs": 7,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -456,9 +456,9 @@
       "name": "Rochester Institute of Technology",
       "ats_provider": "workday",
       "ats_token": "rit",
-      "fetched_jobs": 2,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -528,7 +528,7 @@
       "ats_token": "clemson",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -576,19 +576,19 @@
       "name": "Montclair State University",
       "ats_provider": "workday",
       "ats_token": "montclair",
-      "fetched_jobs": 2,
+      "fetched_jobs": 1,
       "skipped": false,
       "error": null,
-      "closed_jobs": 0
+      "closed_jobs": 1
     },
     {
       "employer_id": "ball-state-university",
       "name": "Ball State University",
       "ats_provider": "workday",
       "ats_token": "bsu",
-      "fetched_jobs": 2,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 2
     },
     {
@@ -656,9 +656,9 @@
       "name": "Seattle Pacific University",
       "ats_provider": "workday",
       "ats_token": "spu",
-      "fetched_jobs": 1,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -688,7 +688,7 @@
       "ats_token": "nwmissouri",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -788,7 +788,7 @@
       "ats_token": "dickinson",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -838,7 +838,7 @@
       "ats_token": "nku",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -846,9 +846,9 @@
       "name": "Minnesota State University-Mankato",
       "ats_provider": "workday",
       "ats_token": "minnstate",
-      "fetched_jobs": 6,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 4
     },
     {
@@ -936,9 +936,9 @@
       "name": "Meharry Medical College",
       "ats_provider": "workday",
       "ats_token": "meharrymedicalcollege",
-      "fetched_jobs": 6,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -976,9 +976,9 @@
       "name": "Bryn Mawr College",
       "ats_provider": "workday",
       "ats_token": "brynmawr",
-      "fetched_jobs": 6,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -1128,7 +1128,7 @@
       "ats_token": "macalester",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -1148,7 +1148,7 @@
       "ats_token": "xavier",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -1168,7 +1168,7 @@
       "ats_token": "pcom",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -1176,9 +1176,9 @@
       "name": "Furman University",
       "ats_provider": "workday",
       "ats_token": "furman",
-      "fetched_jobs": 2,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -1208,7 +1208,7 @@
       "ats_token": "csusystem",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -1326,9 +1326,9 @@
       "name": "Abilene Christian University",
       "ats_provider": "workday",
       "ats_token": "acu",
-      "fetched_jobs": 1,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -1418,7 +1418,7 @@
       "ats_token": "dunwoody",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 0
     },
     {
@@ -1456,10 +1456,10 @@
       "name": "University of North Carolina at Chapel Hill",
       "ats_provider": "peopleadmin",
       "ats_token": "unc",
-      "fetched_jobs": 441,
+      "fetched_jobs": 430,
       "skipped": false,
       "error": null,
-      "closed_jobs": 255
+      "closed_jobs": 267
     },
     {
       "employer_id": "the-university-of-texas-at-arlington",
@@ -1476,10 +1476,10 @@
       "name": "East Carolina University",
       "ats_provider": "peopleadmin",
       "ats_token": "ecu",
-      "fetched_jobs": 76,
+      "fetched_jobs": 74,
       "skipped": false,
       "error": null,
-      "closed_jobs": 145
+      "closed_jobs": 147
     },
     {
       "employer_id": "marshall-university",
@@ -1806,10 +1806,10 @@
       "name": "University of Kentucky",
       "ats_provider": "peopleadmin",
       "ats_token": "ukjobs.uky.edu",
-      "fetched_jobs": 777,
+      "fetched_jobs": 770,
       "skipped": false,
       "error": null,
-      "closed_jobs": 598
+      "closed_jobs": 605
     },
     {
       "employer_id": "oregon-state-university",
@@ -1826,20 +1826,20 @@
       "name": "The University of Texas at Dallas",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.utdallas.edu",
-      "fetched_jobs": 135,
+      "fetched_jobs": 132,
       "skipped": false,
       "error": null,
-      "closed_jobs": 48
+      "closed_jobs": 51
     },
     {
       "employer_id": "south-dakota-state-university",
       "name": "South Dakota State University",
       "ats_provider": "peopleadmin",
       "ats_token": "yourfuture.sdbor.edu",
-      "fetched_jobs": 47,
+      "fetched_jobs": 46,
       "skipped": false,
       "error": null,
-      "closed_jobs": 32
+      "closed_jobs": 33
     },
     {
       "employer_id": "university-of-vermont",
@@ -2006,10 +2006,10 @@
       "name": "Coastal Carolina University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.coastal.edu",
-      "fetched_jobs": 43,
+      "fetched_jobs": 42,
       "skipped": false,
       "error": null,
-      "closed_jobs": 21
+      "closed_jobs": 22
     },
     {
       "employer_id": "morehouse-school-of-medicine",
@@ -2116,10 +2116,10 @@
       "name": "South Dakota School of Mines and Technology",
       "ats_provider": "peopleadmin",
       "ats_token": "yourfuture.sdbor.edu",
-      "fetched_jobs": 117,
+      "fetched_jobs": 114,
       "skipped": false,
       "error": null,
-      "closed_jobs": 32
+      "closed_jobs": 34
     },
     {
       "employer_id": "western-university-of-health-sciences",
@@ -2236,9 +2236,9 @@
       "name": "MEMORIAL SLOAN-KETTERING CANCER CENTER",
       "ats_provider": "workday",
       "ats_token": "msk",
-      "fetched_jobs": 12,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 9
     },
     {
@@ -2306,9 +2306,9 @@
       "name": "URBAN INSTITUTE",
       "ats_provider": "workday",
       "ats_token": "urban",
-      "fetched_jobs": 3,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
       "closed_jobs": 1
     },
     {
