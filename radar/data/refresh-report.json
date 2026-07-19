@@ -1,12 +1,13 @@
 {
-  "refreshed_at": "2026-07-19T14:13:20.783Z",
+  "refreshed_at": "2026-07-19T16:04:23.164Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
-  "job_count": 11595,
-  "active_job_count": 8694,
-  "closed_job_count": 2901,
-  "newly_closed_count": 0,
+  "job_count": 11597,
+  "active_job_count": 8695,
+  "closed_job_count": 2902,
+  "newly_closed_count": 1,
   "errored_employers": 0,
+  "recall_anomalies": [],
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
@@ -279,7 +280,7 @@
       "fetched_jobs": 2500,
       "skipped": false,
       "error": null,
-      "closed_jobs": 366
+      "closed_jobs": 367
     },
     {
       "employer_id": "washington-university-in-st-louis",
@@ -366,7 +367,7 @@
       "name": "Georgetown University",
       "ats_provider": "workday",
       "ats_token": "georgetown",
-      "fetched_jobs": 10,
+      "fetched_jobs": 11,
       "skipped": false,
       "error": null,
       "closed_jobs": 13
