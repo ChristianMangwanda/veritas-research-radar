@@ -6,6 +6,7 @@ const state = {
   compiled: null,     // RadarScoring.compileProfile(profile)
   routeCache: null,   // local Ollama routing verdicts (route-cache.json)
   profileError: null, // validation message when an import is rejected
+  loadError: null,    // set when the job load partially/fully failed (distinct from "no matches")
   lastVisit: null,
   selectedId: null,
   visible: []
@@ -50,6 +51,7 @@ const DOM = {
   filtersToggle: document.querySelector('#filters-toggle'),
   emptyState: document.querySelector('#empty-state'),
   emptyReset: document.querySelector('#empty-reset'),
+  loadError: document.querySelector('#load-error'),
   refreshMeta: document.querySelector('#refresh-meta'),
   statActive: document.querySelector('#stat-active'),
   statNew: document.querySelector('#stat-new'),
@@ -138,6 +140,7 @@ async function tryJson(url) {
 }
 
 async function loadJobs() {
+  state.loadError = null;
   // An empty local file (fresh clone — jobs.json is untracked now) must not
   // shadow the live database
   const local = await tryJson('/api/jobs');
@@ -154,8 +157,9 @@ async function loadJobs() {
     const total = Number((head.headers.get('content-range') || '').split('/')[1] || 0);
     if (total > 0) {
       const pageCount = Math.ceil(total / pageSize);
-      const pages = new Array(pageCount);
+      const pages = new Array(pageCount).fill(null);
       let nextPage = 0;
+      let failedPages = 0;
       const fetchPage = async (page) => {
         const query = `/jobs?select=payload&order=id&limit=${pageSize}&offset=${page * pageSize}`;
         try {
@@ -168,13 +172,33 @@ async function loadJobs() {
         while (nextPage < pageCount) {
           const page = nextPage;
           nextPage += 1;
-          pages[page] = await fetchPage(page);
+          try {
+            pages[page] = await fetchPage(page);
+          } catch {
+            // One flaky page must not zero out the dashboard — keep every page
+            // that did load and report the gap instead of failing the whole load.
+            pages[page] = [];
+            failedPages += 1;
+          }
         }
       }));
-      return pages.flat().map((row) => row.payload);
+      const jobs = pages.flat().map((row) => row.payload);
+      if (jobs.length) {
+        if (failedPages) {
+          state.loadError = `Showing ${jobs.length.toLocaleString()} of ~${total.toLocaleString()} jobs — `
+            + `${failedPages} data page${failedPages === 1 ? '' : 's'} failed to load. Refresh to try again.`;
+        }
+        return jobs;
+      }
+      // Every page failed: fall through to the committed file rather than
+      // returning an empty list that reads as "no jobs".
     }
   } catch { /* fall through */ }
-  return (await tryJson('data/jobs.json')) || [];
+  const fallback = (await tryJson('data/jobs.json')) || [];
+  if (!fallback.length) {
+    state.loadError = 'Could not load jobs from the database. Check your connection and refresh.';
+  }
+  return fallback;
 }
 
 async function loadRefreshReport() {
@@ -530,7 +554,16 @@ function render() {
   const jobs = filteredJobs();
   state.visible = jobs;
   DOM.count.textContent = `${jobs.length} job${jobs.length === 1 ? '' : 's'}`;
-  DOM.emptyState.hidden = jobs.length > 0;
+  if (DOM.loadError) {
+    DOM.loadError.hidden = !state.loadError;
+    if (state.loadError) DOM.loadError.textContent = state.loadError;
+  }
+  // A hard load failure (zero rows loaded) is not "no filter matches" — show
+  // the error banner instead of the empty-state hint. A *partial* load still
+  // has rows, so filtering down to zero should show the normal hint with the
+  // banner above it.
+  const hardLoadFailure = state.jobs.length === 0 && Boolean(state.loadError);
+  DOM.emptyState.hidden = jobs.length > 0 || hardLoadFailure;
   DOM.jobs.replaceChildren();
 
   if (state.selectedId && !jobs.some((job) => job.id === state.selectedId)) {

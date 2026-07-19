@@ -4,7 +4,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const { analyzeText } = require('../../scripts/keywords.js');
 const { classifyTitle, classLabel } = require('./lib/title-class.js');
-const { syncJobs, fetchAllJobs } = require('./lib/supabase.js');
+const { syncJobs, fetchAllJobs, supabaseEnv } = require('./lib/supabase.js');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RADAR_DIR = path.join(ROOT, 'radar');
@@ -20,6 +20,64 @@ const AGGREGATED_TTL_DAYS = 7;
 const ENRICHMENT_PATH = path.join(DATA_DIR, 'employer-enrichment.json');
 
 const CAP_EXEMPT_STATUS_ORDER = { unknown: 0, likely: 1, verified: 2 };
+// An employer that had this many active jobs and now fetches zero on an OK
+// (non-skipped, non-errored) feed is almost certainly a broken feed, not a
+// real emptying — every one of those jobs is about to be tombstoned silently.
+const RECALL_ALARM_MIN_ACTIVE = 5;
+
+/**
+ * Flag employers whose live feed dropped from >= RECALL_ALARM_MIN_ACTIVE
+ * active jobs to zero on a fetch that reported OK. These are the silent
+ * mass-tombstone events: the lifecycle will close every prior job because the
+ * feed "succeeded" with nothing, so the loss never shows up as an error.
+ * Errored/skipped feeds are excluded — the lifecycle already carries their
+ * jobs forward untouched.
+ */
+function detectRecallAnomalies({ previousJobs, employerReports, employerOutcomes, minActive = RECALL_ALARM_MIN_ACTIVE }) {
+  const previousActive = new Map();
+  for (const job of previousJobs) {
+    if (job.status === 'closed') continue;
+    const id = job.employer_id;
+    previousActive.set(id, (previousActive.get(id) || 0) + 1);
+  }
+  const anomalies = [];
+  for (const report of employerReports) {
+    const before = previousActive.get(report.employer_id) || 0;
+    const outcome = employerOutcomes.get(report.employer_id);
+    const okFetch = Boolean(outcome && outcome.attempted && outcome.ok);
+    if (okFetch && report.fetched_jobs === 0 && before >= minActive) {
+      anomalies.push({
+        employer_id: report.employer_id,
+        name: report.name,
+        ats_provider: report.ats_provider,
+        previous_active: before
+      });
+    }
+  }
+  return anomalies;
+}
+
+/**
+ * Best-effort ntfy.sh push. No-ops without NTFY_TOPIC and never throws — an
+ * alert channel that can break the refresh is worse than no alert.
+ */
+async function pushNtfy({ title, body, tags = 'satellite' }) {
+  const topic = process.env.NTFY_TOPIC;
+  if (!topic) {
+    console.log('NTFY_TOPIC not set — alert printed only.');
+    return;
+  }
+  try {
+    const response = await fetch(`https://ntfy.sh/${encodeURIComponent(topic)}`, {
+      method: 'POST',
+      headers: { Title: title, Tags: tags },
+      body
+    });
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+  } catch (error) {
+    console.warn(`ntfy alert failed: ${error.message}`);
+  }
+}
 
 /**
  * Merges the generated enrichment overlay onto the hand-curated registry.
@@ -823,11 +881,14 @@ async function runRefresh() {
   const employers = applyEnrichmentOverlay(registryEmployers, enrichment);
   // Lifecycle state (first_seen_at, tombstones) lives in Supabase once the
   // dataset stops being committed; the local file remains the fallback
+  const supabaseConfigured = Boolean(supabaseEnv());
   let previousJobs = null;
+  let supabaseReadFailed = false;
   try {
     previousJobs = await fetchAllJobs();
     if (previousJobs) console.log(`Loaded ${previousJobs.length} previous jobs from Supabase`);
   } catch (error) {
+    supabaseReadFailed = true;
     console.warn(`Supabase previous-state read failed, using local file: ${error.message}`);
   }
   if (!previousJobs) previousJobs = await readJson(JOBS_PATH, []);
@@ -985,6 +1046,13 @@ async function runRefresh() {
     employerReport.closed_jobs = closedJobs.filter((job) => job.employer_id === employerReport.employer_id).length;
   }
 
+  // A "dropped to zero" signal is only meaningful against a baseline we
+  // actually read; if the previous-state read failed, every feed looks empty,
+  // so skip detection rather than flood alerts against a stale/empty baseline.
+  const recallAnomalies = supabaseReadFailed
+    ? []
+    : detectRecallAnomalies({ previousJobs, employerReports, employerOutcomes });
+
   const report = {
     refreshed_at: now,
     employer_count: employers.length,
@@ -994,6 +1062,7 @@ async function runRefresh() {
     closed_job_count: closedJobs.length,
     newly_closed_count: closedJobs.filter((job) => job.closed_at === now).length,
     errored_employers: employerReports.filter((report) => report.error).length,
+    recall_anomalies: recallAnomalies,
     sources: {
       greenhouse: 'https://developers.greenhouse.io/job-board.html',
       lever: 'https://github.com/lever/postings-api',
@@ -1017,9 +1086,47 @@ async function runRefresh() {
   if (report.errored_employers) {
     console.log(`${report.errored_employers} employers had fetch errors; see ${path.relative(ROOT, REPORT_PATH)}`);
   }
+  if (recallAnomalies.length) {
+    const summary = recallAnomalies
+      .map((a) => `${a.name} (${a.previous_active} → 0)`)
+      .join(', ');
+    console.warn(`Zero-job recall alarm: ${recallAnomalies.length} employer(s) dropped to zero on an OK fetch: ${summary}`);
+    await pushNtfy({
+      title: `Radar recall alarm: ${recallAnomalies.length} feed(s) went to zero`,
+      body: recallAnomalies
+        .map((a) => `• ${a.name} [${a.ats_provider || 'n/a'}]: ${a.previous_active} active → 0`)
+        .join('\n'),
+      tags: 'warning'
+    });
+  }
 
   // Dual-write phase: Supabase mirrors the dataset when credentials exist;
-  // git stays canonical, so a sync failure warns but never fails the refresh
+  // git stays canonical, so a sync failure warns but never fails the refresh.
+  //
+  // Guard the destructive path: syncJobs upserts this run then DELETEs every
+  // untouched row. That is only safe when we successfully loaded the previous
+  // state, so the upsert re-writes the full dataset with intact first_seen and
+  // tombstones. If we could NOT trust the previous state — the read errored
+  // (rows are still in Supabase but unseen here), or it came back empty and the
+  // local fallback was empty too (the normal CI shape) — then syncing is unsafe
+  // no matter how many jobs this run fetched: with zero fetched it DELETEs the
+  // whole table, and with jobs fetched it resets first_seen and drops
+  // tombstones. A stale local fallback is no safer — pushing it would overwrite
+  // fresher remote rows we never read. Abort in every untrusted case; a genuine
+  // first-run bootstrap sets RADAR_ALLOW_EMPTY_SYNC=1 to override.
+  const untrustedPreviousState = supabaseReadFailed || previousJobs.length === 0;
+  const wouldResetLifecycle = supabaseConfigured
+    && untrustedPreviousState
+    && !process.env.RADAR_ALLOW_EMPTY_SYNC;
+  if (wouldResetLifecycle) {
+    report.supabase_sync_aborted = supabaseReadFailed
+      ? 'previous-state read failed; refusing to overwrite the dataset of record'
+      : 'previous state empty; refusing to reset first_seen/tombstones or wipe the table';
+    await writeJson(REPORT_PATH, report);
+    console.warn(`Supabase sync ABORTED: ${report.supabase_sync_aborted}. `
+      + 'Set RADAR_ALLOW_EMPTY_SYNC=1 only for an intentional first-run bootstrap.');
+    return report;
+  }
   try {
     const sync = await syncJobs(allJobs, report);
     console.log(sync.synced
@@ -1060,6 +1167,7 @@ module.exports = {
   fetchUsaJobsJobs,
   isResearchRelevantTitle,
   applyJobLifecycle,
+  detectRecallAnomalies,
   activeScoutedJobs,
   applyEnrichmentOverlay,
   fetchGreenhouseJobs,
