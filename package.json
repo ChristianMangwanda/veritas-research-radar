@@ -17,6 +17,7 @@
     "radar:websites": "node radar/scripts/fetch-nonprofit-websites.js",
     "radar:profile": "node radar/scripts/build-profile.js",
     "radar:route": "node radar/scripts/route-resumes.js",
+    "radar:digest:local": "node radar/scripts/digest-local.js",
     "test": "node tests/radar.test.js"
   },
   "engines": {

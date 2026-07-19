@@ -15,27 +15,45 @@ const state = {
 const LAST_VISIT_KEY = 'veritas_radar_last_visit';
 const THEME_KEY = 'veritas_radar_theme';
 
-// Closed postings with these triage states stay visible so an applied-to job
-// that disappears from the ATS is flagged rather than silently hidden
-const PROTECTED_TRIAGE = new Set(['shortlist', 'applied', 'emailed_lab', 'needs_visa_check']);
-
+// Full triage funnel, ordered new → shortlisted → outreach → applied →
+// interview → outcome. The segmented control and triage filter are both built
+// from this order, so adding a state here surfaces it everywhere.
 const TRIAGE_LABELS = {
   new: 'New',
   shortlist: 'Shortlist',
-  applied: 'Applied',
   emailed_lab: 'Emailed lab',
   needs_visa_check: 'Visa check',
+  applied: 'Applied',
+  interview: 'Interview',
+  offer: 'Offer',
+  rejected: 'Rejected',
+  withdrawn: 'Withdrawn',
   ignore: 'Ignore'
 };
 
 const TRIAGE_COLORS = {
   new: 'var(--info-ink)',
   shortlist: 'var(--accent)',
-  applied: 'var(--friendly-ink)',
   emailed_lab: 'var(--info-ink)',
   needs_visa_check: 'var(--warn-ink)',
+  applied: 'var(--friendly-ink)',
+  interview: 'var(--accent)',
+  offer: 'var(--friendly-ink)',
+  rejected: 'var(--faint)',
+  withdrawn: 'var(--faint)',
   ignore: 'var(--faint)'
 };
+
+// Closed postings in these states stay visible so a job you're pursuing that
+// disappears from the ATS is flagged rather than silently hidden.
+const PROTECTED_TRIAGE = new Set(['shortlist', 'emailed_lab', 'needs_visa_check', 'applied', 'interview', 'offer']);
+
+// States that represent a live application awaiting a response — the ones a
+// follow-up-aging view (1.5) tracks by how long they've sat without a change.
+const IN_FLIGHT_TRIAGE = new Set(['emailed_lab', 'needs_visa_check', 'applied', 'interview']);
+
+// Days without a status change before an in-flight job is "needs follow-up".
+const FOLLOWUP_STALE_DAYS = 7;
 
 const VISA_LABELS = { FRIENDLY: 'Friendly', RESTRICTED: 'Restricted', NEUTRAL: 'No visa language' };
 const VISA_TAGS = { FRIENDLY: 'tag-friendly', RESTRICTED: 'tag-restricted', NEUTRAL: '' };
@@ -69,6 +87,8 @@ const DOM = {
   source: document.querySelector('#source'),
   visaSeg: document.querySelector('#visa-seg'),
   newOnly: document.querySelector('#new-only'),
+  followupOnly: document.querySelector('#followup-only'),
+  markSeen: document.querySelector('#mark-seen'),
   includeClosed: document.querySelector('#include-closed'),
   includeFederal: document.querySelector('#include-federal'),
   type: document.querySelector('#type'),
@@ -81,6 +101,10 @@ const DOM = {
   profileFile: document.querySelector('#profile-file'),
   routeFile: document.querySelector('#route-file'),
   clearProfile: document.querySelector('#clear-profile'),
+  syncToken: document.querySelector('#sync-token'),
+  syncSave: document.querySelector('#sync-save'),
+  syncClear: document.querySelector('#sync-clear'),
+  syncStatus: document.querySelector('#sync-status'),
   rowTemplate: document.querySelector('#job-row-template'),
   detailPane: document.querySelector('#detail-pane'),
   detailScroll: document.querySelector('.detail-scroll'),
@@ -89,6 +113,7 @@ const DOM = {
   detailMeta: document.querySelector('#detail-meta'),
   detailOpen: document.querySelector('#detail-open'),
   triageSeg: document.querySelector('#triage-seg'),
+  detailNote: document.querySelector('#detail-note'),
   detailAlerts: document.querySelector('#detail-alerts'),
   detailSignals: document.querySelector('#detail-signals'),
   detailFit: document.querySelector('#detail-fit'),
@@ -252,6 +277,124 @@ async function saveLocalState() {
 }
 
 /* ------------------------------------------------------------------------ */
+/* Cross-device triage sync (1.2). Optional and off until you paste a sync   */
+/* token (Settings → Sync); absent token = today's local-only behavior.      */
+/* The token gates two SECURITY DEFINER RPCs — radar_get_triage /            */
+/* radar_upsert_triage — so the public anon key alone can neither read nor    */
+/* write your triage. Setup + SQL: radar/supabase/triage.sql.                 */
+
+const SYNC_TOKEN_KEY = 'veritas_radar_sync_token';
+
+const triageSync = {
+  token() {
+    try { return localStorage.getItem(SYNC_TOKEN_KEY) || ''; } catch { return ''; }
+  },
+  enabled() {
+    return Boolean(this.token());
+  },
+  async rpc(fn, args) {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(args)
+    });
+    if (!response.ok) throw new Error(`sync ${fn}: ${response.status} ${response.statusText}`);
+    return response.json();
+  },
+  async pull() {
+    if (!this.enabled()) return null;
+    const rows = await this.rpc('radar_get_triage', { p_token: this.token() });
+    const triage = {};
+    for (const row of rows || []) {
+      const record = { status: row.status, updated_at: row.updated_at };
+      if (row.note) record.note = row.note;
+      if (row.applied_at) record.applied_at = row.applied_at;
+      triage[row.job_id] = record;
+    }
+    return triage;
+  },
+  async push() {
+    if (!this.enabled()) return;
+    const rows = Object.entries(state.local.triage).map(([jobId, record]) => ({
+      job_id: jobId,
+      status: record.status,
+      note: record.note ?? null,
+      applied_at: record.applied_at ?? null,
+      updated_at: record.updated_at || new Date().toISOString()
+    }));
+    await this.rpc('radar_upsert_triage', { p_token: this.token(), p_rows: rows });
+  }
+};
+
+function renderSyncStatus(message) {
+  if (!DOM.syncStatus) return;
+  DOM.syncStatus.textContent = message
+    || (triageSync.enabled() ? 'On — triage syncs across your devices.' : 'Off — triage stays on this device only.');
+  if (DOM.syncToken) DOM.syncToken.value = triageSync.token();
+}
+
+async function saveSyncToken() {
+  const token = (DOM.syncToken.value || '').trim();
+  if (!token) {
+    renderSyncStatus('Enter a token first, or use Turn off.');
+    return;
+  }
+  localStorage.setItem(SYNC_TOKEN_KEY, token);
+  renderSyncStatus('Syncing…');
+  try {
+    const remote = await triageSync.pull(); // validates the token as a side effect
+    if (remote) {
+      state.local.triage = mergeTriage(state.local.triage, remote);
+      await saveLocalState();
+    }
+    await triageSync.push();
+    renderSyncStatus('On — synced across your devices.');
+    render();
+  } catch (error) {
+    // Bad token / unreachable: don't leave a broken token enabled.
+    localStorage.removeItem(SYNC_TOKEN_KEY);
+    renderSyncStatus(`Sync failed (${error.message}). Check the token and setup.`);
+  }
+}
+
+function clearSyncToken() {
+  localStorage.removeItem(SYNC_TOKEN_KEY);
+  if (DOM.syncToken) DOM.syncToken.value = '';
+  renderSyncStatus();
+}
+
+// Last-write-wins per job by updated_at — merges a remote triage map into a
+// local one without losing either side's newer edits.
+function mergeTriage(local, remote) {
+  const merged = { ...(local || {}) };
+  for (const [jobId, record] of Object.entries(remote || {})) {
+    const current = merged[jobId];
+    if (!current || String(record.updated_at || '') > String(current.updated_at || '')) {
+      merged[jobId] = record;
+    }
+  }
+  return merged;
+}
+
+// One place every triage mutation persists through: local first (always), then
+// best-effort push to Supabase when sync is on. A failed push never blocks the
+// UI — the local write already succeeded and the next change retries.
+async function persistTriage() {
+  await saveLocalState();
+  if (triageSync.enabled()) {
+    try {
+      await triageSync.push();
+    } catch (error) {
+      console.warn(`Triage sync push failed (kept locally): ${error.message}`);
+    }
+  }
+}
+
+/* ------------------------------------------------------------------------ */
 /* Resume-variant profile (all local; built by npm run radar:profile from    */
 /* the user's OWN resumes — nothing here generates resume content)           */
 
@@ -357,8 +500,32 @@ function isNewSinceLastVisit(job) {
   return Boolean(state.lastVisit && job.first_seen_at && job.first_seen_at > state.lastVisit);
 }
 
+function triageRecord(job) {
+  return state.local.triage[job.id] || null;
+}
+
 function triageFor(job) {
-  return state.local.triage[job.id]?.status || 'new';
+  return triageRecord(job)?.status || 'new';
+}
+
+function noteFor(job) {
+  return triageRecord(job)?.note || '';
+}
+
+// Days since the last status change, for jobs awaiting a response. Uses the
+// already-stored updated_at (stamped whenever the status changes), so a job
+// left in "applied" surfaces its own staleness. Non-in-flight jobs return null.
+function followupAgeDays(job) {
+  const record = triageRecord(job);
+  if (!record || !IN_FLIGHT_TRIAGE.has(record.status)) return null;
+  const since = Date.parse(record.updated_at || '');
+  if (!Number.isFinite(since)) return null;
+  return Math.floor((Date.now() - since) / (24 * 60 * 60 * 1000));
+}
+
+function needsFollowup(job) {
+  const age = followupAgeDays(job);
+  return age !== null && age >= FOLLOWUP_STALE_DAYS;
 }
 
 function isClosed(job) {
@@ -399,6 +566,16 @@ const SORTERS = {
     const delta = (b.class_evidence?.certified_count_3y || 0) - (a.class_evidence?.certified_count_3y || 0);
     if (delta !== 0) return delta;
     return (b.dol_lca_certified_count_3y || 0) - (a.dol_lca_certified_count_3y || 0) || SORTERS.fit(a, b);
+  },
+  followup(a, b) {
+    // In-flight applications first, stalest (oldest last-change) on top; other
+    // jobs fall below, ranked by fit.
+    const ageA = followupAgeDays(a);
+    const ageB = followupAgeDays(b);
+    if (ageA === null && ageB === null) return SORTERS.fit(a, b);
+    if (ageA === null) return 1;
+    if (ageB === null) return -1;
+    return ageB - ageA;
   }
 };
 
@@ -416,6 +593,7 @@ function filteredJobs() {
     .filter((job) => !job.citizenship_gated || DOM.includeFederal.checked)
     .filter((job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)))
     .filter((job) => !DOM.newOnly.checked || isNewSinceLastVisit(job))
+    .filter((job) => !DOM.followupOnly.checked || needsFollowup(job))
     .filter((job) => !source || job.source === source)
     .filter((job) => !query || jobText(job).includes(query))
     .filter((job) => !visaFilter || job.veritas_state === visaFilter)
@@ -439,6 +617,7 @@ function activeFilterCount() {
   if (DOM.cap.value) count += 1;
   if (DOM.triageFilter.value) count += 1;
   if (DOM.newOnly.checked) count += 1;
+  if (DOM.followupOnly.checked) count += 1;
   if (DOM.includeClosed.checked) count += 1;
   if (DOM.includeFederal.checked) count += 1;
   if (DOM.minResearch.value !== '0') count += 1;
@@ -452,6 +631,7 @@ function resetFilters() {
   DOM.cap.value = '';
   DOM.triageFilter.value = '';
   DOM.newOnly.checked = false;
+  DOM.followupOnly.checked = false;
   DOM.includeClosed.checked = false;
   DOM.includeFederal.checked = false;
   DOM.minResearch.value = '0';
@@ -468,6 +648,7 @@ function syncUrl() {
   if (DOM.sort.value !== 'fit') params.set('sort', DOM.sort.value);
   if (DOM.source.value) params.set('source', DOM.source.value);
   if (DOM.newOnly.checked) params.set('newOnly', '1');
+  if (DOM.followupOnly.checked) params.set('followup', '1');
   if (DOM.includeClosed.checked) params.set('includeClosed', '1');
   if (DOM.includeFederal.checked) params.set('federal', '1');
   if (visaFilter) params.set('visa', visaFilter);
@@ -484,6 +665,7 @@ function hydrateFromUrl() {
   if (params.has('q')) DOM.q.value = params.get('q');
   if (params.has('sort') && SORTERS[params.get('sort')]) DOM.sort.value = params.get('sort');
   DOM.newOnly.checked = params.get('newOnly') === '1';
+  DOM.followupOnly.checked = params.get('followup') === '1';
   DOM.includeClosed.checked = params.get('includeClosed') === '1';
   DOM.includeFederal.checked = params.get('federal') === '1';
   if (params.has('visa')) setVisaFilter(params.get('visa'), { skipRender: true });
@@ -546,6 +728,11 @@ function render() {
   syncUrl();
   DOM.minResearchValue.textContent = DOM.minResearch.value;
 
+  // "Mark all as seen" only appears when there's actually something new to clear
+  const newCount = state.jobs.filter(isNewSinceLastVisit).length;
+  DOM.markSeen.hidden = newCount === 0;
+  DOM.markSeen.textContent = `Mark all as seen (${newCount})`;
+
   const filters = activeFilterCount();
   DOM.resetFilters.hidden = filters === 0;
   DOM.resetFilters.querySelector('span').textContent = `(${filters})`;
@@ -601,6 +788,15 @@ function buildRow(job) {
     label.append(triageDot(status), document.createTextNode(TRIAGE_LABELS[status]));
     chips.append(label);
   }
+  const age = followupAgeDays(job);
+  if (age !== null) {
+    const stale = age >= FOLLOWUP_STALE_DAYS;
+    const text = stale ? `⏳ ${age}d, no update`
+      : age === 0 ? 'updated today'
+        : `${age}d ago`;
+    chips.append(tag(text, stale ? 'tag-warn' : ''));
+  }
+  if (noteFor(job)) chips.append(tag('📝 note', ''));
   if (isNewSinceLastVisit(job)) chips.append(tag('NEW', 'tag-info'));
   if (isClosed(job)) {
     node.classList.add('is-closed');
@@ -703,6 +899,10 @@ function renderDetail() {
   for (const button of DOM.triageSeg.querySelectorAll('button')) {
     button.classList.toggle('is-active', button.dataset.value === current);
   }
+  // Don't clobber what the user is typing if the note field is focused mid-edit
+  if (DOM.detailNote && document.activeElement !== DOM.detailNote) {
+    DOM.detailNote.value = noteFor(job);
+  }
 
   renderDetailAlerts(job);
   renderDetailSignals(job);
@@ -739,6 +939,15 @@ function buildDetailSkeleton() {
   }
   actions.append(open, seg);
 
+  const notes = el('section', 'detail-notes');
+  const notesLabel = el('label', 'field-label', 'Notes (contact, next step)');
+  notesLabel.setAttribute('for', 'detail-note');
+  const notesArea = el('textarea', 'note-input');
+  notesArea.id = 'detail-note';
+  notesArea.rows = 3;
+  notesArea.placeholder = 'e.g. emailed Dr. Lee 7/18 — follow up in a week';
+  notes.append(notesLabel, notesArea);
+
   const alerts = el('div'); alerts.id = 'detail-alerts';
   const signals = el('dl', 'signal-grid'); signals.id = 'detail-signals';
   const fit = el('div', 'fit-block'); fit.id = 'detail-fit';
@@ -750,7 +959,7 @@ function buildDetailSkeleton() {
 
   const disclaimer = el('p', 'disclaimer'); disclaimer.id = 'detail-disclaimer';
 
-  return [back, head, actions, alerts, signals, fit, description, disclaimer];
+  return [back, head, actions, notes, alerts, signals, fit, description, disclaimer];
 }
 
 function rebindDetailRefs() {
@@ -759,6 +968,7 @@ function rebindDetailRefs() {
   DOM.detailMeta = document.querySelector('#detail-meta');
   DOM.detailOpen = document.querySelector('#detail-open');
   DOM.triageSeg = document.querySelector('#triage-seg');
+  DOM.detailNote = document.querySelector('#detail-note');
   DOM.detailAlerts = document.querySelector('#detail-alerts');
   DOM.detailSignals = document.querySelector('#detail-signals');
   DOM.detailFit = document.querySelector('#detail-fit');
@@ -1032,9 +1242,27 @@ function renderDetailDescription(job) {
 /* Triage                                                                    */
 
 async function setTriage(job, status) {
-  state.local.triage[job.id] = { status, updated_at: new Date().toISOString() };
-  await saveLocalState();
+  const prev = state.local.triage[job.id] || {};
+  const now = new Date().toISOString();
+  const record = { ...prev, status, updated_at: now };
+  // Stamp the first time it becomes "applied" so the funnel remembers when you
+  // actually applied, independent of any later interview/offer change.
+  if (status === 'applied' && !record.applied_at) record.applied_at = now;
+  state.local.triage[job.id] = record;
+  await persistTriage();
   render();
+}
+
+async function setNote(job, note) {
+  const prev = state.local.triage[job.id] || { status: 'new' };
+  // A note edit must NOT bump updated_at — that would falsely reset the
+  // follow-up-aging clock. Keep the prior timestamp (or seed one for a new
+  // record), and drop the field entirely when the note is cleared.
+  const record = { ...prev, status: prev.status || 'new', updated_at: prev.updated_at || new Date().toISOString() };
+  if (note && note.trim()) record.note = note;
+  else delete record.note;
+  state.local.triage[job.id] = record;
+  await persistTriage();
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1196,12 +1424,39 @@ function bindDetailEvents() {
     state.selectedId = null;
     render();
   });
+
+  // Notes: debounce while typing (don't persist every keystroke), flush on blur
+  // and re-render so the row's note indicator updates.
+  let noteTimer = null;
+  DOM.detailNote.addEventListener('input', (event) => {
+    const job = selectedJob();
+    if (!job) return;
+    const value = event.target.value;
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(() => setNote(job, value), 400);
+  });
+  DOM.detailNote.addEventListener('blur', async (event) => {
+    const job = selectedJob();
+    if (!job) return;
+    clearTimeout(noteTimer);
+    await setNote(job, event.target.value);
+    render();
+  });
+}
+
+function markAllSeen() {
+  state.lastVisit = new Date().toISOString();
+  localStorage.setItem(LAST_VISIT_KEY, state.lastVisit);
+  DOM.newOnly.checked = false;
+  render();
 }
 
 function bindEvents() {
-  for (const input of [DOM.q, DOM.sort, DOM.source, DOM.newOnly, DOM.includeClosed, DOM.includeFederal, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
+  for (const input of [DOM.q, DOM.sort, DOM.source, DOM.newOnly, DOM.followupOnly, DOM.includeClosed, DOM.includeFederal, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
     input.addEventListener('input', render);
   }
+
+  DOM.markSeen.addEventListener('click', markAllSeen);
 
   DOM.visaSeg.addEventListener('click', (event) => {
     const button = event.target.closest('button[data-value]');
@@ -1270,6 +1525,9 @@ function bindEvents() {
     render();
   });
 
+  DOM.syncSave.addEventListener('click', saveSyncToken);
+  DOM.syncClear.addEventListener('click', clearSyncToken);
+
   DOM.errorsToggle.addEventListener('click', () => toggleDrawer(DOM.errorsPanel));
   DOM.discoveryToggle.addEventListener('click', () => toggleDrawer(DOM.discoveryPanel));
   for (const button of document.querySelectorAll('.drawer-close')) {
@@ -1287,8 +1545,15 @@ function bindEvents() {
 
 async function init() {
   applyTheme(localStorage.getItem(THEME_KEY));
+  // The "NEW" watermark must NOT advance on every load — that made everything
+  // stop being NEW the moment you reloaded. Read it and leave it; only an
+  // explicit "Mark all as seen" advances it. Seed it once on the very first
+  // visit so the entire backlog isn't flagged NEW.
   state.lastVisit = localStorage.getItem(LAST_VISIT_KEY);
-  localStorage.setItem(LAST_VISIT_KEY, new Date().toISOString());
+  if (!state.lastVisit) {
+    state.lastVisit = new Date().toISOString();
+    localStorage.setItem(LAST_VISIT_KEY, state.lastVisit);
+  }
   hydrateFromUrl();
 
   const [jobs, employers, local, report, discovery, profile, routeCache] = await Promise.all([
@@ -1304,6 +1569,21 @@ async function init() {
   state.employers = employers;
   // null means no API server (static hosting) -> browser-local triage
   state.local = local || loadTriageFromBrowser();
+  // Cross-device sync (1.2): pull Supabase triage, merge last-write-wins, and
+  // push the merged set back so remote picks up any local-only edits. Off (and
+  // a clean no-op) until a sync token is set; never blocks load on failure.
+  if (triageSync.enabled()) {
+    try {
+      const remote = await triageSync.pull();
+      if (remote) {
+        state.local.triage = mergeTriage(state.local.triage, remote);
+        await saveLocalState();
+        await triageSync.push();
+      }
+    } catch (error) {
+      console.warn(`Triage sync pull failed (using local triage): ${error.message}`);
+    }
+  }
   // Same split for the resume profile: disk via the local server, otherwise
   // whatever the user imported into this browser. A profile served from disk
   // that fails validation is surfaced, not silently ignored.
@@ -1318,6 +1598,7 @@ async function init() {
   renderStats();
   renderRefreshStatus(report);
   renderDiscovery(discovery);
+  renderSyncStatus();
   bindEvents();
 
   // Preselect the first job on wide screens so the detail pane is never empty

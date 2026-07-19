@@ -374,6 +374,7 @@ button { font: inherit; color: inherit; }
 
 input[type="search"],
 input[type="text"],
+input[type="password"],
 select,
 textarea {
   width: 100%;
@@ -673,6 +674,22 @@ input[type="range"] {
   color: var(--warn-ink);
   font-size: 14px;
   font-weight: 600;
+}
+
+.detail-notes {
+  margin: 8px 0 4px;
+  display: grid;
+  gap: 4px;
+}
+
+.note-input {
+  min-height: 56px;
+}
+
+.mark-seen {
+  align-self: start;
+  margin: -2px 0 2px;
+  font-size: 13px;
 }
 
 /* --------------------------------------------------------------------------

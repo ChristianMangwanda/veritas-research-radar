@@ -69,6 +69,7 @@
             <option value="capexempt">Cap-exempt score</option>
             <option value="newest_seen">Newest found</option>
             <option value="newest_posted">Newest posted</option>
+            <option value="followup">Follow-up (stalest first)</option>
           </select>
         </label>
 
@@ -116,9 +117,13 @@
             <option value="">Any</option>
             <option value="new">New</option>
             <option value="shortlist">Shortlist</option>
-            <option value="applied">Applied</option>
             <option value="emailed_lab">Emailed lab</option>
             <option value="needs_visa_check">Needs visa check</option>
+            <option value="applied">Applied</option>
+            <option value="interview">Interview</option>
+            <option value="offer">Offer</option>
+            <option value="rejected">Rejected</option>
+            <option value="withdrawn">Withdrawn</option>
             <option value="ignore">Ignore</option>
           </select>
         </label>
@@ -131,6 +136,13 @@
         <label class="check">
           <input id="new-only" type="checkbox">
           <span>New since last visit</span>
+        </label>
+
+        <button id="mark-seen" class="link-button mark-seen" type="button" hidden>Mark all as seen</button>
+
+        <label class="check">
+          <input id="followup-only" type="checkbox">
+          <span>Needs follow-up (applied, no update in 7d)</span>
         </label>
 
         <label class="check">
@@ -158,6 +170,20 @@
             <button id="clear-profile" class="ghost-button" type="button">Clear</button>
           </div>
           <p class="profile-note">Built locally by <code>npm run radar:profile</code> from your own resumes. Stays in this browser.</p>
+        </section>
+
+        <section class="profile sync">
+          <h2>Sync across devices</h2>
+          <p id="sync-status" class="profile-note">Off — triage stays on this device only.</p>
+          <label class="field">
+            <span class="field-label">Sync token</span>
+            <input id="sync-token" type="password" placeholder="paste your sync token" autocomplete="off">
+          </label>
+          <div class="profile-actions">
+            <button id="sync-save" class="ghost-button" type="button">Save &amp; sync</button>
+            <button id="sync-clear" class="ghost-button" type="button">Turn off</button>
+          </div>
+          <p class="profile-note">Shares triage (status, notes, follow-ups) through Supabase, gated by a secret token. Setup: <code>radar/supabase/triage.sql</code>.</p>
         </section>
       </aside>
 
@@ -188,12 +214,21 @@
             <div id="triage-seg" class="segmented triage-seg" role="group" aria-label="Triage">
               <button type="button" data-value="new">New</button>
               <button type="button" data-value="shortlist">Shortlist</button>
-              <button type="button" data-value="applied">Applied</button>
               <button type="button" data-value="emailed_lab">Emailed lab</button>
               <button type="button" data-value="needs_visa_check">Visa check</button>
+              <button type="button" data-value="applied">Applied</button>
+              <button type="button" data-value="interview">Interview</button>
+              <button type="button" data-value="offer">Offer</button>
+              <button type="button" data-value="rejected">Rejected</button>
+              <button type="button" data-value="withdrawn">Withdrawn</button>
               <button type="button" data-value="ignore">Ignore</button>
             </div>
           </div>
+
+          <section class="detail-notes">
+            <label class="field-label" for="detail-note">Notes (contact, next step)</label>
+            <textarea id="detail-note" class="note-input" rows="3" placeholder="e.g. emailed Dr. Lee 7/18 — follow up in a week"></textarea>
+          </section>
 
           <div id="detail-alerts"></div>
 
