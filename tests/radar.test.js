@@ -41,6 +41,7 @@ const { normalizeName, parseCsvLine, annualWage, median } = require('../radar/sc
 const { parseCsv, csvRecords } = require('../radar/scripts/lib/csv.js');
 const { classifyTitle, classLabel } = require('../radar/scripts/lib/title-class.js');
 const { parseSalary } = require('../radar/scripts/lib/salary.js');
+const { parseDeadline } = require('../radar/scripts/lib/deadline.js');
 const { parsePeopleAdminAtom, mapPeopleAdminEntry } = require('../radar/scripts/refresh.js');
 const { jobRow, supabaseEnv } = require('../radar/scripts/lib/supabase.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
@@ -695,6 +696,18 @@ function testJobLifecycle() {
     now
   });
   assert.strictEqual(jobs.length, 0);
+}
+
+function testDeadlineParser() {
+  assert.strictEqual(parseDeadline('Close Date 07/21/2026'), '2026-07-21');
+  assert.strictEqual(parseDeadline('Close Date: 12/31/26'), '2026-12-31');
+  assert.strictEqual(parseDeadline('Application Deadline: March 15, 2026'), '2026-03-15');
+  assert.strictEqual(parseDeadline('apply by 3/1/2026'), '2026-03-01');
+  assert.strictEqual(parseDeadline('Close Date: Until Filled'), null);
+  assert.strictEqual(parseDeadline('Close Date: NA'), null);
+  assert.strictEqual(parseDeadline('Review of applications begins Nov 1, 2025'), null); // not a hard deadline
+  assert.strictEqual(parseDeadline('closes 07/16/1999'), null); // out of plausible year range
+  assert.strictEqual(parseDeadline('a deadline-driven environment'), null);
 }
 
 function testSalaryParser() {
@@ -1561,6 +1574,7 @@ async function main() {
   await testFetchRetry();
   await testUsaJobs();
   testJobLifecycle();
+  testDeadlineParser();
   testSalaryParser();
   testWorkModeAndLocation();
   testRecallAnomalies();

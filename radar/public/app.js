@@ -574,6 +574,15 @@ const SORTERS = {
     if (sa !== sb) return sb - sa;
     return SORTERS.fit(a, b);
   },
+  closing(a, b) {
+    // Nearest upcoming deadline first; past/none sink to the bottom.
+    const da = deadlineDays(a);
+    const db = deadlineDays(b);
+    const fa = da !== null && da >= 0 ? da : Infinity;
+    const fb = db !== null && db >= 0 ? db : Infinity;
+    if (fa !== fb) return fa - fb;
+    return SORTERS.fit(a, b);
+  },
   followup(a, b) {
     // In-flight applications first, stalest (oldest last-change) on top; other
     // jobs fall below, ranked by fit.
@@ -716,6 +725,22 @@ function triageDot(status) {
   return dot;
 }
 
+function deadlineDays(job) {
+  if (!job.deadline) return null;
+  const end = Date.parse(`${job.deadline}T23:59:59`);
+  if (!Number.isFinite(end)) return null;
+  return Math.ceil((end - Date.now()) / (24 * 60 * 60 * 1000));
+}
+
+function formatDeadline(job) {
+  const n = deadlineDays(job);
+  if (n === null || n < 0) return null; // no deadline, or already past
+  if (n === 0) return 'closes today';
+  if (n <= 14) return `closes in ${n}d`;
+  const dt = new Date(`${job.deadline}T00:00:00`);
+  return `closes ${dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+}
+
 function formatSalary(job) {
   if (job.salary_min == null) return null;
   const k = (n) => (n >= 1000 ? `$${Math.round(n / 1000)}K` : `$${n}`);
@@ -821,6 +846,11 @@ function buildRow(job) {
   if (noteFor(job)) chips.append(tag('📝 note', ''));
   const salaryText = formatSalary(job);
   if (salaryText) chips.append(tag(salaryText, 'tag-friendly'));
+  const deadlineText = formatDeadline(job);
+  if (deadlineText) {
+    const soon = (deadlineDays(job) ?? 99) <= 7;
+    chips.append(tag(`⏱ ${deadlineText}`, soon ? 'tag-warn' : ''));
+  }
   if (isNewSinceLastVisit(job)) chips.append(tag('NEW', 'tag-info'));
   if (isClosed(job)) {
     node.classList.add('is-closed');
@@ -917,7 +947,8 @@ function renderDetail() {
     job.location || 'Location unspecified',
     job.department || null,
     formatSalary(job),
-    job.work_mode === 'hybrid' ? 'Hybrid' : null
+    job.work_mode === 'hybrid' ? 'Hybrid' : null,
+    formatDeadline(job)
   ].filter(Boolean).join(' · ');
   DOM.detailOpen.href = job.url;
 

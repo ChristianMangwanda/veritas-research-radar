@@ -5,6 +5,7 @@ const path = require('path');
 const { analyzeText } = require('../../scripts/keywords.js');
 const { classifyTitle, classLabel } = require('./lib/title-class.js');
 const { parseSalary } = require('./lib/salary.js');
+const { parseDeadline } = require('./lib/deadline.js');
 const { syncJobs, fetchAllJobs, supabaseEnv } = require('./lib/supabase.js');
 
 const ROOT = path.resolve(__dirname, '../..');
@@ -338,12 +339,15 @@ function enrichJob(job, employer, previousById, dolSignal = {}) {
   // free description text only yields a range (avoids bonuses/stipends).
   const salary = parseSalary(job.compensation_text, { trusted: true })
     || parseSalary(job.description_text);
+  // Structured close date (USAJOBS) wins; otherwise a cue-anchored body parse.
+  const deadline = job.deadline_raw || parseDeadline(job.description_text);
 
   return {
     ...job,
     location: normalizeLocation(job, employer, workMode),
     work_mode: workMode,
     remote: workMode === 'remote',
+    deadline: deadline || null,
     salary_min: salary?.salary_min ?? null,
     salary_max: salary?.salary_max ?? null,
     salary_period: salary?.salary_period ?? null,
@@ -779,7 +783,9 @@ function mapUsaJobsJob(item, employer) {
     source: 'usajobs',
     source_job_id: String(jobId),
     citizenship_gated: citizenshipGated,
-    restricted_reason: citizenshipGated ? 'US citizenship required (federal hiring path)' : null
+    restricted_reason: citizenshipGated ? 'US citizenship required (federal hiring path)' : null,
+    // USAJOBS exposes a structured close date — trust it over any body regex
+    deadline_raw: descriptor.ApplicationCloseDate ? String(descriptor.ApplicationCloseDate).slice(0, 10) : null
   };
 }
 
