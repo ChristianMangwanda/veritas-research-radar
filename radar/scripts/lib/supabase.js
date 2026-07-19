@@ -6,6 +6,15 @@
 
 const BATCH_SIZE = 500;
 const REQUEST_TIMEOUT_MS = 30000;
+// Deep-offset GET pages transiently 500 under load; a couple of retries with
+// backoff turns a flaky page into a slow one instead of an empty read that
+// would reset the whole lifecycle downstream.
+const READ_RETRIES = 3;
+const READ_RETRY_BASE_MS = 500;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function supabaseEnv() {
   const url = process.env.SUPABASE_URL;
@@ -115,8 +124,21 @@ async function fetchAllJobs() {
   const pageSize = 1000;
   const jobs = [];
   for (let offset = 0; ; offset += pageSize) {
-    const response = await request(env, 'GET', `/jobs?select=payload&order=id&limit=${pageSize}&offset=${offset}`);
-    const rows = await response.json();
+    const pathname = `/jobs?select=payload&order=id&limit=${pageSize}&offset=${offset}`;
+    let rows = null;
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        const response = await request(env, 'GET', pathname);
+        rows = await response.json();
+        break;
+      } catch (error) {
+        // A single failed page must not collapse the whole read to "empty" —
+        // that empties previous-state and resets first_seen/tombstones. Retry,
+        // then propagate so the caller can abort rather than corrupt.
+        if (attempt >= READ_RETRIES) throw error;
+        await sleep(READ_RETRY_BASE_MS * (attempt + 1));
+      }
+    }
     jobs.push(...rows.map((row) => row.payload));
     if (rows.length < pageSize) break;
   }

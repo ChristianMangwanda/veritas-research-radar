@@ -43,6 +43,7 @@ jobs:
           USAJOBS_EMAIL: ${{ secrets.USAJOBS_EMAIL }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
       - name: Rebase onto latest main (humans push while CI runs)
         run: git pull --rebase --autostash
       - name: Commit scouted data
@@ -50,3 +51,13 @@ jobs:
         with:
           commit_message: "Update scouted employer data"
           file_pattern: "radar/data/scouted-jobs.json radar/data/refresh-report.json"
+      - name: Alert on failure
+        if: failure()
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          [ -z "$NTFY_TOPIC" ] && { echo "NTFY_TOPIC not set; skipping alert"; exit 0; }
+          curl -sS -H "Title: ${{ github.workflow }} failed" \
+            -H "Tags: rotating_light" \
+            -d "Workflow '${{ github.workflow }}' failed on ${{ github.ref_name }}. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            "https://ntfy.sh/$NTFY_TOPIC" || true

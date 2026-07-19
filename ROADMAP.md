@@ -38,15 +38,18 @@ What separates it from a daily-driver job-search tool is concentrated in four ar
 
 ---
 
-## Tier 0 — Protect the dataset (do first, ~2 days)
+## Tier 0 — Protect the dataset ✅ DONE 2026-07-19
 
-| # | Item | Where | Effort |
+All five items landed in one pass (see the working tree). `npm test` green, all
+workflow YAML parses, `deadman-check.js` + `digest.js` smoke-tested locally.
+
+| # | Item | Where | Status |
 |---|------|-------|--------|
-| 0.1 | Guard the Supabase-only lifecycle: retry in `lib/supabase.js`; in `runRefresh`, if previous-state load is empty but employers fetched OK, **abort the sync** instead of resetting first_seen/tombstones | `refresh.js:826-833`, `lib/supabase.js:17-40` | 0.5–1d |
-| 0.2 | Zero-job recall alarm: flag any employer dropping from ≥N active to 0 on an OK fetch, in report + ntfy. Add test pinning "0-job employer must not mass-tombstone unnoticed" | `refresh.js:802-818` | 0.5d |
-| 0.3 | Failure alerting: `if: failure()` ntfy step on all 6 workflows + tiny dead-man's-switch workflow (ping if `refresh-report.refreshed_at` > 8h old or `errored_employers` > 0) | `.github/workflows/*` | 2–3h |
-| 0.4 | digest.js: wrap the `jobs.json` fallback read in try/catch (it ENOENTs in CI); fix wrong "reads committed data only" comment in `radar-digest.yml` | `digest.js:43-46` | 1h |
-| 0.5 | Dashboard: keep successfully fetched pages when one Supabase page fails (currently one flaky page → 0 jobs); real error state distinct from "no filter matches" | `app.js:159-177`, `index.html:171-174` | 0.5d |
+| 0.1 | Guard the Supabase-only lifecycle: retry in `lib/supabase.js`; in `runRefresh`, if previous-state load is empty but employers fetched OK, **abort the sync** instead of resetting first_seen/tombstones | `refresh.js:826-833`, `lib/supabase.js:17-40` | ✅ read-retry + `RADAR_ALLOW_EMPTY_SYNC` escape hatch; report records `supabase_sync_aborted` |
+| 0.2 | Zero-job recall alarm: flag any employer dropping from ≥N active to 0 on an OK fetch, in report + ntfy. Add test pinning "0-job employer must not mass-tombstone unnoticed" | `refresh.js:802-818` | ✅ `detectRecallAnomalies` (N=5) → `report.recall_anomalies` + ntfy; `testRecallAnomalies` added |
+| 0.3 | Failure alerting: `if: failure()` ntfy step on all 6 workflows + tiny dead-man's-switch workflow (ping if `refresh-report.refreshed_at` > 8h old or `errored_employers` > 0) | `.github/workflows/*` | ✅ alert step on all 6 + new `radar-deadman.yml` / `deadman-check.js` (2-hourly) |
+| 0.4 | digest.js: wrap the `jobs.json` fallback read in try/catch (it ENOENTs in CI); fix wrong "reads committed data only" comment in `radar-digest.yml` | `digest.js:43-46` | ✅ |
+| 0.5 | Dashboard: keep successfully fetched pages when one Supabase page fails (currently one flaky page → 0 jobs); real error state distinct from "no filter matches" | `app.js:159-177`, `index.html:171-174` | ✅ per-page failures kept + `#load-error` banner (code-verified; not browser-driven) |
 
 ## Tier 1 — Make it a daily driver (~1 week)
 

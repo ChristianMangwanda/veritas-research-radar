@@ -20,6 +20,7 @@ const {
   fetchUsaJobsJobs,
   isResearchRelevantTitle,
   applyJobLifecycle,
+  detectRecallAnomalies,
   activeScoutedJobs,
   applyEnrichmentOverlay
 } = require('../radar/scripts/refresh.js');
@@ -678,6 +679,46 @@ function testJobLifecycle() {
     now
   });
   assert.strictEqual(jobs.length, 0);
+}
+
+function testRecallAnomalies() {
+  const outcomes = (entries) => new Map(Object.entries(entries));
+  const prev = (employerId, count) =>
+    Array.from({ length: count }, (_, i) => ({ id: `${employerId}:${i}`, employer_id: employerId, status: 'active' }));
+
+  // A feed with a healthy history that OK-fetches zero must be flagged — this
+  // is the silent mass-tombstone the alarm exists to catch.
+  let anomalies = detectRecallAnomalies({
+    previousJobs: prev('big', 40),
+    employerReports: [{ employer_id: 'big', name: 'Big U', ats_provider: 'workday', fetched_jobs: 0 }],
+    employerOutcomes: outcomes({ big: { attempted: true, ok: true } })
+  });
+  assert.strictEqual(anomalies.length, 1);
+  assert.strictEqual(anomalies[0].previous_active, 40);
+
+  // Same drop but the fetch errored -> lifecycle carries jobs forward, no alarm
+  anomalies = detectRecallAnomalies({
+    previousJobs: prev('big', 40),
+    employerReports: [{ employer_id: 'big', name: 'Big U', ats_provider: 'workday', fetched_jobs: 0 }],
+    employerOutcomes: outcomes({ big: { attempted: true, ok: false } })
+  });
+  assert.strictEqual(anomalies.length, 0);
+
+  // Small feeds legitimately empty out; below the threshold -> no alarm
+  anomalies = detectRecallAnomalies({
+    previousJobs: prev('tiny', 2),
+    employerReports: [{ employer_id: 'tiny', name: 'Tiny Lab', ats_provider: 'lever', fetched_jobs: 0 }],
+    employerOutcomes: outcomes({ tiny: { attempted: true, ok: true } })
+  });
+  assert.strictEqual(anomalies.length, 0);
+
+  // Feed still returning jobs -> no alarm even with a big history
+  anomalies = detectRecallAnomalies({
+    previousJobs: prev('big', 40),
+    employerReports: [{ employer_id: 'big', name: 'Big U', ats_provider: 'workday', fetched_jobs: 12 }],
+    employerOutcomes: outcomes({ big: { attempted: true, ok: true } })
+  });
+  assert.strictEqual(anomalies.length, 0);
 }
 
 function buildSingleEntryZip(name, content, method = 8) {
@@ -1477,6 +1518,7 @@ async function main() {
   await testFetchRetry();
   await testUsaJobs();
   testJobLifecycle();
+  testRecallAnomalies();
   testZipExtraction();
   testScoutedImporter();
   testAggregatedImporter();

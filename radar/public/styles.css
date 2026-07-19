@@ -665,6 +665,16 @@ input[type="range"] {
   gap: 6px;
 }
 
+.load-error {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--warn-soft);
+  color: var(--warn-ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
 /* --------------------------------------------------------------------------
    Detail pane
 -------------------------------------------------------------------------- */

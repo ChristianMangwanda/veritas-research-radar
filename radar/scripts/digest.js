@@ -38,12 +38,21 @@ function rankJobs(a, b) {
 }
 
 async function buildDigest({ hours }) {
-  // Supabase is the dataset of record; the local file is the fallback
+  // Supabase is the dataset of record; the local file is the fallback. In CI
+  // jobs.json is gitignored, so a missing file means "no local fallback", not
+  // a crash — degrade to an empty dataset (no digest) instead of throwing.
   let jobs = null;
   try {
     jobs = await fetchAllJobs();
   } catch { /* fall back to file */ }
-  if (!jobs) jobs = JSON.parse(await fsp.readFile(JOBS_PATH, 'utf8'));
+  if (!jobs) {
+    try {
+      jobs = JSON.parse(await fsp.readFile(JOBS_PATH, 'utf8'));
+    } catch {
+      console.warn('No Supabase data and no local jobs.json — digest has nothing to read.');
+      jobs = [];
+    }
+  }
   const cutoff = Date.now() - hours * 60 * 60 * 1000;
   const fresh = jobs.filter((job) =>
     job.status !== 'closed'

@@ -31,3 +31,13 @@ jobs:
         with:
           commit_message: "Update employer enrichment, discovery, and cap-exempt directory"
           file_pattern: "radar/data/employer-enrichment.json radar/data/discovery-candidates.json radar/data/enrichment-report.json radar/data/cap-exempt-directory.json"
+      - name: Alert on failure
+        if: failure()
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          [ -z "$NTFY_TOPIC" ] && { echo "NTFY_TOPIC not set; skipping alert"; exit 0; }
+          curl -sS -H "Title: ${{ github.workflow }} failed" \
+            -H "Tags: rotating_light" \
+            -d "Workflow '${{ github.workflow }}' failed on ${{ github.ref_name }}. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            "https://ntfy.sh/$NTFY_TOPIC" || true
