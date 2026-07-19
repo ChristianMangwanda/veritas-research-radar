@@ -12,6 +12,8 @@
  * Env:
  *   NTFY_TOPIC              — ntfy.sh topic (prints instead of pushing when unset)
  *   DEADMAN_MAX_AGE_HOURS   — staleness threshold in hours, default 8
+ *   DEADMAN_MAX_ERRORED     — errored-employer count that trips the alarm, default 10
+ *                             (transient single-feed blips are normal and shouldn't page)
  *
  * Exits 0 on a clean check or a delivered alert; exits 1 only when it cannot
  * read the report at all (which the workflow surfaces as a failed run).
@@ -38,6 +40,7 @@ async function pushNtfy(title, body) {
 
 async function main() {
   const maxAgeHours = Number(process.env.DEADMAN_MAX_AGE_HOURS) || 8;
+  const maxErrored = Number(process.env.DEADMAN_MAX_ERRORED) || 10;
 
   let report;
   try {
@@ -58,8 +61,8 @@ async function main() {
       problems.push(`last refresh was ${ageHours.toFixed(1)}h ago (> ${maxAgeHours}h) — the pipeline may be stuck`);
     }
   }
-  if (report.errored_employers > 0) {
-    problems.push(`${report.errored_employers} employer(s) errored on the last refresh`);
+  if (report.errored_employers >= maxErrored) {
+    problems.push(`${report.errored_employers} employer(s) errored on the last refresh (>= ${maxErrored})`);
   }
   if (Array.isArray(report.recall_anomalies) && report.recall_anomalies.length) {
     const names = report.recall_anomalies.map((a) => a.name).join(', ');
@@ -76,8 +79,15 @@ async function main() {
 
   const title = 'Radar dead-man alert';
   const body = problems.map((p) => `• ${p}`).join('\n');
+  // Log the detail first so it survives even if the push fails, then push
+  // best-effort: a flaky ntfy must not turn a problem-detected run into a
+  // detail-less failed workflow (whose generic failure alert loses this body).
   console.warn(`${title}\n${body}`);
-  await pushNtfy(title, body);
+  try {
+    await pushNtfy(title, body);
+  } catch (error) {
+    console.warn(`ntfy push failed (detail logged above): ${error.message}`);
+  }
 }
 
 if (require.main === module) {

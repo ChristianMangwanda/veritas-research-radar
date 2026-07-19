@@ -884,14 +884,25 @@ async function runRefresh() {
   const supabaseConfigured = Boolean(supabaseEnv());
   let previousJobs = null;
   let supabaseReadFailed = false;
+  // Provenance matters for the sync guard below: a length check alone can't
+  // tell a trustworthy remote read from a stale local fallback. Only a
+  // successful, non-empty remote read is a baseline we can safely overwrite.
+  let previousFromRemote = false;
   try {
-    previousJobs = await fetchAllJobs();
-    if (previousJobs) console.log(`Loaded ${previousJobs.length} previous jobs from Supabase`);
+    const remote = await fetchAllJobs();
+    if (remote) {
+      previousJobs = remote;
+      previousFromRemote = true;
+      console.log(`Loaded ${remote.length} previous jobs from Supabase`);
+    }
   } catch (error) {
     supabaseReadFailed = true;
     console.warn(`Supabase previous-state read failed, using local file: ${error.message}`);
   }
   if (!previousJobs) previousJobs = await readJson(JOBS_PATH, []);
+  // In Supabase mode only a remote read is authoritative; in git-only mode the
+  // local file IS the dataset of record, so it's trustworthy on its own.
+  const trustedBaseline = supabaseConfigured ? previousFromRemote : true;
   const dolSignals = await readJson(DOL_SIGNALS_PATH, {});
   const previousById = new Map(previousJobs.map((job) => [job.id, job]));
   const fetchedJobs = [];
@@ -1046,12 +1057,12 @@ async function runRefresh() {
     employerReport.closed_jobs = closedJobs.filter((job) => job.employer_id === employerReport.employer_id).length;
   }
 
-  // A "dropped to zero" signal is only meaningful against a baseline we
-  // actually read; if the previous-state read failed, every feed looks empty,
-  // so skip detection rather than flood alerts against a stale/empty baseline.
-  const recallAnomalies = supabaseReadFailed
-    ? []
-    : detectRecallAnomalies({ previousJobs, employerReports, employerOutcomes });
+  // A "dropped to zero" signal is only meaningful against a baseline we trust;
+  // against a stale/empty one every feed looks empty, so skip detection rather
+  // than flood alerts.
+  const recallAnomalies = trustedBaseline
+    ? detectRecallAnomalies({ previousJobs, employerReports, employerOutcomes })
+    : [];
 
   const report = {
     refreshed_at: now,
@@ -1112,16 +1123,16 @@ async function runRefresh() {
   // no matter how many jobs this run fetched: with zero fetched it DELETEs the
   // whole table, and with jobs fetched it resets first_seen and drops
   // tombstones. A stale local fallback is no safer — pushing it would overwrite
-  // fresher remote rows we never read. Abort in every untrusted case; a genuine
-  // first-run bootstrap sets RADAR_ALLOW_EMPTY_SYNC=1 to override.
-  const untrustedPreviousState = supabaseReadFailed || previousJobs.length === 0;
+  // fresher remote rows we never read, so we trust the baseline ONLY when it
+  // came from a successful non-empty remote read (trustedBaseline). Abort in
+  // every other case; a genuine first-run bootstrap sets RADAR_ALLOW_EMPTY_SYNC=1.
   const wouldResetLifecycle = supabaseConfigured
-    && untrustedPreviousState
+    && !trustedBaseline
     && !process.env.RADAR_ALLOW_EMPTY_SYNC;
   if (wouldResetLifecycle) {
     report.supabase_sync_aborted = supabaseReadFailed
       ? 'previous-state read failed; refusing to overwrite the dataset of record'
-      : 'previous state empty; refusing to reset first_seen/tombstones or wipe the table';
+      : 'no trustworthy previous state (empty remote / local-only fallback); refusing to reset first_seen/tombstones or wipe the table';
     await writeJson(REPORT_PATH, report);
     console.warn(`Supabase sync ABORTED: ${report.supabase_sync_aborted}. `
       + 'Set RADAR_ALLOW_EMPTY_SYNC=1 only for an intentional first-run bootstrap.');
