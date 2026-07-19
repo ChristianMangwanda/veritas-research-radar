@@ -4,6 +4,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const { analyzeText } = require('../../scripts/keywords.js');
 const { classifyTitle, classLabel } = require('./lib/title-class.js');
+const { parseSalary } = require('./lib/salary.js');
 const { syncJobs, fetchAllJobs, supabaseEnv } = require('./lib/supabase.js');
 
 const ROOT = path.resolve(__dirname, '../..');
@@ -333,12 +334,20 @@ function enrichJob(job, employer, previousById, dolSignal = {}) {
     : null;
 
   const workMode = detectWorkMode(job);
+  // Salary: a dedicated comp field (Ashby) is trusted for single figures too;
+  // free description text only yields a range (avoids bonuses/stipends).
+  const salary = parseSalary(job.compensation_text, { trusted: true })
+    || parseSalary(job.description_text);
 
   return {
     ...job,
     location: normalizeLocation(job, employer, workMode),
     work_mode: workMode,
     remote: workMode === 'remote',
+    salary_min: salary?.salary_min ?? null,
+    salary_max: salary?.salary_max ?? null,
+    salary_period: salary?.salary_period ?? null,
+    salary_currency: salary?.salary_currency ?? null,
     employer_name: employer.name,
     employer_type: employer.type,
     cap_exempt_status: employer.cap_exempt_status,
@@ -487,7 +496,11 @@ function mapAshbyJob(job, employer) {
     description_text: normalizeText(job.descriptionHtml || job.descriptionPlain || ''),
     posted_or_updated_at: job.publishedAt || null,
     source: 'ashby',
-    source_job_id: String(job.id)
+    source_job_id: String(job.id),
+    // Ashby returns structured comp (includeCompensation=true) — keep the
+    // summary string so enrichJob can parse it as a trusted salary source
+    compensation_text: job.compensation?.compensationTierSummary
+      || job.compensation?.scrapeableCompensationSalarySummary || ''
   };
 }
 

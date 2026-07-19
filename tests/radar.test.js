@@ -40,6 +40,7 @@ const zlib = require('zlib');
 const { normalizeName, parseCsvLine, annualWage, median } = require('../radar/scripts/import-dol-lca.js');
 const { parseCsv, csvRecords } = require('../radar/scripts/lib/csv.js');
 const { classifyTitle, classLabel } = require('../radar/scripts/lib/title-class.js');
+const { parseSalary } = require('../radar/scripts/lib/salary.js');
 const { parsePeopleAdminAtom, mapPeopleAdminEntry } = require('../radar/scripts/refresh.js');
 const { jobRow, supabaseEnv } = require('../radar/scripts/lib/supabase.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
@@ -694,6 +695,19 @@ function testJobLifecycle() {
     now
   });
   assert.strictEqual(jobs.length, 0);
+}
+
+function testSalaryParser() {
+  assert.deepStrictEqual(parseSalary('Pay Range $60,000.00 - $80,000.00'),
+    { salary_min: 60000, salary_max: 80000, salary_period: 'year', salary_currency: 'USD' });
+  assert.strictEqual(parseSalary('$19.23 - $26.44 per hour').salary_period, 'hour');
+  assert.strictEqual(parseSalary('$19.23 - $26.44 per hour').salary_min, 39998); // annualized x2080
+  assert.deepStrictEqual(parseSalary('$120K \u2013 $150K', { trusted: true }),
+    { salary_min: 120000, salary_max: 150000, salary_period: 'year', salary_currency: 'USD' });
+  assert.strictEqual(parseSalary('$5,000 signing bonus'), null);       // below annual floor
+  assert.strictEqual(parseSalary('awarded a $500,000 research grant'), null); // untrusted single ignored
+  assert.strictEqual(parseSalary('$145,000 annually', { trusted: true }).salary_min, 145000);
+  assert.strictEqual(parseSalary('no pay listed here'), null);
 }
 
 function testWorkModeAndLocation() {
@@ -1547,6 +1561,7 @@ async function main() {
   await testFetchRetry();
   await testUsaJobs();
   testJobLifecycle();
+  testSalaryParser();
   testWorkModeAndLocation();
   testRecallAnomalies();
   testZipExtraction();

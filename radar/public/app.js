@@ -568,6 +568,12 @@ const SORTERS = {
     if (delta !== 0) return delta;
     return (b.dol_lca_certified_count_3y || 0) - (a.dol_lca_certified_count_3y || 0) || SORTERS.fit(a, b);
   },
+  salary(a, b) {
+    const sa = a.salary_max ?? a.salary_min ?? -1;
+    const sb = b.salary_max ?? b.salary_min ?? -1;
+    if (sa !== sb) return sb - sa;
+    return SORTERS.fit(a, b);
+  },
   followup(a, b) {
     // In-flight applications first, stalest (oldest last-change) on top; other
     // jobs fall below, ranked by fit.
@@ -710,6 +716,16 @@ function triageDot(status) {
   return dot;
 }
 
+function formatSalary(job) {
+  if (job.salary_min == null) return null;
+  const k = (n) => (n >= 1000 ? `$${Math.round(n / 1000)}K` : `$${n}`);
+  const range = job.salary_max && job.salary_max !== job.salary_min
+    ? `${k(job.salary_min)}–${k(job.salary_max)}`
+    : k(job.salary_min);
+  // salary_min/max are annualized; a 'hour' period means the source was hourly.
+  return job.salary_period === 'hour' ? `${range}/yr (hrly)` : `${range}/yr`;
+}
+
 function shortDate(iso) {
   if (!iso) return '—';
   const date = new Date(iso);
@@ -803,6 +819,8 @@ function buildRow(job) {
     chips.append(tag(text, stale ? 'tag-warn' : ''));
   }
   if (noteFor(job)) chips.append(tag('📝 note', ''));
+  const salaryText = formatSalary(job);
+  if (salaryText) chips.append(tag(salaryText, 'tag-friendly'));
   if (isNewSinceLastVisit(job)) chips.append(tag('NEW', 'tag-info'));
   if (isClosed(job)) {
     node.classList.add('is-closed');
@@ -897,7 +915,9 @@ function renderDetail() {
   DOM.detailMeta.textContent = [
     job.employer_name,
     job.location || 'Location unspecified',
-    job.department || null
+    job.department || null,
+    formatSalary(job),
+    job.work_mode === 'hybrid' ? 'Hybrid' : null
   ].filter(Boolean).join(' · ');
   DOM.detailOpen.href = job.url;
 
