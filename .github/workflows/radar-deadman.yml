@@ -1,0 +1,39 @@
+name: Radar Dead-Man Switch
+
+# A silently stalled pipeline looks identical to a quiet one. This runs on its
+# own schedule, reads the committed refresh report, and pings ntfy if the last
+# refresh is stale, errored, flagged a recall anomaly, or aborted its sync.
+on:
+  schedule:
+    - cron: "0 */2 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: radar-deadman
+  cancel-in-progress: true
+
+jobs:
+  deadman:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Check pipeline liveness
+        run: node radar/scripts/deadman-check.js
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      - name: Alert on failure
+        if: failure()
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          [ -z "$NTFY_TOPIC" ] && { echo "NTFY_TOPIC not set; skipping alert"; exit 0; }
+          curl -sS -H "Title: ${{ github.workflow }} failed" \
+            -H "Tags: rotating_light" \
+            -d "Workflow '${{ github.workflow }}' failed on ${{ github.ref_name }}. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            "https://ntfy.sh/$NTFY_TOPIC" || true
