@@ -70,16 +70,23 @@ Follow-up to wire when convenient: schedule `radar:digest:local` on the Mac
 (launchd/cron), and apply `radar/supabase/triage.sql` + set a sync token to turn
 on cross-device triage.
 
-## Tier 2 — Fix the data itself (~1 week)
+## Tier 2 — Fix the data itself ✅ DONE 2026-07-19
 
-| # | Item | Notes | Effort |
-|---|------|-------|--------|
-| 2.1 | **Title-class recall pass on the 4,273 `other` jobs** — likely the single biggest lever on relevant inventory. Expand `lib/title-class.js` taxonomy for staff data/ML/software/analyst roles; audit the Workday title prefilter (`refresh.js:548-559`) for over-aggressive drops | taxonomy + tests | 1–2d |
-| 2.2 | PeopleAdmin location parsing (4,724 jobs hardcoded "Unspecified") + a normalized remote flag | `refresh.js:764-778` | 0.5–1d |
-| 2.3 | Salary: persist Ashby comp (already fetched, `refresh.js:439`) + shared regex parser over `description_text`; expose salary_min/max in row + detail | pipeline + UI | 1d |
-| 2.4 | Deadline extraction (Greenhouse/Workday/USAJOBS payloads + "apply by/closes" regex); "closing soon" sort. Matters most for the 2,257 faculty postings | pipeline + UI | 1d |
-| 2.5 | Cross-source fuzzy dedup: collapse (normalized employer + title + location) across ATS/scouted/aggregated | `refresh.js:971` | 0.5d |
-| 2.6 | Sponsorship-text recall for aggregator jobs (raise detail-fetch budget; backfill descriptions) — only 49 FRIENDLY jobs today | firehose | 0.5–1d |
+All six shipped. Pipeline/classification only — the live dataset is untouched per
+request; CI folds these in on its next refresh/firehose run. New parsers unit-
+tested; salary/deadline/remote UI browser-verified (8 assertions).
+
+| # | Item | Status |
+|---|------|--------|
+| 2.1 | Title-class recall on the `other` bucket | ✅ +391 relevant jobs recovered (4178→3787): open-rank faculty, data/analyst, developers; Workday prefilter broadened; noise-guard tests |
+| 2.2 | PeopleAdmin locations + remote flag | ✅ universal `work_mode`/`remote` (298 remote + 209 hybrid) + safe "…at City" campus recovery (1097 jobs); "Remote only" filter |
+| 2.3 | Salary | ✅ shared `lib/salary.js` (range/hourly/K, bounds); Ashby comp + description; 818 jobs get salary; chip + detail + "Salary" sort |
+| 2.4 | Deadlines | ✅ cue-anchored `lib/deadline.js` + USAJOBS close date; 285 jobs; "⏱ closes…" chip + "Closing soon" sort |
+| 2.5 | Cross-source dedup | ✅ `dedupeCrossSource` collapses cross-tier dupes (ATS>scout>aggregator), keeps distinct same-source reqs |
+| 2.6 | Aggregator sponsorship recall | ✅ detail-fetch budget 60→150 (already cap-exempt-prioritized + cached, so it backfills over runs) |
+
+Follow-up (data-layer, deferred with the other DB work): fuller location coverage
+via IPEDS city/state in the enrichment overlay.
 
 ## Tier 3 — Grow coverage (ongoing, in value order)
 
