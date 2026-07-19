@@ -13,9 +13,11 @@
 
 const TITLE_RULES = [
   ['postdoc', /post-?\s?doc(toral)?\b|\bpostdoc\b/i],
-  ['faculty', /\b(professor|lecturer|instructor|dean|faculty|chair\b)/i],
-  ['data_computational', /\b(data\s+scientist|bioinformatic\w*|computational\s+(biolog|scient|chem|physic)\w*|bio-?statistician|statistician|machine\s+learning|ml\s+(scientist|engineer)|ai\s+(scientist|researcher))\b/i],
-  ['engineering_software', /\b(software|data|devops|platform|systems?|cloud|full-?stack|backend|front-?end)\s+(engineer|developer|architect)\b|\bprogrammer\b|\bweb\s+developer\b/i],
+  // "Open Rank"/"Open Level" postings are faculty searches that never spell out
+  // "professor" — the single largest miss in the `other` bucket.
+  ['faculty', /\b(professor|lecturer|instructor|dean|faculty|chair\b)|open[ -](rank|level)|assistant\/associate\s+professor/i],
+  ['data_computational', /\b(data\s+scientist|data\s+(scien|analyt|warehous|governance|stewardship)\w*|bioinformatic\w*|computational\s+(biolog|scient|chem|physic)\w*|bio-?statistician|statistician|machine\s+learning|ml\s+(scientist|engineer)|ai\s+(scientist|researcher|engineer)|informatics|(data|research|quantitative|genomic\w*|imaging|informatics|biostatistical|statistical)\s+analyst)\b/i],
+  ['engineering_software', /\b(software|data|devops|platform|systems?|cloud|full-?stack|back-?end|front-?end|application|applications|enterprise|web|mobile|api|integration|python|java|research|hpc)\s+(engineer|developer|architect)\b|\bprogrammer\b|\bweb\s+developer\b/i],
   ['scientist', /\b(scientist|investigator)\b/i],
   ['research_associate', /\bresearch\s+(associate|specialist)\b|\b(associate\s+)?specialist\b/i],
   ['research_support', /\bresearch\s+(assistant|technician|coordinator|technologist|nurse)\b|\blab(oratory)?\s+(manager|technician|assistant|aide)\b|\b(clinical\s+research|study)\s+coordinator\b/i],

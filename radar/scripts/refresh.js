@@ -277,6 +277,37 @@ function sponsorSignal(veritasState, dolCount, classCount = 0) {
   return 'unknown';
 }
 
+// Normalized work mode from title/location (high signal) then a conservative
+// description scan (bare "remote" in a description is noise — "remote sensing",
+// "remote monitoring" — so only explicit phrases count there).
+function detectWorkMode(job) {
+  const title = String(job.title || '');
+  const loc = String(job.location || '');
+  const desc = String(job.description_text || '');
+  const remoteRe = /\bremote\b|\btelecommut/i;
+  if (remoteRe.test(title) || remoteRe.test(loc)) return 'remote';
+  if (/\bhybrid\b/i.test(title) || /\bhybrid\b/i.test(loc)) return 'hybrid';
+  if (/\b(fully|100%|position is|role is|this is a)\s+remote\b|remote[- ]first|remote\s+(position|work|eligible|opportunity)|work\s+from\s+(home|anywhere)|telecommut\w*/i.test(desc)) return 'remote';
+  if (/\bhybrid\b/i.test(desc)) return 'hybrid';
+  return null;
+}
+
+// Single-campus feeds (PeopleAdmin) carry no location, but many institution
+// names encode the campus city as a trailing "… at City". Fire only on that
+// clear pattern — a wrong city is worse than "Unspecified".
+function institutionCity(name) {
+  const match = String(name || '').match(/\bat\s+([A-Z][A-Za-z.'-]+(?:\s+[A-Z][A-Za-z.'-]+){0,2})\s*$/);
+  return match ? match[1].trim() : null;
+}
+
+function normalizeLocation(job, employer, workMode) {
+  let location = job.location;
+  const missing = !location || location === 'Unspecified';
+  if (workMode === 'remote' && missing) return 'Remote';
+  if (missing && job.source === 'peopleadmin') return institutionCity(employer.name) || location;
+  return location;
+}
+
 function enrichJob(job, employer, previousById, dolSignal = {}) {
   const text = `${job.title}\n${job.department}\n${job.description_text}`;
   const veritas = analyzeText(text);
@@ -301,8 +332,13 @@ function enrichJob(job, employer, previousById, dolSignal = {}) {
       }
     : null;
 
+  const workMode = detectWorkMode(job);
+
   return {
     ...job,
+    location: normalizeLocation(job, employer, workMode),
+    work_mode: workMode,
+    remote: workMode === 'remote',
     employer_name: employer.name,
     employer_type: employer.type,
     cap_exempt_status: employer.cap_exempt_status,
@@ -613,7 +649,15 @@ const WORKDAY_TITLE_PREFILTER = [
   /\bbioinformatic/i,
   /\bgenomic/i,
   /\bmachine\s+learning\b/i,
-  /\bsoftware\s+engineer/i
+  /\bsoftware\s+engineer/i,
+  // Broadened so faculty/analyst/developer/informatics roles are fetched and
+  // classified instead of dropped before they ever reach the taxonomy.
+  /\b(professor|lecturer|faculty)\b|open[ -](rank|level)/i,
+  /\banalyst\b/i,
+  /\b(developer|programmer)\b/i,
+  /\binformatics\b/i,
+  /\bstatistic/i,
+  /\b(ai|ml)\b/i
 ];
 
 function isResearchRelevantTitle(title, employer) {
@@ -1177,6 +1221,8 @@ module.exports = {
   mapUsaJobsJob,
   fetchUsaJobsJobs,
   isResearchRelevantTitle,
+  detectWorkMode,
+  institutionCity,
   applyJobLifecycle,
   detectRecallAnomalies,
   activeScoutedJobs,

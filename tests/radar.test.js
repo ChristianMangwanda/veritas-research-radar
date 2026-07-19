@@ -19,6 +19,8 @@ const {
   mapUsaJobsJob,
   fetchUsaJobsJobs,
   isResearchRelevantTitle,
+  detectWorkMode,
+  institutionCity,
   applyJobLifecycle,
   detectRecallAnomalies,
   activeScoutedJobs,
@@ -195,6 +197,19 @@ function testTitleClassEvidence() {
   assert.strictEqual(classifyTitle('Clinical Research Coordinator 1'), 'research_support');
   assert.strictEqual(classifyTitle('MEDICAL ONCOLOGY FELLOW (PGY-4)'), 'clinical');
   assert.strictEqual(classifyTitle('Registrar'), 'other');
+  // 2.1 recall: staff data/analyst, developer, open-rank faculty
+  assert.strictEqual(classifyTitle('School of Medicine - Open Rank - Neuro-oncology Research'), 'faculty');
+  assert.strictEqual(classifyTitle('Open Rank'), 'faculty');
+  assert.strictEqual(classifyTitle('Research Analyst, Neurological Surgery'), 'data_computational');
+  assert.strictEqual(classifyTitle('Manager of Clinical Research Data Warehousing'), 'data_computational');
+  assert.strictEqual(classifyTitle('Chief Research Informatics Officer'), 'data_computational');
+  assert.strictEqual(classifyTitle('Python Developer'), 'engineering_software');
+  assert.strictEqual(classifyTitle('Enterprise Application Developer II'), 'engineering_software');
+  assert.strictEqual(classifyTitle('Staff HPC Engineer'), 'engineering_software');
+  // Guard against over-broad matches: facilities/clerical stay in `other`
+  assert.strictEqual(classifyTitle('Building Maintenance Mechanic'), 'other');
+  assert.strictEqual(classifyTitle('Administrative Assistant'), 'other');
+  assert.strictEqual(classifyTitle('Financial Analyst, Budget Office'), 'other');
   // SOC fallback for LCA rows whose title regexes miss
   assert.strictEqual(classifyTitle('Departmental Appointee', '25-1022.00'), 'faculty');
   assert.strictEqual(classifyTitle('Analyst IV', '15-2051.00'), 'data_computational');
@@ -679,6 +694,20 @@ function testJobLifecycle() {
     now
   });
   assert.strictEqual(jobs.length, 0);
+}
+
+function testWorkModeAndLocation() {
+  assert.strictEqual(detectWorkMode({ title: 'Data Analyst (Remote)' }), 'remote');
+  assert.strictEqual(detectWorkMode({ title: 'Engineer', location: 'Remote - US' }), 'remote');
+  assert.strictEqual(detectWorkMode({ title: 'Analyst', location: 'Hybrid' }), 'hybrid');
+  assert.strictEqual(detectWorkMode({ title: 'Scientist', description_text: 'This is a fully remote position.' }), 'remote');
+  assert.strictEqual(detectWorkMode({ title: 'Coordinator', description_text: 'Uses remote sensing satellite data.' }), null); // bare "remote" in desc is noise
+  assert.strictEqual(detectWorkMode({ title: 'Lab Tech', location: 'Boston, MA' }), null);
+  // Institution city only from the clear "… at City" pattern
+  assert.strictEqual(institutionCity('University of North Carolina at Chapel Hill'), 'Chapel Hill');
+  assert.strictEqual(institutionCity('The University of Texas at Arlington'), 'Arlington');
+  assert.strictEqual(institutionCity('Dartmouth College'), null);
+  assert.strictEqual(institutionCity('University of Vermont'), null);
 }
 
 function testRecallAnomalies() {
@@ -1518,6 +1547,7 @@ async function main() {
   await testFetchRetry();
   await testUsaJobs();
   testJobLifecycle();
+  testWorkModeAndLocation();
   testRecallAnomalies();
   testZipExtraction();
   testScoutedImporter();

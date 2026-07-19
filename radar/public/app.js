@@ -88,6 +88,7 @@ const DOM = {
   visaSeg: document.querySelector('#visa-seg'),
   newOnly: document.querySelector('#new-only'),
   followupOnly: document.querySelector('#followup-only'),
+  remoteOnly: document.querySelector('#remote-only'),
   markSeen: document.querySelector('#mark-seen'),
   includeClosed: document.querySelector('#include-closed'),
   includeFederal: document.querySelector('#include-federal'),
@@ -594,6 +595,7 @@ function filteredJobs() {
     .filter((job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)))
     .filter((job) => !DOM.newOnly.checked || isNewSinceLastVisit(job))
     .filter((job) => !DOM.followupOnly.checked || needsFollowup(job))
+    .filter((job) => !DOM.remoteOnly.checked || job.remote === true)
     .filter((job) => !source || job.source === source)
     .filter((job) => !query || jobText(job).includes(query))
     .filter((job) => !visaFilter || job.veritas_state === visaFilter)
@@ -618,6 +620,7 @@ function activeFilterCount() {
   if (DOM.triageFilter.value) count += 1;
   if (DOM.newOnly.checked) count += 1;
   if (DOM.followupOnly.checked) count += 1;
+  if (DOM.remoteOnly.checked) count += 1;
   if (DOM.includeClosed.checked) count += 1;
   if (DOM.includeFederal.checked) count += 1;
   if (DOM.minResearch.value !== '0') count += 1;
@@ -632,6 +635,7 @@ function resetFilters() {
   DOM.triageFilter.value = '';
   DOM.newOnly.checked = false;
   DOM.followupOnly.checked = false;
+  DOM.remoteOnly.checked = false;
   DOM.includeClosed.checked = false;
   DOM.includeFederal.checked = false;
   DOM.minResearch.value = '0';
@@ -649,6 +653,7 @@ function syncUrl() {
   if (DOM.source.value) params.set('source', DOM.source.value);
   if (DOM.newOnly.checked) params.set('newOnly', '1');
   if (DOM.followupOnly.checked) params.set('followup', '1');
+  if (DOM.remoteOnly.checked) params.set('remote', '1');
   if (DOM.includeClosed.checked) params.set('includeClosed', '1');
   if (DOM.includeFederal.checked) params.set('federal', '1');
   if (visaFilter) params.set('visa', visaFilter);
@@ -666,6 +671,7 @@ function hydrateFromUrl() {
   if (params.has('sort') && SORTERS[params.get('sort')]) DOM.sort.value = params.get('sort');
   DOM.newOnly.checked = params.get('newOnly') === '1';
   DOM.followupOnly.checked = params.get('followup') === '1';
+  DOM.remoteOnly.checked = params.get('remote') === '1';
   DOM.includeClosed.checked = params.get('includeClosed') === '1';
   DOM.includeFederal.checked = params.get('federal') === '1';
   if (params.has('visa')) setVisaFilter(params.get('visa'), { skipRender: true });
@@ -1452,7 +1458,7 @@ function markAllSeen() {
 }
 
 function bindEvents() {
-  for (const input of [DOM.q, DOM.sort, DOM.source, DOM.newOnly, DOM.followupOnly, DOM.includeClosed, DOM.includeFederal, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
+  for (const input of [DOM.q, DOM.sort, DOM.source, DOM.newOnly, DOM.followupOnly, DOM.remoteOnly, DOM.includeClosed, DOM.includeFederal, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
     input.addEventListener('input', render);
   }
 
