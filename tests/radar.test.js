@@ -22,6 +22,7 @@ const {
   detectWorkMode,
   institutionCity,
   applyJobLifecycle,
+  dedupeCrossSource,
   detectRecallAnomalies,
   activeScoutedJobs,
   applyEnrichmentOverlay
@@ -696,6 +697,36 @@ function testJobLifecycle() {
     now
   });
   assert.strictEqual(jobs.length, 0);
+}
+
+function testCrossSourceDedup() {
+  const j = (id, source, employer_id, title, location) => ({ id, source, employer_id, employer_name: 'MIT', title, location });
+  // ATS + aggregator list the same role -> keep ATS, drop aggregator
+  let out = dedupeCrossSource([
+    j('greenhouse:mit:1', 'greenhouse', 'mit', 'Postdoctoral Associate', 'Cambridge, MA'),
+    j('agg:sci:9', 'science-careers', 'agg:sci', 'Postdoctoral Associate', 'Cambridge, MA')
+  ]);
+  assert.strictEqual(out.length, 1);
+  assert.strictEqual(out[0].id, 'greenhouse:mit:1');
+  // Two DISTINCT reqs from the same ATS with identical titles -> both kept
+  out = dedupeCrossSource([
+    j('workday:mit:1', 'workday', 'mit', 'Postdoctoral Associate', 'Cambridge, MA'),
+    j('workday:mit:2', 'workday', 'mit', 'Postdoctoral Associate', 'Cambridge, MA')
+  ]);
+  assert.strictEqual(out.length, 2);
+  // Scout beats aggregator when no ATS present
+  out = dedupeCrossSource([
+    j('agent:mit:1', 'agent_scout', 'mit', 'Data Engineer', 'Cambridge'),
+    j('agg:nat:2', 'nature-careers', 'agg:nat', 'Data Engineer', 'Cambridge')
+  ]);
+  assert.strictEqual(out.length, 1);
+  assert.strictEqual(out[0].source, 'agent_scout');
+  // Different roles at same employer are untouched
+  out = dedupeCrossSource([
+    j('greenhouse:mit:1', 'greenhouse', 'mit', 'Postdoc', 'Cambridge'),
+    j('agg:sci:2', 'science-careers', 'agg:sci', 'Research Engineer', 'Cambridge')
+  ]);
+  assert.strictEqual(out.length, 2);
 }
 
 function testDeadlineParser() {
@@ -1574,6 +1605,7 @@ async function main() {
   await testFetchRetry();
   await testUsaJobs();
   testJobLifecycle();
+  testCrossSourceDedup();
   testDeadlineParser();
   testSalaryParser();
   testWorkModeAndLocation();

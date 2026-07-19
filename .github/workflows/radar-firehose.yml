@@ -31,7 +31,7 @@ jobs:
           scout/.venv/bin/pip install -r scout/requirements.txt
           scout/.venv/bin/python -m playwright install --with-deps chromium
       - name: Scrape aggregators + apply cap-exempt filter
-        run: npm run scout:aggregators -- --all --details 60 --import
+        run: npm run scout:aggregators -- --all --details 150 --import
       - name: Refresh dataset
         run: npm run radar:refresh
         env:

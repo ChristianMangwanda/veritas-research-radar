@@ -4,7 +4,7 @@ radar/data/aggregated/, then (optionally) run the Node importer that applies
 the cap-exempt filter.
 
 Usage:
-  python scout/scout_aggregators.py --all [--details 60] [--max-pages 15] [--import]
+  python scout/scout_aggregators.py --all [--details 150] [--max-pages 15] [--import]
   python scout/scout_aggregators.py --source nature-careers --source science-careers
 """
 from __future__ import annotations
@@ -41,7 +41,7 @@ def main() -> int:
     parser.add_argument("--source", action="append", default=[], choices=ALL_SOURCES)
     parser.add_argument("--all", action="store_true")
     parser.add_argument("--max-pages", type=int, default=None)
-    parser.add_argument("--details", type=int, default=60, help="description fetches per source (cap-exempt-matched jobs only)")
+    parser.add_argument("--details", type=int, default=150, help="description fetches per source (cap-exempt-matched jobs only); the description cache carries results forward so raising this backfills sponsorship text over a few runs")
     parser.add_argument("--import", dest="run_import", action="store_true")
     args = parser.parse_args()
 

@@ -406,6 +406,33 @@ const CLOSED_RETENTION_DAYS = 30;
  *                             must not mass-close an employer's jobs)
  * - employer not in registry anymore -> dropped
  */
+// Source authority tiers for cross-source dedup: an employer's own ATS feed
+// beats a scraped scout snapshot beats an aggregator listing.
+function sourceTier(job) {
+  if (String(job.employer_id || '').startsWith('agg:')) return 1; // aggregator firehose
+  if (job.source === 'agent_scout') return 2;                     // scout snapshot
+  return 3;                                                        // direct ATS / USAJOBS
+}
+
+/**
+ * Collapse the SAME role surfaced by more than one source. Keys on normalized
+ * (employer + title + location) and keeps only the highest-tier jobs per key.
+ * Crucially it never dedupes within a tier — universities post many genuinely
+ * distinct reqs with identical titles, so same-source same-title jobs are all
+ * kept; only lower-tier cross-source duplicates are dropped.
+ */
+function dedupeCrossSource(jobs) {
+  const norm = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const keyOf = (job) => `${norm(job.employer_name) || job.employer_id}|${norm(job.title)}|${norm(job.location)}`;
+  const bestTier = new Map();
+  for (const job of jobs) {
+    const key = keyOf(job);
+    const tier = sourceTier(job);
+    if (!bestTier.has(key) || tier > bestTier.get(key)) bestTier.set(key, tier);
+  }
+  return jobs.filter((job) => sourceTier(job) === bestTier.get(keyOf(job)));
+}
+
 function applyJobLifecycle({ previousJobs, fetchedJobs, employerOutcomes, now, retentionDays = CLOSED_RETENTION_DAYS }) {
   const nowMs = Date.parse(now);
   const retentionMs = retentionDays * 24 * 60 * 60 * 1000;
@@ -1104,8 +1131,11 @@ async function runRefresh() {
   // ATS feeds occasionally list one requisition twice (same id, two paths);
   // first occurrence wins so the dataset never carries duplicate ids
   const uniqueFetched = [...new Map(fetchedJobs.map((job) => [job.id, job]).reverse()).values()].reverse();
+  // Then collapse the same role surfaced by multiple sources (ATS beats scout
+  // beats aggregator), keeping distinct same-source reqs intact.
+  const dedupedFetched = dedupeCrossSource(uniqueFetched);
 
-  const allJobs = applyJobLifecycle({ previousJobs, fetchedJobs: uniqueFetched, employerOutcomes, now });
+  const allJobs = applyJobLifecycle({ previousJobs, fetchedJobs: dedupedFetched, employerOutcomes, now });
 
   allJobs.sort((a, b) => {
     const statusDelta = (a.status === 'closed' ? 1 : 0) - (b.status === 'closed' ? 1 : 0);
@@ -1243,6 +1273,7 @@ module.exports = {
   detectWorkMode,
   institutionCity,
   applyJobLifecycle,
+  dedupeCrossSource,
   detectRecallAnomalies,
   activeScoutedJobs,
   applyEnrichmentOverlay,
