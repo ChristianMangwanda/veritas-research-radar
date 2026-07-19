@@ -51,16 +51,24 @@ workflow YAML parses, `deadman-check.js` + `digest.js` smoke-tested locally.
 | 0.4 | digest.js: wrap the `jobs.json` fallback read in try/catch (it ENOENTs in CI); fix wrong "reads committed data only" comment in `radar-digest.yml` | `digest.js:43-46` | ✅ |
 | 0.5 | Dashboard: keep successfully fetched pages when one Supabase page fails (currently one flaky page → 0 jobs); real error state distinct from "no filter matches" | `app.js:159-177`, `index.html:171-174` | ✅ per-page failures kept + `#load-error` banner; **browser-verified** (headless Chromium: partial + hard-failure paths) |
 
-## Tier 1 — Make it a daily driver (~1 week)
+## Tier 1 — Make it a daily driver ✅ DONE 2026-07-19
 
-| # | Item | Notes | Effort |
-|---|------|-------|--------|
-| 1.1 | **Local fit-aware digest**: `radar:digest:local` loads `profile.json`, scores with `RadarScoring`, pushes only verdict ≥ good with variant + reason ("3 strong ML-engineer fits at cap-exempt employers"). Runs on the Mac (launchd/cron) so the profile never enters CI. CI digest stays as fallback | `digest.js` + `scoring.js` | 1d |
-| 1.2 | **Triage sync to Supabase**: per-user table (single-user token or Supabase Auth), replace the 3-way split (local-state.json / laptop localStorage / phone localStorage). Prerequisite for everything below | `app.js:217-228`, `server.js:121-131`, new table + RLS | 1–2d |
-| 1.3 | Funnel past "applied": add interview / offer / rejected / withdrawn states + colors + filters | `app.js:21-37,1021`, `index.html` | 0.5d |
-| 1.4 | Per-job notes (contact, next step) in the triage record + detail textarea | `app.js:1002` | 0.5d |
-| 1.5 | Follow-up aging view: "applied N days ago, no update" sort/filter using the already-captured `updated_at` | `app.js` | 0.5d |
-| 1.6 | Fix "NEW since last visit": stop advancing watermark on every load; explicit "mark all seen"; durable per-job seen set | `app.js:1257-1258` | 0.5d |
+All six shipped. Dashboard changes browser-verified (headless Chromium, 15
+assertions); 1.1 verified against the live local dataset; 1.2's live Supabase
+round-trip is pending the migration being applied (see below).
+
+| # | Item | Status |
+|---|------|--------|
+| 1.1 | Local fit-aware digest with variant + reason | ✅ `radar/scripts/digest-local.js`, `npm run radar:digest:local`; CI digest stays fallback |
+| 1.2 | Triage sync to Supabase, replace the 3-way split | ✅ token-gated RPCs `radar/supabase/triage.sql` + client + Settings→Sync UI; local-only until a token is set. **Run the migration + set a token to activate** |
+| 1.3 | Funnel past "applied" (interview/offer/rejected/withdrawn) | ✅ states + colors + detail buttons + filter options |
+| 1.4 | Per-job notes | ✅ detail textarea + note chip |
+| 1.5 | Follow-up aging ("applied N days ago, no update") | ✅ `followup` sort + "Needs follow-up" filter + row chip |
+| 1.6 | Fix "NEW since last visit" watermark | ✅ no longer advances on load; explicit "Mark all as seen" |
+
+Follow-up to wire when convenient: schedule `radar:digest:local` on the Mac
+(launchd/cron), and apply `radar/supabase/triage.sql` + set a sync token to turn
+on cross-device triage.
 
 ## Tier 2 — Fix the data itself (~1 week)
 
