@@ -322,17 +322,23 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "manual",
-      "ipeds_candidate"
+      "ipeds_candidate",
+      "careers_page_probe"
     ],
-    "ats_provider": null,
-    "ats_token": null,
-    "careers_url": "https://hr.uw.edu/jobs/",
+    "ats_provider": "workday",
+    "ats_token": "uw",
+    "ats_config": {
+      "host": "wd5.myworkdaysite.com",
+      "tenant": "uw",
+      "site": "UWHires"
+    },
+    "careers_url": "https://wd5.myworkdaysite.com/recruiting/uw/UWHires",
     "research_areas": [
       "medicine",
       "data science",
       "genomics"
     ],
-    "notes": "Likely cap-exempt institution. Custom career source deferred for v1. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found."
+    "notes": "Likely cap-exempt institution. Workday CXS feed verified 2026-07-19 (wd5.myworkdaysite.com/recruiting/uw/UWHires — myworkdaysite host, not myworkdayjobs; 547 postings, 111 research-relevant incl. Research Scientist/Engineer, Epic Research Application Analyst). Tenant recovered from hr.uw.edu 'find a staff job' link; earlier public-board probes (2026-07-03) missed it."
   },
   {
     "id": "university-of-michigan",
@@ -379,17 +385,23 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "manual",
-      "irs_eo_bmf_candidate"
+      "irs_eo_bmf_candidate",
+      "careers_page_probe"
     ],
-    "ats_provider": null,
-    "ats_token": null,
-    "careers_url": "https://careers.mskcc.org/",
+    "ats_provider": "workday",
+    "ats_token": "msk",
+    "ats_config": {
+      "host": "msk.wd108.myworkdayjobs.com",
+      "tenant": "msk",
+      "site": "MSKCC_Careers_Primary"
+    },
+    "careers_url": "https://msk.wd108.myworkdayjobs.com/MSKCC_Careers_Primary",
     "research_areas": [
       "cancer research",
       "clinical research",
       "computational biology"
     ],
-    "notes": "Likely nonprofit research hospital. Custom career source deferred for v1. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found."
+    "notes": "Likely nonprofit research hospital. Workday CXS feed verified 2026-07-19 (msk.wd108.myworkdayjobs.com/MSKCC_Careers_Primary, 99 postings incl. Bioinformatics Software Engineer, research technicians, analysts). Tenant recovered from careers.mskcc.org 'introduce yourself' link; earlier Greenhouse/Lever/Ashby/SmartRecruiters probes (2026-07-03) found no board."
   },
   {
     "id": "dana-farber",
@@ -462,17 +474,23 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "manual",
-      "irs_eo_bmf_candidate"
+      "irs_eo_bmf_candidate",
+      "ats_discovery_crawl"
     ],
-    "ats_provider": null,
-    "ats_token": null,
-    "careers_url": "https://www.hhmi.org/careers",
+    "ats_provider": "workday",
+    "ats_token": "hhmi",
+    "ats_config": {
+      "host": "hhmi.wd1.myworkdayjobs.com",
+      "tenant": "hhmi",
+      "site": "External"
+    },
+    "careers_url": "https://hhmi.wd1.myworkdayjobs.com/External",
     "research_areas": [
       "biology",
       "neuroscience",
       "genomics"
     ],
-    "notes": "Likely nonprofit research institution. Custom career source deferred for v1. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found."
+    "notes": "Likely nonprofit research institution. Workday CXS feed verified 2026-07-19 (hhmi.wd1.myworkdayjobs.com/External, 40 postings incl. AI Developer, Principal Knowledge & Data Architect, research technicians across HHMI-funded labs). Earlier Greenhouse/Lever/Ashby/SmartRecruiters probes (2026-07-03) found no board; tenant recovered from ATS discovery crawl."
   },
   {
     "id": "us-federal-research",
