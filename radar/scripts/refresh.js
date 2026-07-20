@@ -115,10 +115,17 @@ const WORKDAY_PAGE_LIMIT = 20;
 const WORKDAY_MAX_PAGES = 50;
 const WORKDAY_MAX_DETAIL_FETCHES = 400;
 const WORKDAY_DETAIL_DELAY_MS = 250;
+// Oracle Fusion HCM "CandidateExperience" REST feed (Stanford, Mayo, Northwestern…).
+// Same shape as Workday: a large flat requisition list, description behind a
+// per-job detail call — so title-prefilter before spending detail requests.
+const ORACLE_PAGE_LIMIT = 25;
+const ORACLE_MAX_PAGES = 60;
+const ORACLE_MAX_DETAIL_FETCHES = 400;
+const ORACLE_DETAIL_DELAY_MS = 200;
 const USAJOBS_PAGE_SIZE = 500;
 const USAJOBS_MAX_PAGES_PER_QUERY = 5;
 const USAJOBS_PAGE_DELAY_MS = 300;
-const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin'];
+const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin'];
 
 const SIGNAL_PATTERNS = {
   cap_exempt_language: [
@@ -478,6 +485,12 @@ function validateEmployer(employer) {
       if (!config[key]) throw new Error(`Employer ${employer.id} uses workday but ats_config.${key} is missing`);
     }
   }
+  if (employer.ats_provider === 'oracle') {
+    const config = employer.ats_config || {};
+    for (const key of ['host', 'site_name', 'site_number']) {
+      if (!config[key]) throw new Error(`Employer ${employer.id} uses oracle but ats_config.${key} is missing`);
+    }
+  }
 }
 
 function mapGreenhouseJob(job, employer) {
@@ -776,6 +789,86 @@ async function fetchWorkdayJobs(employer) {
   return jobs;
 }
 
+function mapOracleJob(listItem, detail, employer) {
+  const config = employer.ats_config || {};
+  const id = String(listItem.Id);
+  // Prefer the fuller detail record when a per-job fetch succeeded.
+  const description = normalizeText(
+    [detail?.ExternalDescriptionStr, detail?.ExternalQualificationsStr].filter(Boolean).join('\n\n')
+  );
+  const secondary = (listItem.secondaryLocations || [])
+    .map((loc) => loc.Name || loc.name)
+    .filter(Boolean);
+  const location = [listItem.PrimaryLocation, ...secondary].filter(Boolean).join('; ') || 'Unspecified';
+  const posted = detail?.ExternalPostedStartDate || listItem.PostedDate || null;
+  // Oracle exposes a structured posting-end date — trust it over any body regex.
+  const closeDate = detail?.ExternalPostedEndDate || listItem.PostingEndDate || null;
+  return {
+    id: `oracle:${employer.ats_token}:${id}`,
+    employer_id: employer.id,
+    title: listItem.Title || detail?.Title || 'Untitled role',
+    department: detail?.Organization || '',
+    location,
+    url: `https://${config.host}/hcmUI/CandidateExperience/en/sites/${config.site_name}/job/${id}`,
+    description_text: description,
+    posted_or_updated_at: posted ? new Date(`${String(posted).slice(0, 10)}T00:00:00Z`).toISOString() : null,
+    source: 'oracle',
+    source_job_id: id,
+    deadline_raw: closeDate ? String(closeDate).slice(0, 10) : null
+  };
+}
+
+async function fetchOracleJobs(employer) {
+  const { host, site_name: siteName, site_number: siteNumber } = employer.ats_config;
+  const rest = `https://${host}/hcmRestApi/resources/latest`;
+  // Oracle nests the flat requisition array + a TotalJobsCount inside items[0].
+  const listItems = [];
+  let total = Infinity;
+  for (let page = 0; page < ORACLE_MAX_PAGES && page * ORACLE_PAGE_LIMIT < total; page += 1) {
+    const offset = page * ORACLE_PAGE_LIMIT;
+    const url = `${rest}/recruitingCEJobRequisitions?onlyData=true`
+      + `&expand=requisitionList.secondaryLocations,flexFieldsFacet.values`
+      + `&finder=findReqs;siteNumber=${encodeURIComponent(siteNumber)},`
+      + `limit=${ORACLE_PAGE_LIMIT},offset=${offset},sortBy=POSTING_DATES_DESC`;
+    const payload = await fetchJson(url);
+    const bucket = (payload.items || [])[0] || {};
+    if (page === 0) total = Number(bucket.TotalJobsCount || 0);
+    const reqs = bucket.requisitionList || [];
+    if (reqs.length === 0) break;
+    listItems.push(...reqs);
+  }
+
+  // Dedupe by requisition Id (paging overlaps can repeat postings).
+  const seen = new Set();
+  const unique = listItems.filter((item) => {
+    if (!item.Id || seen.has(item.Id)) return false;
+    seen.add(item.Id);
+    return true;
+  });
+
+  const relevant = unique
+    .filter((item) => isResearchRelevantTitle(item.Title || '', employer))
+    .slice(0, ORACLE_MAX_DETAIL_FETCHES);
+
+  const jobs = [];
+  for (const item of relevant) {
+    // The list feed carries only a short teaser; fetch the full description per
+    // job. Fail-soft: a bad detail should not sink the whole employer.
+    let detail = null;
+    try {
+      const url = `${rest}/recruitingCEJobRequisitionDetails?expand=all&onlyData=true`
+        + `&finder=ById;Id=%22${encodeURIComponent(item.Id)}%22,siteNumber=${encodeURIComponent(siteNumber)}`;
+      const payload = await fetchJson(url);
+      detail = (payload.items || [])[0] || null;
+    } catch (error) {
+      console.warn(`Oracle detail fetch failed for ${employer.id} req ${item.Id}: ${error.message}`);
+    }
+    jobs.push(mapOracleJob(item, detail, employer));
+    await sleep(ORACLE_DETAIL_DELAY_MS);
+  }
+  return jobs;
+}
+
 // Federal competitive-service positions require US citizenship by default,
 // and the requirement usually lives in "Who May Apply" metadata rather than
 // the description text — so gate on the metadata, defaulting to gated.
@@ -940,6 +1033,7 @@ const ATS_FETCHERS = {
   ashby: fetchAshbyJobs,
   smartrecruiters: fetchSmartRecruitersJobs,
   workday: fetchWorkdayJobs,
+  oracle: fetchOracleJobs,
   recruitee: fetchRecruiteeJobs,
   breezy: fetchBreezyJobs,
   workable: fetchWorkableJobs,
@@ -1282,5 +1376,7 @@ module.exports = {
   fetchAshbyJobs,
   fetchSmartRecruitersJobs,
   fetchWorkdayJobs,
+  fetchOracleJobs,
+  mapOracleJob,
   runRefresh
 };

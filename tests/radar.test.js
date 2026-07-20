@@ -13,6 +13,7 @@ const {
   mapAshbyJob,
   mapSmartRecruitersPosting,
   mapWorkdayJob,
+  mapOracleJob,
   mapRecruiteeJob,
   mapBreezyJob,
   mapWorkableJob,
@@ -456,6 +457,46 @@ function testProviderMappers() {
   }, undefined, workdayEmployer);
   assert.strictEqual(workdayNoDetail.id, 'workday:exampleu:JR9');
   assert.strictEqual(workdayNoDetail.url, 'https://exampleu.wd5.myworkdayjobs.com/External/job/Chicago/Postdoc_JR9');
+
+  // Oracle Fusion HCM CandidateExperience: list item + detail record
+  const oracleEmployer = {
+    id: 'exampleu-oracle',
+    ats_token: 'exampleu',
+    ats_config: { host: 'careers.exampleu.edu', site_name: 'exampleu', site_number: 'CX_1' },
+    research_areas: ['genomics']
+  };
+  const oracle = mapOracleJob({
+    Id: '200251',
+    Title: 'Life Science Research Professional',
+    PrimaryLocation: 'Stanford, CA, United States',
+    PostedDate: '2026-07-10',
+    secondaryLocations: [{ Name: 'Redwood City, CA, United States' }]
+  }, {
+    ExternalDescriptionStr: '<p>Run assays.</p>',
+    ExternalQualificationsStr: '<p>PhD preferred.</p>',
+    ExternalPostedStartDate: '2026-07-10',
+    ExternalPostedEndDate: '2026-08-15',
+    Organization: 'School of Medicine'
+  }, oracleEmployer);
+  assert.strictEqual(oracle.id, 'oracle:exampleu:200251');
+  assert.strictEqual(oracle.source, 'oracle');
+  assert.strictEqual(oracle.url, 'https://careers.exampleu.edu/hcmUI/CandidateExperience/en/sites/exampleu/job/200251');
+  assert.strictEqual(oracle.location, 'Stanford, CA, United States; Redwood City, CA, United States');
+  assert.strictEqual(oracle.description_text, 'Run assays. PhD preferred.');
+  assert.strictEqual(oracle.posted_or_updated_at, '2026-07-10T00:00:00.000Z');
+  // Oracle exposes a structured close date -> carried as deadline_raw
+  assert.strictEqual(oracle.deadline_raw, '2026-08-15');
+  // Detail fetch failed -> mapper still produces a usable record from the list item
+  const oracleNoDetail = mapOracleJob({
+    Id: '9',
+    Title: 'Postdoctoral Scholar',
+    PrimaryLocation: 'Stanford, CA, United States',
+    PostedDate: '2026-07-01'
+  }, null, oracleEmployer);
+  assert.strictEqual(oracleNoDetail.id, 'oracle:exampleu:9');
+  assert.strictEqual(oracleNoDetail.description_text, '');
+  assert.strictEqual(oracleNoDetail.deadline_raw, null);
+  assert.strictEqual(oracleNoDetail.url, 'https://careers.exampleu.edu/hcmUI/CandidateExperience/en/sites/exampleu/job/9');
 
   // Title prefilter: research-shaped titles pass, admin titles do not
   assert.strictEqual(isResearchRelevantTitle('Senior Research Scientist', workdayEmployer), true);

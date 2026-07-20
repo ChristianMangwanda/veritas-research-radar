@@ -208,17 +208,23 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "manual",
-      "ipeds_candidate"
+      "ipeds_candidate",
+      "careers_page_probe"
     ],
-    "ats_provider": null,
-    "ats_token": null,
-    "careers_url": "https://careersearch.stanford.edu/",
+    "ats_provider": "oracle",
+    "ats_token": "stanford",
+    "ats_config": {
+      "host": "careersearch.stanford.edu",
+      "site_name": "stanford",
+      "site_number": "CX_1"
+    },
+    "careers_url": "https://careersearch.stanford.edu/hcmUI/CandidateExperience/en/sites/stanford/",
     "research_areas": [
       "medicine",
       "ai",
       "bioengineering"
     ],
-    "notes": "Likely cap-exempt institution. Custom career source deferred for v1. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found."
+    "notes": "Likely cap-exempt institution. Oracle Fusion HCM CandidateExperience feed verified 2026-07-19 (careersearch.stanford.edu, site stanford / CX_1, 300 postings; 119 research-relevant, all with full descriptions). siteNumber CX_1 read from the CE site bootstrap; earlier Greenhouse/Lever/Ashby/SmartRecruiters probes (2026-07-03) missed it."
   },
   {
     "id": "harvard-university",
@@ -432,17 +438,23 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "manual",
-      "irs_eo_bmf_candidate"
+      "irs_eo_bmf_candidate",
+      "careers_page_probe"
     ],
-    "ats_provider": null,
-    "ats_token": null,
-    "careers_url": "https://jobs.mayoclinic.org/",
+    "ats_provider": "oracle",
+    "ats_token": "mayo",
+    "ats_config": {
+      "host": "fa-euwp-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site_name": "Mayo-US",
+      "site_number": "CX_1"
+    },
+    "careers_url": "https://fa-euwp-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/Mayo-US/",
     "research_areas": [
       "clinical research",
       "medicine",
       "data science"
     ],
-    "notes": "Likely nonprofit research hospital. Custom career source deferred for v1. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found."
+    "notes": "Likely nonprofit research hospital. Oracle Fusion HCM CandidateExperience feed verified 2026-07-19 (fa-euwp-saasfaprod1.fa.ocs.oraclecloud.com, site Mayo-US / CX_1, 1312 postings; 201 research-relevant, all with descriptions, 27 with structured close dates). Earlier public-board probes (2026-07-03) missed it."
   },
   {
     "id": "cleveland-clinic",
