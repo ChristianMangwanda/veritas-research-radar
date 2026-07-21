@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-07-21T06:22:57.269Z",
+  "refreshed_at": "2026-07-21T09:31:26.558Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
   "job_count": 13757,
-  "active_job_count": 10433,
-  "closed_job_count": 3324,
-  "newly_closed_count": 42,
-  "errored_employers": 1,
+  "active_job_count": 10434,
+  "closed_job_count": 3323,
+  "newly_closed_count": 2,
+  "errored_employers": 0,
   "recall_anomalies": [],
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
@@ -957,10 +957,10 @@
       "name": "Texas A&M University-San Antonio",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 12,
+      "fetched_jobs": 13,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1
+      "closed_jobs": 0
     },
     {
       "employer_id": "barnard-college",
@@ -1307,10 +1307,10 @@
       "name": "Anderson University",
       "ats_provider": "workday",
       "ats_token": "andersonuniversity",
-      "fetched_jobs": 20,
+      "fetched_jobs": 22,
       "skipped": false,
       "error": null,
-      "closed_jobs": 3
+      "closed_jobs": 1
     },
     {
       "employer_id": "the-university-of-findlay",
@@ -1377,9 +1377,9 @@
       "name": "Samuel Merritt University",
       "ats_provider": "workday",
       "ats_token": "samuelmerritt",
-      "fetched_jobs": 0,
+      "fetched_jobs": 3,
       "skipped": false,
-      "error": "HTTP 429 Too Many Requests",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1567,10 +1567,10 @@
       "name": "University of the Pacific",
       "ats_provider": "peopleadmin",
       "ats_token": "pacific",
-      "fetched_jobs": 111,
+      "fetched_jobs": 110,
       "skipped": false,
       "error": null,
-      "closed_jobs": 23
+      "closed_jobs": 24
     },
     {
       "employer_id": "tuskegee-university",
@@ -1817,10 +1817,10 @@
       "name": "Oregon State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.oregonstate.edu",
-      "fetched_jobs": 102,
+      "fetched_jobs": 101,
       "skipped": false,
       "error": null,
-      "closed_jobs": 15
+      "closed_jobs": 16
     },
     {
       "employer_id": "the-university-of-texas-at-dallas",
