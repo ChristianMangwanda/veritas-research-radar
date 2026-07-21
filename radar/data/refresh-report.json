@@ -1,11 +1,11 @@
 {
-  "refreshed_at": "2026-07-21T04:29:48.728Z",
+  "refreshed_at": "2026-07-21T06:22:57.269Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
-  "job_count": 13727,
-  "active_job_count": 10444,
-  "closed_job_count": 3283,
-  "newly_closed_count": 109,
+  "job_count": 13757,
+  "active_job_count": 10433,
+  "closed_job_count": 3324,
+  "newly_closed_count": 42,
   "errored_employers": 1,
   "recall_anomalies": [],
   "sources": {
@@ -280,7 +280,7 @@
       "fetched_jobs": 2500,
       "skipped": false,
       "error": null,
-      "closed_jobs": 381
+      "closed_jobs": 399
     },
     {
       "employer_id": "washington-university-in-st-louis",
@@ -337,7 +337,7 @@
       "name": "Brown University",
       "ats_provider": "workday",
       "ats_token": "brown",
-      "fetched_jobs": 18,
+      "fetched_jobs": 19,
       "skipped": false,
       "error": null,
       "closed_jobs": 5
@@ -387,10 +387,10 @@
       "name": "University of Arkansas for Medical Sciences",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 43,
+      "fetched_jobs": 39,
       "skipped": false,
       "error": null,
-      "closed_jobs": 7
+      "closed_jobs": 11
     },
     {
       "employer_id": "thomas-jefferson-university",
@@ -847,10 +847,10 @@
       "name": "Minnesota State University-Mankato",
       "ats_provider": "workday",
       "ats_token": "minnstate",
-      "fetched_jobs": 43,
+      "fetched_jobs": 44,
       "skipped": false,
       "error": null,
-      "closed_jobs": 4
+      "closed_jobs": 6
     },
     {
       "employer_id": "washington-and-lee-university",
@@ -957,10 +957,10 @@
       "name": "Texas A&M University-San Antonio",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 13,
+      "fetched_jobs": 12,
       "skipped": false,
       "error": null,
-      "closed_jobs": 0
+      "closed_jobs": 1
     },
     {
       "employer_id": "barnard-college",
@@ -1307,10 +1307,10 @@
       "name": "Anderson University",
       "ats_provider": "workday",
       "ats_token": "andersonuniversity",
-      "fetched_jobs": 22,
+      "fetched_jobs": 20,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1
+      "closed_jobs": 3
     },
     {
       "employer_id": "the-university-of-findlay",
@@ -1377,9 +1377,9 @@
       "name": "Samuel Merritt University",
       "ats_provider": "workday",
       "ats_token": "samuelmerritt",
-      "fetched_jobs": 3,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 429 Too Many Requests",
       "closed_jobs": 1
     },
     {
@@ -1497,9 +1497,9 @@
       "name": "The University of Texas Rio Grande Valley",
       "ats_provider": "peopleadmin",
       "ats_token": "utrgv-sb",
-      "fetched_jobs": 0,
+      "fetched_jobs": 128,
       "skipped": false,
-      "error": "This operation was aborted",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1827,20 +1827,20 @@
       "name": "The University of Texas at Dallas",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.utdallas.edu",
-      "fetched_jobs": 128,
+      "fetched_jobs": 126,
       "skipped": false,
       "error": null,
-      "closed_jobs": 56
+      "closed_jobs": 58
     },
     {
       "employer_id": "south-dakota-state-university",
       "name": "South Dakota State University",
       "ats_provider": "peopleadmin",
       "ats_token": "yourfuture.sdbor.edu",
-      "fetched_jobs": 47,
+      "fetched_jobs": 46,
       "skipped": false,
       "error": null,
-      "closed_jobs": 35
+      "closed_jobs": 36
     },
     {
       "employer_id": "university-of-vermont",
@@ -1927,10 +1927,10 @@
       "name": "Northern Illinois University",
       "ats_provider": "peopleadmin",
       "ats_token": "employment.niu.edu",
-      "fetched_jobs": 32,
+      "fetched_jobs": 30,
       "skipped": false,
       "error": null,
-      "closed_jobs": 10
+      "closed_jobs": 12
     },
     {
       "employer_id": "oakland-university",
@@ -2117,10 +2117,10 @@
       "name": "South Dakota School of Mines and Technology",
       "ats_provider": "peopleadmin",
       "ats_token": "yourfuture.sdbor.edu",
-      "fetched_jobs": 117,
+      "fetched_jobs": 115,
       "skipped": false,
       "error": null,
-      "closed_jobs": 40
+      "closed_jobs": 41
     },
     {
       "employer_id": "western-university-of-health-sciences",
