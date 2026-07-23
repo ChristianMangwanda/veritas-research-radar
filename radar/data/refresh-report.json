@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-07-23T04:33:22.493Z",
+  "refreshed_at": "2026-07-23T06:32:18.553Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
-  "job_count": 14303,
-  "active_job_count": 10496,
-  "closed_job_count": 3807,
-  "newly_closed_count": 87,
-  "errored_employers": 0,
+  "job_count": 14345,
+  "active_job_count": 10498,
+  "closed_job_count": 3847,
+  "newly_closed_count": 42,
+  "errored_employers": 1,
   "recall_anomalies": [],
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
@@ -280,7 +280,7 @@
       "fetched_jobs": 2500,
       "skipped": false,
       "error": null,
-      "closed_jobs": 421
+      "closed_jobs": 452
     },
     {
       "employer_id": "washington-university-in-st-louis",
@@ -417,10 +417,10 @@
       "name": "University of Arkansas",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 14,
+      "fetched_jobs": 13,
       "skipped": false,
       "error": null,
-      "closed_jobs": 3
+      "closed_jobs": 4
     },
     {
       "employer_id": "university-of-mississippi",
@@ -737,10 +737,10 @@
       "name": "Prairie View A & M University",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 38,
+      "fetched_jobs": 37,
       "skipped": false,
       "error": null,
-      "closed_jobs": 8
+      "closed_jobs": 9
     },
     {
       "employer_id": "university-of-san-francisco",
@@ -847,10 +847,10 @@
       "name": "Minnesota State University-Mankato",
       "ats_provider": "workday",
       "ats_token": "minnstate",
-      "fetched_jobs": 44,
+      "fetched_jobs": 45,
       "skipped": false,
       "error": null,
-      "closed_jobs": 9
+      "closed_jobs": 10
     },
     {
       "employer_id": "washington-and-lee-university",
@@ -1497,9 +1497,9 @@
       "name": "The University of Texas Rio Grande Valley",
       "ats_provider": "peopleadmin",
       "ats_token": "utrgv-sb",
-      "fetched_jobs": 128,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "This operation was aborted",
       "closed_jobs": 0
     },
     {
@@ -1897,10 +1897,10 @@
       "name": "Texas State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.hr.txstate.edu",
-      "fetched_jobs": 69,
+      "fetched_jobs": 68,
       "skipped": false,
       "error": null,
-      "closed_jobs": 32
+      "closed_jobs": 33
     },
     {
       "employer_id": "marquette-university",
@@ -2117,10 +2117,10 @@
       "name": "South Dakota School of Mines and Technology",
       "ats_provider": "peopleadmin",
       "ats_token": "yourfuture.sdbor.edu",
-      "fetched_jobs": 120,
+      "fetched_jobs": 117,
       "skipped": false,
       "error": null,
-      "closed_jobs": 44
+      "closed_jobs": 47
     },
     {
       "employer_id": "western-university-of-health-sciences",
