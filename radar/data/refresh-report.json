@@ -1,11 +1,11 @@
 {
-  "refreshed_at": "2026-07-27T06:58:39.383Z",
+  "refreshed_at": "2026-07-27T10:51:46.272Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 212,
-  "job_count": 14911,
-  "active_job_count": 10518,
-  "closed_job_count": 4393,
-  "newly_closed_count": 9,
+  "job_count": 14986,
+  "active_job_count": 10552,
+  "closed_job_count": 4434,
+  "newly_closed_count": 3,
   "errored_employers": 0,
   "recall_anomalies": [],
   "sources": {
@@ -101,7 +101,7 @@
       "fetched_jobs": 0,
       "skipped": true,
       "error": null,
-      "closed_jobs": 2
+      "closed_jobs": 9
     },
     {
       "employer_id": "university-of-chicago",
@@ -181,7 +181,7 @@
       "fetched_jobs": 0,
       "skipped": true,
       "error": null,
-      "closed_jobs": 6
+      "closed_jobs": 12
     },
     {
       "employer_id": "university-of-washington",
@@ -1588,10 +1588,10 @@
       "name": "University of Nebraska Medical Center",
       "ats_provider": "peopleadmin",
       "ats_token": "unmc",
-      "fetched_jobs": 209,
+      "fetched_jobs": 208,
       "skipped": false,
       "error": null,
-      "closed_jobs": 63
+      "closed_jobs": 64
     },
     {
       "employer_id": "spelman-college",
@@ -1808,10 +1808,10 @@
       "name": "Oregon State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.oregonstate.edu",
-      "fetched_jobs": 100,
+      "fetched_jobs": 99,
       "skipped": false,
       "error": null,
-      "closed_jobs": 18
+      "closed_jobs": 19
     },
     {
       "employer_id": "the-university-of-texas-at-dallas",
@@ -2351,18 +2351,17 @@
       "fetched_jobs": 0,
       "skipped": true,
       "error": null,
-      "closed_jobs": 98
+      "closed_jobs": 111
     },
     {
       "employer_id": "oregon-health-science-university",
       "name": "Oregon Health & Science University",
       "ats_provider": null,
       "ats_token": null,
-      "fetched_jobs": 29,
-      "skipped": false,
+      "fetched_jobs": 0,
+      "skipped": true,
       "error": null,
-      "scouted_jobs": 29,
-      "closed_jobs": 94
+      "closed_jobs": 106
     },
     {
       "employer_id": "auburn-university",
@@ -2389,11 +2388,10 @@
       "name": "Clarkson University",
       "ats_provider": null,
       "ats_token": null,
-      "fetched_jobs": 30,
-      "skipped": false,
+      "fetched_jobs": 0,
+      "skipped": true,
       "error": null,
-      "scouted_jobs": 30,
-      "closed_jobs": 4
+      "closed_jobs": 3
     },
     {
       "employer_id": "touro-university",
@@ -2410,11 +2408,10 @@
       "name": "Touro University Nevada",
       "ats_provider": null,
       "ats_token": null,
-      "fetched_jobs": 14,
-      "skipped": false,
+      "fetched_jobs": 0,
+      "skipped": true,
       "error": null,
-      "scouted_jobs": 14,
-      "closed_jobs": 5
+      "closed_jobs": 7
     }
   ]
 }
