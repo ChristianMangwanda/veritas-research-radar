@@ -1,31 +1,31 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-28T16:25:59.639Z",
+  "updated_at": "2026-07-29T05:40:59.492Z",
   "snapshots": {
     "nature-careers": {
-      "scouted_at": "2026-07-28T16:25:03.834767Z",
-      "job_count": 41,
+      "scouted_at": "2026-07-29T05:40:00.520631Z",
+      "job_count": 47,
       "scraped_count": 300,
       "dropped": {
         "covered_by_live_ats": 7,
-        "not_cap_exempt": 252,
+        "not_cap_exempt": 246,
         "invalid": 0
       },
       "skipped_reason": null
     },
     "science-careers": {
-      "scouted_at": "2026-07-28T16:25:53.459522Z",
+      "scouted_at": "2026-07-29T05:40:53.397976Z",
       "job_count": 74,
-      "scraped_count": 265,
+      "scraped_count": 267,
       "dropped": {
-        "covered_by_live_ats": 12,
-        "not_cap_exempt": 179,
+        "covered_by_live_ats": 13,
+        "not_cap_exempt": 180,
         "invalid": 0
       },
       "skipped_reason": null
     },
     "higheredjobs": {
-      "scouted_at": "2026-07-28T16:25:59.294017Z",
+      "scouted_at": "2026-07-29T05:40:59.145636Z",
       "job_count": 0,
       "scraped_count": 0,
       "dropped": {
@@ -37,6 +37,24 @@
     }
   },
   "jobs": [
+    {
+      "id": "agg:nature-careers:1ee214fd3543",
+      "employer_id": "agg:mayo-clinic",
+      "employer_name": "Mayo Clinic",
+      "employer_kind": "registry",
+      "registry_employer_id": "mayo-clinic",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "Postdoctoral Fellow in Digital Pathology & AI/Machine Learning",
+      "department": "",
+      "location": "Rochester, Minnesota (US)",
+      "url": "https://www.nature.com/naturecareers/job/12862146/postdoctoral-fellow-in-digital-pathology-and-ai-machine-learning/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "1ee214fd3543",
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
+    },
     {
       "id": "agg:nature-careers:09e082a0a8c5",
       "employer_id": "agg:stanford-university-doerr-school-of-sustainability",
@@ -53,7 +71,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "09e082a0a8c5",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:e1fbce3c8c4f",
@@ -77,7 +95,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "e1fbce3c8c4f",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:e80bd3db7ac2",
@@ -95,7 +113,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "e80bd3db7ac2",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:ade7253d0522",
@@ -113,7 +131,133 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "ade7253d0522",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
+    },
+    {
+      "id": "agg:nature-careers:6ba27137ec9c",
+      "employer_id": "agg:st-jude-children-s-research-hospital",
+      "employer_name": "St Jude Children's Research Hospital",
+      "employer_kind": "registry",
+      "registry_employer_id": "st-jude",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "Nurse Practitioner or Physician Assistant (Tier III) - Pediatric Intensive Care Unit",
+      "department": "",
+      "location": "Memphis, Tennessee",
+      "url": "https://www.nature.com/naturecareers/job/12862154/nurse-practitioner-or-physician-assistant-tier-iii-pediatric-intensive-care-unit/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "6ba27137ec9c",
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
+    },
+    {
+      "id": "agg:nature-careers:c30c7174c9df",
+      "employer_id": "agg:st-jude-children-s-research-hospital",
+      "employer_name": "St Jude Children's Research Hospital",
+      "employer_kind": "registry",
+      "registry_employer_id": "st-jude",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "Faculty Position-Department of Pathology, Computational Pathologist",
+      "department": "",
+      "location": "Memphis, Tennessee",
+      "url": "https://www.nature.com/naturecareers/job/12862153/faculty-position-department-of-pathology-computational-pathologist/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "c30c7174c9df",
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
+    },
+    {
+      "id": "agg:nature-careers:be3341770d4e",
+      "employer_id": "agg:st-jude-children-s-research-hospital",
+      "employer_name": "St Jude Children's Research Hospital",
+      "employer_kind": "registry",
+      "registry_employer_id": "st-jude",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "Researcher- Flow Cytometry Core",
+      "department": "",
+      "location": "Memphis, Tennessee",
+      "url": "https://www.nature.com/naturecareers/job/12862152/researcher-flow-cytometry-core/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "be3341770d4e",
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
+    },
+    {
+      "id": "agg:nature-careers:cf85c225261b",
+      "employer_id": "agg:st-jude-children-s-research-hospital",
+      "employer_name": "St Jude Children's Research Hospital",
+      "employer_kind": "registry",
+      "registry_employer_id": "st-jude",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "HVAC Refrigeration Mechanic",
+      "department": "",
+      "location": "Memphis, Tennessee",
+      "url": "https://www.nature.com/naturecareers/job/12862151/hvac-refrigeration-mechanic/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "cf85c225261b",
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
+    },
+    {
+      "id": "agg:nature-careers:3c102fc00976",
+      "employer_id": "agg:st-jude-children-s-research-hospital",
+      "employer_name": "St Jude Children's Research Hospital",
+      "employer_kind": "registry",
+      "registry_employer_id": "st-jude",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "Clinical Research Operations Associate I",
+      "department": "",
+      "location": "Memphis, Tennessee",
+      "url": "https://www.nature.com/naturecareers/job/12862150/clinical-research-operations-associate-i/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "3c102fc00976",
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
+    },
+    {
+      "id": "agg:nature-careers:e8b790aad936",
+      "employer_id": "agg:st-jude-children-s-research-hospital",
+      "employer_name": "St Jude Children's Research Hospital",
+      "employer_kind": "registry",
+      "registry_employer_id": "st-jude",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "Lead-Histology Lab Technician, Digital Pathology & Archive",
+      "department": "",
+      "location": "Memphis, Tennessee",
+      "url": "https://www.nature.com/naturecareers/job/12862149/lead-histology-lab-technician-digital-pathology-and-archive/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "e8b790aad936",
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
+    },
+    {
+      "id": "agg:nature-careers:c84a5ea2838f",
+      "employer_id": "agg:st-jude-children-s-research-hospital",
+      "employer_name": "St Jude Children's Research Hospital",
+      "employer_kind": "registry",
+      "registry_employer_id": "st-jude",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "Research Administrator II - Department of Imaging Sciences",
+      "department": "",
+      "location": "Memphis, Tennessee",
+      "url": "https://www.nature.com/naturecareers/job/12862148/research-administrator-ii-department-of-imaging-sciences/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "c84a5ea2838f",
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:a3718748b585",
@@ -131,7 +275,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "a3718748b585",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:511a4c2b47f3",
@@ -149,7 +293,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "511a4c2b47f3",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:b4a655869e5f",
@@ -167,7 +311,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "b4a655869e5f",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:b277e2a5c678",
@@ -185,7 +329,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "b277e2a5c678",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:1aa70c77ef5e",
@@ -203,7 +347,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "1aa70c77ef5e",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:4f288a819559",
@@ -221,7 +365,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "4f288a819559",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:c2be00e45821",
@@ -239,7 +383,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "c2be00e45821",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:8cbc6a364710",
@@ -257,7 +401,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "8cbc6a364710",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:b9d6aaae018e",
@@ -275,7 +419,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "b9d6aaae018e",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:94a3253a40d7",
@@ -293,7 +437,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "94a3253a40d7",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:5451188edf23",
@@ -311,7 +455,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "5451188edf23",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:642f7701595d",
@@ -329,7 +473,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "642f7701595d",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:3b62026d5917",
@@ -347,7 +491,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "3b62026d5917",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:5bfe1a8e263d",
@@ -365,7 +509,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "5bfe1a8e263d",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:0d5870a8133e",
@@ -383,7 +527,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "0d5870a8133e",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:e3078624e140",
@@ -401,7 +545,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "e3078624e140",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:b48576d22000",
@@ -419,7 +563,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "b48576d22000",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:9b88e78909c6",
@@ -437,7 +581,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "9b88e78909c6",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:d2a5333b6199",
@@ -455,7 +599,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "d2a5333b6199",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:406f2888cba6",
@@ -473,7 +617,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "406f2888cba6",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:df61b983125d",
@@ -491,7 +635,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "df61b983125d",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:81dfc1ede030",
@@ -509,7 +653,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "81dfc1ede030",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:7f4d94744dcd",
@@ -527,7 +671,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "7f4d94744dcd",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:f54cc19ea0eb",
@@ -545,7 +689,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "f54cc19ea0eb",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:eb6e60e3643a",
@@ -563,7 +707,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "eb6e60e3643a",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:654a37529923",
@@ -581,7 +725,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "654a37529923",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:b0b5569b095d",
@@ -599,7 +743,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "b0b5569b095d",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:428af54a2542",
@@ -617,7 +761,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "428af54a2542",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:bfed7919c42e",
@@ -635,7 +779,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "bfed7919c42e",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:264a08155335",
@@ -653,7 +797,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "264a08155335",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:495615b216b7",
@@ -671,7 +815,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "495615b216b7",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:d30b1c79d2c6",
@@ -695,7 +839,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "d30b1c79d2c6",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:6c61aa697ae3",
@@ -713,7 +857,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "6c61aa697ae3",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:9f2d3c22b03f",
@@ -731,7 +875,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "9f2d3c22b03f",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
       "id": "agg:nature-careers:83550e0a7421",
@@ -749,43 +893,25 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "83550e0a7421",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "last_scouted_at": "2026-07-29T05:40:00.520631Z"
     },
     {
-      "id": "agg:nature-careers:3aac1ea060f2",
-      "employer_id": "agg:stanford-university-school-of-medicine-department-of-ophthal",
-      "employer_name": "Stanford University, School of Medicine- Department of Ophthalmology",
+      "id": "agg:science-careers:4081b7758981",
+      "employer_id": "agg:anat-phys-pharm-auburn-university",
+      "employer_name": "Anat/Phys/Pharm Auburn University",
       "employer_kind": "registry",
-      "registry_employer_id": "stanford-university",
+      "registry_employer_id": "auburn-university",
       "directory_evidence": null,
       "cap_exempt_score": 0,
-      "title": "Assistant, Associate or Full Professor of Ophthalmology (Clinicians or Clinician-Scientists)",
+      "title": "Assistant Professor",
       "department": "",
-      "location": "Palo Alto, California",
-      "url": "https://www.nature.com/naturecareers/job/12861828/assistant-associate-or-full-professor-of-ophthalmology-clinicians-or-clinician-scientists-/",
+      "location": "Auburn, Alabama (US)",
+      "url": "https://jobs.sciencecareers.org/job/679500/assistant-professor/",
       "description_text": "",
       "posted_or_updated_at": null,
-      "source": "nature-careers",
-      "source_job_id": "3aac1ea060f2",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
-    },
-    {
-      "id": "agg:nature-careers:300268486727",
-      "employer_id": "agg:stanford-university-school-of-medicine-department-of-ophthal",
-      "employer_name": "Stanford University, School of Medicine- Department of Ophthalmology",
-      "employer_kind": "registry",
-      "registry_employer_id": "stanford-university",
-      "directory_evidence": null,
-      "cap_exempt_score": 0,
-      "title": "Assistant, Associate or Full Professor for Ophthalmology (Research)",
-      "department": "",
-      "location": "Palo Alto, California",
-      "url": "https://www.nature.com/naturecareers/job/12861827/assistant-associate-or-full-professor-for-ophthalmology-research-/",
-      "description_text": "",
-      "posted_or_updated_at": null,
-      "source": "nature-careers",
-      "source_job_id": "300268486727",
-      "last_scouted_at": "2026-07-28T16:25:03.834767Z"
+      "source": "science-careers",
+      "source_job_id": "4081b7758981",
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:72d88d0b9ddf",
@@ -803,7 +929,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "72d88d0b9ddf",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:fe061c880344",
@@ -827,7 +953,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "fe061c880344",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:31e98fb8375c",
@@ -845,7 +971,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "31e98fb8375c",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:13ba46f6ff79",
@@ -869,7 +995,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "13ba46f6ff79",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:543fd0ed45e4",
@@ -893,7 +1019,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "543fd0ed45e4",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:50cd5d8237f4",
@@ -917,7 +1043,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "50cd5d8237f4",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:a92f972e18ca",
@@ -941,7 +1067,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "a92f972e18ca",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:7ebfb9479cd1",
@@ -965,7 +1091,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "7ebfb9479cd1",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:0b53a49702ad",
@@ -989,7 +1115,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "0b53a49702ad",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:251d2f68ff7f",
@@ -1013,7 +1139,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "251d2f68ff7f",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:232033df5d94",
@@ -1037,7 +1163,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "232033df5d94",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:2c218c91760f",
@@ -1061,7 +1187,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "2c218c91760f",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:0ffa1d3b2860",
@@ -1079,7 +1205,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "0ffa1d3b2860",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:abee58e9bbc4",
@@ -1103,7 +1229,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "abee58e9bbc4",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:1656a2064cff",
@@ -1121,7 +1247,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "1656a2064cff",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:f780ea9c7cf6",
@@ -1145,7 +1271,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "f780ea9c7cf6",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:969c4edbb5bb",
@@ -1169,7 +1295,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "969c4edbb5bb",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:9379b17bd25f",
@@ -1187,7 +1313,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "9379b17bd25f",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:d666cd31d541",
@@ -1211,7 +1337,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "d666cd31d541",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:ac051a3714e2",
@@ -1235,7 +1361,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ac051a3714e2",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:4234dacd52f9",
@@ -1259,7 +1385,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "4234dacd52f9",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:1e775b843a46",
@@ -1277,7 +1403,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "1e775b843a46",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:9ea548950c7a",
@@ -1301,7 +1427,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "9ea548950c7a",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:8514c87d47ac",
@@ -1325,7 +1451,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "8514c87d47ac",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:ec86e929f9dc",
@@ -1349,7 +1475,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ec86e929f9dc",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:292725152de8",
@@ -1373,7 +1499,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "292725152de8",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:25632c585462",
@@ -1391,7 +1517,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "25632c585462",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:af8ef9641afc",
@@ -1415,7 +1541,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "af8ef9641afc",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:81eff53402a2",
@@ -1439,7 +1565,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "81eff53402a2",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:a7dc75b3ad3d",
@@ -1457,7 +1583,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "a7dc75b3ad3d",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:43f8ccf57722",
@@ -1481,7 +1607,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "43f8ccf57722",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:3fbf8cf5f6b2",
@@ -1499,7 +1625,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "3fbf8cf5f6b2",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:c9b542668af0",
@@ -1523,7 +1649,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "c9b542668af0",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:ce4020c44820",
@@ -1547,7 +1673,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ce4020c44820",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:dfaad30ca794",
@@ -1571,7 +1697,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "dfaad30ca794",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:6d4f9d451e02",
@@ -1595,7 +1721,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "6d4f9d451e02",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:09654605a8e3",
@@ -1619,7 +1745,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "09654605a8e3",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:17dd422dd38d",
@@ -1643,7 +1769,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "17dd422dd38d",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:dc590b931aaa",
@@ -1667,7 +1793,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "dc590b931aaa",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:f2485477de1e",
@@ -1691,7 +1817,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "f2485477de1e",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:f275c32afa37",
@@ -1715,7 +1841,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "f275c32afa37",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:a54be6a8e9a3",
@@ -1733,7 +1859,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "a54be6a8e9a3",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:9eadf1b883e4",
@@ -1757,7 +1883,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "9eadf1b883e4",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:ae1050651e62",
@@ -1781,7 +1907,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ae1050651e62",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:84c6edd42d35",
@@ -1805,7 +1931,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "84c6edd42d35",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:0a6fddac53bd",
@@ -1829,7 +1955,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "0a6fddac53bd",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:9f5a2520bf19",
@@ -1853,7 +1979,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "9f5a2520bf19",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:8ad1688db8ed",
@@ -1877,7 +2003,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "8ad1688db8ed",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:c8316b53e32c",
@@ -1901,7 +2027,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "c8316b53e32c",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:ff7bec79aa7a",
@@ -1919,7 +2045,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ff7bec79aa7a",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:557d2ae205d4",
@@ -1943,7 +2069,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "557d2ae205d4",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:7e053942904b",
@@ -1967,7 +2093,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "7e053942904b",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:4405ef3d1bb6",
@@ -1991,7 +2117,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "4405ef3d1bb6",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:4225b9346562",
@@ -2015,7 +2141,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "4225b9346562",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:af7d5df1b17e",
@@ -2039,7 +2165,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "af7d5df1b17e",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:3e71757e7e9f",
@@ -2063,7 +2189,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "3e71757e7e9f",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:ff3438a4d4c0",
@@ -2087,7 +2213,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ff3438a4d4c0",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:c43ffb9d4a38",
@@ -2111,7 +2237,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "c43ffb9d4a38",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:ad6c9d9520fe",
@@ -2129,7 +2255,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ad6c9d9520fe",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:d04e6e4e18c3",
@@ -2153,7 +2279,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "d04e6e4e18c3",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:fc14f9c1ca46",
@@ -2177,7 +2303,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "fc14f9c1ca46",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:3ba709e3dd6d",
@@ -2201,7 +2327,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "3ba709e3dd6d",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:f9739513eee1",
@@ -2225,7 +2351,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "f9739513eee1",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:9fd6621ae767",
@@ -2249,7 +2375,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "9fd6621ae767",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:be81508e8fea",
@@ -2273,7 +2399,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "be81508e8fea",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:effeabb7ce49",
@@ -2291,31 +2417,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "effeabb7ce49",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
-    },
-    {
-      "id": "agg:science-careers:de83c093efe1",
-      "employer_id": "agg:west-virginia-university",
-      "employer_name": "West Virginia University",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "238032",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 215,
-        "dol_certified_3y": 1
-      },
-      "cap_exempt_score": 58,
-      "title": "Assistant Professor",
-      "department": "",
-      "location": "Morgantown, West Virginia (US)",
-      "url": "https://jobs.sciencecareers.org/job/677777/assistant-professor/",
-      "description_text": "Assistant Professor - Employer - West Virginia University - Location - Morgantown, West Virginia (US) - Salary - 109,253 - Closing date - Jul 28, 2026 View more categoriesView less categories - Discipline - Life Sciences, Biochemistry - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details Assistant Professor (tenure-track) faculty position(s) Department of Biochemistry and Molecular Medicine West Virginia University School of Medicine, Morgantown, WV The West Virginia University Department of Biochemistry and Molecular Medicine seeks to fill two tenure-track positions at the Assistant Professor rank. Candidates with innovative research programs focused on fundamental mechanisms underlying human disease are particularly sought. The Department of Biochemistry and Molecular Medicine offers a collaborative, multifaceted academic environment with active research in Sensory and Vision Science; Structural, Cell, and RNA Biology; Cellular Metabolism; and Age-Related Diseases. Faculty benefit from substantial institutional salary support and a highly regarded mentoring program designed to advance the careers of junior faculty. Further, successful candidates may be eligible to participate in an NIH-funded, mentored career development program at WVU and may apply for funding from the Visual Sciences Center of Biomedical Research Excellence (https://medicine.wvu.edu/biochemistry/visual-sciences-center-of-biomedical-research-excellence/). The Department of Biochemistry and Molecular Medicine is part of the Robert C. Byrd Health Sciences Center, which incorporates the WVU Schools of Medicine, Pharmacy, Dentistry, Nursing, and Public Health. Research at the Health Sciences Center is supported by state-of-the-art core facilities at HSC and throughout the WVU campus. West Virginia University is a comprehensive, R1-designated, land-grant University with 190 undergraduate, graduate, and professional programs and approximately 24,000 students. Morgantown is situated in the mountains of northern West Virginia, with proximity to Pittsburgh, PA, and Washington, DC. It is a vibrant college town, offering a safe, family-friendly environment, excellent schools, an affordable cost of living, and outdoor recreation. Morgantown is consistently rated as one of the best small cities in the US. Qualifications The successful candidate will develop and maintain an extramurally funded research program and participate in departmental teaching at the undergraduate, graduate, or professional levels. Minimum qualifications are a terminal degree in biomedical or related fields, at least one year of postdoctoral experience in a related field, and high-quality publications. A candidate with a PhD in another field will be considered, provided they have 2 years of postdoctoral training in the biomedical or biological sciences and have demonstrated successful contributions to biomedical research. Interested candidates should apply online at: https://wvu.taleo.net/careersection/faculty/jobdetail.ftl?job=29386 Applicants should submit a single PDF file containing: 1) a cover letter; 2) a CV; 3) current research accomplishments; 4) future research plans; and 5) contact information for three references. Review of applications will begin immediately and continue until the positions are filled. West Virginia University is a place of purpose and community. We take pride in our profound impact on the state of West Virginia and are committed to the personal and professional growth of our employees. From the groundbreaking R1 research at our flagship campus in Morgantown to the career-oriented programs at WVU Potomac State in Keyser and the technology-intensive programs at WVU Tech in Beckley, the contributions of WVU employees resonate across the state, touching lives and shaping futures. At WVU, you will discover a supportive community that champions work-life balance and fosters a collaborative atmosphere. Our core values — service, curiosity, respect, accountability, and appreciation — unite us as Mountaineers. Join us at West Virginia University, where your work will make a lasting impact. To learn more about WVU, visit wvu.edu. West Virginia University is an Equal Opportunity Employer. We invite all qualified applicants regardless of race, color, religion, sex, national origin, age, disability, genetic information, or Veteran status. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "de83c093efe1",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:471f730eb82e",
@@ -2339,7 +2441,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "471f730eb82e",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:a1778318600e",
@@ -2363,7 +2465,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "a1778318600e",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:9cdc2a2cca8c",
@@ -2387,7 +2489,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "9cdc2a2cca8c",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:4561b87dff0a",
@@ -2411,7 +2513,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "4561b87dff0a",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:84a9632bf7f1",
@@ -2435,7 +2537,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "84a9632bf7f1",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:43b754b9193d",
@@ -2459,7 +2561,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "43b754b9193d",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     },
     {
       "id": "agg:science-careers:0ef88165d455",
@@ -2483,7 +2585,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "0ef88165d455",
-      "last_scouted_at": "2026-07-28T16:25:53.459522Z"
+      "last_scouted_at": "2026-07-29T05:40:53.397976Z"
     }
   ]
 }
