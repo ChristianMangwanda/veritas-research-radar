@@ -44,8 +44,18 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-      - name: Rebase onto latest main (humans push while CI runs)
-        run: git pull --rebase --autostash
+      - name: Sync to latest main (this run's outputs win)
+        # checkout pins github.sha from queue time, so commits that landed while
+        # this run was pending/running would make a rebase conflict on
+        # refresh-report.json. Runs in the radar-data group are serialized, so
+        # this run's outputs are always the freshest — save, reset, restore.
+        run: |
+          set -euo pipefail
+          tmp=$(mktemp -d)
+          cp radar/data/scouted-jobs.json radar/data/refresh-report.json "$tmp"/
+          git fetch origin main
+          git reset --hard origin/main
+          cp "$tmp"/* radar/data/
       - name: Commit scouted data
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
