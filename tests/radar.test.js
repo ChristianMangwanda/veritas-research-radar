@@ -14,6 +14,10 @@ const {
   mapSmartRecruitersPosting,
   mapWorkdayJob,
   mapOracleJob,
+  parseSuccessFactorsSitemap,
+  parseSuccessFactorsJobPage,
+  mapSuccessFactorsJob,
+  mapEightfoldJob,
   mapRecruiteeJob,
   mapBreezyJob,
   mapWorkableJob,
@@ -497,6 +501,79 @@ function testProviderMappers() {
   assert.strictEqual(oracleNoDetail.description_text, '');
   assert.strictEqual(oracleNoDetail.deadline_raw, null);
   assert.strictEqual(oracleNoDetail.url, 'https://careers.exampleu.edu/hcmUI/CandidateExperience/en/sites/exampleu/job/9');
+
+  // SuccessFactors CSB: sitemap listing + microdata detail page
+  const sfSitemap = parseSuccessFactorsSitemap(
+    '<?xml version="1.0"?><urlset>'
+    + '<url><loc>https://jobs.example.edu/job/Houston-Research-Assistant-II-Genetics-Houston%2C-TX-TX-77030/1234500/</loc><lastmod>2026-07-25</lastmod></url>'
+    + '<url><loc>https://jobs.example.edu/job/Houston-Research-Assistant-II-Genetics-Houston%2C-TX-TX-77030/1234500/</loc><lastmod>2026-07-25</lastmod></url>'
+    + '<url><loc>https://jobs.example.edu/content/Benefits/</loc><lastmod>2026-07-01</lastmod></url>'
+    + '</urlset>'
+  );
+  assert.strictEqual(sfSitemap.length, 2); // non-/job/ URL dropped; dupes kept for the fetcher to collapse
+  assert.strictEqual(sfSitemap[0].postingId, '1234500');
+  assert.strictEqual(sfSitemap[0].slugText, 'Houston Research Assistant II Genetics Houston, TX TX 77030');
+  assert.strictEqual(sfSitemap[0].lastmod, '2026-07-25');
+
+  const sfPage = parseSuccessFactorsJobPage(
+    '<html><head><title>x</title></head><body>'
+    + '<span itemprop="title" class="x">Research Assistant II - Genetics</span>'
+    + '<div><b>Location:</b> <span>Houston, TX</span></div>'
+    + '<span itemprop="description" class="x"> </span>'
+    + '<div class="joblayouttoken"><p>Run PCR assays daily.</p><style>.x{color:red}</style></div>'
+    + '<div><b>Requisition ID:</b> <span>24278</span></div>'
+    + '<span itemprop="description" class="x">Equal Opportunity boilerplate.</span>'
+    + '</body></html>'
+  );
+  assert.strictEqual(sfPage.title, 'Research Assistant II - Genetics');
+  assert.strictEqual(sfPage.location, 'Houston, TX');
+  assert.strictEqual(sfPage.reqId, '24278');
+  // Body text captured, EEO footer after the second marker excluded, css stripped
+  assert.strictEqual(sfPage.description.includes('Run PCR assays daily.'), true);
+  assert.strictEqual(sfPage.description.includes('Equal Opportunity'), false);
+  assert.strictEqual(sfPage.description.includes('color:red'), false);
+
+  const sfEmployer = { id: 'exampleu-sf', ats_token: 'exsf', ats_config: { host: 'jobs.example.edu' }, research_areas: [] };
+  const sf = mapSuccessFactorsJob(sfSitemap[0], sfPage, sfEmployer);
+  assert.strictEqual(sf.id, 'successfactors:exsf:1234500');
+  assert.strictEqual(sf.source, 'successfactors');
+  assert.strictEqual(sf.title, 'Research Assistant II - Genetics');
+  assert.strictEqual(sf.location, 'Houston, TX');
+  assert.strictEqual(sf.source_job_id, '24278');
+  assert.strictEqual(sf.posted_or_updated_at, '2026-07-25T00:00:00.000Z');
+  // Detail fetch failed -> record still usable from the sitemap slug alone
+  const sfNoPage = mapSuccessFactorsJob(sfSitemap[0], null, sfEmployer);
+  assert.strictEqual(sfNoPage.title, 'Houston Research Assistant II Genetics Houston, TX TX 77030');
+  assert.strictEqual(sfNoPage.location, 'Unspecified');
+  assert.strictEqual(sfNoPage.source_job_id, '1234500');
+
+  // Eightfold PCSX: list item + detail record
+  const efEmployer = { id: 'exampleu-ef', ats_token: 'exef', ats_config: { host: 'hiring.example.edu', domain: 'example.edu' }, research_areas: [] };
+  const ef = mapEightfoldJob({
+    id: 1133914731370,
+    displayJobId: '121926',
+    name: 'Research Data Analyst',
+    locations: ['Baltimore, MD, United States'],
+    postedTs: 1785445476,
+    department: null
+  }, {
+    jobDescription: '<p>Analyze study data.</p>',
+    locations: ['Baltimore, MD, United States', 'Remote, United States'],
+    department: 'School of Public Health'
+  }, efEmployer);
+  assert.strictEqual(ef.id, 'eightfold:exef:1133914731370');
+  assert.strictEqual(ef.source, 'eightfold');
+  assert.strictEqual(ef.url, 'https://hiring.example.edu/careers/job/1133914731370');
+  assert.strictEqual(ef.location, 'Baltimore, MD, United States; Remote, United States');
+  assert.strictEqual(ef.department, 'School of Public Health');
+  assert.strictEqual(ef.description_text, 'Analyze study data.');
+  assert.strictEqual(ef.posted_or_updated_at, new Date(1785445476 * 1000).toISOString());
+  assert.strictEqual(ef.source_job_id, '121926');
+  const efNoDetail = mapEightfoldJob({ id: 9, name: 'Postdoctoral Fellow', locations: [], postedTs: null }, null, efEmployer);
+  assert.strictEqual(efNoDetail.location, 'Unspecified');
+  assert.strictEqual(efNoDetail.description_text, '');
+  assert.strictEqual(efNoDetail.posted_or_updated_at, null);
+  assert.strictEqual(efNoDetail.source_job_id, '9');
 
   // Title prefilter: research-shaped titles pass, admin titles do not
   assert.strictEqual(isResearchRelevantTitle('Senior Research Scientist', workdayEmployer), true);

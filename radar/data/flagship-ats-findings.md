@@ -50,9 +50,10 @@ Unsupported ATS platforms, grouped by what a future driver would unlock:
   It's a different/older Oracle recruiting product — needs its own probe or a
   scout scrape. Not reachable by `fetchOracleJobs`.
 
-**SuccessFactors** (career4/api4 endpoints):
-- `baylor-college-of-medicine` — career4.successfactors (from ATS discovery crawl)
-- `johns-hopkins-university` — staff on SuccessFactors (careers page 403s; faculty on Interfolio per crawl → Tier 3.2)
+**SuccessFactors** — Baylor now WIRED (see below); JHU staff has MOVED to
+Eightfold and is wired through the new `eightfold` driver (2026-07-30 probe:
+jobs.jhu.edu redirects to careers.jhu.edu → hiring.jhu.edu → jhu.eightfold.ai;
+faculty remain on Interfolio → Tier 3.2).
 
 **Other named vendors** (one flagship each; lower leverage):
 - `broad-institute` — Avature (broadinstitute.avature.net)
@@ -70,12 +71,39 @@ Unsupported ATS platforms, grouped by what a future driver would unlock:
 - `uw-madison` — jobs.wisc.edu (Clinch/PageUp-marketed custom board; internal hub is Workday `myworkday.com/wisconsin` but no public external tenant found)
 - `harvard-university` — hr.harvard.edu/jobs (careers page 403s; likely Brassring)
 
+## ✅ Wired — SuccessFactors CSB (new `successfactors` driver, 2026-07-30)
+
+CSB tenants render search results client-side (search page and
+tile-search-results both come back empty), but publish every posting in
+`sitemap.xml` (`/job/<slug>/<id>/` — id is canonical, slug is cosmetic and
+carries title+location text for the prefilter) and serve microdata-tagged
+detail pages (`itemprop="title"`, `Location:` / `Requisition ID:` labels, job
+body between the two `itemprop="description"` spans). `ats_config = { host }`.
+
+| id | host | total | research-relevant |
+|----|------|-------|-------------------|
+| `baylor-college-of-medicine` | jobs.bcm.edu (tenant BCM on performancemanager4) | 444 | 293 (all w/ desc+loc+date) |
+
+## ✅ Wired — Eightfold PCSX (new `eightfold` driver, 2026-07-30)
+
+Eightfold career hubs proxy a plain JSON API on the employer's own host:
+`/api/pcsx/search?domain=<domain>&query=&start=N` (page size pinned to 10,
+total in `count`) + `/api/pcsx/position_details?position_id=<id>&domain=…&hl=en`
+(full `jobDescription`, locations, department). `ats_config = { host, domain }`.
+Curl-friendly, no WAF on the API path (the HTML site 403s non-browser TLS).
+
+| id | host / domain | total | research-relevant |
+|----|---------------|-------|-------------------|
+| `johns-hopkins-university` | hiring.jhu.edu / jhu.edu | 529 | 211 (all w/ desc+loc+date) |
+
 ## Suggested next increments (value order)
 
 1. ~~Oracle HCM driver~~ — **DONE** (Stanford + Mayo wired). The `oracle` fetcher can
    also absorb any other Fusion-CE employer discovered later — a wire is just an
    `ats_config { host, site_name, site_number }` edit.
-2. **SuccessFactors driver** — Baylor + JHU (staff). Public career-site OData feed.
+2. ~~SuccessFactors driver~~ — **DONE** (Baylor wired; the driver reaches any CSB
+   tenant via `ats_config { host }`). ~~JHU staff~~ — **DONE** via the new
+   `eightfold` driver (JHU migrated ATS between the crawl and 2026-07-30).
 3. **Scout tune** the custom same-origin boards (MIT, Salk, St Jude, U-Michigan,
    Dana-Farber, UW-Madison, Harvard, + Northwestern's non-CE Oracle) — each ~1h: set
    `listing_url` + anchor `selector` in `scout/jobs_scrape.yaml`, verify with

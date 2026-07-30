@@ -148,15 +148,18 @@
       "manual",
       "ipeds_candidate"
     ],
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "successfactors",
+    "ats_token": "bcm",
     "careers_url": "https://www.bcm.edu/careers",
     "research_areas": [
       "medicine",
       "genetics",
       "clinical research"
     ],
-    "notes": "Likely institution of higher education. ATS source deferred until a clean public endpoint is verified. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found."
+    "notes": "Likely institution of higher education. ATS source deferred until a clean public endpoint is verified. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found.",
+    "ats_config": {
+      "host": "jobs.bcm.edu"
+    }
   },
   {
     "id": "university-of-chicago",
@@ -254,15 +257,19 @@
       "manual",
       "ipeds_candidate"
     ],
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "eightfold",
+    "ats_token": "jhu",
     "careers_url": "https://jobs.jhu.edu/",
     "research_areas": [
       "biomedical engineering",
       "public health",
       "data science"
     ],
-    "notes": "Likely cap-exempt institution. Custom career source deferred for v1. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found."
+    "notes": "Likely cap-exempt institution. Custom career source deferred for v1. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found.",
+    "ats_config": {
+      "host": "hiring.jhu.edu",
+      "domain": "jhu.edu"
+    }
   },
   {
     "id": "ucsf",

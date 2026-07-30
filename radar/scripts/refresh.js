@@ -122,10 +122,16 @@ const ORACLE_PAGE_LIMIT = 25;
 const ORACLE_MAX_PAGES = 60;
 const ORACLE_MAX_DETAIL_FETCHES = 400;
 const ORACLE_DETAIL_DELAY_MS = 200;
+const SUCCESSFACTORS_MAX_DETAIL_FETCHES = 400;
+const SUCCESSFACTORS_DETAIL_DELAY_MS = 250;
+// Eightfold's PCSX search ignores every page-size param and always returns 10.
+const EIGHTFOLD_MAX_PAGES = 80;
+const EIGHTFOLD_MAX_DETAIL_FETCHES = 400;
+const EIGHTFOLD_DETAIL_DELAY_MS = 200;
 const USAJOBS_PAGE_SIZE = 500;
 const USAJOBS_MAX_PAGES_PER_QUERY = 5;
 const USAJOBS_PAGE_DELAY_MS = 300;
-const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin'];
+const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin', 'successfactors', 'eightfold'];
 
 const SIGNAL_PATTERNS = {
   cap_exempt_language: [
@@ -1027,6 +1033,180 @@ async function fetchPeopleAdminJobs(employer) {
     .map((entry) => mapPeopleAdminEntry(entry, employer));
 }
 
+// SuccessFactors Career Site Builder tenants render search results client-side
+// (the search page and tile-search-results endpoint both come back empty), but
+// publish every posting in sitemap.xml — the /job/<slug>/<id>/ path carries a
+// stable posting id and the slug carries title + location text — and serve
+// microdata-tagged detail pages. So: sitemap = listing, detail page = record.
+function parseSuccessFactorsSitemap(xml) {
+  const entries = [];
+  for (const block of String(xml).match(/<url>[\s\S]*?<\/url>/g) || []) {
+    const loc = ((block.match(/<loc>([\s\S]*?)<\/loc>/) || [])[1] || '').replace(/&amp;/g, '&').trim();
+    const idMatch = loc.match(/\/job\/[^/]+\/(\d+)\/?$/);
+    if (!idMatch) continue;
+    const rawSlug = (loc.match(/\/job\/([^/]+)\//) || [])[1] || '';
+    let slugText;
+    try {
+      slugText = decodeURIComponent(rawSlug).replace(/-/g, ' ');
+    } catch {
+      slugText = rawSlug.replace(/-/g, ' ');
+    }
+    entries.push({
+      url: loc,
+      postingId: idMatch[1],
+      slugText: normalizeText(slugText),
+      lastmod: ((block.match(/<lastmod>([\s\S]*?)<\/lastmod>/) || [])[1] || '').trim() || null
+    });
+  }
+  return entries;
+}
+
+function parseSuccessFactorsJobPage(html) {
+  const src = String(html);
+  const title = normalizeText((src.match(/itemprop="title"[^>]*>([^<]*)/) || [])[1] || '');
+  // Label values read from the tag-stripped page: tags become separators so a
+  // label's value is the next non-empty text run.
+  const labeled = src
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, '|');
+  const grab = (label) => {
+    const match = labeled.match(new RegExp(`${label}\\s*[|\\s]*([^|]+)`));
+    return match ? normalizeText(match[1]) : '';
+  };
+  // The job body sits between the first itemprop="description" span (empty)
+  // and the second one (EEO boilerplate); with one marker, read to the end.
+  const marks = [];
+  const markerPattern = /itemprop="description"/g;
+  let marker;
+  while ((marker = markerPattern.exec(src))) marks.push(marker.index);
+  let description = '';
+  if (marks.length > 0) {
+    const from = src.indexOf('>', marks[0]) + 1;
+    description = normalizeText(src.slice(from, marks[1] ?? src.length));
+  }
+  return {
+    title,
+    location: grab('Location:'),
+    reqId: (labeled.match(/Requisition ID:\s*[|\s]*(\d+)/) || [])[1] || null,
+    description
+  };
+}
+
+function mapSuccessFactorsJob(entry, pageData, employer) {
+  return {
+    id: `successfactors:${employer.ats_token}:${entry.postingId}`,
+    employer_id: employer.id,
+    title: pageData?.title || entry.slugText || 'Untitled role',
+    department: '',
+    location: pageData?.location || 'Unspecified',
+    url: entry.url,
+    description_text: pageData?.description || '',
+    // sitemap lastmod is a bare date (posting create/update), the only
+    // timestamp the public site exposes
+    posted_or_updated_at: entry.lastmod ? new Date(`${entry.lastmod.slice(0, 10)}T00:00:00Z`).toISOString() : null,
+    source: 'successfactors',
+    source_job_id: pageData?.reqId || entry.postingId
+  };
+}
+
+async function fetchSuccessFactorsJobs(employer) {
+  const { host } = employer.ats_config;
+  const xml = await fetchText(`https://${host}/sitemap.xml`);
+  const entries = parseSuccessFactorsSitemap(xml);
+
+  const seen = new Set();
+  const unique = entries.filter((entry) => {
+    if (seen.has(entry.postingId)) return false;
+    seen.add(entry.postingId);
+    return true;
+  });
+
+  // The slug mixes title and location text; prefiltering on it keeps recall
+  // (location words never match the patterns) while skipping obvious non-fits.
+  const relevant = unique
+    .filter((entry) => isResearchRelevantTitle(entry.slugText, employer))
+    .slice(0, SUCCESSFACTORS_MAX_DETAIL_FETCHES);
+
+  const jobs = [];
+  for (const entry of relevant) {
+    let pageData = null;
+    try {
+      pageData = parseSuccessFactorsJobPage(await fetchText(entry.url));
+    } catch (error) {
+      console.warn(`SuccessFactors detail fetch failed for ${employer.id} ${entry.url}: ${error.message}`);
+    }
+    jobs.push(mapSuccessFactorsJob(entry, pageData, employer));
+    await sleep(SUCCESSFACTORS_DETAIL_DELAY_MS);
+  }
+  return jobs;
+}
+
+// Eightfold career hubs (PCSX) expose a plain JSON API on the employer's own
+// host: /api/pcsx/search pages the listing 10 at a time and reports the total
+// as `count`; /api/pcsx/position_details returns the full record per job.
+function mapEightfoldJob(listItem, detail, employer) {
+  const config = employer.ats_config || {};
+  const id = String(listItem.id);
+  const locations = (detail?.locations || listItem.locations || []).filter(Boolean);
+  const posted = listItem.postedTs || detail?.postedTs || null;
+  return {
+    id: `eightfold:${employer.ats_token}:${id}`,
+    employer_id: employer.id,
+    title: listItem.name || detail?.name || 'Untitled role',
+    department: listItem.department || detail?.department || '',
+    location: locations.join('; ') || 'Unspecified',
+    url: `https://${config.host}/careers/job/${id}`,
+    description_text: normalizeText(detail?.jobDescription || ''),
+    posted_or_updated_at: posted ? new Date(Number(posted) * 1000).toISOString() : null,
+    source: 'eightfold',
+    source_job_id: String(listItem.displayJobId || listItem.atsJobId || id)
+  };
+}
+
+async function fetchEightfoldJobs(employer) {
+  const { host, domain } = employer.ats_config;
+  const base = `https://${host}/api/pcsx`;
+
+  const listItems = [];
+  let total = Infinity;
+  let start = 0;
+  for (let page = 0; page < EIGHTFOLD_MAX_PAGES && start < total; page += 1) {
+    const payload = await fetchJson(`${base}/search?domain=${encodeURIComponent(domain)}&query=&start=${start}`);
+    const data = payload.data || {};
+    if (page === 0) total = Number(data.count || 0);
+    const positions = data.positions || [];
+    if (positions.length === 0) break;
+    listItems.push(...positions);
+    start += positions.length;
+  }
+
+  const seen = new Set();
+  const unique = listItems.filter((item) => {
+    if (!item.id || seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+
+  const relevant = unique
+    .filter((item) => isResearchRelevantTitle(item.name || '', employer))
+    .slice(0, EIGHTFOLD_MAX_DETAIL_FETCHES);
+
+  const jobs = [];
+  for (const item of relevant) {
+    let detail = null;
+    try {
+      const url = `${base}/position_details?position_id=${encodeURIComponent(item.id)}&domain=${encodeURIComponent(domain)}&hl=en`;
+      detail = (await fetchJson(url)).data || null;
+    } catch (error) {
+      console.warn(`Eightfold detail fetch failed for ${employer.id} position ${item.id}: ${error.message}`);
+    }
+    jobs.push(mapEightfoldJob(item, detail, employer));
+    await sleep(EIGHTFOLD_DETAIL_DELAY_MS);
+  }
+  return jobs;
+}
+
 const ATS_FETCHERS = {
   greenhouse: fetchGreenhouseJobs,
   lever: fetchLeverJobs,
@@ -1034,6 +1214,8 @@ const ATS_FETCHERS = {
   smartrecruiters: fetchSmartRecruitersJobs,
   workday: fetchWorkdayJobs,
   oracle: fetchOracleJobs,
+  successfactors: fetchSuccessFactorsJobs,
+  eightfold: fetchEightfoldJobs,
   recruitee: fetchRecruiteeJobs,
   breezy: fetchBreezyJobs,
   workable: fetchWorkableJobs,
@@ -1378,5 +1560,11 @@ module.exports = {
   fetchWorkdayJobs,
   fetchOracleJobs,
   mapOracleJob,
+  fetchSuccessFactorsJobs,
+  parseSuccessFactorsSitemap,
+  parseSuccessFactorsJobPage,
+  mapSuccessFactorsJob,
+  fetchEightfoldJobs,
+  mapEightfoldJob,
   runRefresh
 };
