@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-06T14:54:38.267Z",
+  "generated_at": "2026-08-01T09:33:33.359Z",
   "sources": {
     "ipeds": {
       "year": 2024,
@@ -8,7 +8,7 @@
     },
     "irs_eo_bmf": {
       "files_loaded": 4,
-      "kept_rows": 19222
+      "kept_rows": 19463
     },
     "uscis": {
       "years": [
@@ -20,7 +20,7 @@
     },
     "dol": {
       "signals_file": true,
-      "raw_files": 1
+      "raw_files": 0
     }
   },
   "employers": {
@@ -7658,6 +7658,521 @@
         "ipeds:165024",
         "irs_eo_bmf",
         "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "memorial-sloan-kettering-cancer-center": {
+      "ipeds": null,
+      "irs": null,
+      "uscis_approvals_3y": 392,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 15,
+      "score_components": {
+        "uscis": 15
+      },
+      "suggested_status": "likely",
+      "evidence_tags": [
+        "uscis_h1b_datahub"
+      ]
+    },
+    "dana-farber-cancer-institute": {
+      "ipeds": null,
+      "irs": null,
+      "uscis_approvals_3y": 338,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 15,
+      "score_components": {
+        "uscis": 15
+      },
+      "suggested_status": "likely",
+      "evidence_tags": [
+        "uscis_h1b_datahub"
+      ]
+    },
+    "howard-hughes-medical-institute": {
+      "ipeds": null,
+      "irs": null,
+      "uscis_approvals_3y": 215,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 15,
+      "score_components": {
+        "uscis": 15
+      },
+      "suggested_status": "likely",
+      "evidence_tags": [
+        "uscis_h1b_datahub"
+      ]
+    },
+    "jackson-laboratory": {
+      "ipeds": null,
+      "irs": {
+        "ein": "010211513",
+        "ntee_cd": "H920",
+        "subsection": "03",
+        "name": "JACKSON LABORATORY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 148,
+      "dol_certified_3y": 49,
+      "cap_exempt_score": 57,
+      "score_components": {
+        "irs": 25,
+        "dol": 17,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "van-andel-research-institute": {
+      "ipeds": null,
+      "irs": {
+        "ein": "522000823",
+        "ntee_cd": "H300",
+        "subsection": "03",
+        "name": "VAN ANDEL RESEARCH INSTITUTE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 49,
+      "dol_certified_3y": 26,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "irs": 25,
+        "dol": 14,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "j-david-gladstone-institutes": {
+      "ipeds": null,
+      "irs": {
+        "ein": "237203666",
+        "ntee_cd": "H900",
+        "subsection": "03",
+        "name": "J DAVID GLADSTONE INSTITUTES",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 49,
+      "dol_certified_3y": 11,
+      "cap_exempt_score": 49,
+      "score_components": {
+        "irs": 25,
+        "dol": 11,
+        "uscis": 13
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "nationwide-childrens-hospital-inc": {
+      "ipeds": null,
+      "irs": {
+        "ein": "316056230",
+        "ntee_cd": "H980",
+        "subsection": "03",
+        "name": "NATIONWIDE CHILDRENS HOSPITAL INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 29,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 36,
+      "score_components": {
+        "irs": 25,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "urban-institute": {
+      "ipeds": null,
+      "irs": {
+        "ein": "520880375",
+        "ntee_cd": "V340",
+        "subsection": "03",
+        "name": "URBAN INSTITUTE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 14,
+      "dol_certified_3y": 6,
+      "cap_exempt_score": 42,
+      "score_components": {
+        "irs": 25,
+        "dol": 8,
+        "uscis": 9
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "arc-research-institute": {
+      "ipeds": null,
+      "irs": {
+        "ein": "871920284",
+        "ntee_cd": "H99",
+        "subsection": "03",
+        "name": "ARC RESEARCH INSTITUTE",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 5,
+      "cap_exempt_score": 33,
+      "score_components": {
+        "irs": 25,
+        "dol": 8
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "dol_lca"
+      ]
+    },
+    "woods-hole-oceanographic-institution": {
+      "ipeds": null,
+      "irs": {
+        "ein": "042105850",
+        "ntee_cd": "U210",
+        "subsection": "03",
+        "name": "WOODS HOLE OCEANOGRAPHIC INSTITUTION",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 0,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 31,
+      "score_components": {
+        "irs": 25,
+        "dol": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "dol_lca"
+      ]
+    },
+    "institute-for-protein-innovation-inc": {
+      "ipeds": null,
+      "irs": {
+        "ein": "813250208",
+        "ntee_cd": "H99",
+        "subsection": "03",
+        "name": "INSTITUTE FOR PROTEIN INNOVATION INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 3,
+      "cap_exempt_score": 33,
+      "score_components": {
+        "irs": 25,
+        "dol": 6,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "dol_lca",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "convergent-research-inc": {
+      "ipeds": null,
+      "irs": {
+        "ein": "883013217",
+        "ntee_cd": "U05",
+        "subsection": "03",
+        "name": "CONVERGENT RESEARCH INC",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 5,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 31,
+      "score_components": {
+        "irs": 25,
+        "uscis": 6
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "emory-university": {
+      "ipeds": {
+        "unitid": "139658",
+        "instnm": "Emory University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "580566256",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "EMORY UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 534,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:139658",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "oregon-health-science-university": {
+      "ipeds": {
+        "unitid": "209490",
+        "instnm": "Oregon Health & Science University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "237083114",
+        "ntee_cd": "B110",
+        "subsection": "03",
+        "name": "OREGON HEALTH AND SCIENCE UNIVERSITY FOUNDATION",
+        "match": {
+          "strategy": "containment",
+          "confidence": 0.75
+        }
+      },
+      "uscis_approvals_3y": 235,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:209490",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "auburn-university": {
+      "ipeds": {
+        "unitid": "100858",
+        "instnm": "Auburn University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "636062870",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "ALPHA LAMBDA DELTA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 157,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:100858",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "utah-state-university": {
+      "ipeds": {
+        "unitid": "230728",
+        "instnm": "Utah State University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "876000528",
+        "ntee_cd": "",
+        "subsection": "03",
+        "name": "UTAH STATE UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 90,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 65,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 15
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:230728",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "clarkson-university": {
+      "ipeds": {
+        "unitid": "190044",
+        "instnm": "Clarkson University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "150543659",
+        "ntee_cd": "B430",
+        "subsection": "03",
+        "name": "CLARKSON UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 30,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 61,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 11
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:190044",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "touro-university": {
+      "ipeds": {
+        "unitid": "196592",
+        "instnm": "Touro University",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "132676570",
+        "ntee_cd": "B420",
+        "subsection": "03",
+        "name": "TOURO UNIVERSITY",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 1,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 52,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 2
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:196592",
+        "irs_eo_bmf",
+        "uscis_h1b_datahub"
+      ]
+    },
+    "touro-university-nevada": {
+      "ipeds": {
+        "unitid": "459824",
+        "instnm": "Touro University Nevada",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "irs": {
+        "ein": "200363127",
+        "ntee_cd": "B50",
+        "subsection": "03",
+        "name": "TOURO UNIVERSITY NEVADA",
+        "match": {
+          "strategy": "exact",
+          "confidence": 1
+        }
+      },
+      "uscis_approvals_3y": 2,
+      "dol_certified_3y": 0,
+      "cap_exempt_score": 54,
+      "score_components": {
+        "ipeds": 40,
+        "irs": 10,
+        "uscis": 4
+      },
+      "suggested_status": "verified",
+      "evidence_tags": [
+        "ipeds:459824",
+        "irs_eo_bmf",
         "uscis_h1b_datahub"
       ]
     }

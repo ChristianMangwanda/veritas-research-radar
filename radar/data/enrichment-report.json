@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-06T14:54:38.267Z",
+  "generated_at": "2026-08-01T09:33:33.359Z",
   "sources": {
     "ipeds": {
       "year": 2024,
@@ -7,7 +7,7 @@
     },
     "irs_eo_bmf": {
       "files_loaded": 4,
-      "kept_rows": 19222
+      "kept_rows": 19463
     },
     "uscis": {
       "years": [
@@ -19,16 +19,16 @@
     },
     "dol": {
       "signals_file": true,
-      "raw_files": 1
+      "raw_files": 0
     }
   },
   "registry": {
-    "employer_count": 220,
-    "ipeds_matched": 209,
-    "irs_matched": 216,
-    "with_uscis_activity": 207,
-    "with_dol_signal": 174,
-    "verified_suggested": 215
+    "employer_count": 239,
+    "ipeds_matched": 216,
+    "irs_matched": 232,
+    "with_uscis_activity": 224,
+    "with_dol_signal": 181,
+    "verified_suggested": 231
   },
   "weak_matches": [
     {
@@ -382,6 +382,93 @@
     },
     {
       "employer_id": "roosevelt-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "memorial-sloan-kettering-cancer-center",
+      "missing_sources": [
+        "irs_eo_bmf",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "dana-farber-cancer-institute",
+      "missing_sources": [
+        "irs_eo_bmf",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "howard-hughes-medical-institute",
+      "missing_sources": [
+        "irs_eo_bmf",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "nationwide-childrens-hospital-inc",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "arc-research-institute",
+      "missing_sources": [
+        "uscis"
+      ]
+    },
+    {
+      "employer_id": "woods-hole-oceanographic-institution",
+      "missing_sources": [
+        "uscis"
+      ]
+    },
+    {
+      "employer_id": "convergent-research-inc",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "emory-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "oregon-health-science-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "auburn-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "utah-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "clarkson-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "touro-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "touro-university-nevada",
       "missing_sources": [
         "dol"
       ]
