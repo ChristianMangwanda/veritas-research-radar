@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-08-02T06:39:00.705Z",
+  "refreshed_at": "2026-08-02T09:34:09.366Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 219,
   "job_count": 17594,
-  "active_job_count": 11574,
-  "closed_job_count": 6020,
-  "newly_closed_count": 47,
-  "errored_employers": 0,
+  "active_job_count": 11564,
+  "closed_job_count": 6030,
+  "newly_closed_count": 50,
+  "errored_employers": 1,
   "recall_anomalies": [],
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
@@ -1493,9 +1493,9 @@
       "name": "The University of Texas Rio Grande Valley",
       "ats_provider": "peopleadmin",
       "ats_token": "utrgv-sb",
-      "fetched_jobs": 128,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "This operation was aborted",
       "closed_jobs": 0
     },
     {
@@ -1963,10 +1963,10 @@
       "name": "Eastern Washington University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.hr.ewu.edu",
-      "fetched_jobs": 17,
+      "fetched_jobs": 7,
       "skipped": false,
       "error": null,
-      "closed_jobs": 31
+      "closed_jobs": 41
     },
     {
       "employer_id": "cleveland-state-university",
