@@ -169,10 +169,12 @@ const SUCCESSFACTORS_DETAIL_DELAY_MS = 250;
 const EIGHTFOLD_MAX_PAGES = 80;
 const EIGHTFOLD_MAX_DETAIL_FETCHES = 400;
 const EIGHTFOLD_DETAIL_DELAY_MS = 200;
+const PAYLOCITY_MAX_DETAIL_FETCHES = 400;
+const PAYLOCITY_DETAIL_DELAY_MS = 200;
 const USAJOBS_PAGE_SIZE = 500;
 const USAJOBS_MAX_PAGES_PER_QUERY = 5;
 const USAJOBS_PAGE_DELAY_MS = 300;
-const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'ultipro', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin', 'successfactors', 'eightfold'];
+const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'ultipro', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin', 'successfactors', 'eightfold', 'paylocity'];
 
 const SIGNAL_PATTERNS = {
   cap_exempt_language: [
@@ -537,6 +539,9 @@ function validateEmployer(employer) {
     for (const key of ['host', 'site_name', 'site_number']) {
       if (!config[key]) throw new Error(`Employer ${employer.id} uses oracle but ats_config.${key} is missing`);
     }
+  }
+  if (employer.ats_provider === 'paylocity' && !employer.ats_config?.client_guid) {
+    throw new Error(`Employer ${employer.id} uses paylocity but ats_config.client_guid is missing`);
   }
 }
 
@@ -1350,6 +1355,84 @@ async function fetchEightfoldJobs(employer) {
   return jobs;
 }
 
+// Paylocity's public recruiting pages are plain server-rendered HTML with the
+// full job set embedded inline (no separate JSON API): the list page carries
+// a `window.pageData = {...}` blob (Jobs[] with a truncated teaser
+// description), and each detail page carries a standard schema.org JobPosting
+// JSON-LD block with the full description. ats_config={client_guid}; no
+// tenant-name identity check needed (the guid was scraped directly off the
+// employer's own site by the discovery crawl).
+function parsePaylocityListPage(html) {
+  const match = String(html || '').match(/window\.pageData\s*=\s*(\{[\s\S]*?\});/);
+  if (!match) return { jobs: [], moduleTitle: '' };
+  try {
+    const data = JSON.parse(match[1]);
+    return { jobs: data.Jobs || [], moduleTitle: data.ModuleTitle || '' };
+  } catch {
+    return { jobs: [], moduleTitle: '' };
+  }
+}
+
+function parsePaylocityDetailPage(html) {
+  const match = String(html || '').match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  if (!match) return null;
+  try {
+    return JSON.parse(match[1]);
+  } catch {
+    return null;
+  }
+}
+
+function mapPaylocityJob(listItem, detail, employer) {
+  const config = employer.ats_config || {};
+  const id = String(listItem.JobId);
+  const location = listItem.LocationName || detail?.jobLocation?.address?.addressLocality || 'Unspecified';
+  const posted = listItem.PublishedDate || detail?.datePosted || null;
+  return {
+    id: `paylocity:${employer.ats_token}:${id}`,
+    employer_id: employer.id,
+    title: listItem.JobTitle || detail?.title || 'Untitled role',
+    department: listItem.HiringDepartment || '',
+    location,
+    url: `https://${config.host || 'recruiting.paylocity.com'}/Recruiting/Jobs/Details/${id}`,
+    description_text: normalizeText(detail?.description || listItem.Description || ''),
+    posted_or_updated_at: posted && !Number.isNaN(Date.parse(posted)) ? new Date(posted).toISOString() : null,
+    source: 'paylocity',
+    source_job_id: id
+  };
+}
+
+async function fetchPaylocityJobs(employer) {
+  const { host = 'recruiting.paylocity.com', client_guid: clientGuid } = employer.ats_config || {};
+  const listHtml = await fetchText(`https://${host}/recruiting/jobs/All/${encodeURIComponent(clientGuid)}`);
+  const { jobs: listItems } = parsePaylocityListPage(listHtml);
+
+  const seen = new Set();
+  const unique = listItems.filter((item) => {
+    if (!item.JobId || seen.has(item.JobId)) return false;
+    seen.add(item.JobId);
+    return true;
+  });
+
+  const { relevant: filtered, excluded } = filterResearchRelevant(unique, (item) => item.JobTitle, employer);
+  const relevant = filtered.slice(0, PAYLOCITY_MAX_DETAIL_FETCHES);
+
+  const jobs = [];
+  for (const item of relevant) {
+    let detail = null;
+    try {
+      const detailHtml = await fetchText(`https://${host}/Recruiting/Jobs/Details/${item.JobId}`);
+      detail = parsePaylocityDetailPage(detailHtml);
+    } catch (error) {
+      console.warn(`Paylocity detail fetch failed for ${employer.id} job ${item.JobId}: ${error.message}`);
+    }
+    jobs.push(mapPaylocityJob(item, detail, employer));
+    await sleep(PAYLOCITY_DETAIL_DELAY_MS);
+  }
+  jobs.prefiltered_count = excluded;
+  return jobs;
+}
+
 const ATS_FETCHERS = {
   greenhouse: fetchGreenhouseJobs,
   lever: fetchLeverJobs,
@@ -1360,6 +1443,7 @@ const ATS_FETCHERS = {
   ultipro: fetchUltiproJobs,
   successfactors: fetchSuccessFactorsJobs,
   eightfold: fetchEightfoldJobs,
+  paylocity: fetchPaylocityJobs,
   recruitee: fetchRecruiteeJobs,
   breezy: fetchBreezyJobs,
   workable: fetchWorkableJobs,
@@ -1732,5 +1816,9 @@ module.exports = {
   mapSuccessFactorsJob,
   fetchEightfoldJobs,
   mapEightfoldJob,
+  fetchPaylocityJobs,
+  mapPaylocityJob,
+  parsePaylocityListPage,
+  parsePaylocityDetailPage,
   runRefresh
 };

@@ -225,6 +225,33 @@ async function probeWorkable(slug, expectedName) {
   return { token: slug, total_jobs: response.jobs.length };
 }
 
+// scout_discover.py's paylocity pattern also matches numeric job ids in
+// /Recruiting/Jobs/Details/<id> links (digits are valid [a-f0-9-]+ too) —
+// only a real UUID-shaped tenant is a usable client_guid for the list page.
+const PAYLOCITY_GUID_PATTERN = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+
+async function probePaylocity(clientGuid, expectedName) {
+  const html = await fetchTextWithTimeout(`https://recruiting.paylocity.com/recruiting/jobs/All/${encodeURIComponent(clientGuid)}`);
+  await sleep(PROBE_DELAY_MS);
+  if (!html) return null;
+  const match = html.match(/window\.pageData\s*=\s*(\{[\s\S]*?\});/);
+  if (!match) return null;
+  let data;
+  try {
+    data = JSON.parse(match[1]);
+  } catch {
+    return null;
+  }
+  const jobs = data.Jobs || [];
+  // Identity is already strong (the guid was scraped off the employer's own
+  // site, a random UUID no other tenant could guess), but the module title is
+  // a free extra check when present.
+  if (data.ModuleTitle && !namesOverlap(data.ModuleTitle, expectedName)) {
+    return { mismatch: true, feed_title: data.ModuleTitle };
+  }
+  return { client_guid: clientGuid, total_jobs: jobs.length };
+}
+
 function employerType(record) {
   // ipeds unitid => higher ed; otherwise research nonprofit
   return record.kind === 'ipeds' || record.kind === 'both' || record.unitid
@@ -237,6 +264,7 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
   const directory = JSON.parse(await fsp.readFile(path.join(DATA_DIR, 'cap-exempt-directory.json'), 'utf8')).entries;
   const employers = JSON.parse(await fsp.readFile(EMPLOYERS_PATH, 'utf8'));
   const existingTenants = new Set(employers.filter((e) => e.ats_config?.tenant).map((e) => e.ats_config.tenant));
+  const existingGuids = new Set(employers.filter((e) => e.ats_config?.client_guid).map((e) => e.ats_config.client_guid));
   // Owner-declined tenants stay declined across probe reruns
   let holds = new Set();
   try {
@@ -261,9 +289,11 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     icimsHits.sort((a, b) => (/faculty/i.test(b.tenant) ? 1 : 0) - (/faculty/i.test(a.tenant) ? 1 : 0));
     const icimsHit = icimsHits[0];
     const workableHit = hits.find((a) => a.provider === 'workable' && a.tenant && !holds.has(a.tenant));
+    const paylocityHit = hits.find((a) => a.provider === 'paylocity' && a.tenant
+      && PAYLOCITY_GUID_PATTERN.test(a.tenant) && !holds.has(a.tenant));
     const paSignature = hits.find((a) => a.provider === 'peopleadmin' && !a.tenant);
     const wdSignature = hits.find((a) => a.provider === 'workday' && !a.tenant);
-    const anyHit = workdayHit || peopleAdminHit || smartRecruitersHit || workableHit || greenhouseHit || leverHit || ashbyHit || icimsHit || paSignature || wdSignature;
+    const anyHit = workdayHit || peopleAdminHit || smartRecruitersHit || workableHit || paylocityHit || greenhouseHit || leverHit || ashbyHit || icimsHit || paSignature || wdSignature;
     if (!anyHit && !(includeScoutFallback && record.careers_url)) continue;
 
     const id = slugify(record.name);
@@ -332,6 +362,17 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
       }
       if (probe) {
         wiring = { ats_provider: 'workable', ats_token: probe.token, ats_config: undefined, total_jobs: probe.total_jobs };
+      }
+    }
+    if (!wiring && paylocityHit && !existingGuids.has(paylocityHit.tenant)) {
+      console.log(`probing paylocity:${paylocityHit.tenant} (${record.name})…`);
+      const probe = await probePaylocity(paylocityHit.tenant, record.name);
+      if (probe?.mismatch) {
+        skipped.push({ name: record.name, reason: `paylocity module title "${probe.feed_title}" does not match` });
+        continue;
+      }
+      if (probe) {
+        wiring = { ats_provider: 'paylocity', ats_token: id, ats_config: { client_guid: probe.client_guid }, total_jobs: probe.total_jobs };
       }
     }
     // Vanity-domain PeopleAdmin: the portal host serves the same Atom feed

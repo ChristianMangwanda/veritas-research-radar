@@ -19,6 +19,9 @@ const {
   parseSuccessFactorsJobPage,
   mapSuccessFactorsJob,
   mapEightfoldJob,
+  mapPaylocityJob,
+  parsePaylocityListPage,
+  parsePaylocityDetailPage,
   mapRecruiteeJob,
   mapBreezyJob,
   mapWorkableJob,
@@ -621,6 +624,42 @@ function testProviderMappers() {
   assert.strictEqual(efNoDetail.description_text, '');
   assert.strictEqual(efNoDetail.posted_or_updated_at, null);
   assert.strictEqual(efNoDetail.source_job_id, '9');
+
+  // Paylocity: list page embeds Jobs[] as an inline `window.pageData` blob;
+  // detail page embeds the full description as a schema.org JobPosting JSON-LD block
+  const paylocityListHtml = '<html><head></head><body><script>\n'
+    + 'window.pageData = {"Jobs":[{"JobId":4209978,"JobTitle":"Research Data Coordinator",'
+    + '"LocationName":"Main Campus","PublishedDate":"2026-05-29T10:43:18-05:00",'
+    + '"Description":"Job ID AF01 Position Summary The Research Data","HiringDepartment":"Biology"}],'
+    + '"ModuleTitle":"Example University"};\n</script></body></html>';
+  const { jobs: paylocityListJobs, moduleTitle } = parsePaylocityListPage(paylocityListHtml);
+  assert.strictEqual(paylocityListJobs.length, 1);
+  assert.strictEqual(paylocityListJobs[0].JobTitle, 'Research Data Coordinator');
+  assert.strictEqual(moduleTitle, 'Example University');
+  assert.deepStrictEqual(parsePaylocityListPage('<html>no data here</html>').jobs, []);
+
+  const paylocityDetailHtml = '<html><body><script type="application/ld+json">'
+    + '{"@context":"https://schema.org","@type":"JobPosting","title":"Research Data Coordinator",'
+    + '"datePosted":"2026-05-29T10:43:18-05:00","description":"<p>Full duties include <strong>data cleaning</strong>.</p>",'
+    + '"jobLocation":{"@type":"Place","address":{"@type":"PostalAddress","addressLocality":"Boston","addressRegion":"MA"}}}'
+    + '</script></body></html>';
+  const paylocityDetail = parsePaylocityDetailPage(paylocityDetailHtml);
+  assert.strictEqual(paylocityDetail.title, 'Research Data Coordinator');
+
+  const paylocityEmployer = { id: 'exampleu-pl', ats_token: 'expl', ats_config: { host: 'recruiting.paylocity.com', client_guid: 'abc-123' }, research_areas: [] };
+  const pl = mapPaylocityJob(paylocityListJobs[0], paylocityDetail, paylocityEmployer);
+  assert.strictEqual(pl.id, 'paylocity:expl:4209978');
+  assert.strictEqual(pl.source, 'paylocity');
+  assert.strictEqual(pl.url, 'https://recruiting.paylocity.com/Recruiting/Jobs/Details/4209978');
+  assert.strictEqual(pl.location, 'Main Campus');
+  assert.strictEqual(pl.department, 'Biology');
+  // Full JSON-LD description wins over the list page's truncated teaser
+  assert.strictEqual(pl.description_text, 'Full duties include data cleaning .');
+  assert.strictEqual(pl.posted_or_updated_at, new Date('2026-05-29T10:43:18-05:00').toISOString());
+  // Detail fetch failed -> falls back to the list page's teaser + location, still usable
+  const plNoDetail = mapPaylocityJob(paylocityListJobs[0], null, paylocityEmployer);
+  assert.strictEqual(plNoDetail.description_text, 'Job ID AF01 Position Summary The Research Data');
+  assert.strictEqual(plNoDetail.location, 'Main Campus');
 
   // Title prefilter: research-shaped titles pass, admin titles do not
   assert.strictEqual(isResearchRelevantTitle('Senior Research Scientist', workdayEmployer), true);
