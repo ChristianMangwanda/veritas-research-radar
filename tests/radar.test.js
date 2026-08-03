@@ -1238,10 +1238,14 @@ function testProfileIngestion() {
     validateManifest({ schema_version: 1, variants: [{ ...good.variants[0], intent: 'too short' }] }),
     /intent/
   );
-  assert.match(
+  assert.strictEqual(
     validateManifest({ schema_version: 1, variants: [{ ...good.variants[0], file: 'resume.docx' }] }),
+    null
+  ); // .docx is a supported resume format (extracted locally via unzip)
+  assert.match(
+    validateManifest({ schema_version: 1, variants: [{ ...good.variants[0], file: 'resume.rtf' }] }),
     /file/
-  );
+  ); // an unsupported extension is still rejected
   assert.match(
     validateManifest({ schema_version: 1, variants: [{ ...good.variants[0], id: 'ML Engineer' }] }),
     /slug/
@@ -1269,6 +1273,25 @@ function testProfileIngestion() {
   assert.deepStrictEqual(normalized.skills, [
     { term: 'pytorch', weight: 3, aliases: ['torch'] },
     { term: 'sql', weight: 1, aliases: [] }
+  ]);
+
+  // Matchability normalization: snake_case → spaces, and canonical atomic tokens
+  // recovered from compound terms as aliases so they match plain job text (the
+  // local model otherwise emits "python_programming"/"rag pipelines" that never
+  // hit a posting saying "Python" or "RAG").
+  const matchable = normalizeVariantProfile({
+    skills: [
+      { term: 'python_programming', weight: 3 },
+      { term: 'rag pipelines', weight: 2 },
+      { term: 'star schema design', weight: 2 },
+      { term: 'aws (lambda, ec2)', weight: 1 }
+    ]
+  });
+  assert.deepStrictEqual(matchable.skills, [
+    { term: 'python programming', weight: 3, aliases: ['python'] },
+    { term: 'rag pipelines', weight: 2, aliases: ['rag'] },
+    { term: 'star schema design', weight: 2, aliases: [] }, // no allowlisted token → no noisy alias
+    { term: 'aws (lambda, ec2)', weight: 1, aliases: ['aws'] }
   ]);
 
   // Core reconciliation: degree union (completed beats in_progress), most

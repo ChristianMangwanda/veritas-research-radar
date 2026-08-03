@@ -34,6 +34,7 @@
 const fsp = require('fs/promises');
 const path = require('path');
 const crypto = require('crypto');
+const { execFileSync } = require('child_process');
 const { CLASS_LABELS } = require('./lib/title-class.js');
 const {
   DEFAULT_BASE_URL,
@@ -50,7 +51,7 @@ const OUT_PATH = path.join(DATA_DIR, 'profile.json');
 
 const ANTHROPIC_MODEL = 'claude-opus-4-8';
 const PROFILE_SCHEMA_VERSION = 2;
-const RESUME_EXTENSIONS = ['.txt', '.md', '.pdf'];
+const RESUME_EXTENSIONS = ['.txt', '.md', '.pdf', '.docx'];
 const MIN_RESUME_CHARS = 200;
 const MIN_INTENT_CHARS = 10;
 // Local models default to 128 predicted tokens in some Ollama versions, which
@@ -95,7 +96,7 @@ const VARIANT_SCHEMA = {
     },
     skills: {
       type: 'array',
-      description: 'Matchable skill terms for word-boundary text matching against job descriptions. Include tools, methods, languages. Each term must be a phrase that would literally appear in a job posting (no single letters; write "R programming" as the alias-bearing term "R," via aliases like "R,", never bare "r").',
+      description: 'Matchable skill terms for word-boundary text matching against job descriptions. Each term must be an ATOMIC, canonical technology/method/tool exactly as it appears in postings: prefer 1-2 words, lowercase, spaces (NEVER underscores — write "star schema", never "star_schema"). Decompose project descriptions into their underlying skills: "built an LLM-backed assistant" → "llm", "rag", "prompt engineering"; "iOS app on TestFlight" → "ios", "swift". Do NOT emit resume phrases like "llm-backed assistant feature" or "python programming" — emit "llm", "python". No single letters (write "R" via aliases like "r programming", never bare "r").',
       items: {
         type: 'object',
         additionalProperties: false,
@@ -176,18 +177,51 @@ function sourceHash(text) {
 }
 
 // Guard the matcher: drop terms too short for word-boundary matching, clamp
+// Canonical, matchable single-token skills. When a compound term contains one of
+// these as a whole word (e.g. "python programming" → python, "rag pipelines" →
+// rag), we surface the bare token as an alias so it matches job text that names
+// the technology plainly. An allowlist (not a generic word split) keeps this from
+// emitting noisy aliases like "development"/"design" that would over-match.
+const ATOMIC_SKILL_TOKENS = new Set([
+  'python', 'java', 'javascript', 'typescript', 'scala', 'golang', 'rust',
+  'pytorch', 'tensorflow', 'keras', 'sklearn', 'scikit-learn', 'pandas', 'numpy',
+  'scipy', 'matplotlib', 'huggingface', 'transformers',
+  'sql', 'nosql', 'spark', 'pyspark', 'hadoop', 'airflow', 'dbt', 'etl', 'elt',
+  'kafka', 'snowflake', 'databricks', 'redshift', 'bigquery',
+  'llm', 'llms', 'rag', 'nlp', 'cnn', 'cnns', 'genomics', 'bioinformatics',
+  'docker', 'kubernetes', 'aws', 'gcp', 'azure', 'git', 'linux', 'bash',
+  'postgresql', 'postgres', 'mysql', 'mongodb', 'redis',
+  'tableau', 'sas', 'stata', 'matlab', 'ios', 'swift', 'android',
+  'fastapi', 'flask', 'django', 'react', 'node'
+]);
+
+function atomicTokenAliases(term) {
+  const out = new Set();
+  const cleaned = term.replace(/[_/]+/g, ' ');
+  if (ATOMIC_SKILL_TOKENS.has(cleaned.trim())) return [];
+  for (const word of cleaned.split(/[\s,()]+/)) {
+    const w = word.trim();
+    if (w && ATOMIC_SKILL_TOKENS.has(w)) out.add(w);
+  }
+  return [...out];
+}
+
 // weights to 1..3, dedupe terms case-insensitively (first occurrence wins).
+// Terms and aliases are normalized: underscores → spaces (the local model
+// sometimes emits snake_case that would never match spaced job text), and
+// canonical atomic tokens are recovered from compound terms as aliases.
 function normalizeVariantProfile(profile) {
   const seen = new Set();
   const skills = [];
   for (const skill of profile.skills || []) {
-    const term = String(skill.term || '').trim().toLowerCase();
+    const term = String(skill.term || '').replace(/[_/]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
     if (term.length < 2 || seen.has(term)) continue;
     seen.add(term);
     const weight = Math.min(3, Math.max(1, Number(skill.weight) || 1));
-    const aliases = [...new Set((skill.aliases || [])
-      .map((alias) => String(alias || '').trim().toLowerCase())
-      .filter((alias) => alias.length >= 2 && alias !== term))];
+    const aliases = [...new Set([
+      ...(skill.aliases || []).map((alias) => String(alias || '').replace(/[_/]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase()),
+      ...atomicTokenAliases(term)
+    ].filter((alias) => alias.length >= 2 && alias !== term))];
     skills.push({ term, weight, aliases });
   }
   return { ...profile, skills };
@@ -255,8 +289,30 @@ async function writeJson(filePath, value) {
   await fsp.writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
+// A .docx is a zip; the body lives in word/document.xml as WordprocessingML.
+// Turn the paragraph/break/tab markup into plain text (extraction only — nothing
+// here rewrites resume content). Zero runtime deps: unzip the one member we need.
+function docxXmlToText(xml) {
+  return xml
+    .replace(/<w:tab\b[^>]*\/?>/g, '\t')
+    .replace(/<w:br\b[^>]*\/?>/g, '\n')
+    .replace(/<\/w:p>/g, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, n) => String.fromCharCode(parseInt(n, 16)))
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 async function readResumeText(filePath) {
-  if (path.extname(filePath).toLowerCase() === '.pdf') {
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext === '.pdf') {
     let pdfParse;
     try {
       pdfParse = require('pdf-parse');
@@ -267,6 +323,20 @@ async function readResumeText(filePath) {
     }
     const parsed = await pdfParse(await fsp.readFile(filePath));
     return parsed.text || '';
+  }
+  if (ext === '.docx') {
+    let xml;
+    try {
+      // `unzip -p` streams one member to stdout; ships with macOS + Linux CI.
+      xml = execFileSync('unzip', ['-p', filePath, 'word/document.xml'], {
+        maxBuffer: 32 * 1024 * 1024
+      }).toString('utf8');
+    } catch {
+      console.error(`DOCX support needs the \`unzip\` CLI (local-only, never used by CI): ${path.basename(filePath)}`);
+      console.error('  install unzip, or re-export this resume as PDF/TXT into the resumes folder.');
+      process.exit(1);
+    }
+    return docxXmlToText(xml);
   }
   return fsp.readFile(filePath, 'utf8');
 }
