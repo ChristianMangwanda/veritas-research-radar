@@ -8,21 +8,24 @@ cap-exempt research jobs instrument.
 ```
 EVERY 6 HOURS (GitHub Action)             SCOUT PRODUCER (scout/, Playwright)
   refresh.js:                               jobs-scout writes
-   13 ATS drivers: greenhouse, lever,        radar/data/scouted/<id>.json
+   15 ATS drivers: greenhouse, lever,        radar/data/scouted/<id>.json
    ashby, smartrecruiters, workday,          -> npm run radar:import-scouted
    oracle, ultipro, successfactors,
-   eightfold, recruitee, breezy,           MONTHLY (GitHub Action + local)
-   workable, usajobs, peopleadmin            enrich.js: IPEDS + IRS EO BMF +
-   + scouted-jobs merge (14-day TTL)          USCIS Data Hub + DOL signals
-   + aggregator firehose (2x/day)            -> employer-enrichment.json
-   + employer-enrichment overlay             -> discovery-candidates.json
-   + resume-variant fit scoring              -> enrichment-report.json
+   eightfold, paylocity, recruitee,        MONTHLY (GitHub Action + local)
+   breezy, workable, usajobs,                enrich.js: IPEDS + IRS EO BMF +
+   peopleadmin                                USCIS Data Hub + DOL signals
+   + scouted-jobs merge (14-day TTL)          -> employer-enrichment.json
+   + aggregator firehose (2x/day)             -> discovery-candidates.json
+   + employer-enrichment overlay             -> enrichment-report.json
+   + resume-variant fit scoring
    -> Supabase / jobs.json / refresh-report.json
 ```
 
-Registry: **253 cap-exempt employers** (135 Workday, 78 PeopleAdmin, 12 Oracle,
-17 not-yet-wired dark flagships, the rest across 8 other systems). Dataset
-~11.5k active jobs. Full orientation in **`PROJECT-MAP.md`**.
+Registry: **309 cap-exempt employers** (139 Workday, 80 PeopleAdmin, 32
+Oracle, 28 not-yet-wired — mostly scout-routed iCIMS boards plus 10
+remaining dark flagships — the rest across 9 other systems). Dataset ~11.5k
+active jobs pre-dates the 56 employers added 2026-08-03; folds in on the
+next 6-hourly refresh. Full orientation in **`PROJECT-MAP.md`**.
 
 ## Commands
 
@@ -138,12 +141,17 @@ only the aggregated per-employer signal is committed.
 
 ## Current data status (2026-08-03)
 
-- **253 employers**, 12 wired ATS systems; ~11.5k active jobs (of ~17.6k
-  tracked), 0 recall anomalies on the last refresh (24 transient feed errors,
-  individual employers — not data loss).
+- **309 employers**, 15 wired ATS systems; ~11.5k active jobs (of ~17.6k
+  tracked) as of the last completed refresh — pre-dates the 56 employers
+  added this session (folds in on the next 6-hourly run). 0 recall anomalies
+  on the last refresh (24 transient feed errors, individual employers — not
+  data loss).
 - Fit engine ranks **all 7 résumé variants**; verdict tiers recalibrated
   (strong 50 / good 38 / moderate 27 / weak 16).
 - 7 GitHub Actions run the pipeline (see `PROJECT-MAP.md` §"How it stays fresh").
+- Refresh report now also tracks `prefiltered_count` per employer and flags
+  `prefilter_anomalies` — an employer whose title-matching regex is silently
+  excluding almost everything gets caught automatically instead of by luck.
 
 ## Pick-up state — what needs YOU (nothing is blocked on code)
 
@@ -160,11 +168,18 @@ only the aggregated per-employer signal is committed.
 
 ## Open follow-ups (nice-to-have, not blocking)
 
-- 17 dark flagships still unwired (MIT, Harvard, Broad, Allen, Cleveland
+- 10 dark flagships still unwired (MIT, Harvard, Broad, Allen, Cleveland
   Clinic, UC Berkeley…) — closed/JS-only ATS; see `flagship-ats-findings.md`.
-- Scan the wider `cap-exempt-directory.json` (5,971 sites) for more
-  config-only-wireable feeds (the 15-employer scan only covered the top 220).
-- `University of South Florida` matched Oracle CE but its host was unresolved —
-  a targeted probe would wire it.
+- **Interfolio driver** (Tier 3.2) — investigated 2026-08-03: an AngularJS SPA
+  over several private REST hosts, not a plain-fetch target. Needs a
+  dedicated session (Playwright scout path or real API reverse-engineering).
+  19+ candidates already confirmed in an in-progress discovery re-crawl.
+- Resume/extend `scout/scout_discover.py` past its first ~1,500 sites (a
+  400-site batch was still running as of session end) — the first 1,100 had
+  446 unpromoted ATS hits, several on platforms with zero drivers today
+  (ADP 44, Cornerstone OnDemand 22, Taleo 14, GovernmentJobs/NeoGov 17).
+- Avature (Broad)/ClearCompany (Allen)/Findly (Cleveland Clinic)/UCPath
+  (Berkeley) drivers — one flagship each, lowest leverage per
+  `flagship-ats-findings.md`.
 - Résumé extraction still emits somewhat verbose terms (the allowlist recovers
   the matchable tokens); a larger local model (`qwen2.5:14b`) would sharpen it.

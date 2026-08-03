@@ -22,18 +22,21 @@ and routes the ones you wrote.**
 ## 2. How it works, end to end
 
 ```
-253 cap-exempt      12 ATS job      auto-pull        ~11.5k live      fit engine        you:
+309 cap-exempt      13 ATS job      auto-pull        ~11.5k live*     fit engine        you:
 employers      →    systems     →   every 6h    →    jobs        →    (your 7      →    dashboard
 (registry)          (Workday…)      (refresh.js)     (Supabase)       résumés)          + digest
+
+*job count is pre-refresh as of this doc's last update — the 56 employers added
+2026-08-03 fold in on the next scheduled 6-hourly run.
 ```
 
 ## 3. What we've built
 
-- **Employer registry** (`radar/employers.json`) — 253 cap-exempt employers with
+- **Employer registry** (`radar/employers.json`) — 309 cap-exempt employers with
   their feed coordinates + sponsorship evidence (IPEDS/IRS/USCIS/DOL).
-- **ATS drivers** (`radar/scripts/refresh.js`) — 12 wired systems: Workday,
-  Oracle HCM, PeopleAdmin, SuccessFactors, Eightfold, UltiPro, Greenhouse,
-  Lever, Ashby, SmartRecruiters, Workable, USAJOBS.
+- **ATS drivers** (`radar/scripts/refresh.js`) — 13 wired systems: Workday,
+  Oracle HCM, PeopleAdmin, SuccessFactors, Eightfold, UltiPro, Paylocity,
+  Greenhouse, Lever, Ashby, SmartRecruiters, Workable, USAJOBS.
 - **Refresh pipeline** — 7 scheduled GitHub Actions (§5). No servers.
 - **Dashboard** (`radar/public/`, on GitHub Pages) — jobs ranked by fit,
   filtered by visa signal, moved through a triage funnel.
@@ -43,13 +46,15 @@ employers      →    systems     →   every 6h    →    jobs        →    (y
 
 ## 4. What the database looks like
 
-- **253 employers** (all cap-exempt) → **~11,487 active jobs** (of ~17,626
-  tracked; ~6,139 closed but kept as tombstones). **0 recall alarms** = nothing
-  silently lost.
-- By job system: Workday 135 · PeopleAdmin 78 · Oracle HCM 12 · Lever 3 ·
-  Greenhouse 2 · UltiPro / SmartRecruiters / SuccessFactors / Eightfold /
-  USAJOBS / Workable 1 each · **17 not-yet-wired** dark flagships (MIT, Harvard,
-  Broad… on closed or JS-only systems).
+- **309 employers** (all cap-exempt) → **~11,487 active jobs** (of ~17,626
+  tracked; ~6,139 closed but kept as tombstones) as of the last completed
+  refresh — pre-dates the 56 employers added 2026-08-03. **0 recall alarms** =
+  nothing silently lost.
+- By job system: Workday 139 · PeopleAdmin 80 · Oracle HCM 32 · UltiPro 12 ·
+  Paylocity 8 · Lever 3 · Greenhouse 2 · SmartRecruiters / SuccessFactors /
+  Eightfold / USAJOBS / Workable 1 each · 28 not-yet-wired (scout-routed
+  iCIMS boards + the remaining 10 dark flagships: MIT, Harvard, Broad… on
+  closed or JS-only systems).
 - Three job lanes: **ATS feeds** (primary), a **scout** for boards with no clean
   feed, and an **aggregator firehose** (Nature/Science careers).
 - Dataset of record is **Supabase** (project `nawbdsujjysugaisczta`);
@@ -82,8 +87,14 @@ dead-man switch pings if the whole thing stalls.
   fields — salary/deadline/location/remote (Tier 2).
 - **Jul 19 → Aug 3** — Coverage push (Tier 3): new ATS drivers, dark-flagship
   rescues; registry grew to 253.
-- **Aug 3 (today)** — Pivot to the app itself: fit engine now ranks all 7
+- **Aug 3 (morning)** — Pivot to the app itself: fit engine now ranks all 7
   résumés (was 2), faster dashboard, daily digest built.
+- **Aug 3 (afternoon)** — Back to coverage: two `promote-employers.js` bugs
+  fixed (an iCIMS subdomain artifact, an over-strict identity match) unlocked
+  15 real candidates that looked dead; a new Paylocity driver; a 56-employer
+  discovery-backlog sweep (UltiPro/Oracle hits sitting unpromoted since
+  July); registry 253 → 309. Prefilter recall-visibility instrumentation
+  added so a bad title-matching regex gets caught automatically next time.
 
 ## 7. Where you are now
 

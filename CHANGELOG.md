@@ -51,6 +51,43 @@ Daily loop + dashboard:
   load, debounced search + memoized per-job search blob, reset "show all" on
   filter change.
 
+### Session 2026-08-03 (cont'd) — discovery backlog + verification hardening
+
+Registry 253 → 309. Reused the existing discovery crawl and ATS drivers
+rather than growing new ones where possible:
+- **UltiPro/Oracle discovery backlog** — the 2026-07-05 crawl had already
+  found 12 UltiPro tenants and 30 Oracle CE hosts that were never promoted.
+  Wired 11 UltiPro (Scripps Research Institute, Northern California
+  Institute for Research and Education, ...) + 18 Oracle CE (Icahn School of
+  Medicine at Mount Sinai, UCSF, UT Health San Antonio, ...) — zero new
+  driver code, just host/site_number resolution and live verification.
+- **Two `promote-employers.js` bugs fixed** — a subdomain-stripping regex
+  artifact and an overly strict identity-match rule were silently rejecting
+  real iCIMS candidates (UCLA, UC Irvine, SRI International, Rockefeller
+  University among them). The "45 iCIMS candidates need routing" premise in
+  the roadmap was actually this bug; iCIMS was already scout-routed and
+  working. Fixed, surfacing 15 more real candidates.
+- **PageUp confirmed non-viable** (3/3 probed tenants, incl. Virginia Tech,
+  redirect into an institutional SSO login — the discovered link is the
+  internal board, not public candidate-facing).
+- **New `paylocity` driver** — public recruiting pages are server-rendered
+  HTML with the full job set inline (`window.pageData`) and a schema.org
+  JobPosting JSON-LD block per detail page; no JS API needed. 8 of 11
+  UUID-shaped discovered candidates wired.
+- **USF wired** (Oracle CE) — resolved the host left unresolved by the
+  earlier discovery scan (leaked via a CSP header on a redirect).
+- **Prefilter recall-visibility** — the pre-fetch title prefilter
+  (workday/oracle/successfactors/eightfold/paylocity) now stamps a
+  `prefiltered_count` per employer into the refresh report;
+  `detectPrefilterAnomalies` flags a suspiciously high excluded-to-seen
+  ratio so a bad regex pattern gets caught automatically (this is what
+  should have caught the earlier "Open Rank" faculty-title miss).
+- **Interfolio investigated, deferred** — an AngularJS SPA over several
+  private REST hosts, not a plain-fetch target; needs its own session.
+  Findings in `radar/data/flagship-ats-findings.md`.
+- Discovery crawl resumed past its first 1,100 sites (`scout_discover.py`,
+  resumable); a 400-site batch was still running as of session end.
+
 ### Added (Stage 5: resume-variant-aware ranking)
 - **Multi-variant resume ingestion** (`npm run radar:profile`): the user
   maintains resume variants they wrote themselves (ML engineer, data

@@ -196,3 +196,78 @@ websites for more `recruiting*.ultipro.com` boards next.
    `recruiting*.ultipro.com` boards to thaw more employers with zero new code.
 5. Avature (`broad-institute`) / ClearCompany (`allen-institute`) / Findly
    (`cleveland-clinic`) drivers — one flagship each, lowest leverage.
+
+## 2026-08-03 session: discovery-backlog wiring + iCIMS/PageUp/Paylocity corrected
+
+The 2026-07-05 discovery crawl (`radar/data/ats-discovery.json`, 1,100 sites
+at session start) had far more unpromoted signal sitting in it than the
+earlier 220-candidate scan covered. Cross-referencing by **host**, not name
+(a name-string match nearly produced a duplicate: St. Olaf College's Oracle
+host was already registered under a punctuation-different name) found:
+
+- **UltiPro: 12 hits, 11 wired** (Trinity Christian College's board is empty).
+  Board GUIDs aren't in the crawled URL — they surface in the tenant's own
+  `JobBoardView` page (even a 404 response body carries it). Standouts:
+  Scripps Research Institute, Northern California Institute for Research and
+  Education.
+- **Oracle CE: 30 hits, 18 wired** (12 were already registered). Icahn School
+  of Medicine at Mount Sinai had two candidate hosts; one was a
+  `dev13`-named staging tenant reporting a bogus 6,221-job count with an
+  empty `requisitionList` — used the real one instead (confirmed via actual
+  posting content). `siteNumber` isn't gated for most single-site tenants
+  (any string returns the same results); `site_name` is set to match the
+  tenant's real candidate-facing URL path.
+- **iCIMS: the "45 candidates" premise was a probe bug, not a routing gap.**
+  `promote-employers.js`'s icims regex strips a literal `careers-` prefix to
+  normalize decorative subdomains — but for hosts like
+  `careers-sri.icims.com` / `careers-rockefelleruniversity.icims.com` that
+  prefix **is** the real subdomain, so the stripped tenant always 404'd.
+  Separately, `tenantMatchesName`'s substring rule required 4+ characters, so
+  a short exact match (tenant `sri` vs. the word "SRI" in "SRI
+  International") never passed. Both fixed; re-running promotion surfaced 15
+  more real, identity-verified candidates: SRI International, Rockefeller
+  University, UCLA, UC Irvine, Hackensack Meridian (1,546 postings), Eastern
+  Virginia Medical School, NYIT, San Diego State (via its research
+  foundation), American Enterprise Institute, Lovelace Biomedical,
+  Auburn-Montgomery, Arizona State (Campus Immersion), Embry-Riddle
+  Prescott, Arkansas State-Beebe, Athens State. Four of these
+  (UCLA/UC-Irvine/Rockefeller/Auburn-Montgomery) show 0 in the sitemap-based
+  probe count — confirmed this is a **platform-wide iCIMS bot-gate on
+  `/sitemap.xml` specifically**, not real emptiness: the candidate-facing
+  `/jobs/search` pages load fine and identity was confirmed by title or
+  acronym match. Scout's Playwright render doesn't hit the sitemap endpoint
+  at all, so this shouldn't affect real scouting.
+- **PageUp: confirmed non-viable, 3-for-3.** Every probed tenant (Virginia
+  Tech this session; two others in an earlier design pass) redirects the
+  discovered `careers.pageuppeople.com` / `*.dc4.pageuppeople.com` link into
+  an institutional SSO login (SAML2 for VT). The iframe embedded on the
+  public marketing careers page is the **internal-employee** board; the
+  genuinely public candidate board, if one exists, lives somewhere the
+  discovery crawl's regex didn't catch. Not pursued further — no driver
+  built, and none of the 57 discovered hits should be assumed drivable
+  without a fresh per-tenant probe.
+- **Paylocity: real driver shipped.** The public recruiting pages are plain
+  server-rendered HTML — no JS API to reverse-engineer. The list page embeds
+  the full job set as an inline `window.pageData = {...}` blob (title,
+  location, department, date, and a truncated teaser); the detail page
+  embeds a standard schema.org `JobPosting` JSON-LD block with the full
+  description. `fetchPaylocityJobs`/`mapPaylocityJob` added following the
+  SuccessFactors list+detail shape; `probePaylocity` added to
+  `promote-employers.js`. Of 59 discovered hits, only 11 had a genuine
+  UUID-shaped tenant (the crawl regex also matches plain job-id digits in
+  `/Details/<id>` links, which aren't usable client_guids); 8 wired
+  (University of Detroit Mercy, Tiffin, New England College of Optometry,
+  Elizabethtown, Northwest Nazarene, Midwestern Baptist Theological
+  Seminary, Keuka College, BAIM Institute for Clinical Research), 2 correctly
+  rejected as identity mismatches (Arkansas Northeastern's guid actually
+  belongs to a hospital system).
+- **Interfolio: investigated, deferred.** `apply.interfolio.com/<id>` is an
+  AngularJS 1.7 SPA backed by several private REST hosts (`api.interfolio.com`,
+  `secure.interfolio.com`, `logic.interfolio.com`, …) — this needs either a
+  Playwright scout path or real API reverse-engineering, not a plain-fetch
+  driver like the others in this list. 19 hits confirmed in an in-progress
+  re-crawl past the original 1,100 sites; full count still pending. Left for
+  a dedicated session rather than a rushed attempt.
+- **Registry: 253 → 309** across this session (Norfolk State via the stale
+  proposal re-run, USF Oracle CE host resolution, the UltiPro/Oracle
+  backlog, the iCIMS bug-fix batch, and the Paylocity batch).
