@@ -96,6 +96,9 @@ const DOM = {
   triageFilter: document.querySelector('#triage-filter'),
   minResearch: document.querySelector('#min-research'),
   minResearchValue: document.querySelector('#min-research-value'),
+  minVerdict: document.querySelector('#min-verdict'),
+  recency: document.querySelector('#recency'),
+  todayChip: document.querySelector('#today-chip'),
   resetFilters: document.querySelector('#reset-filters'),
   profileSummary: document.querySelector('#profile-summary'),
   profileFile: document.querySelector('#profile-file'),
@@ -430,6 +433,8 @@ function applyProfile(profile, routeCache) {
   state.routeCache = routeCache || null;
   state.compiled = profile ? RadarScoring.compileProfile(profile) : null;
   RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
+  DOM.minVerdict.disabled = !state.compiled;
+  DOM.minVerdict.title = state.compiled ? '' : 'Load a resume profile to filter by fit verdict';
   renderProfileCard();
 }
 
@@ -603,6 +608,10 @@ function filteredJobs() {
   const minResearch = Number(DOM.minResearch.value);
   const sorter = SORTERS[DOM.sort.value] || SORTERS.fit;
   const source = DOM.source.value;
+  // Verdict cutoff is inert without a compiled profile (a URL-carried value
+  // must not blank the list for a profile-less browser).
+  const verdictCutoff = state.compiled ? RadarScoring.verdictRank(DOM.minVerdict.value) : -1;
+  const recencyFloor = DOM.recency.value ? Date.now() - Number(DOM.recency.value) * 3600 * 1000 : null;
 
   // job.fit is pre-stamped by applyProfile()/scoreAll() — never computed here
   return state.jobs
@@ -618,6 +627,16 @@ function filteredJobs() {
     .filter((job) => !cap || job.cap_exempt_status === cap)
     .filter((job) => !triage || triageFor(job) === triage)
     .filter((job) => Number(job.research_relevance_score || 0) >= minResearch)
+    .filter((job) => {
+      if (verdictCutoff === -1) return true;
+      const rank = RadarScoring.verdictRank(job.fit?.verdict);
+      return rank !== -1 && rank <= verdictCutoff;
+    })
+    .filter((job) => {
+      if (recencyFloor === null) return true;
+      const seen = Date.parse(job.first_seen_at || '');
+      return Number.isFinite(seen) && seen >= recencyFloor;
+    })
     .sort((a, b) => {
       const statusDelta = (isClosed(a) ? 1 : 0) - (isClosed(b) ? 1 : 0);
       if (statusDelta !== 0) return statusDelta;
@@ -639,6 +658,8 @@ function activeFilterCount() {
   if (DOM.includeClosed.checked) count += 1;
   if (DOM.includeFederal.checked) count += 1;
   if (DOM.minResearch.value !== '0') count += 1;
+  if (DOM.minVerdict.value) count += 1;
+  if (DOM.recency.value) count += 1;
   return count;
 }
 
@@ -654,7 +675,26 @@ function resetFilters() {
   DOM.includeClosed.checked = false;
   DOM.includeFederal.checked = false;
   DOM.minResearch.value = '0';
+  DOM.minVerdict.value = '';
+  DOM.recency.value = '';
   setVisaFilter('');
+  render();
+}
+
+// One-click digest parity: the same cut digest-local.js pushes (fresh, verdict
+// >= good, nothing closed or citizenship-gated), expressed by setting the
+// visible controls — never by a hidden query — so the user sees exactly what
+// was applied and can loosen any part of it.
+function applyTodayPreset() {
+  DOM.recency.value = '24';
+  DOM.minVerdict.value = state.compiled ? 'good' : '';
+  DOM.sort.value = 'fit';
+  DOM.includeClosed.checked = false;
+  DOM.includeFederal.checked = false;
+  // A quiet 24h (weekend, slow feed day) widens to 48h rather than showing an
+  // empty list; the control reflects the fallback.
+  if (!filteredJobs().length) DOM.recency.value = '48';
+  showAllRows = false;
   render();
 }
 
@@ -676,6 +716,8 @@ function syncUrl() {
   if (DOM.cap.value) params.set('cap', DOM.cap.value);
   if (DOM.triageFilter.value) params.set('triage', DOM.triageFilter.value);
   if (DOM.minResearch.value !== '0') params.set('minResearch', DOM.minResearch.value);
+  if (DOM.minVerdict.value) params.set('minVerdict', DOM.minVerdict.value);
+  if (DOM.recency.value) params.set('recency', DOM.recency.value);
   const qs = params.toString();
   history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
 }
@@ -694,6 +736,8 @@ function hydrateFromUrl() {
   if (params.has('cap')) DOM.cap.value = params.get('cap');
   if (params.has('triage')) DOM.triageFilter.value = params.get('triage');
   if (params.has('minResearch')) DOM.minResearch.value = params.get('minResearch');
+  if (params.has('minVerdict')) DOM.minVerdict.value = params.get('minVerdict');
+  if (params.has('recency')) DOM.recency.value = params.get('recency');
   if (params.has('source')) DOM.source.value = params.get('source');
 }
 
@@ -1520,11 +1564,12 @@ function bindEvents() {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(onFilterChange, 150);
   });
-  for (const input of [DOM.sort, DOM.source, DOM.newOnly, DOM.followupOnly, DOM.remoteOnly, DOM.includeClosed, DOM.includeFederal, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
+  for (const input of [DOM.sort, DOM.source, DOM.newOnly, DOM.followupOnly, DOM.remoteOnly, DOM.includeClosed, DOM.includeFederal, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch, DOM.minVerdict, DOM.recency]) {
     input.addEventListener('input', onFilterChange);
   }
 
   DOM.markSeen.addEventListener('click', markAllSeen);
+  DOM.todayChip.addEventListener('click', applyTodayPreset);
 
   DOM.visaSeg.addEventListener('click', (event) => {
     const button = event.target.closest('button[data-value]');

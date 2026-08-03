@@ -1549,6 +1549,31 @@ function testVerdictTiers() {
   assert.strictEqual(verdictFor(72, true), 'stretch'); // hard-gate cap overrides score
 }
 
+function testVerdictRank() {
+  const { verdictRank, VERDICT_TIERS } = RadarScoring;
+  // Rank follows tier order: 0 = strong, worse tiers rank higher.
+  assert.strictEqual(verdictRank('strong'), 0);
+  assert.strictEqual(verdictRank('good'), 1);
+  assert.strictEqual(verdictRank('moderate'), 2);
+  assert.strictEqual(verdictRank('weak'), 3);
+  assert.strictEqual(verdictRank('stretch'), 4);
+  assert.strictEqual(verdictRank('nonsense'), -1);
+  assert.strictEqual(verdictRank(null), -1);
+  assert.strictEqual(verdictRank(undefined), -1);
+  assert.strictEqual(VERDICT_TIERS.length, 5);
+
+  // The inclusive "at or better than the cutoff" predicate the dashboard's
+  // min-verdict filter and digest-local share.
+  const atOrBetter = (verdict, min) => {
+    const rank = verdictRank(verdict);
+    return rank !== -1 && rank <= verdictRank(min);
+  };
+  assert.strictEqual(atOrBetter('strong', 'good'), true);
+  assert.strictEqual(atOrBetter('good', 'good'), true);
+  assert.strictEqual(atOrBetter('moderate', 'good'), false);
+  assert.strictEqual(atOrBetter(undefined, 'good'), false); // unscored never passes
+}
+
 function testRoutingAmbiguity() {
   const { resolveVariant, compileProfile, scoreAll, profileHash } = RadarScoring;
 
@@ -1808,6 +1833,7 @@ async function main() {
   testVariantScoring();
   testReachabilityDemotion();
   testVerdictTiers();
+  testVerdictRank();
   testRoutingAmbiguity();
   testProfileV2();
   await testRouterSelection();

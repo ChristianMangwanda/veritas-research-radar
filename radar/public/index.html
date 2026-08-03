@@ -135,6 +135,26 @@
           <input id="min-research" type="range" min="0" max="100" value="0">
         </label>
 
+        <label class="field">
+          <span class="field-label">Minimum fit verdict</span>
+          <select id="min-verdict">
+            <option value="">Any</option>
+            <option value="moderate">Moderate or better</option>
+            <option value="good">Good or better</option>
+            <option value="strong">Strong only</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field-label">First seen within</span>
+          <select id="recency">
+            <option value="">Any time</option>
+            <option value="24">Last 24 hours</option>
+            <option value="48">Last 48 hours</option>
+            <option value="168">Last 7 days</option>
+          </select>
+        </label>
+
         <label class="check">
           <input id="new-only" type="checkbox">
           <span>New since last visit</span>
@@ -197,6 +217,7 @@
       <section class="list-pane" aria-label="Job list">
         <div class="list-head">
           <strong id="count">0 jobs</strong>
+          <button id="today-chip" class="chip today-chip" type="button" title="Fresh good-or-better fits — the same cut the daily digest pushes">☀ Today</button>
           <button id="filters-toggle" class="chip filters-toggle" type="button">Filters <span></span></button>
           <span class="kbd-hint" title="Keyboard: j/k move · Enter open details · o open posting · s shortlist · a applied · x ignore">⌨ j k o s a x</span>
         </div>

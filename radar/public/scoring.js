@@ -486,10 +486,18 @@
     return jobs;
   }
 
+  // Rank of a verdict tier in VERDICT_TIERS order (0 = strong). -1 for
+  // unknown/absent, so callers can treat unscored jobs as "no verdict" rather
+  // than accidentally ranking them best or worst.
+  function verdictRank(tier) {
+    return VERDICT_TIERS.findIndex(([name]) => name === tier);
+  }
+
   const RadarScoring = {
     WEIGHTS,
     VERDICT_TIERS,
     DEGREE_RANK,
+    verdictRank,
     compileProfile,
     scoreJob,
     scoreAll,

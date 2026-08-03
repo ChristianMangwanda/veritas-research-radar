@@ -31,8 +31,7 @@ const ROUTE_CACHE_PATH = path.join(DATA_DIR, 'route-cache.json');
 const DEFAULT_DASHBOARD = 'https://christianmangwanda.github.io/veritas-research-radar/';
 const MAX_LISTED = 8;
 
-// Verdict tiers, best first; the cutoff is inclusive down to DIGEST_MIN_VERDICT.
-const VERDICT_ORDER = RadarScoring.VERDICT_TIERS.map(([tier]) => tier); // strong,good,moderate,weak,stretch
+// Verdict cutoff is inclusive down to DIGEST_MIN_VERDICT (rank 0 = strong).
 
 async function readJsonFile(filePath, fallback) {
   try {
@@ -76,8 +75,8 @@ async function buildDigest({ hours, minVerdict }) {
   const routeCache = await readJsonFile(ROUTE_CACHE_PATH, null);
   RadarScoring.scoreAll(jobs, compiled, routeCache);
 
-  const maxRank = VERDICT_ORDER.indexOf(minVerdict);
-  const cutoffRank = maxRank === -1 ? VERDICT_ORDER.indexOf('good') : maxRank;
+  const maxRank = RadarScoring.verdictRank(minVerdict);
+  const cutoffRank = maxRank === -1 ? RadarScoring.verdictRank('good') : maxRank;
   const cutoff = Date.now() - hours * 60 * 60 * 1000;
 
   const fits = jobs.filter((job) => {
@@ -85,7 +84,7 @@ async function buildDigest({ hours, minVerdict }) {
     if (job.citizenship_gated) return false; // can't act on it; dashboard still shows it (demote-never-hide)
     if (!Number.isFinite(Date.parse(job.first_seen_at || ''))) return false;
     if (Date.parse(job.first_seen_at) < cutoff) return false;
-    const rank = VERDICT_ORDER.indexOf(job.fit?.verdict);
+    const rank = RadarScoring.verdictRank(job.fit?.verdict);
     return rank !== -1 && rank <= cutoffRank;
   });
   if (!fits.length) return { count: 0 };
