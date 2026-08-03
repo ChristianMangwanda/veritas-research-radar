@@ -59,6 +59,40 @@ function detectRecallAnomalies({ previousJobs, employerReports, employerOutcomes
   return anomalies;
 }
 
+// Below this ratio of excluded-to-seen titles, an employer's prefilter is
+// doing its job (skipping cafeteria/facilities postings on a large tenant).
+// Above it, on a large-enough sample, the pattern set itself is the more
+// likely explanation — this is how the "Open Rank" faculty-title miss should
+// have been caught the day it was introduced, instead of by chance.
+const PREFILTER_ALARM_MIN_EXCLUDED = 20;
+const PREFILTER_ALARM_RATIO = 0.97;
+
+/**
+ * Flag employers whose pre-fetch title prefilter (workday/oracle/
+ * successfactors/eightfold) excluded a suspiciously high share of titles this
+ * run. Unlike detectRecallAnomalies this is a within-run ratio with no
+ * previous-state dependency, so it runs even when the previous-jobs baseline
+ * isn't trusted.
+ */
+function detectPrefilterAnomalies({ employerReports, minExcluded = PREFILTER_ALARM_MIN_EXCLUDED, ratioThreshold = PREFILTER_ALARM_RATIO }) {
+  const anomalies = [];
+  for (const report of employerReports) {
+    const excluded = report.prefiltered_count || 0;
+    const seen = excluded + report.fetched_jobs;
+    if (excluded < minExcluded || seen === 0) continue;
+    if (excluded / seen >= ratioThreshold) {
+      anomalies.push({
+        employer_id: report.employer_id,
+        name: report.name,
+        ats_provider: report.ats_provider,
+        prefiltered_count: excluded,
+        fetched_jobs: report.fetched_jobs
+      });
+    }
+  }
+  return anomalies;
+}
+
 /**
  * Best-effort ntfy.sh push. No-ops without NTFY_TOPIC and never throws — an
  * alert channel that can break the refresh is worse than no alert.
@@ -736,6 +770,23 @@ function isResearchRelevantTitle(title, employer) {
   return (employer.research_areas || []).some((area) => lower.includes(String(area).toLowerCase()));
 }
 
+// The prefilter above trades recall for request volume — anything it rejects
+// never gets a detail fetch and leaves no trace. Callers stamp the excluded
+// count onto their returned job array (see detectPrefilterAnomalies) so a bad
+// or incomplete pattern shows up as a report anomaly instead of a silent miss.
+function filterResearchRelevant(items, getTitle, employer) {
+  const relevant = [];
+  let excluded = 0;
+  for (const item of items) {
+    if (isResearchRelevantTitle(getTitle(item) || '', employer)) {
+      relevant.push(item);
+    } else {
+      excluded += 1;
+    }
+  }
+  return { relevant, excluded };
+}
+
 function mapWorkdayJob(listItem, detailInfo, employer) {
   const config = employer.ats_config || {};
   const reqId = detailInfo?.jobReqId || (listItem.bulletFields || [])[0] || normalizeId(listItem.externalPath);
@@ -785,9 +836,8 @@ async function fetchWorkdayJobs(employer) {
     return true;
   });
 
-  const relevant = uniqueListings
-    .filter((listItem) => isResearchRelevantTitle(listItem.title || '', employer))
-    .slice(0, WORKDAY_MAX_DETAIL_FETCHES);
+  const { relevant: filtered, excluded } = filterResearchRelevant(uniqueListings, (item) => item.title, employer);
+  const relevant = filtered.slice(0, WORKDAY_MAX_DETAIL_FETCHES);
 
   const jobs = [];
   for (const listItem of relevant) {
@@ -799,6 +849,7 @@ async function fetchWorkdayJobs(employer) {
     }
     await sleep(WORKDAY_DETAIL_DELAY_MS);
   }
+  jobs.prefiltered_count = excluded;
   return jobs;
 }
 
@@ -859,9 +910,8 @@ async function fetchOracleJobs(employer) {
     return true;
   });
 
-  const relevant = unique
-    .filter((item) => isResearchRelevantTitle(item.Title || '', employer))
-    .slice(0, ORACLE_MAX_DETAIL_FETCHES);
+  const { relevant: filteredOracle, excluded: oracleExcluded } = filterResearchRelevant(unique, (item) => item.Title, employer);
+  const relevant = filteredOracle.slice(0, ORACLE_MAX_DETAIL_FETCHES);
 
   const jobs = [];
   for (const item of relevant) {
@@ -879,6 +929,7 @@ async function fetchOracleJobs(employer) {
     jobs.push(mapOracleJob(item, detail, employer));
     await sleep(ORACLE_DETAIL_DELAY_MS);
   }
+  jobs.prefiltered_count = oracleExcluded;
   return jobs;
 }
 
@@ -1216,9 +1267,8 @@ async function fetchSuccessFactorsJobs(employer) {
 
   // The slug mixes title and location text; prefiltering on it keeps recall
   // (location words never match the patterns) while skipping obvious non-fits.
-  const relevant = unique
-    .filter((entry) => isResearchRelevantTitle(entry.slugText, employer))
-    .slice(0, SUCCESSFACTORS_MAX_DETAIL_FETCHES);
+  const { relevant: filteredSf, excluded: sfExcluded } = filterResearchRelevant(unique, (entry) => entry.slugText, employer);
+  const relevant = filteredSf.slice(0, SUCCESSFACTORS_MAX_DETAIL_FETCHES);
 
   const jobs = [];
   for (const entry of relevant) {
@@ -1231,6 +1281,7 @@ async function fetchSuccessFactorsJobs(employer) {
     jobs.push(mapSuccessFactorsJob(entry, pageData, employer));
     await sleep(SUCCESSFACTORS_DETAIL_DELAY_MS);
   }
+  jobs.prefiltered_count = sfExcluded;
   return jobs;
 }
 
@@ -1280,9 +1331,8 @@ async function fetchEightfoldJobs(employer) {
     return true;
   });
 
-  const relevant = unique
-    .filter((item) => isResearchRelevantTitle(item.name || '', employer))
-    .slice(0, EIGHTFOLD_MAX_DETAIL_FETCHES);
+  const { relevant: filteredEf, excluded: efExcluded } = filterResearchRelevant(unique, (item) => item.name, employer);
+  const relevant = filteredEf.slice(0, EIGHTFOLD_MAX_DETAIL_FETCHES);
 
   const jobs = [];
   for (const item of relevant) {
@@ -1296,6 +1346,7 @@ async function fetchEightfoldJobs(employer) {
     jobs.push(mapEightfoldJob(item, detail, employer));
     await sleep(EIGHTFOLD_DETAIL_DELAY_MS);
   }
+  jobs.prefiltered_count = efExcluded;
   return jobs;
 }
 
@@ -1318,19 +1369,20 @@ const ATS_FETCHERS = {
 
 async function fetchEmployerJobs(employer) {
   if (!employer.ats_provider) {
-    return { jobs: [], skipped: true, error: null };
+    return { jobs: [], skipped: true, error: null, prefilteredCount: 0 };
   }
   const fetcher = ATS_FETCHERS[employer.ats_provider];
   if (!fetcher) {
-    return { jobs: [], skipped: true, error: `Unsupported ATS provider ${employer.ats_provider}` };
+    return { jobs: [], skipped: true, error: `Unsupported ATS provider ${employer.ats_provider}`, prefilteredCount: 0 };
   }
   try {
-    return { jobs: await fetcher(employer), skipped: false, error: null };
+    const jobs = await fetcher(employer);
+    return { jobs, skipped: false, error: null, prefilteredCount: Number(jobs.prefiltered_count) || 0 };
   } catch (error) {
     if (error.skipped) {
-      return { jobs: [], skipped: true, error: null };
+      return { jobs: [], skipped: true, error: null, prefilteredCount: 0 };
     }
-    return { jobs: [], skipped: false, error: error.message };
+    return { jobs: [], skipped: false, error: error.message, prefilteredCount: 0 };
   }
 }
 
@@ -1394,6 +1446,7 @@ async function runRefresh() {
       ats_provider: employer.ats_provider,
       ats_token: employer.ats_token,
       fetched_jobs: enriched.length,
+      prefiltered_count: result.prefilteredCount,
       skipped: result.skipped,
       error: result.error
     });
@@ -1525,6 +1578,8 @@ async function runRefresh() {
   const recallAnomalies = trustedBaseline
     ? detectRecallAnomalies({ previousJobs, employerReports, employerOutcomes })
     : [];
+  // No previous-state dependency, so this runs unconditionally.
+  const prefilterAnomalies = detectPrefilterAnomalies({ employerReports });
 
   const report = {
     refreshed_at: now,
@@ -1536,6 +1591,7 @@ async function runRefresh() {
     newly_closed_count: closedJobs.filter((job) => job.closed_at === now).length,
     errored_employers: employerReports.filter((report) => report.error).length,
     recall_anomalies: recallAnomalies,
+    prefilter_anomalies: prefilterAnomalies,
     sources: {
       greenhouse: 'https://developers.greenhouse.io/job-board.html',
       lever: 'https://github.com/lever/postings-api',
@@ -1568,6 +1624,19 @@ async function runRefresh() {
       title: `Radar recall alarm: ${recallAnomalies.length} feed(s) went to zero`,
       body: recallAnomalies
         .map((a) => `• ${a.name} [${a.ats_provider || 'n/a'}]: ${a.previous_active} active → 0`)
+        .join('\n'),
+      tags: 'warning'
+    });
+  }
+  if (prefilterAnomalies.length) {
+    const summary = prefilterAnomalies
+      .map((a) => `${a.name} (${a.prefiltered_count} excluded, ${a.fetched_jobs} fetched)`)
+      .join(', ');
+    console.warn(`Prefilter alarm: ${prefilterAnomalies.length} employer(s) excluded almost every title this run: ${summary}`);
+    await pushNtfy({
+      title: `Radar prefilter alarm: ${prefilterAnomalies.length} feed(s) look over-filtered`,
+      body: prefilterAnomalies
+        .map((a) => `• ${a.name} [${a.ats_provider || 'n/a'}]: ${a.prefiltered_count} excluded vs ${a.fetched_jobs} fetched`)
         .join('\n'),
       tags: 'warning'
     });
@@ -1644,6 +1713,8 @@ module.exports = {
   applyJobLifecycle,
   dedupeCrossSource,
   detectRecallAnomalies,
+  detectPrefilterAnomalies,
+  filterResearchRelevant,
   activeScoutedJobs,
   applyEnrichmentOverlay,
   fetchGreenhouseJobs,

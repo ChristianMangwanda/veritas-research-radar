@@ -30,6 +30,8 @@ const {
   applyJobLifecycle,
   dedupeCrossSource,
   detectRecallAnomalies,
+  detectPrefilterAnomalies,
+  filterResearchRelevant,
   activeScoutedJobs,
   applyEnrichmentOverlay
 } = require('../radar/scripts/refresh.js');
@@ -969,6 +971,44 @@ function testRecallAnomalies() {
     employerOutcomes: outcomes({ big: { attempted: true, ok: true } })
   });
   assert.strictEqual(anomalies.length, 0);
+}
+
+function testPrefilterAnomalies() {
+  // A large tenant that excludes almost every title is more likely an
+  // incomplete pattern set than a genuinely irrelevant employer -> flagged.
+  let anomalies = detectPrefilterAnomalies({
+    employerReports: [{ employer_id: 'big', name: 'Big U', ats_provider: 'workday', fetched_jobs: 1, prefiltered_count: 400 }]
+  });
+  assert.strictEqual(anomalies.length, 1);
+  assert.strictEqual(anomalies[0].prefiltered_count, 400);
+
+  // Healthy ratio -> no alarm even with a lot of exclusions
+  anomalies = detectPrefilterAnomalies({
+    employerReports: [{ employer_id: 'ok', name: 'OK U', ats_provider: 'oracle', fetched_jobs: 120, prefiltered_count: 300 }]
+  });
+  assert.strictEqual(anomalies.length, 0);
+
+  // Small feed -> below minExcluded, no alarm even at 100% excluded
+  anomalies = detectPrefilterAnomalies({
+    employerReports: [{ employer_id: 'tiny', name: 'Tiny Lab', ats_provider: 'eightfold', fetched_jobs: 0, prefiltered_count: 5 }]
+  });
+  assert.strictEqual(anomalies.length, 0);
+
+  // No prefilter used (successfactors with 0 excluded) -> no alarm
+  anomalies = detectPrefilterAnomalies({
+    employerReports: [{ employer_id: 'clean', name: 'Clean U', ats_provider: 'successfactors', fetched_jobs: 50, prefiltered_count: 0 }]
+  });
+  assert.strictEqual(anomalies.length, 0);
+
+  // filterResearchRelevant reports the same exclusion count isResearchRelevantTitle would
+  const employer = { research_areas: [] };
+  const { relevant, excluded } = filterResearchRelevant(
+    [{ t: 'Postdoctoral Fellow' }, { t: 'Cafeteria Worker' }, { t: 'Data Scientist' }],
+    (item) => item.t,
+    employer
+  );
+  assert.strictEqual(relevant.length, 2);
+  assert.strictEqual(excluded, 1);
 }
 
 function buildSingleEntryZip(name, content, method = 8) {
@@ -1916,6 +1956,7 @@ async function main() {
   testSalaryParser();
   testWorkModeAndLocation();
   testRecallAnomalies();
+  testPrefilterAnomalies();
   testZipExtraction();
   testScoutedImporter();
   testAggregatedImporter();
