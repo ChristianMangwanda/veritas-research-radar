@@ -29,19 +29,6 @@ const TRIAGE_LABELS = {
   ignore: 'Ignore'
 };
 
-const TRIAGE_COLORS = {
-  new: 'var(--info-ink)',
-  shortlist: 'var(--accent)',
-  emailed_lab: 'var(--info-ink)',
-  needs_visa_check: 'var(--warn-ink)',
-  applied: 'var(--friendly-ink)',
-  interview: 'var(--accent)',
-  offer: 'var(--friendly-ink)',
-  rejected: 'var(--faint)',
-  withdrawn: 'var(--faint)',
-  ignore: 'var(--faint)'
-};
-
 // Closed postings in these states stay visible so a job you're pursuing that
 // disappears from the ATS is flagged rather than silently hidden.
 const PROTECTED_TRIAGE = new Set(['shortlist', 'emailed_lab', 'needs_visa_check', 'applied', 'interview', 'offer']);
@@ -57,9 +44,6 @@ const VISA_LABELS = { FRIENDLY: 'Friendly', RESTRICTED: 'Restricted', NEUTRAL: '
 const VISA_TAGS = { FRIENDLY: 'tag-friendly', RESTRICTED: 'tag-restricted', NEUTRAL: '' };
 
 const VERDICT_TAGS = { strong: 'tag-friendly', good: 'tag-accent', moderate: '', weak: 'tag-warn', stretch: 'tag-warn' };
-
-// One stable color per resume variant, assigned by manifest order
-const VARIANT_COLORS = ['#7c6ff0', '#2f9e8f', '#d97740', '#c65b8a', '#5b8ac6', '#a3a34a', '#8a6d5b', '#5aa869'];
 
 const DOM = {
   jobs: document.querySelector('#jobs'),
@@ -120,7 +104,11 @@ const DOM = {
   detailTitle: document.querySelector('#detail-title'),
   detailMeta: document.querySelector('#detail-meta'),
   detailOpen: document.querySelector('#detail-open'),
-  triageSeg: document.querySelector('#triage-seg'),
+  copyResumePath: null,
+  triageControls: null,
+  triageStepper: null,
+  triageStateLine: null,
+  triageLinks: null,
   detailNote: document.querySelector('#detail-note'),
   variantSentWrap: document.querySelector('#variant-sent-wrap'),
   variantSent: document.querySelector('#variant-sent'),
@@ -450,6 +438,7 @@ function applyProfile(profile, routeCache) {
   state.routeCache = routeCache || null;
   state.compiled = profile ? RadarScoring.compileProfile(profile) : null;
   RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
+  state.variantInitials = RadarScoring.variantInitials(state.profile?.variants);
   DOM.verdictSeg.classList.toggle('is-disabled', !state.compiled);
   DOM.verdictSeg.title = state.compiled ? '' : 'Load a resume profile to filter by fit verdict';
   for (const button of DOM.verdictSeg.querySelectorAll('button')) {
@@ -458,19 +447,10 @@ function applyProfile(profile, routeCache) {
   renderProfileCard();
 }
 
-function variantColor(variantId) {
-  const index = (state.profile?.variants || []).findIndex((variant) => variant.id === variantId);
-  return VARIANT_COLORS[(index >= 0 ? index : 0) % VARIANT_COLORS.length];
-}
-
+// Variant identity is TEXT in the steel system (the brief: fit and routing
+// are drawn in one hue, never a second color per variant).
 function variantAbbrev(variantId) {
-  return String(variantId || '').toUpperCase().slice(0, 6);
-}
-
-function variantDot(variantId) {
-  const dot = el('span', 'variant-dot');
-  dot.style.background = variantColor(variantId);
-  return dot;
+  return state.variantInitials?.[variantId] || String(variantId || '').toUpperCase().slice(0, 3);
 }
 
 function renderProfileCard() {
@@ -499,7 +479,6 @@ function renderProfileCard() {
   for (const variant of state.profile.variants) {
     const item = el('li');
     item.append(
-      variantDot(variant.id),
       el('span', 'variant-abbrev', variantAbbrev(variant.id)),
       el('span', 'variant-label', variant.label),
       el('span', 'variant-terms', `${(variant.skills || []).length} terms`)
@@ -834,12 +813,6 @@ function meter(value) {
   fill.style.width = `${Math.max(0, Math.min(100, Number(value) || 0))}%`;
   wrap.append(fill);
   return wrap;
-}
-
-function triageDot(status) {
-  const dot = el('span', 'triage-dot');
-  dot.style.background = TRIAGE_COLORS[status] || 'var(--faint)';
-  return dot;
 }
 
 function deadlineDays(job) {
@@ -1255,20 +1228,20 @@ function renderDetail() {
   }
 
   DOM.detailTitle.textContent = job.title;
+  const postedAge = RadarPipeline.daysSince(job.posted_or_updated_at);
   DOM.detailMeta.textContent = [
     job.employer_name,
     job.location || 'Location unspecified',
     job.department || null,
     formatSalary(job),
     job.work_mode === 'hybrid' ? 'Hybrid' : null,
-    formatDeadline(job)
+    formatDeadline(job),
+    postedAge !== null ? (postedAge === 0 ? 'posted today' : `posted ${postedAge}d ago`) : null
   ].filter(Boolean).join(' · ');
   DOM.detailOpen.href = job.url;
 
-  const current = triageFor(job);
-  for (const button of DOM.triageSeg.querySelectorAll('button')) {
-    button.classList.toggle('is-active', button.dataset.value === current);
-  }
+  renderTriageControls(job);
+  renderCopyResumePath(job);
   // Don't clobber what the user is typing if the note field is focused mid-edit
   if (DOM.detailNote && document.activeElement !== DOM.detailNote) {
     DOM.detailNote.value = noteFor(job);
@@ -1280,6 +1253,53 @@ function renderDetail() {
   renderDetailWhy(job);
   renderDetailDescription(job);
   DOM.detailDisclaimer.textContent = job.disclaimer || '';
+}
+
+// The stepper renders progress (done steps filled soft, the current step
+// solid); a terminal status dims it and shows a state line with a Reopen
+// escape hatch instead.
+function renderTriageControls(job) {
+  const current = triageFor(job);
+  const currentIndex = STEPPER_ORDER.indexOf(current);
+  const terminal = currentIndex === -1;
+  DOM.triageStepper.classList.toggle('is-terminal', terminal);
+  for (const button of DOM.triageStepper.querySelectorAll('button')) {
+    const index = STEPPER_ORDER.indexOf(button.dataset.value);
+    button.classList.toggle('is-active', !terminal && index === currentIndex);
+    button.classList.toggle('is-done', !terminal && index < currentIndex);
+  }
+  for (const button of DOM.triageLinks.querySelectorAll('button')) {
+    button.classList.toggle('is-active', button.dataset.value === current);
+  }
+  if (terminal) {
+    const age = RadarPipeline.daysSince(state.local.triage[job.id]?.updated_at);
+    DOM.triageStateLine.replaceChildren(
+      el('span', '', `${TRIAGE_LABELS[current] || current}${age !== null && age > 0 ? ` · ${age}d ago` : ''} — `)
+    );
+    const reopen = el('button', 'link-button', 'Reopen');
+    reopen.type = 'button';
+    reopen.addEventListener('click', () => setTriage(job, 'new'));
+    DOM.triageStateLine.append(reopen);
+    DOM.triageStateLine.hidden = false;
+  } else {
+    DOM.triageStateLine.hidden = true;
+  }
+}
+
+// "Copy résumé path" — the repo-relative file of the variant you sent (or
+// would send). Hidden when the profile predates source_file tracking.
+function renderCopyResumePath(job) {
+  if (!DOM.copyResumePath) return;
+  const variantId = state.local.triage[job.id]?.variant_sent || job.fit?.recommended_variant || '';
+  const variant = (state.profile?.variants || []).find((entry) => entry.id === variantId);
+  const file = variant?.source_file;
+  DOM.copyResumePath.hidden = !file;
+  if (file) {
+    DOM.copyResumePath.dataset.path = `radar/data/resumes/${file}`;
+    DOM.copyResumePath.title = `Copy the repo-relative path of your ${variant.label || variantId} résumé`;
+  } else {
+    delete DOM.copyResumePath.dataset.path;
+  }
 }
 
 // "Resume sent" — the variant actually submitted with an application, distinct
@@ -1310,6 +1330,21 @@ function renderVariantSent(job) {
   DOM.variantSent.value = current;
 }
 
+// The stepper shows the forward path of an application; terminal outcomes
+// (rejected/withdrawn/ignore) are demoted to links below it — they are exits,
+// not stages you progress through.
+const STEPPER_ORDER = ['new', 'shortlist', 'emailed_lab', 'needs_visa_check', 'applied', 'interview', 'offer'];
+const STEPPER_LABELS = {
+  new: 'New',
+  shortlist: 'Shortlist',
+  emailed_lab: 'Emailed',
+  needs_visa_check: 'Visa',
+  applied: 'Applied',
+  interview: 'Interview',
+  offer: 'Offer'
+};
+const TRIAGE_LINK_LABELS = { rejected: 'Reject', withdrawn: 'Withdraw', ignore: 'Ignore' };
+
 function buildDetailSkeleton() {
   const back = el('button', 'link-button detail-back');
   back.id = 'detail-back';
@@ -1327,16 +1362,38 @@ function buildDetailSkeleton() {
   open.target = '_blank';
   open.rel = 'noreferrer';
   open.textContent = 'Open posting ↗';
-  const seg = el('div', 'segmented triage-seg');
-  seg.id = 'triage-seg';
-  seg.setAttribute('role', 'group');
-  for (const [value, label] of Object.entries(TRIAGE_LABELS)) {
-    const button = el('button', '', label);
+  const copy = el('button', 'ghost-button');
+  copy.id = 'copy-resume-path';
+  copy.type = 'button';
+  copy.textContent = 'Copy résumé path';
+  copy.hidden = true;
+  actions.append(open, copy);
+
+  const controls = el('div', 'triage-controls');
+  controls.id = 'triage-controls';
+  const controlsLabel = el('p', 'field-label', 'Triage');
+  const stepper = el('div', 'triage-stepper');
+  stepper.id = 'triage-stepper';
+  stepper.setAttribute('role', 'group');
+  stepper.setAttribute('aria-label', 'Application stage');
+  for (const value of STEPPER_ORDER) {
+    const button = el('button', '', STEPPER_LABELS[value]);
     button.type = 'button';
     button.dataset.value = value;
-    seg.append(button);
+    stepper.append(button);
   }
-  actions.append(open, seg);
+  const stateLine = el('p', 'triage-state-line');
+  stateLine.id = 'triage-state-line';
+  stateLine.hidden = true;
+  const links = el('div', 'triage-links');
+  links.id = 'triage-links';
+  for (const [value, label] of Object.entries(TRIAGE_LINK_LABELS)) {
+    const button = el('button', 'link-button', label);
+    button.type = 'button';
+    button.dataset.value = value;
+    links.append(button);
+  }
+  controls.append(controlsLabel, stepper, stateLine, links);
 
   const notes = el('section', 'detail-notes');
   const notesLabel = el('label', 'field-label', 'Notes (contact, next step)');
@@ -1366,7 +1423,7 @@ function buildDetailSkeleton() {
 
   const disclaimer = el('p', 'disclaimer'); disclaimer.id = 'detail-disclaimer';
 
-  return [back, head, actions, notes, variantWrap, alerts, signals, fit, description, disclaimer];
+  return [back, head, actions, controls, notes, variantWrap, alerts, signals, fit, description, disclaimer];
 }
 
 function rebindDetailRefs() {
@@ -1374,7 +1431,11 @@ function rebindDetailRefs() {
   DOM.detailTitle = document.querySelector('#detail-title');
   DOM.detailMeta = document.querySelector('#detail-meta');
   DOM.detailOpen = document.querySelector('#detail-open');
-  DOM.triageSeg = document.querySelector('#triage-seg');
+  DOM.copyResumePath = document.querySelector('#copy-resume-path');
+  DOM.triageControls = document.querySelector('#triage-controls');
+  DOM.triageStepper = document.querySelector('#triage-stepper');
+  DOM.triageStateLine = document.querySelector('#triage-state-line');
+  DOM.triageLinks = document.querySelector('#triage-links');
   DOM.detailNote = document.querySelector('#detail-note');
   DOM.variantSentWrap = document.querySelector('#variant-sent-wrap');
   DOM.variantSent = document.querySelector('#variant-sent');
@@ -1507,12 +1568,12 @@ function renderDetailSignals(job) {
 
   const researchCell = signalCell('Research relevance', document.createTextNode(`${job.research_relevance_score || 0} / 100`));
   researchCell.querySelector('dd').append(meter(job.research_relevance_score || 0));
+  researchCell.querySelector('dd').append(el('span', 'signal-note', `Source: ${job.source || '—'} feed`));
   DOM.detailSignals.append(researchCell);
 
   DOM.detailSignals.append(
-    signalCell('Source', document.createTextNode(job.source || '—')),
-    signalCell('First seen', document.createTextNode(shortDate(job.first_seen_at))),
-    signalCell('Posted / updated', document.createTextNode(shortDate(job.posted_or_updated_at)))
+    signalCell('First seen / posted',
+      document.createTextNode(`${shortDate(job.first_seen_at)} · ${shortDate(job.posted_or_updated_at)}`))
   );
 
   const appliedAt = state.local.triage[job.id]?.applied_at;
@@ -1556,28 +1617,39 @@ function renderDetailWhy(job) {
   }
 
   const recommended = fit.variants.find((variant) => variant.id === fit.recommended_variant);
-  const headline = el('p', 'fit-score', `Fit ${fit.fit_score} / 100 — ${fit.verdict} fit`);
+
+  // "SEND THIS ONE" — the routing call as the panel's headline, per the brief
+  DOM.detailFit.append(el('p', 'send-heading', 'Send this one'));
+  const headline = el('div', 'send-headline');
+  headline.append(
+    el('span', 'send-name', recommended ? recommended.label : `${fit.verdict} fit`),
+    el('span', 'send-score', String(fit.fit_score))
+  );
   DOM.detailFit.append(headline);
 
-  if (recommended) {
-    const use = el('p', 'why-use');
-    use.append(variantDot(recommended.id), document.createTextNode(` Use your ${recommended.label} resume`));
-    if (fit.recommended_source === 'llm') {
-      use.append(el('span', 'signal-note',
-        `resolved locally by ${state.routeCache?.model || 'local model'}${fit.llm_reason ? `: ${fit.llm_reason}` : ''}`));
-    } else if (fit.ambiguous) {
-      use.append(el('span', 'signal-note',
-        'close call between variants — npm run radar:route resolves these with a local model'));
-    }
-    DOM.detailFit.append(use);
+  const verdictLine = el('p', 'send-verdict', `${fit.verdict} fit · ${fit.fit_score} / 100`);
+  if (fit.recommended_source === 'llm') {
+    verdictLine.append(el('span', 'signal-note',
+      `resolved locally by ${state.routeCache?.model || 'local model'}${fit.llm_reason ? `: ${fit.llm_reason}` : ''}`));
+  } else if (fit.ambiguous) {
+    verdictLine.append(el('span', 'signal-note',
+      'close call between variants — npm run radar:route resolves these with a local model'));
   }
+  DOM.detailFit.append(verdictLine);
 
-  // Per-variant score bars, best first
-  const variantList = el('div', 'why-variants');
+  // Per-variant rows: label · hairline bar · number, best first
+  const variantList = el('div', 'send-variants');
   for (const variant of fit.variants.slice().sort((a, b) => b.score - a.score || a.order - b.order)) {
-    const row = el('div', 'why-variant');
-    row.append(variantDot(variant.id), el('span', 'variant-label', variant.label), el('span', 'why-score', String(variant.score)));
-    row.append(meter(variant.score));
+    const row = el('div', `send-row${variant.id === fit.recommended_variant ? ' is-best' : ''}`);
+    const bar = el('span', 'send-bar');
+    const fill = el('i');
+    fill.style.width = `${Math.max(0, Math.min(100, Number(variant.score) || 0))}%`;
+    bar.append(fill);
+    row.append(
+      el('span', 'send-row-label', variant.label),
+      bar,
+      el('span', 'send-row-score', String(variant.score))
+    );
     variantList.append(row);
 
     const matchedParts = [3, 2, 1]
@@ -1623,6 +1695,8 @@ function renderDetailWhy(job) {
     ledger.append(whyLine('Research relevance', document.createTextNode(`+${fit.research_bonus}`)));
   }
   if (ledger.childElementCount) DOM.detailFit.append(ledger);
+
+  DOM.detailFit.append(el('p', 'send-footnote', 'Scored locally · your résumé text never leaves the machine'));
 }
 
 function escapeHtml(text) {
@@ -1925,7 +1999,9 @@ function toggleDrawer(panel) {
 }
 
 function bindDetailEvents() {
-  DOM.triageSeg.addEventListener('click', (event) => {
+  // One delegation covers the stepper AND the demoted terminal links —
+  // both live inside #triage-controls and carry data-value.
+  DOM.triageControls.addEventListener('click', (event) => {
     const button = event.target.closest('button[data-value]');
     const job = selectedJob();
     if (button && job) setTriage(job, button.dataset.value);
@@ -1933,6 +2009,18 @@ function bindDetailEvents() {
   DOM.detailBack.addEventListener('click', () => {
     state.selectedId = null;
     render();
+  });
+
+  DOM.copyResumePath.addEventListener('click', async () => {
+    const path = DOM.copyResumePath.dataset.path;
+    if (!path) return;
+    try {
+      await navigator.clipboard.writeText(path);
+      DOM.copyResumePath.textContent = 'Copied ✓';
+      setTimeout(() => { DOM.copyResumePath.textContent = 'Copy résumé path'; }, 1500);
+    } catch {
+      window.prompt('Copy the résumé path:', path);
+    }
   });
 
   // Notes: debounce while typing (don't persist every keystroke), flush on blur
@@ -2109,8 +2197,8 @@ function bindEvents() {
 
   document.addEventListener('keydown', handleKeydown);
   narrowLayout.addEventListener('change', renderDetail);
-
-  bindDetailEvents();
+  // Detail events bind in rebindDetailRefs() after the skeleton is built —
+  // the shell in index.html is empty until the first selection.
 }
 
 async function init() {

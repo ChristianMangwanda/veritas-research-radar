@@ -1681,6 +1681,29 @@ function testDaysSince() {
   assert.strictEqual(daysSince(undefined, now), null);
 }
 
+function testVariantInitials() {
+  const { variantInitials } = RadarScoring;
+  const map = variantInitials([
+    { id: 'ml-engineer' }, { id: 'data-engineer' }, { id: 'bioinformatics' },
+    { id: 'data-scientist' }, { id: 'applied-ml-engineer' }, { id: 'data-warehousing' }
+  ]);
+  assert.strictEqual(map['ml-engineer'], 'ME');
+  assert.strictEqual(map['data-engineer'], 'DE');
+  assert.strictEqual(map['bioinformatics'], 'BIO');
+  assert.strictEqual(map['data-scientist'], 'DS');
+  assert.strictEqual(map['applied-ml-engineer'], 'AME');
+  assert.strictEqual(map['data-warehousing'], 'DW');
+  // Collisions extend rather than duplicate
+  const clash = variantInitials([{ id: 'data-science' }, { id: 'data-systems' }]);
+  assert.strictEqual(clash['data-science'], 'DS');
+  assert.notStrictEqual(clash['data-systems'], 'DS');
+  assert.ok(clash['data-systems'].length >= 2);
+  // Degenerate inputs
+  assert.deepStrictEqual(variantInitials([]), {});
+  assert.deepStrictEqual(variantInitials(null), {});
+  assert.deepStrictEqual(variantInitials([{ id: '' }, {}]), {});
+}
+
 function testNextPullAt() {
   const { nextPullAt } = RadarPipeline;
   const at = (iso) => Date.parse(iso);
@@ -2023,6 +2046,7 @@ async function main() {
   testVerdictRank();
   testTriageMerge();
   testDaysSince();
+  testVariantInitials();
   testNextPullAt();
   testPipelineGrouping();
   testRoutingAmbiguity();

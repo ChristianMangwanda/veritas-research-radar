@@ -1045,8 +1045,10 @@ body.pipeline-mode .jobs-header { display: none; }
 }
 
 .detail-actions {
-  display: grid;
+  display: flex;
+  align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .primary-button {
@@ -1067,9 +1069,65 @@ body.pipeline-mode .jobs-header { display: none; }
 
 .primary-button:hover { filter: brightness(1.06); }
 
-.triage-seg button.is-active {
+/* Triage stepper — joined cells, current step solid, prior steps soft-filled */
+.triage-controls {
+  display: grid;
+  gap: 6px;
+}
+
+.triage-stepper {
+  display: flex;
+  border: 1px solid var(--line-strong);
+}
+
+.triage-stepper button {
+  flex: 1 1 0;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: var(--panel);
+  padding: 7px 4px;
+  font-family: var(--font-heading);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.triage-stepper button:last-child { border-right: 0; }
+
+.triage-stepper button:hover { color: var(--ink); background: var(--neutral-soft); }
+
+.triage-stepper button.is-done {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.triage-stepper button.is-active {
   background: var(--accent);
   color: var(--accent-contrast);
+}
+
+.triage-stepper.is-terminal { opacity: 0.5; }
+
+.triage-state-line {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--restricted-ink);
+}
+
+.triage-links {
+  display: flex;
+  gap: 14px;
+}
+
+.triage-links .link-button.is-active {
+  color: var(--restricted-ink);
+  font-weight: 700;
 }
 
 .alert {
@@ -1137,12 +1195,88 @@ body.pipeline-mode .jobs-header { display: none; }
 
 .fit-skills { color: var(--muted); font-size: 12.5px; }
 
-.why-use { display: flex; align-items: center; gap: 6px; font-weight: 650; flex-wrap: wrap; }
+/* SEND THIS ONE — the routing call as the panel headline */
+.send-heading {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
 
-.why-variants { display: grid; gap: 4px; }
-.why-variant { display: flex; align-items: center; gap: 8px; }
-.why-variant .meter { flex: 1; max-width: 160px; }
-.why-score { font-weight: 700; font-size: 12px; min-width: 2ch; text-align: right; }
+.send-headline {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.send-headline .send-name {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.send-headline .send-score {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.send-verdict { color: var(--muted); font-size: 12.5px; }
+
+.send-variants { display: grid; gap: 5px; }
+
+.send-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.send-row-label {
+  flex: 0 0 130px;
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.send-row.is-best .send-row-label { font-weight: 700; }
+
+.send-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.send-bar i {
+  display: block;
+  height: 100%;
+  background: var(--accent-400);
+}
+
+.send-row.is-best .send-bar i { background: var(--accent); }
+
+.send-row-score {
+  flex: none;
+  font-weight: 700;
+  font-size: 12px;
+  min-width: 3ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.send-footnote {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  font-size: 11.5px;
+  color: var(--faint);
+}
+
 .why-matched { color: var(--muted); font-size: 12px; padding-left: 16px; }
 
 .why-ledger {

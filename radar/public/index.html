@@ -280,53 +280,11 @@
         </div>
       </section>
 
+      <!-- Bare shell: buildDetailSkeleton() in app.js is the single source of
+           the detail markup (it always rebuilt this pane anyway — keeping a
+           static copy in sync was a standing bug source). -->
       <section id="detail-pane" class="detail-pane" aria-label="Job detail" hidden>
-        <div class="detail-scroll">
-          <button id="detail-back" class="link-button detail-back" type="button">← Back to list</button>
-          <div class="detail-head">
-            <h2 id="detail-title"></h2>
-            <p id="detail-meta" class="detail-meta"></p>
-          </div>
-
-          <div class="detail-actions">
-            <a id="detail-open" class="primary-button" target="_blank" rel="noreferrer">Open posting ↗</a>
-            <div id="triage-seg" class="segmented triage-seg" role="group" aria-label="Triage">
-              <button type="button" data-value="new">New</button>
-              <button type="button" data-value="shortlist">Shortlist</button>
-              <button type="button" data-value="emailed_lab">Emailed lab</button>
-              <button type="button" data-value="needs_visa_check">Visa check</button>
-              <button type="button" data-value="applied">Applied</button>
-              <button type="button" data-value="interview">Interview</button>
-              <button type="button" data-value="offer">Offer</button>
-              <button type="button" data-value="rejected">Rejected</button>
-              <button type="button" data-value="withdrawn">Withdrawn</button>
-              <button type="button" data-value="ignore">Ignore</button>
-            </div>
-          </div>
-
-          <section class="detail-notes">
-            <label class="field-label" for="detail-note">Notes (contact, next step)</label>
-            <textarea id="detail-note" class="note-input" rows="3" placeholder="e.g. emailed Dr. Lee 7/18 — follow up in a week"></textarea>
-          </section>
-
-          <label class="field variant-sent-field" id="variant-sent-wrap" hidden>
-            <span class="field-label">Resume sent</span>
-            <select id="variant-sent"></select>
-          </label>
-
-          <div id="detail-alerts"></div>
-
-          <dl id="detail-signals" class="signal-grid"></dl>
-
-          <div id="detail-fit" class="fit-block"></div>
-
-          <section class="detail-description">
-            <h3>Description</h3>
-            <div id="detail-description-body" class="description-body"></div>
-          </section>
-
-          <p id="detail-disclaimer" class="disclaimer"></p>
-        </div>
+        <div class="detail-scroll"></div>
       </section>
     </main>
 

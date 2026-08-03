@@ -493,11 +493,42 @@
     return VERDICT_TIERS.findIndex(([name]) => name === tier);
   }
 
+  // Short display initials per variant id ("data-engineer" -> "DE",
+  // "bioinformatics" -> "BIO"). Collisions extend with further letters of the
+  // flattened id, then a number — every variant gets a unique, stable code.
+  function variantInitials(variants) {
+    const out = {};
+    const used = new Set();
+    for (const variant of variants || []) {
+      const id = String(variant?.id || '');
+      if (!id || out[id]) continue;
+      const tokens = id.split(/[-_]+/).filter(Boolean);
+      const flat = tokens.join('').toUpperCase();
+      const base = (tokens.length > 1 ? tokens.map((token) => token[0]).join('') : flat.slice(0, 3)).toUpperCase();
+      let candidate = base;
+      let extend = base.length + 1;
+      let suffix = 2;
+      while (used.has(candidate)) {
+        if (extend <= flat.length) {
+          candidate = flat.slice(0, extend);
+          extend += 1;
+        } else {
+          candidate = `${base}${suffix}`;
+          suffix += 1;
+        }
+      }
+      out[id] = candidate;
+      used.add(candidate);
+    }
+    return out;
+  }
+
   const RadarScoring = {
     WEIGHTS,
     VERDICT_TIERS,
     DEGREE_RANK,
     verdictRank,
+    variantInitials,
     compileProfile,
     scoreJob,
     scoreAll,
