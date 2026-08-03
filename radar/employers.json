@@ -110,15 +110,20 @@
       "manual",
       "irs_eo_bmf_candidate"
     ],
-    "ats_provider": null,
-    "ats_token": null,
-    "careers_url": "https://www.stjude.org/jobs.html",
+    "ats_provider": "workday",
+    "ats_token": "stjude",
+    "ats_config": {
+      "host": "stjude.wd1.myworkdayjobs.com",
+      "tenant": "stjude",
+      "site": "stjude"
+    },
+    "careers_url": "https://stjude.wd1.myworkdayjobs.com/stjude",
     "research_areas": [
       "pediatric cancer",
       "genomics",
       "immunology"
     ],
-    "notes": "Likely nonprofit research institution. ATS source deferred until a clean public endpoint is verified. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found."
+    "notes": "Likely nonprofit research institution. Workday CXS feed verified 2026-08-03 (stjude.wd1.myworkdayjobs.com/stjude, 176 postings incl. Staff Software/ML Engineer-Radiology, Sr Staff Image Data Scientist, Sr Computational Research Scientist, Rust Genomics Infrastructure engineer, Associate Biostatistician). Public careers page (stjude.org/jobs.html) fronts a Phenom board (talent.stjude.org) whose JobDetail links redirect into the Workday tenant; tenant recovered by following those redirects. Earlier Greenhouse/Lever/Ashby/SmartRecruiters probes (2026-07-03) found no board."
   },
   {
     "id": "scripps-research",
@@ -415,25 +420,6 @@
       "computational biology"
     ],
     "notes": "Likely nonprofit research hospital. Workday CXS feed verified 2026-07-19 (msk.wd108.myworkdayjobs.com/MSKCC_Careers_Primary, 99 postings incl. Bioinformatics Software Engineer, research technicians, analysts). Tenant recovered from careers.mskcc.org 'introduce yourself' link; earlier Greenhouse/Lever/Ashby/SmartRecruiters probes (2026-07-03) found no board."
-  },
-  {
-    "id": "dana-farber",
-    "name": "Dana-Farber Cancer Institute",
-    "type": "nonprofit_research_hospital",
-    "cap_exempt_status": "likely",
-    "evidence_sources": [
-      "manual",
-      "irs_eo_bmf_candidate"
-    ],
-    "ats_provider": null,
-    "ats_token": null,
-    "careers_url": "https://www.dana-farber.org/careers",
-    "research_areas": [
-      "cancer research",
-      "bioinformatics",
-      "clinical research"
-    ],
-    "notes": "Likely nonprofit research hospital. Custom career source deferred for v1. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found."
   },
   {
     "id": "mayo-clinic",
@@ -4695,13 +4681,15 @@
   },
   {
     "id": "dana-farber-cancer-institute",
-    "name": "DANA-FARBER CANCER INSTITUTE",
+    "name": "Dana-Farber Cancer Institute",
     "aliases": [],
-    "type": "nonprofit_research_org",
+    "type": "nonprofit_research_hospital",
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "irs_eo_bmf"
+      "irs_eo_bmf",
+      "manual",
+      "irs_eo_bmf_candidate"
     ],
     "tier": "auto",
     "ats_provider": "workday",
@@ -4712,8 +4700,12 @@
       "site": "dana-farber"
     },
     "careers_url": "https://careers.dana-farber.org/",
-    "research_areas": [],
-    "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 374 live postings. USCIS 338 approvals / DOL 9 research LCAs (3y)."
+    "research_areas": [
+      "cancer research",
+      "bioinformatics",
+      "clinical research"
+    ],
+    "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 374 live postings. USCIS 338 approvals / DOL 9 research LCAs (3y). Merged 2026-08-03 with the duplicate manual null-ATS entry 'dana-farber' (same careers.dana-farber.org / Workday tenant); absorbed its proper-case name, research_areas, and DOL sponsor signal (101 certified LCAs 3y). Name-matched DOL import will re-key to this id on next run."
   },
   {
     "id": "howard-hughes-medical-institute",
