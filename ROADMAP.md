@@ -92,20 +92,35 @@ via IPEDS city/state in the enrichment overlay.
 
 | # | Item | Notes | Effort |
 |---|------|-------|--------|
-| 3.1 | **Rescue the 19 dark null-provider flagships** (MIT, Stanford, Harvard, Broad, Allen, Salk, HHMI, MSK, Dana-Farber, Mayo, Cleveland Clinic, St. Jude, …). Most sit on real ATS tenants behind vanity domains — wire true tenant or tune `scout/jobs_scrape.yaml` (only fred-hutch is tuned). **⏳ In progress: probed all 19 (live + Playwright sniff). Wired 5 flagships so far — Workday: HHMI (31 relevant), MSK (15), UW (111); Oracle HCM (new `oracle` driver): Stanford (119), Mayo (201) = +477 jobs. Remaining 14 on still-unsupported platforms (SuccessFactors, Avature, ClearCompany, Findly, non-CE Oracle, custom same-origin) — full map + next-increment plan in `radar/data/flagship-ats-findings.md`.** | 1–2h each | incremental |
+| 3.1 | **Rescue the 19 dark null-provider flagships.** **⏳ 9/19 wired (2026-08-03).** Workday: HHMI, MSK, UW, + **St. Jude** (Phenom→Workday redirect); Oracle HCM (`oracle` driver): Stanford, Mayo; SuccessFactors + Eightfold drivers: Baylor College of Med, JHU; UltiPro (`ultipro` driver): **Salk**. Dana-Farber deduped against its live Workday twin. **Michigan (Drupal-AJAX) + MIT (PeopleFluent) deferred — no public feed.** Remaining dark: MIT, Harvard, Broad (Avature), Allen (ClearCompany), Cleveland Clinic (Findly), UC Berkeley (UCPath), Northwestern (non-CE Oracle), UW-Madison, Michigan. **Plus:** an ATS discovery scan over the candidate pool wired **15 more cap-exempt IHEs** (5 Workday, 10 Oracle CE). Full map in `radar/data/flagship-ats-findings.md`. | 1–2h each | incremental |
 | 3.2 | Interfolio driver + promote wiring (74 discovered faculty boards, currently unreachable) | `refresh.js` + `promote-employers.js:228-244` | 1d |
 | 3.3 | Merge the 7 staged registry proposals in `registry-proposals.json` | review + approve | 1h |
 | 3.4 | iCIMS (45 candidates) and PageUp (57) drivers; Paylocity (59) next | 1d each | incremental |
 | 3.5 | `SERPER_API_KEY` secret + wire `radar:websites` into monthly enrich — thaws the 14k-nonprofit tail | `.github/workflows/radar-enrich.yml` | 1h |
 
+## App track — make it land jobs (2026-08-03 pivot)
+
+Direction shift: stop hand-growing the DB (move enrichment to background agents);
+make the *product* help land jobs. Job-landing funnel status:
+
+| Layer | Status |
+|---|---|
+| **Fit ranking** — which jobs fit me, which résumé to send | ✅ now all 7 résumés (was 2): `.docx` support, matchable-term normalization, discriminated weights, recalibrated verdict tiers |
+| **Daily loop** — fit digest + cross-device triage sync | ⚠️ digest built + launchd scaffold shipped; **user arms it** (NTFY_TOPIC). Triage sync still off (needs Supabase migration + token + auth) |
+| **Pipeline** — applied→interview→offer | ✅ full triage funnel live |
+
+Next in this track: arm the digest, turn on triage sync, then daily-use UX
+(mobile triage, PWA). Details in `HANDOFF.md` "Pick-up state".
+
 ## Small fixes / cleanups (bundle anytime)
 
-- `app.js:740` — meaningless identical ternary (`'alert-warn' : 'alert-warn'`).
-- Dead `state.employers` / `/api/employers` path (`app.js:1263,1271`).
-- Debounce search input; precompute per-job search blob (`app.js:237,1170`).
-- `showAllRows` never resets on filter change (`app.js:103`).
-- Doc drift: HANDOFF/CHANGELOG say "9 adapters", there are 10 (peopleadmin).
+- ~~`app.js:740` — meaningless identical ternary.~~ ✅ (already gone by 2026-08-03)
+- ~~Dead `state.employers` / `/api/employers` path.~~ ✅ done 2026-08-03 (dropped the 162 KB fetch)
+- ~~Debounce search input; precompute per-job search blob.~~ ✅ done 2026-08-03 (`job._searchBlob` + 150ms debounce)
+- ~~`showAllRows` never resets on filter change.~~ ✅ done 2026-08-03 (resets on filter/sort change)
+- ~~Doc drift: "9 adapters".~~ ✅ HANDOFF now says 13 drivers.
 - Mobile: row-level triage buttons (keyboard shortcuts are the only fast path today); optional PWA manifest.
+- Variant abbrev is a raw 6-char slice ("APPLIE", "DATA-E") — could be smarter.
 - ~~Supabase MCP connector in Claude sessions points at a different project (couples app)~~ — fixed 2026-07-11: project-scoped `.mcp.json` pins `nawbdsujjysugaisczta` for this repo (takes effect next session).
 
 ## Observed, not actioned

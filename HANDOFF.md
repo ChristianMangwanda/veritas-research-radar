@@ -6,18 +6,23 @@ cap-exempt research jobs instrument.
 ## Architecture
 
 ```
-EVERY 6 HOURS (GitHub Action)             SCOUT PRODUCER (LadyLibertysBrief repo)
-  refresh.js:                               Playwright jobs-scout writes
-   9 ATS adapters (greenhouse, lever,        radar/data/scouted/<id>.json
+EVERY 6 HOURS (GitHub Action)             SCOUT PRODUCER (scout/, Playwright)
+  refresh.js:                               jobs-scout writes
+   13 ATS drivers: greenhouse, lever,        radar/data/scouted/<id>.json
    ashby, smartrecruiters, workday,          -> npm run radar:import-scouted
-   recruitee, breezy, workable, usajobs)
-   + scouted-jobs merge (14-day TTL)       MONTHLY (GitHub Action + local)
-   + employer-enrichment overlay             enrich.js: IPEDS + IRS EO BMF +
-   -> jobs.json / refresh-report.json         USCIS Data Hub + DOL signals
-                                              -> employer-enrichment.json
-                                              -> discovery-candidates.json
-                                              -> enrichment-report.json
+   oracle, ultipro, successfactors,
+   eightfold, recruitee, breezy,           MONTHLY (GitHub Action + local)
+   workable, usajobs, peopleadmin            enrich.js: IPEDS + IRS EO BMF +
+   + scouted-jobs merge (14-day TTL)          USCIS Data Hub + DOL signals
+   + aggregator firehose (2x/day)            -> employer-enrichment.json
+   + employer-enrichment overlay             -> discovery-candidates.json
+   + resume-variant fit scoring              -> enrichment-report.json
+   -> Supabase / jobs.json / refresh-report.json
 ```
+
+Registry: **253 cap-exempt employers** (135 Workday, 78 PeopleAdmin, 12 Oracle,
+17 not-yet-wired dark flagships, the rest across 8 other systems). Dataset
+~11.5k active jobs. Full orientation in **`PROJECT-MAP.md`**.
 
 ## Commands
 
@@ -30,8 +35,15 @@ npm run radar:enrich -- --offline   # rerun from cache (deterministic)
 npm run radar:import-dol -- path/to/LCA.csv   # manual DOL signal import
 npm run radar:import-scouted    # validate + merge scout snapshots
 npm run radar:profile           # extract resume variants -> profile.json (local Ollama by default)
+npm run radar:profile -- --force    # re-extract all variants (after a prompt/model change)
 npm run radar:route             # optional: local Ollama resolves ambiguous variant calls
+npm run radar:digest:local      # fit-aware digest (scores fresh jobs vs your profile)
+bash radar/scripts/run-digest.sh    # same, sourcing radar/scripts/.digest.env (used by launchd)
 ```
+
+Résumé files may be `.txt`, `.md`, `.pdf`, or `.docx` (`.docx` extracted locally
+via the `unzip` CLI). The extractor forces a real 3/2/1 skill-weight pyramid so
+fit scores discriminate between variants.
 
 Both resume steps run a local model via Ollama (nothing leaves the machine).
 One shared knob: `OLLAMA_MODEL` (default `qwen2.5:7b-instruct`), `OLLAMA_URL`
@@ -118,11 +130,35 @@ never leaves the machine at all; only if you opt into `--provider anthropic`
 does resume text go to a hosted model. The DOL raw download stays local;
 only the aggregated per-employer signal is committed.
 
-## Current data status
+## Current data status (2026-08-03)
 
-Live daily sources: CZ Biohub (greenhouse), Scripps Research (smartrecruiters),
-UCSF (lever), University of Chicago (workday), US federal (usajobs, needs key).
-First enrichment run: 20 of 25 registry employers carry hard "verified"
-cap-exempt evidence (IPEDS/IRS joins), 250 ranked discovery candidates.
-HigherEdJobs/HERC/Nature/Science Careers were evaluated and ruled out — no
-machine-readable feeds and bot walls we will not circumvent.
+- **253 employers**, 12 wired ATS systems; ~11.5k active jobs (of ~17.6k
+  tracked), 0 recall anomalies on the last refresh (24 transient feed errors,
+  individual employers — not data loss).
+- Fit engine ranks **all 7 résumé variants**; verdict tiers recalibrated
+  (strong 50 / good 38 / moderate 27 / weak 16).
+- 7 GitHub Actions run the pipeline (see `PROJECT-MAP.md` §"How it stays fresh").
+
+## Pick-up state — what needs YOU (nothing is blocked on code)
+
+1. **Arm the daily fit digest.** `cp radar/scripts/.digest.env.example
+   radar/scripts/.digest.env`, set `NTFY_TOPIC` (a private ntfy.sh topic you
+   subscribe to; optionally `SUPABASE_URL`/`SUPABASE_SERVICE_KEY` for live data),
+   then load the launchd agent — commands are in the header of
+   `radar/scripts/com.veritas.radar.digest.plist`.
+2. **Turn on cross-device triage sync.** Apply `radar/supabase/triage.sql` and
+   set a sync token in the dashboard's Settings → Sync. Needs you to authorize
+   the Supabase connection (couldn't be done from a headless session).
+3. **Set `NTFY_TOPIC` repo secret** if you also want the CI daily digest to push
+   (the local fit digest above is the better one).
+
+## Open follow-ups (nice-to-have, not blocking)
+
+- 17 dark flagships still unwired (MIT, Harvard, Broad, Allen, Cleveland
+  Clinic, UC Berkeley…) — closed/JS-only ATS; see `flagship-ats-findings.md`.
+- Scan the wider `cap-exempt-directory.json` (5,971 sites) for more
+  config-only-wireable feeds (the 15-employer scan only covered the top 220).
+- `University of South Florida` matched Oracle CE but its host was unresolved —
+  a targeted probe would wire it.
+- Résumé extraction still emits somewhat verbose terms (the allowlist recovers
+  the matchable tokens); a larger local model (`qwen2.5:14b`) would sharpen it.

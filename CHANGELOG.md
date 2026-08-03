@@ -4,6 +4,53 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Session 2026-08-03 — coverage push + fit-engine hardening
+
+Coverage (Tier 3.1 dark-flagship rescues + a candidate-pool ATS scan; registry
+239 → 253):
+- **St. Jude** wired via Workday — its Phenom board (`talent.stjude.org`)
+  redirects into a Workday tenant; recovered by following the redirects.
+  176 postings, 107 research-relevant. Was a dark null-provider flagship.
+- **New `ultipro` driver** (UKG Recruiting JobBoard JSON, `fetchUltiproJobs` +
+  `mapUltiproJob`, `ats_config={host,tenant,boards[]}`, `BriefDescription`
+  inline so no per-job fetch). Rescued **Salk** (11 jobs incl. Research Software
+  Engineer @ AIRC + 4 postdocs).
+- **Dana-Farber dedup** — the null `dana-farber` entry duplicated the live
+  Workday `dana-farber-cancer-institute`; merged curated fields, re-keyed its
+  DOL sponsor signal (no orphan), removed the dupe.
+- **Michigan / MIT deferred** — Drupal-AJAX and PeopleFluent stateful-Angular
+  respectively; no public inventory feed. Documented in
+  `radar/data/flagship-ats-findings.md` so they aren't re-probed.
+- **ATS discovery scan** over the 220 top-scored discovery candidates found 16
+  config-only-wireable feeds; **15 new tier:auto cap-exempt IHEs wired** after
+  end-to-end driver verification — 5 Workday (Liberty, NJIT, Santa Clara,
+  Wentworth, Albany Med; +60 relevant) and 10 Oracle CE (U-Maine, ETSU, Loma
+  Linda, Tennessee Tech, Vanderbilt, Baylor, Tulsa, St Olaf, DePaul, Champlain;
+  ~197 relevant). Oracle canonical-site trap noted (pick `ORA_ACTIVE`,
+  non-student site; `SiteNumber` doubles as the apply-URL token).
+
+Fit engine (make it rank all 7 of the user's résumés, well):
+- **`.docx` résumé support** in `build-profile.js` (`readResumeText` extracts
+  `word/document.xml` via the `unzip` CLI, zero runtime deps, local-only).
+  Manifest expanded to all 7 variants; `profile.json` rebuilt via Ollama.
+- **Matchable skill-term normalization** — underscores → spaces + canonical
+  atomic tokens (python/sql/etl/rag/llm/aws…) recovered from compound terms as
+  aliases via an allowlist. Fixed variants that scored 0 on obviously-matching
+  jobs.
+- **Weight discrimination** — the local 7B marked nearly every skill weight 3;
+  the prompt now enforces a real 3/2/1 pyramid, so per-variant scores separate.
+- **Verdict tiers recalibrated** to the new (honest, lower) score scale:
+  strong 50 / good 38 / moderate 27 / weak 16 (was 70/55/40/25, which had made
+  "strong" unreachable). Dataset now spreads strong 11 / good 23 / moderate 126.
+
+Daily loop + dashboard:
+- **Launchd scaffold** for the fit-aware digest (`run-digest.sh`,
+  `.digest.env.example`, `com.veritas.radar.digest.plist`). Verified; arming
+  needs a user `NTFY_TOPIC` (+ optional Supabase creds).
+- **Dashboard UX** — removed a dead 162 KB `employers.json` fetch on every
+  load, debounced search + memoized per-job search blob, reset "show all" on
+  filter change.
+
 ### Added (Stage 5: resume-variant-aware ranking)
 - **Multi-variant resume ingestion** (`npm run radar:profile`): the user
   maintains resume variants they wrote themselves (ML engineer, data
