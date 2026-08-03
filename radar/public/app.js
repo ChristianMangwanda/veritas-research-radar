@@ -1,6 +1,5 @@
 const state = {
   jobs: [],
-  employers: [],
   local: { version: 1, triage: {} },
   profile: null,      // profile.json v2 (user's own resume variants)
   compiled: null,     // RadarScoring.compileProfile(profile)
@@ -143,7 +142,6 @@ const SUPABASE_URL = 'https://nawbdsujjysugaisczta.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_7GXYKvqrAMSfxwPX-0NKyA_CSO2Sz2T';
 
 const STATIC_DATA = {
-  '/api/employers': 'data/employers.json',
   '/api/discovery': 'data/discovery-candidates.json'
 };
 
@@ -403,7 +401,9 @@ const PROFILE_KEY = 'veritas_radar_profile';
 const ROUTE_CACHE_KEY = 'veritas_radar_route_cache';
 
 function jobText(job) {
-  return `${job.title} ${job.department} ${job.employer_name} ${job.description_text}`.toLowerCase();
+  // Built once per job and cached — the search filter runs this for every job on
+  // every render, and (with the debounced search box) that must stay cheap.
+  return (job._searchBlob ??= `${job.title} ${job.department} ${job.employer_name} ${job.description_text}`.toLowerCase());
 }
 
 function loadProfileFromBrowser() {
@@ -1509,8 +1509,19 @@ function markAllSeen() {
 }
 
 function bindEvents() {
-  for (const input of [DOM.q, DOM.sort, DOM.source, DOM.newOnly, DOM.followupOnly, DOM.remoteOnly, DOM.includeClosed, DOM.includeFederal, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
-    input.addEventListener('input', render);
+  // Any filter/sort change re-caps the list: a fresh filter shouldn't inherit a
+  // previous "show all N" expansion. (render() itself must NOT reset the cap —
+  // triage edits etc. re-render and should keep the list expanded.)
+  const onFilterChange = () => { showAllRows = false; render(); };
+  // The search box fires per keystroke over thousands of jobs — debounce it;
+  // the discrete inputs (selects, checkboxes) fire once, so bind them directly.
+  let searchTimer = null;
+  DOM.q.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(onFilterChange, 150);
+  });
+  for (const input of [DOM.sort, DOM.source, DOM.newOnly, DOM.followupOnly, DOM.remoteOnly, DOM.includeClosed, DOM.includeFederal, DOM.type, DOM.cap, DOM.triageFilter, DOM.minResearch]) {
+    input.addEventListener('input', onFilterChange);
   }
 
   DOM.markSeen.addEventListener('click', markAllSeen);
@@ -1613,9 +1624,8 @@ async function init() {
   }
   hydrateFromUrl();
 
-  const [jobs, employers, local, report, discovery, profile, routeCache] = await Promise.all([
+  const [jobs, local, report, discovery, profile, routeCache] = await Promise.all([
     loadJobs(),
-    getJson('/api/employers', []),
     getJson('/api/local-state', null),
     loadRefreshReport(),
     getJson('/api/discovery', { candidates: [] }),
@@ -1623,7 +1633,6 @@ async function init() {
     getJson('/api/route-cache', null)
   ]);
   state.jobs = jobs;
-  state.employers = employers;
   // null means no API server (static hosting) -> browser-local triage
   state.local = local || loadTriageFromBrowser();
   // Cross-device sync (1.2): pull Supabase triage, merge last-write-wins, and
