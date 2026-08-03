@@ -12,7 +12,6 @@ const state = {
 };
 
 const LAST_VISIT_KEY = 'veritas_radar_last_visit';
-const THEME_KEY = 'veritas_radar_theme';
 
 // Full triage funnel, ordered new → shortlisted → outreach → applied →
 // interview → outcome. The segmented control and triage filter are both built
@@ -80,7 +79,6 @@ const DOM = {
   discoveryToggle: document.querySelector('#discovery-toggle'),
   discoveryPanel: document.querySelector('#discovery-panel'),
   discoveryList: document.querySelector('#discovery-list'),
-  themeToggle: document.querySelector('#theme-toggle'),
   q: document.querySelector('#q'),
   sort: document.querySelector('#sort'),
   source: document.querySelector('#source'),
@@ -1695,25 +1693,6 @@ function populateSources() {
 }
 
 /* ------------------------------------------------------------------------ */
-/* Theme                                                                     */
-
-function applyTheme(theme) {
-  if (theme === 'dark' || theme === 'light') {
-    document.documentElement.dataset.theme = theme;
-  } else {
-    delete document.documentElement.dataset.theme;
-  }
-}
-
-function toggleTheme() {
-  const current = document.documentElement.dataset.theme
-    || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  const next = current === 'dark' ? 'light' : 'dark';
-  localStorage.setItem(THEME_KEY, next);
-  applyTheme(next);
-}
-
-/* ------------------------------------------------------------------------ */
 /* Events + init                                                             */
 
 function toggleDrawer(panel) {
@@ -1876,7 +1855,6 @@ function bindEvents() {
     });
   }
 
-  DOM.themeToggle.addEventListener('click', toggleTheme);
   document.addEventListener('keydown', handleKeydown);
   narrowLayout.addEventListener('change', renderDetail);
 
@@ -1884,7 +1862,8 @@ function bindEvents() {
 }
 
 async function init() {
-  applyTheme(localStorage.getItem(THEME_KEY));
+  // Light-only since the 2026-08-03 redesign — drop any stored dark preference
+  try { localStorage.removeItem('veritas_radar_theme'); } catch { /* fine */ }
   // The "NEW" watermark must NOT advance on every load — that made everything
   // stop being NEW the moment you reloaded. Read it and leave it; only an
   // explicit "Mark all as seen" advances it. Seed it once on the very first

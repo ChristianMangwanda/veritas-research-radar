@@ -1,107 +1,94 @@
 /* ---------------------------------------------------------------------------
    Veritas Research Radar — design tokens
-   Light is the base; dark overrides via data-theme or prefers-color-scheme.
+   Light-only "technical" system from the 2026-08-03 design brief: steel accent
+   on a warm light ground, Barlow Condensed headings, square hairline panels.
+   Fit and evidence are drawn in ONE hue (steel intensity) — the only second
+   color is the warn red, reserved for real dangers.
 --------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/barlow-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/barlow-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/barlow-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/barlow-condensed-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/barlow-condensed-600.woff2') format('woff2');
+}
 
 :root {
   color-scheme: light;
-  --bg: #f4f6f8;
+  --bg: #faf9f5;
   --panel: #ffffff;
-  --panel-2: #f8fafc;
-  --ink: #1a2330;
-  --muted: #5b6878;
-  --faint: #8a97a8;
-  --line: #dde3ea;
-  --line-strong: #c6cfda;
-  --shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --panel-2: #f2f2f3;
+  --ink: #1d1f20;
+  --muted: #5d5d60;
+  --faint: #98989b;
+  --line: #e9e9ea;
+  --line-strong: #d4d4d7;
+  --shadow: none;
 
-  --accent: #0f766e;
-  --accent-ink: #0b5d56;
-  --accent-soft: #d9f2ee;
+  --accent: #5980a6;
+  --accent-ink: #416180;
+  --accent-soft: #eef6ff;
   --accent-contrast: #ffffff;
 
-  --friendly-ink: #166534;
-  --friendly-soft: #dcfce7;
-  --restricted-ink: #b42318;
-  --restricted-soft: #fee4e2;
-  --warn-ink: #854d0e;
-  --warn-soft: #fef3c7;
-  --info-ink: #1d4ed8;
-  --info-soft: #dbeafe;
-  --neutral-ink: #475467;
-  --neutral-soft: #eef2f6;
+  /* Single-hue system: friendly/info speak steel, "warn" is neutral ink on a
+     hairline gray — only genuine dangers (restricted language, alarms) wear
+     the one red in the palette. */
+  --friendly-ink: #416180;
+  --friendly-soft: #d6ebff;
+  --restricted-ink: #b0433c;
+  --restricted-soft: #ffe5e2;
+  --warn-ink: #5d5d60;
+  --warn-soft: #e7e7ea;
+  --info-ink: #416180;
+  --info-soft: #eef6ff;
+  --neutral-ink: #7a7a7d;
+  --neutral-soft: #f5f5f8;
 
-  --mark-restricted: #fecdca;
-  --mark-friendly: #bbf7d0;
-  --mark-skill: #ccfbf1;
-}
+  --mark-restricted: #ffd2cc;
+  --mark-friendly: #d6ebff;
+  --mark-skill: #bdd8f2;
 
-[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #0f141a;
-  --panel: #161d26;
-  --panel-2: #1c242f;
-  --ink: #e6ebf2;
-  --muted: #97a5b7;
-  --faint: #6b7a8d;
-  --line: #29323e;
-  --line-strong: #394554;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --warn-red: #ff8a80;
 
-  --accent: #21b8a6;
-  --accent-ink: #6fe3d4;
-  --accent-soft: rgba(20, 184, 166, 0.16);
-  --accent-contrast: #06211d;
+  --font-heading: 'Barlow Condensed', system-ui, sans-serif;
+  --font-body: 'Barlow', system-ui, -apple-system, sans-serif;
 
-  --friendly-ink: #74dd96;
-  --friendly-soft: rgba(34, 197, 94, 0.15);
-  --restricted-ink: #f8a29c;
-  --restricted-soft: rgba(240, 68, 56, 0.16);
-  --warn-ink: #f5cd58;
-  --warn-soft: rgba(245, 158, 11, 0.15);
-  --info-ink: #9ec5fd;
-  --info-soft: rgba(59, 130, 246, 0.17);
-  --neutral-ink: #a6b2c2;
-  --neutral-soft: rgba(148, 163, 184, 0.13);
-
-  --mark-restricted: rgba(240, 68, 56, 0.32);
-  --mark-friendly: rgba(34, 197, 94, 0.3);
-  --mark-skill: rgba(20, 184, 166, 0.28);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --bg: #0f141a;
-    --panel: #161d26;
-    --panel-2: #1c242f;
-    --ink: #e6ebf2;
-    --muted: #97a5b7;
-    --faint: #6b7a8d;
-    --line: #29323e;
-    --line-strong: #394554;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-
-    --accent: #21b8a6;
-    --accent-ink: #6fe3d4;
-    --accent-soft: rgba(20, 184, 166, 0.16);
-    --accent-contrast: #06211d;
-
-    --friendly-ink: #74dd96;
-    --friendly-soft: rgba(34, 197, 94, 0.15);
-    --restricted-ink: #f8a29c;
-    --restricted-soft: rgba(240, 68, 56, 0.16);
-    --warn-ink: #f5cd58;
-    --warn-soft: rgba(245, 158, 11, 0.15);
-    --info-ink: #9ec5fd;
-    --info-soft: rgba(59, 130, 246, 0.17);
-    --neutral-ink: #a6b2c2;
-    --neutral-soft: rgba(148, 163, 184, 0.13);
-
-    --mark-restricted: rgba(240, 68, 56, 0.32);
-    --mark-friendly: rgba(34, 197, 94, 0.3);
-    --mark-skill: rgba(20, 184, 166, 0.28);
-  }
+  /* Steel intensity ramp — fit bars, heat cells, activity squares */
+  --accent-100: #eef6ff;
+  --accent-200: #d6ebff;
+  --accent-300: #b5d9fd;
+  --accent-400: #94bce3;
+  --accent-500: #749dc4;
+  --accent-600: #597ea3;
 }
 
 /* --------------------------------------------------------------------------
@@ -120,14 +107,41 @@ body {
   height: 100%;
   background: var(--bg);
   color: var(--ink);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.45;
 }
 
 h1, h2, h3, p, dl, dd, dt { margin: 0; }
 
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 button { font: inherit; color: inherit; }
+
+/* Registration-mark corner ticks — the brief's "square hairline panels with
+   registration marks". Layered gradients paint short ticks at the top-left and
+   bottom-right corners; no extra markup needed. */
+.filters, .detail-pane, .drawer, .empty-state {
+  position: relative;
+}
+
+.filters::after, .detail-pane::after, .drawer::after, .empty-state::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--line-strong), var(--line-strong)) 0 0 / 10px 1px,
+    linear-gradient(var(--line-strong), var(--line-strong)) 0 0 / 1px 10px,
+    linear-gradient(var(--line-strong), var(--line-strong)) 100% 100% / 10px 1px,
+    linear-gradient(var(--line-strong), var(--line-strong)) 100% 100% / 1px 10px;
+  background-repeat: no-repeat;
+}
 
 /* --------------------------------------------------------------------------
    Top bar + stat strip
@@ -184,10 +198,9 @@ button { font: inherit; color: inherit; }
   justify-items: center;
   gap: 0;
   padding: 4px 14px;
-  border-radius: 8px;
 }
 
-.stat + .stat { border-left: 1px solid var(--line); border-radius: 0 8px 8px 0; }
+.stat + .stat { border-left: 1px solid var(--line); }
 
 .stat-value {
   font-size: 18px;
@@ -197,7 +210,10 @@ button { font: inherit; color: inherit; }
 }
 
 .stat-label {
-  font-size: 11px;
+  font-family: var(--font-heading);
+  font-size: 11.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   color: var(--muted);
   white-space: nowrap;
 }
@@ -215,7 +231,6 @@ button { font: inherit; color: inherit; }
   border: 1px solid var(--line);
   background: var(--panel-2);
   color: var(--ink);
-  border-radius: 999px;
   padding: 5px 12px;
   font-size: 12px;
   font-weight: 600;
@@ -238,7 +253,6 @@ button { font: inherit; color: inherit; }
   width: 32px;
   height: 32px;
   border: 1px solid var(--line);
-  border-radius: 8px;
   background: var(--panel-2);
   cursor: pointer;
   font-size: 15px;
@@ -257,8 +271,7 @@ button { font: inherit; color: inherit; }
   bottom: 0;
   width: min(480px, 100vw);
   background: var(--panel);
-  border-left: 1px solid var(--line);
-  box-shadow: -12px 0 32px rgba(16, 24, 40, 0.12);
+  border-left: 1px solid var(--line-strong);
   z-index: 40;
   padding: 18px 20px;
   overflow-y: auto;
@@ -293,7 +306,6 @@ button { font: inherit; color: inherit; }
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--restricted-ink);
-  border-radius: 8px;
   background: var(--panel-2);
 }
 
@@ -304,7 +316,6 @@ button { font: inherit; color: inherit; }
   gap: 6px;
   padding: 10px 12px;
   border: 1px solid var(--line);
-  border-radius: 8px;
   background: var(--panel-2);
 }
 
@@ -341,7 +352,6 @@ button { font: inherit; color: inherit; }
   padding: 16px;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 12px;
   box-shadow: var(--shadow);
 }
 
@@ -363,8 +373,11 @@ button { font: inherit; color: inherit; }
 }
 
 .field-label {
-  font-size: 12px;
-  font-weight: 650;
+  font-family: var(--font-heading);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--muted);
   display: flex;
   justify-content: space-between;
@@ -379,7 +392,6 @@ select,
 textarea {
   width: 100%;
   border: 1px solid var(--line);
-  border-radius: 8px;
   background: var(--panel-2);
   color: var(--ink);
   font: inherit;
@@ -406,14 +418,12 @@ input[type="range"] {
   padding: 3px;
   background: var(--panel-2);
   border: 1px solid var(--line);
-  border-radius: 8px;
 }
 
 .segmented button {
   flex: 1 1 auto;
   border: 0;
   background: transparent;
-  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   padding: 5px 8px;
@@ -485,7 +495,6 @@ input[type="range"] {
 .variant-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
   flex: none;
   display: inline-block;
 }
@@ -501,7 +510,6 @@ input[type="range"] {
   justify-content: center;
   padding: 6px 12px;
   border: 1px solid var(--line);
-  border-radius: 8px;
   background: var(--panel-2);
   font-size: 12.5px;
   font-weight: 600;
@@ -514,7 +522,6 @@ input[type="range"] {
 .ghost-button {
   padding: 6px 12px;
   border: 1px solid var(--line);
-  border-radius: 8px;
   background: transparent;
   font-size: 12.5px;
   font-weight: 600;
@@ -563,7 +570,6 @@ input[type="range"] {
   margin-bottom: 10px;
   background: var(--panel-2);
   border: 1px solid var(--line);
-  border-radius: 8px;
   font-size: 12.5px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -571,8 +577,9 @@ input[type="range"] {
 
 .group-header {
   padding: 10px 4px 2px;
-  font-size: 11.5px;
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-size: 12.5px;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--faint);
@@ -633,7 +640,6 @@ body.pipeline-mode .today-chip { display: none; }
   background: var(--panel);
   border: 1px solid var(--line);
   border-left: 3px solid transparent;
-  border-radius: 10px;
   cursor: pointer;
   box-shadow: var(--shadow);
 }
@@ -691,7 +697,6 @@ body.pipeline-mode .today-chip { display: none; }
 .meter {
   width: 36px;
   height: 4px;
-  border-radius: 2px;
   background: var(--line);
   overflow: hidden;
 }
@@ -700,7 +705,6 @@ body.pipeline-mode .today-chip { display: none; }
   display: block;
   height: 100%;
   background: var(--accent);
-  border-radius: 2px;
 }
 
 /* Tags: always text + color, never color alone */
@@ -708,7 +712,6 @@ body.pipeline-mode .today-chip { display: none; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  border-radius: 999px;
   padding: 2px 8px;
   font-size: 11px;
   font-weight: 650;
@@ -726,7 +729,6 @@ body.pipeline-mode .today-chip { display: none; }
 .triage-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
   flex-shrink: 0;
 }
 
@@ -735,7 +737,6 @@ body.pipeline-mode .today-chip { display: none; }
   text-align: center;
   color: var(--muted);
   border: 1px dashed var(--line-strong);
-  border-radius: 12px;
   display: grid;
   gap: 6px;
 }
@@ -743,7 +744,6 @@ body.pipeline-mode .today-chip { display: none; }
 .load-error {
   margin-bottom: 12px;
   padding: 10px 14px;
-  border-radius: 10px;
   background: var(--warn-soft);
   color: var(--warn-ink);
   font-size: 14px;
@@ -781,7 +781,6 @@ body.pipeline-mode .today-chip { display: none; }
   max-height: calc(100vh - 90px);
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 12px;
   box-shadow: var(--shadow);
   min-width: 0;
   display: flex;
@@ -823,7 +822,6 @@ body.pipeline-mode .today-chip { display: none; }
   background: var(--accent);
   color: var(--accent-contrast);
   border: 0;
-  border-radius: 8px;
   font-weight: 650;
   font-size: 13.5px;
   padding: 9px 16px;
@@ -841,7 +839,6 @@ body.pipeline-mode .today-chip { display: none; }
 
 .alert {
   padding: 10px 12px;
-  border-radius: 8px;
   font-size: 12.5px;
   font-weight: 550;
 }
@@ -863,14 +860,14 @@ body.pipeline-mode .today-chip { display: none; }
   padding: 10px 12px;
   background: var(--panel-2);
   border: 1px solid var(--line);
-  border-radius: 8px;
 }
 
 .signal dt {
-  font-size: 11px;
-  font-weight: 650;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   color: var(--faint);
 }
 
@@ -897,7 +894,6 @@ body.pipeline-mode .today-chip { display: none; }
   gap: 6px;
   padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 8px;
   background: var(--panel-2);
   font-size: 13px;
 }
@@ -926,7 +922,10 @@ body.pipeline-mode .today-chip { display: none; }
   flex: none;
   min-width: 120px;
   color: var(--muted);
-  font-size: 11px;
+  font-family: var(--font-heading);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -949,7 +948,6 @@ body.pipeline-mode .today-chip { display: none; }
 }
 
 .description-body mark {
-  border-radius: 3px;
   padding: 0 2px;
   color: inherit;
 }
@@ -971,7 +969,6 @@ mark.m-skill { background: var(--mark-skill); }
   display: inline-block;
   width: 10px;
   height: 10px;
-  border-radius: 3px;
   margin-right: 4px;
   vertical-align: -1px;
 }
@@ -1005,7 +1002,6 @@ mark.m-skill { background: var(--mark-skill); }
     position: fixed;
     inset: 0;
     z-index: 30;
-    border-radius: 0;
     max-height: none;
   }
 

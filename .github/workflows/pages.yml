@@ -31,7 +31,7 @@ jobs:
       - name: Assemble static site
         run: |
           mkdir -p site/data
-          cp radar/public/* site/
+          cp -r radar/public/* site/
           cp radar/data/refresh-report.json radar/data/discovery-candidates.json site/data/
           cp radar/employers.json site/data/employers.json
       - uses: actions/configure-pages@v5
