@@ -81,6 +81,7 @@ const DOM = {
   verdictSeg: document.querySelector('#verdict-seg'),
   recency: document.querySelector('#recency'),
   statDiscovered: document.querySelector('#stat-discovered'),
+  instrumentStrip: document.querySelector('#instrument-strip'),
   digestArm: document.querySelector('#digest-arm'),
   digestPopover: document.querySelector('#digest-popover'),
   feedsNote: document.querySelector('#feeds-note'),
@@ -939,6 +940,7 @@ function render() {
 
   DOM.pipelineStats.hidden = true;
   DOM.pipelineEmpty.hidden = true;
+  DOM.instrumentStrip.hidden = true;
 
   const jobs = filteredJobs();
   state.visible = jobs;
@@ -992,6 +994,7 @@ function renderPipelineList() {
   // Same rule as the radar empty-state: a hard load failure shows the error
   // banner, not a misleading "no applications yet".
   DOM.pipelineEmpty.hidden = visible.length > 0 || (state.jobs.length === 0 && Boolean(state.loadError));
+  renderInstruments();
   renderPipelineStats();
   DOM.jobs.replaceChildren();
 
@@ -1004,10 +1007,13 @@ function renderPipelineList() {
     let host = DOM.jobs;
     if (group.terminal) {
       if (!terminalWrap) {
-        const terminalCount = groups.filter((g) => g.terminal)
-          .reduce((total, g) => total + g.jobs.length, 0);
+        // Named from the REAL groups present, so the line never claims
+        // states that aren't there.
+        const summaryText = groups.filter((g) => g.terminal)
+          .map((g) => `${TRIAGE_LABELS[g.stage]} (${g.jobs.length})`)
+          .join(' and ');
         terminalWrap = el('details', 'pipeline-terminal');
-        terminalWrap.append(el('summary', '', `Closed out · ${terminalCount}`));
+        terminalWrap.append(el('summary', '', `${summaryText} — collapsed`));
         DOM.jobs.append(terminalWrap);
       }
       host = terminalWrap;
@@ -1018,23 +1024,109 @@ function renderPipelineList() {
 }
 
 // Funnel counts over the whole dataset (not the search-narrowed list, so the
-// numbers stay stable while typing). The four core stages always show; the
-// optional ones only when non-zero.
+// numbers stay stable while typing). Leads with New + Shortlist so the strip
+// reads as the whole funnel, even though those stages live in the radar view.
 function renderPipelineStats() {
-  const counts = {};
+  const counts = { new: 0, shortlist: 0 };
   for (const job of state.jobs) {
     const status = triageFor(job);
-    if (RadarPipeline.PIPELINE_SET.has(status)) counts[status] = (counts[status] || 0) + 1;
+    if (status === 'new' && !isClosed(job)) counts.new += 1;
+    else if (status === 'shortlist') counts.shortlist += 1;
+    else if (RadarPipeline.PIPELINE_SET.has(status)) counts[status] = (counts[status] || 0) + 1;
   }
-  const always = new Set(['applied', 'interview', 'offer', 'rejected']);
-  const parts = [];
-  for (const stage of ['emailed_lab', 'applied', 'interview', 'offer', 'rejected', 'withdrawn']) {
+  const always = new Set(['new', 'shortlist', 'applied', 'interview', 'offer']);
+  DOM.pipelineStats.replaceChildren();
+  for (const stage of ['new', 'shortlist', 'emailed_lab', 'needs_visa_check', 'applied', 'interview', 'offer']) {
     const total = counts[stage] || 0;
     if (total === 0 && !always.has(stage)) continue;
-    parts.push(`${TRIAGE_LABELS[stage]} ${total}`);
+    const cell = el('div', 'stage-cell');
+    cell.append(
+      el('span', `stage-count${stage === 'new' ? ' stat-accent' : ''}`, total.toLocaleString()),
+      el('span', 'stage-label', TRIAGE_LABELS[stage])
+    );
+    DOM.pipelineStats.append(cell);
   }
-  DOM.pipelineStats.textContent = parts.join(' · ');
   DOM.pipelineStats.hidden = false;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Instrument strip — the seven systems behind the dataset                   */
+
+const GITHUB_REPO_URL = 'https://github.com/ChristianMangwanda/veritas-research-radar';
+
+// Static facts about each system; live bits come from the refresh report and
+// the discovery feed. No fabricated activity history — the only tile with
+// per-run squares is the radar itself, drawn from the CURRENT report.
+const INSTRUMENTS = [
+  { id: 'radar', label: 'Research job radar', cadence: 'every 6h' },
+  { id: 'firehose', label: 'Aggregator firehose', cadence: '2× daily' },
+  { id: 'scout', label: 'Employer scout', cadence: 'weekly' },
+  { id: 'enrich', label: 'Enrichment', cadence: 'monthly · IPEDS/IRS' },
+  { id: 'pages', label: 'Deploy to Pages', cadence: 'every 6h' },
+  { id: 'digest', label: 'Daily digest', cadence: 'needs NTFY_TOPIC' },
+  { id: 'deadman', label: 'Dead-man switch', cadence: 'every 2h' }
+];
+
+function renderInstruments() {
+  DOM.instrumentStrip.replaceChildren();
+
+  // Strip header: countdown bar to the next pull + the manual-trigger link
+  const head = el('div', 'instrument-head');
+  const nextAt = RadarPipeline.nextPullAt(Date.now());
+  const windowMs = 6 * 3600 * 1000;
+  const elapsed = Math.max(0, Math.min(1, 1 - (nextAt - Date.now()) / windowMs));
+  const gauge = el('span', 'pull-gauge');
+  const gaugeFill = el('i');
+  gaugeFill.style.width = `${Math.round(elapsed * 100)}%`;
+  gauge.append(gaugeFill);
+  const pullNow = el('a', 'ghost-button pull-now', 'Pull now ↗');
+  pullNow.href = `${GITHUB_REPO_URL}/actions/workflows/research-radar.yml`;
+  pullNow.target = '_blank';
+  pullNow.rel = 'noreferrer';
+  pullNow.title = 'Opens the GitHub Actions workflow — Run workflow triggers a pull';
+  head.append(el('span', 'instrument-head-label', 'Next pull'), gauge,
+    el('span', 'instrument-eta', formatEta(nextAt - Date.now())), pullNow);
+  DOM.instrumentStrip.append(head);
+
+  const tiles = el('div', 'instrument-tiles');
+  const report = state.report;
+  for (const instrument of INSTRUMENTS) {
+    const tile = el('div', `instrument-tile${instrument.id === 'digest' ? ' is-dashed' : ''}`);
+    tile.append(el('span', 'instrument-label', instrument.label));
+    const detail = el('span', 'instrument-detail');
+    let detailText = instrument.cadence;
+    if (instrument.id === 'radar' && report?.refreshed_at) {
+      detailText = `${instrument.cadence} · ${new Date(report.refreshed_at)
+        .toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`;
+    } else if (instrument.id === 'scout' && state.discovery?.candidates?.length) {
+      detailText = `${instrument.cadence} · +${state.discovery.candidates.length} found`;
+    } else if (instrument.id === 'deadman') {
+      const alarms = (report?.recall_anomalies || []).length;
+      const errored = (report?.employers || []).filter((employer) => employer.error).length;
+      detailText = alarms || errored ? `every 2h · ALARM` : 'every 2h · quiet';
+      if (alarms || errored) tile.classList.add('is-alarm');
+    }
+    detail.textContent = detailText;
+    tile.append(detail);
+
+    // Real per-employer outcome squares on the radar tile only (current pull)
+    if (instrument.id === 'radar' && report?.employers?.length) {
+      const squares = el('span', 'activity-squares');
+      for (const employer of report.employers.slice(0, 40)) {
+        const kind = employer.error ? 'sq-error' : employer.skipped ? 'sq-skip' : 'sq-ok';
+        const square = el('i', `sq ${kind}`);
+        square.title = `${employer.name}${employer.error ? ` — ${employer.error}` : employer.skipped ? ' — skipped' : ''}`;
+        squares.append(square);
+      }
+      if (report.employers.length > 40) {
+        squares.append(el('span', 'sq-more', `+${report.employers.length - 40}`));
+      }
+      tile.append(squares);
+    }
+    tiles.append(tile);
+  }
+  DOM.instrumentStrip.append(tiles);
+  DOM.instrumentStrip.hidden = false;
 }
 
 // The evidence sub-line under a row's visa tag — strongest behavioral signal

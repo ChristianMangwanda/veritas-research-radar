@@ -1,196 +1,633 @@
 {
-  "generated_at": "2026-08-03T21:21:58.852Z",
+  "generated_at": "2026-08-03T22:01:40.565Z",
   "proposals": [
     {
-      "id": "university-of-detroit-mercy",
-      "name": "University of Detroit Mercy",
+      "id": "chabot-college",
+      "name": "Chabot College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:169716"
+        "ipeds:111920"
       ],
       "tier": "auto",
-      "ats_provider": "paylocity",
-      "ats_token": "university-of-detroit-mercy",
+      "ats_provider": "peopleadmin",
+      "ats_token": "clpccd",
       "ats_config": {
-        "client_guid": "9347ddb7-fd8c-4087-a913-936ecb3b27ac"
+        "tenant": "clpccd"
       },
-      "careers_url": "https://www.udmercy.edu/faculty-staff/hr/jobs.php",
+      "careers_url": "https://www.chabotcollege.edu/employment",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 31 live postings. USCIS 22 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 31
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 4 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 4
     },
     {
-      "id": "tiffin-university",
-      "name": "Tiffin University",
+      "id": "citrus-college",
+      "name": "Citrus College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:206048"
+        "ipeds:112172"
       ],
       "tier": "auto",
-      "ats_provider": "paylocity",
-      "ats_token": "tiffin-university",
+      "ats_provider": "peopleadmin",
+      "ats_token": "employment.citruscollege.edu",
       "ats_config": {
-        "client_guid": "d48417f4-7a59-4e2c-b5f0-6f1677141828"
+        "host": "employment.citruscollege.edu"
       },
-      "careers_url": "https://www.tiffin.edu/about/offices-departments/human-resources/current-job-listings/",
+      "careers_url": "https://www.citruscollege.edu/academics/careertechnical/index.html",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 16 live postings. USCIS 7 approvals / DOL 0 research LCAs (3y).",
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 105 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 105
+    },
+    {
+      "id": "contra-costa-community-college-district-office",
+      "name": "Contra Costa Community College District Office",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:112817"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "www.4cdcareers.net",
+      "ats_config": {
+        "host": "www.4cdcareers.net"
+      },
+      "careers_url": "https://www.4cdcareers.net/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 21 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 21
+    },
+    {
+      "id": "contra-costa-college",
+      "name": "Contra Costa College",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:112826"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "www.4cdcareers.net",
+      "ats_config": {
+        "host": "www.4cdcareers.net"
+      },
+      "careers_url": "https://www.4cdcareers.net/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 21 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 21
+    },
+    {
+      "id": "evergreen-valley-college",
+      "name": "Evergreen Valley College",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:114266"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "sjeccd",
+      "ats_config": {
+        "tenant": "sjeccd"
+      },
+      "careers_url": "https://www.evc.edu/services/jobs/index.html",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 16 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
       "probe_total_jobs": 16
     },
     {
-      "id": "new-england-college-of-optometry",
-      "name": "New England College of Optometry",
+      "id": "life-pacific-university",
+      "name": "Life Pacific University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:167093"
+        "ipeds:117104"
       ],
       "tier": "auto",
       "ats_provider": "paylocity",
-      "ats_token": "new-england-college-of-optometry",
+      "ats_token": "life-pacific-university",
       "ats_config": {
-        "client_guid": "b8356ede-3e1d-4536-88cc-e965235aa225"
+        "client_guid": "f2a089c7-dd55-4fd3-8ffb-64f8c87eebe9"
       },
-      "careers_url": "https://www.neco.edu/jobs/",
+      "careers_url": "https://lifepacific.edu/employment/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 14 live postings. USCIS 6 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 14
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 12 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 12
     },
     {
-      "id": "elizabethtown-college",
-      "name": "Elizabethtown College",
+      "id": "lake-tahoe-community-college",
+      "name": "Lake Tahoe Community College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:212197"
+        "ipeds:117195"
       ],
       "tier": "auto",
-      "ats_provider": "paylocity",
-      "ats_token": "elizabethtown-college",
+      "ats_provider": "peopleadmin",
+      "ats_token": "ltcc",
       "ats_config": {
-        "client_guid": "fdb22ab4-b61f-498b-ac07-a242180665c7"
+        "tenant": "ltcc"
       },
-      "careers_url": "https://www.etown.edu/offices/human-resources/careers.aspx",
+      "careers_url": "https://www.ltcc.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 15 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 15
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 29 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 29
     },
     {
-      "id": "northwest-nazarene-university",
-      "name": "Northwest Nazarene University",
+      "id": "lassen-community-college",
+      "name": "Lassen Community College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:142461"
+        "ipeds:117274"
       ],
       "tier": "auto",
-      "ats_provider": "paylocity",
-      "ats_token": "northwest-nazarene-university",
+      "ats_provider": "peopleadmin",
+      "ats_token": "lassencollege",
       "ats_config": {
-        "client_guid": "dc628dad-def7-40c4-a8e8-46445f141a37"
+        "tenant": "lassencollege"
       },
-      "careers_url": "https://nnu.edu/employment/",
+      "careers_url": "https://www.lassencollege.edu/about-lcc/employment/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 17 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 17
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 7 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 7
     },
     {
-      "id": "midwestern-baptist-theological-seminary",
-      "name": "Midwestern Baptist Theological Seminary",
+      "id": "miracosta-college",
+      "name": "MiraCosta College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:178208"
+        "ipeds:118912"
       ],
       "tier": "auto",
-      "ats_provider": "paylocity",
-      "ats_token": "midwestern-baptist-theological-seminary",
+      "ats_provider": "peopleadmin",
+      "ats_token": "mccollege",
       "ats_config": {
-        "client_guid": "651130b7-0fc3-4c23-a525-fbc088ac7cd1"
+        "tenant": "mccollege"
       },
-      "careers_url": "https://www.mbts.edu/about/employment",
+      "careers_url": "https://jobs.miracosta.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 20 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 20
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 92 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 92
     },
     {
-      "id": "keuka-college",
-      "name": "Keuka College",
+      "id": "mission-college",
+      "name": "Mission College",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:192192"
+        "ipeds:118930"
       ],
       "tier": "auto",
-      "ats_provider": "paylocity",
-      "ats_token": "keuka-college",
+      "ats_provider": "peopleadmin",
+      "ats_token": "wvm",
       "ats_config": {
-        "client_guid": "79f94d92-d2c7-407b-923b-2c8ba8a4a263"
+        "tenant": "wvm"
       },
-      "careers_url": "https://www.keuka.edu/hr/employment-opportunities",
+      "careers_url": "https://www.missioncollege.edu/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 9 live postings. USCIS 1 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 9
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 150 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 150
     },
     {
-      "id": "baim-institute-for-clinical-research-inc",
-      "name": "BAIM INSTITUTE FOR CLINICAL RESEARCH INC",
-      "aliases": [],
-      "type": "nonprofit_research_org",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "irs_eo_bmf"
-      ],
-      "tier": "auto",
-      "ats_provider": "paylocity",
-      "ats_token": "baim-institute-for-clinical-research-inc",
-      "ats_config": {
-        "client_guid": "2a92bf3a-ea27-43f2-9eaa-ac636419e1ae"
-      },
-      "careers_url": "https://www.baiminstitute.org/index.php/careers/",
-      "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 0 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 0
-    },
-    {
-      "id": "academy-of-art-university",
-      "name": "Academy of Art University",
+      "id": "middlebury-institute-of-international-studies-at",
+      "name": "Middlebury Institute of International Studies at Monterey",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:108232"
+        "ipeds:119058"
+      ],
+      "tier": "auto",
+      "ats_provider": "workable",
+      "ats_token": "middleburycollege",
+      "careers_url": "https://www.middlebury.edu/institute/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 103 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 103
+    },
+    {
+      "id": "mt-san-antonio-college",
+      "name": "Mt San Antonio College",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:119164"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "hrjobs.mtsac.edu",
+      "ats_config": {
+        "host": "hrjobs.mtsac.edu"
+      },
+      "careers_url": "https://hrjobs.mtsac.edu/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 120 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 120
+    },
+    {
+      "id": "national-university",
+      "name": "National University",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:119605"
       ],
       "tier": "auto",
       "ats_provider": "workday",
-      "ats_token": "academyofartuniversity",
+      "ats_token": "nus",
       "ats_config": {
-        "host": "academyofartuniversity.wd5.myworkdayjobs.com",
-        "tenant": "academyofartuniversity",
-        "site": "Academy_of_Art"
+        "host": "nus.wd1.myworkdayjobs.com",
+        "tenant": "nus",
+        "site": "Careers"
       },
-      "careers_url": "https://www.academyart.edu/",
+      "careers_url": "https://www.nu.edu/careers/",
       "research_areas": [],
-      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 9 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 9
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 51 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 51
+    },
+    {
+      "id": "north-orange-county-community-college-district",
+      "name": "North Orange County Community College District",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:120023"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "nocccd",
+      "ats_config": {
+        "tenant": "nocccd"
+      },
+      "careers_url": "https://www.nocccd.edu/work-us/careers-nocccd",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 45 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 45
+    },
+    {
+      "id": "palomar-college",
+      "name": "Palomar College",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:120971"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "palomar",
+      "ats_config": {
+        "tenant": "palomar"
+      },
+      "careers_url": "https://www.palomar.edu/hr/employment/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 82 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 82
+    },
+    {
+      "id": "point-loma-nazarene-university",
+      "name": "Point Loma Nazarene University",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:121309"
+      ],
+      "tier": "auto",
+      "ats_provider": "workday",
+      "ats_token": "pointloma",
+      "ats_config": {
+        "host": "pointloma.wd1.myworkdayjobs.com",
+        "tenant": "pointloma",
+        "site": "PLNUCareers"
+      },
+      "careers_url": "https://www.pointloma.edu/offices/human-resources",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 51 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 51
+    },
+    {
+      "id": "san-diego-city-college",
+      "name": "San Diego City College",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:122339"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "www.sdccdjobs.com",
+      "ats_config": {
+        "host": "www.sdccdjobs.com"
+      },
+      "careers_url": "https://www.sdcity.edu/careers/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 299 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 299
+    },
+    {
+      "id": "san-diego-miramar-college",
+      "name": "San Diego Miramar College",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:122384"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "www.sdccdjobs.com",
+      "ats_config": {
+        "host": "www.sdccdjobs.com"
+      },
+      "careers_url": "https://www.sdccdjobs.com/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 299 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 299
+    },
+    {
+      "id": "san-francisco-conservatory-of-music",
+      "name": "San Francisco Conservatory of Music",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:122506"
+      ],
+      "tier": "auto",
+      "ats_provider": "paylocity",
+      "ats_token": "san-francisco-conservatory-of-music",
+      "ats_config": {
+        "client_guid": "a77350b7-382e-4ebc-be83-5ce68f2b9d07"
+      },
+      "careers_url": "https://sfcm.edu/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 11 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 11
+    },
+    {
+      "id": "san-jose-evergreen-community-college-district",
+      "name": "San Jose-Evergreen Community College District",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:122737"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "sjeccd",
+      "ats_config": {
+        "tenant": "sjeccd"
+      },
+      "careers_url": "https://www.sjeccd.edu/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 16 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 16
+    },
+    {
+      "id": "san-jose-city-college",
+      "name": "San Jose City College",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:122746"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "sjeccd",
+      "ats_config": {
+        "tenant": "sjeccd"
+      },
+      "careers_url": "https://www.sjcc.edu/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 16 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 16
+    },
+    {
+      "id": "saybrook-university",
+      "name": "Saybrook University",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:123095"
+      ],
+      "tier": "auto",
+      "ats_provider": "workday",
+      "ats_token": "tcsedsystem",
+      "ats_config": {
+        "host": "tcsedsystem.wd1.myworkdayjobs.com",
+        "tenant": "tcsedsystem",
+        "site": "SaybrookUniversityCareers"
+      },
+      "careers_url": "https://www.saybrook.edu/careers/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 2 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 2
+    },
+    {
+      "id": "concorde-career-college-san-bernardino",
+      "name": "Concorde Career College-San Bernardino",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:124706"
+      ],
+      "tier": "auto",
+      "ats_provider": null,
+      "ats_token": null,
+      "careers_url": "https://careers-concorde.icims.com/jobs/search?ss=1",
+      "research_areas": [],
+      "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-08-03); probe saw 98 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 98
+    },
+    {
+      "id": "concorde-career-college-north-hollywood",
+      "name": "Concorde Career College-North Hollywood",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:124937"
+      ],
+      "tier": "auto",
+      "ats_provider": null,
+      "ats_token": null,
+      "careers_url": "https://careers-concorde.icims.com/jobs/search?ss=1",
+      "research_areas": [],
+      "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-08-03); probe saw 98 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 98
+    },
+    {
+      "id": "the-colleges-of-law-at-ventura",
+      "name": "The Colleges of Law at Ventura",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:125037"
+      ],
+      "tier": "auto",
+      "ats_provider": "workday",
+      "ats_token": "tcsedsystem",
+      "ats_config": {
+        "host": "tcsedsystem.wd1.myworkdayjobs.com",
+        "tenant": "tcsedsystem",
+        "site": "COLCareers"
+      },
+      "careers_url": "https://www.collegesoflaw.edu/careers/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 4 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 4
+    },
+    {
+      "id": "west-valley-mission-community-college-district-o",
+      "name": "West Valley Mission Community College District Office",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:125222"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "wvm",
+      "ats_config": {
+        "tenant": "wvm"
+      },
+      "careers_url": "https://www.wvm.edu/careers/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 150 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 150
+    },
+    {
+      "id": "west-valley-college",
+      "name": "West Valley College",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:125499"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "wvm",
+      "ats_config": {
+        "tenant": "wvm"
+      },
+      "careers_url": "https://www.wvm.edu/careers/index.html?utm_source=westvalleyedu&utm_medium=redir&utm_campaign=work-at-wvc",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 150 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 150
+    },
+    {
+      "id": "yosemite-community-college-district-office",
+      "name": "Yosemite Community College District Office",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:126100"
+      ],
+      "tier": "auto",
+      "ats_provider": "peopleadmin",
+      "ats_token": "yosemite",
+      "ats_config": {
+        "tenant": "yosemite"
+      },
+      "careers_url": "https://www.yosemite.edu/",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 34 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 34
+    },
+    {
+      "id": "aims-community-college",
+      "name": "Aims Community College",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:126207"
+      ],
+      "tier": "auto",
+      "ats_provider": "workday",
+      "ats_token": "aims",
+      "ats_config": {
+        "host": "aims.wd1.myworkdayjobs.com",
+        "tenant": "aims",
+        "site": "Jobs"
+      },
+      "careers_url": "https://www.aims.edu/careers",
+      "research_areas": [],
+      "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 49 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 49
+    },
+    {
+      "id": "concorde-career-college-aurora",
+      "name": "Concorde Career College-Aurora",
+      "aliases": [],
+      "type": "institution_of_higher_education",
+      "cap_exempt_status": "likely",
+      "evidence_sources": [
+        "ats_discovery_crawl",
+        "ipeds:126687"
+      ],
+      "tier": "auto",
+      "ats_provider": null,
+      "ats_token": null,
+      "careers_url": "https://careers-concorde.icims.com/jobs/search?ss=1",
+      "research_areas": [],
+      "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-08-03); probe saw 98 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 98
     }
   ],
   "skipped": [
@@ -515,6 +952,10 @@
       "reason": "registry id exists"
     },
     {
+      "name": "University of Detroit Mercy",
+      "reason": "registry id exists"
+    },
+    {
       "name": "The New School",
       "reason": "registry id exists"
     },
@@ -767,6 +1208,10 @@
       "reason": "no live feed found on probes"
     },
     {
+      "name": "Tiffin University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Oregon Institute of Technology",
       "reason": "registry id exists"
     },
@@ -796,6 +1241,10 @@
     },
     {
       "name": "Emerson College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "New England College of Optometry",
       "reason": "registry id exists"
     },
     {
@@ -991,6 +1440,10 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Elizabethtown College",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Muhlenberg College",
       "reason": "registry id exists"
     },
@@ -1087,6 +1540,10 @@
       "reason": "no live feed found on probes"
     },
     {
+      "name": "Northwest Nazarene University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Roosevelt University",
       "reason": "registry id exists"
     },
@@ -1135,6 +1592,10 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Midwestern Baptist Theological Seminary",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Missouri Western State University",
       "reason": "registry id exists"
     },
@@ -1148,6 +1609,10 @@
     },
     {
       "name": "San Juan College",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Keuka College",
       "reason": "registry id exists"
     },
     {
@@ -1216,6 +1681,10 @@
     },
     {
       "name": "WOODS HOLE OCEANOGRAPHIC INSTITUTION",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "BAIM INSTITUTE FOR CLINICAL RESEARCH INC",
       "reason": "registry id exists"
     },
     {
@@ -1295,8 +1764,48 @@
       "reason": "no live feed found on probes"
     },
     {
+      "name": "Academy of Art University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Career Academy of Beauty",
       "reason": "no live feed found on probes"
+    },
+    {
+      "name": "California College of ASU",
+      "reason": "no live feed found on probes"
+    },
+    {
+      "name": "Cypress College",
+      "reason": "peopleadmin feed title \"North Orange County Community College District: All Jobs\" does not match — likely a shared instance"
+    },
+    {
+      "name": "Reedley College",
+      "reason": "peopleadmin feed title \"State Center Community College District: All Jobs\" does not match — likely a shared instance"
+    },
+    {
+      "name": "Northeastern University Oakland",
+      "reason": "no live feed found on probes"
+    },
+    {
+      "name": "Modesto Junior College",
+      "reason": "peopleadmin feed title \"Yosemite Community College District: All Jobs\" does not match — likely a shared instance"
+    },
+    {
+      "name": "Riverside City College",
+      "reason": "no live feed found on probes"
+    },
+    {
+      "name": "San Diego Community College District-District Office",
+      "reason": "no live feed found on probes"
+    },
+    {
+      "name": "Shasta Bible College and Graduate School",
+      "reason": "paylocity module title \"Vacaville Christian Schools\" does not match"
+    },
+    {
+      "name": "Berkeley City College",
+      "reason": "workable account \"Super Soccer Stars\" does not match"
     }
   ]
 }

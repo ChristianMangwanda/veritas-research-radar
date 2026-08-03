@@ -694,18 +694,152 @@ input[type="range"] {
   color: var(--accent-contrast);
 }
 
+/* Funnel strip: joined big-number stage cells, the mock's board header */
 .pipeline-stats {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-  padding: 8px 12px;
   margin-bottom: 10px;
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  font-size: 12.5px;
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  overflow-x: auto;
+}
+
+.stage-cell {
+  flex: 1 1 0;
+  display: grid;
+  gap: 0;
+  padding: 8px 12px;
+  border-right: 1px solid var(--line);
+  min-width: 76px;
+}
+
+.stage-cell:last-child { border-right: 0; }
+
+.stage-count {
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.stage-label {
+  font-family: var(--font-heading);
+  font-size: 10.5px;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Instrument strip — the seven systems as hairline tiles */
+.instrument-strip {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.instrument-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.instrument-head-label {
+  font-family: var(--font-heading);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.pull-gauge {
+  flex: 0 1 160px;
+  height: 4px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.pull-gauge i {
+  display: block;
+  height: 100%;
+  background: var(--accent-400);
+}
+
+.instrument-eta {
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+.pull-now {
+  margin-left: auto;
+  font-size: 12px;
+  padding: 4px 10px;
+  text-decoration: none;
+}
+
+.instrument-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 0;
+  border: 1px solid var(--line-strong);
+}
+
+.instrument-tile {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  padding: 9px 10px;
+  border-right: 1px solid var(--line);
+  background: var(--panel);
+  min-width: 0;
+}
+
+.instrument-tile:last-child { border-right: 0; }
+
+.instrument-tile.is-dashed { background: repeating-linear-gradient(-45deg, var(--panel), var(--panel) 6px, var(--panel-2) 6px, var(--panel-2) 7px); }
+
+.instrument-tile.is-alarm .instrument-detail { color: var(--restricted-ink); font-weight: 700; }
+
+.instrument-label {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.instrument-detail {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-squares {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  align-items: center;
+}
+
+.sq {
+  width: 6px;
+  height: 6px;
+  display: inline-block;
+}
+
+.sq-ok { background: var(--accent-400); }
+.sq-skip { background: var(--line-strong); }
+.sq-error { background: var(--warn-red); }
+
+.sq-more { font-size: 9.5px; color: var(--faint); margin-left: 2px; }
 
 .group-header {
   padding: 10px 4px 2px;
@@ -744,6 +878,7 @@ body.pipeline-mode .filters > .mark-seen {
   pointer-events: none;
 }
 body.pipeline-mode .today-chip { display: none; }
+body.pipeline-mode .sort-inline { display: none; }
 
 .alert-info { background: var(--info-soft); color: var(--info-ink); }
 
