@@ -258,6 +258,11 @@
             <textarea id="detail-note" class="note-input" rows="3" placeholder="e.g. emailed Dr. Lee 7/18 — follow up in a week"></textarea>
           </section>
 
+          <label class="field variant-sent-field" id="variant-sent-wrap" hidden>
+            <span class="field-label">Resume sent</span>
+            <select id="variant-sent"></select>
+          </label>
+
           <div id="detail-alerts"></div>
 
           <dl id="detail-signals" class="signal-grid"></dl>
@@ -288,6 +293,7 @@
     </template>
 
     <script src="scoring.js"></script>
+    <script src="pipeline.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

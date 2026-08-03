@@ -117,6 +117,8 @@ const DOM = {
   detailOpen: document.querySelector('#detail-open'),
   triageSeg: document.querySelector('#triage-seg'),
   detailNote: document.querySelector('#detail-note'),
+  variantSentWrap: document.querySelector('#variant-sent-wrap'),
+  variantSent: document.querySelector('#variant-sent'),
   detailAlerts: document.querySelector('#detail-alerts'),
   detailSignals: document.querySelector('#detail-signals'),
   detailFit: document.querySelector('#detail-fit'),
@@ -315,6 +317,7 @@ const triageSync = {
       const record = { status: row.status, updated_at: row.updated_at };
       if (row.note) record.note = row.note;
       if (row.applied_at) record.applied_at = row.applied_at;
+      if (row.variant_sent) record.variant_sent = row.variant_sent;
       triage[row.job_id] = record;
     }
     return triage;
@@ -326,6 +329,7 @@ const triageSync = {
       status: record.status,
       note: record.note ?? null,
       applied_at: record.applied_at ?? null,
+      variant_sent: record.variant_sent ?? null,
       updated_at: record.updated_at || new Date().toISOString()
     }));
     await this.rpc('radar_upsert_triage', { p_token: this.token(), p_rows: rows });
@@ -350,7 +354,7 @@ async function saveSyncToken() {
   try {
     const remote = await triageSync.pull(); // validates the token as a side effect
     if (remote) {
-      state.local.triage = mergeTriage(state.local.triage, remote);
+      state.local.triage = RadarPipeline.mergeTriage(state.local.triage, remote);
       await saveLocalState();
     }
     await triageSync.push();
@@ -367,19 +371,6 @@ function clearSyncToken() {
   localStorage.removeItem(SYNC_TOKEN_KEY);
   if (DOM.syncToken) DOM.syncToken.value = '';
   renderSyncStatus();
-}
-
-// Last-write-wins per job by updated_at — merges a remote triage map into a
-// local one without losing either side's newer edits.
-function mergeTriage(local, remote) {
-  const merged = { ...(local || {}) };
-  for (const [jobId, record] of Object.entries(remote || {})) {
-    const current = merged[jobId];
-    if (!current || String(record.updated_at || '') > String(current.updated_at || '')) {
-      merged[jobId] = record;
-    }
-  }
-  return merged;
 }
 
 // One place every triage mutation persists through: local first (always), then
@@ -1005,11 +996,40 @@ function renderDetail() {
     DOM.detailNote.value = noteFor(job);
   }
 
+  renderVariantSent(job);
   renderDetailAlerts(job);
   renderDetailSignals(job);
   renderDetailWhy(job);
   renderDetailDescription(job);
   DOM.detailDisclaimer.textContent = job.disclaimer || '';
+}
+
+// "Resume sent" — the variant actually submitted with an application, distinct
+// from the recommendation (which changes with the profile). Shown once the job
+// is anywhere in the application pipeline; records made before this field
+// existed simply show "none recorded".
+function renderVariantSent(job) {
+  if (!DOM.variantSentWrap || !DOM.variantSent) return;
+  const record = state.local.triage[job.id];
+  const status = triageFor(job);
+  const show = Boolean(record?.applied_at) || RadarPipeline.PIPELINE_SET.has(status);
+  DOM.variantSentWrap.hidden = !show;
+  if (!show) return;
+
+  const current = record?.variant_sent || '';
+  const options = [new Option('— none recorded —', '')];
+  const known = new Set();
+  for (const variant of state.profile?.variants || []) {
+    known.add(variant.id);
+    options.push(new Option(variant.label || variant.id, variant.id));
+  }
+  // A recorded variant from an older/other-device profile stays selectable
+  // rather than silently vanishing.
+  if (current && !known.has(current)) {
+    options.push(new Option(`${current} (not in current profile)`, current));
+  }
+  DOM.variantSent.replaceChildren(...options);
+  DOM.variantSent.value = current;
 }
 
 function buildDetailSkeleton() {
@@ -1049,6 +1069,14 @@ function buildDetailSkeleton() {
   notesArea.placeholder = 'e.g. emailed Dr. Lee 7/18 — follow up in a week';
   notes.append(notesLabel, notesArea);
 
+  const variantWrap = el('label', 'field variant-sent-field');
+  variantWrap.id = 'variant-sent-wrap';
+  variantWrap.hidden = true;
+  const variantLabel = el('span', 'field-label', 'Resume sent');
+  const variantSelect = el('select');
+  variantSelect.id = 'variant-sent';
+  variantWrap.append(variantLabel, variantSelect);
+
   const alerts = el('div'); alerts.id = 'detail-alerts';
   const signals = el('dl', 'signal-grid'); signals.id = 'detail-signals';
   const fit = el('div', 'fit-block'); fit.id = 'detail-fit';
@@ -1060,7 +1088,7 @@ function buildDetailSkeleton() {
 
   const disclaimer = el('p', 'disclaimer'); disclaimer.id = 'detail-disclaimer';
 
-  return [back, head, actions, notes, alerts, signals, fit, description, disclaimer];
+  return [back, head, actions, notes, variantWrap, alerts, signals, fit, description, disclaimer];
 }
 
 function rebindDetailRefs() {
@@ -1070,6 +1098,8 @@ function rebindDetailRefs() {
   DOM.detailOpen = document.querySelector('#detail-open');
   DOM.triageSeg = document.querySelector('#triage-seg');
   DOM.detailNote = document.querySelector('#detail-note');
+  DOM.variantSentWrap = document.querySelector('#variant-sent-wrap');
+  DOM.variantSent = document.querySelector('#variant-sent');
   DOM.detailAlerts = document.querySelector('#detail-alerts');
   DOM.detailSignals = document.querySelector('#detail-signals');
   DOM.detailFit = document.querySelector('#detail-fit');
@@ -1178,6 +1208,13 @@ function renderDetailSignals(job) {
     signalCell('First seen', document.createTextNode(shortDate(job.first_seen_at))),
     signalCell('Posted / updated', document.createTextNode(shortDate(job.posted_or_updated_at)))
   );
+
+  const appliedAt = state.local.triage[job.id]?.applied_at;
+  if (appliedAt) {
+    const age = RadarPipeline.daysSince(appliedAt);
+    DOM.detailSignals.append(signalCell('Applied',
+      document.createTextNode(`${shortDate(appliedAt)}${age !== null ? ` · ${age}d ago` : ''}`)));
+  }
 
   if (job.dol_recent_titles?.length) {
     const cell = signalCell('Recent sponsored titles', document.createTextNode(job.dol_recent_titles.slice(0, 4).join(' · ')));
@@ -1347,8 +1384,15 @@ async function setTriage(job, status) {
   const now = new Date().toISOString();
   const record = { ...prev, status, updated_at: now };
   // Stamp the first time it becomes "applied" so the funnel remembers when you
-  // actually applied, independent of any later interview/offer change.
-  if (status === 'applied' && !record.applied_at) record.applied_at = now;
+  // actually applied, independent of any later interview/offer change. The
+  // recommended variant is captured at the same moment — the best guess at
+  // which resume was sent, editable afterwards in the detail pane.
+  if (status === 'applied' && !record.applied_at) {
+    record.applied_at = now;
+    if (!record.variant_sent && job.fit?.recommended_variant) {
+      record.variant_sent = job.fit.recommended_variant;
+    }
+  }
   state.local.triage[job.id] = record;
   await persistTriage();
   render();
@@ -1362,6 +1406,17 @@ async function setNote(job, note) {
   const record = { ...prev, status: prev.status || 'new', updated_at: prev.updated_at || new Date().toISOString() };
   if (note && note.trim()) record.note = note;
   else delete record.note;
+  state.local.triage[job.id] = record;
+  await persistTriage();
+}
+
+async function setVariantSent(job, variantId) {
+  const prev = state.local.triage[job.id] || { status: 'new' };
+  // Same rule as notes: correcting which resume was sent must NOT bump
+  // updated_at — that would falsely reset the follow-up-aging clock.
+  const record = { ...prev, status: prev.status || 'new', updated_at: prev.updated_at || new Date().toISOString() };
+  if (variantId) record.variant_sent = variantId;
+  else delete record.variant_sent;
   state.local.triage[job.id] = record;
   await persistTriage();
 }
@@ -1543,6 +1598,13 @@ function bindDetailEvents() {
     await setNote(job, event.target.value);
     render();
   });
+
+  DOM.variantSent.addEventListener('change', async (event) => {
+    const job = selectedJob();
+    if (!job) return;
+    await setVariantSent(job, event.target.value);
+    render();
+  });
 }
 
 function markAllSeen() {
@@ -1687,7 +1749,7 @@ async function init() {
     try {
       const remote = await triageSync.pull();
       if (remote) {
-        state.local.triage = mergeTriage(state.local.triage, remote);
+        state.local.triage = RadarPipeline.mergeTriage(state.local.triage, remote);
         await saveLocalState();
         await triageSync.push();
       }

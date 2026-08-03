@@ -1,134 +1,35 @@
 {
-  "generated_at": "2026-07-06T15:46:42.811Z",
+  "generated_at": "2026-08-03T20:18:02.637Z",
   "proposals": [
     {
-      "id": "emory-university",
-      "name": "Emory University",
+      "id": "norfolk-state-university",
+      "name": "Norfolk State University",
       "aliases": [],
       "type": "institution_of_higher_education",
       "cap_exempt_status": "likely",
       "evidence_sources": [
         "ats_discovery_crawl",
-        "ipeds:139658"
+        "ipeds:232937"
       ],
       "tier": "auto",
-      "ats_provider": null,
-      "ats_token": null,
-      "careers_url": "https://faculty-emory.icims.com/jobs/search?ss=1",
+      "ats_provider": "workday",
+      "ats_token": "nsu",
+      "ats_config": {
+        "host": "nsu.wd501.myworkdayjobs.com",
+        "tenant": "nsu",
+        "site": "nsu"
+      },
+      "careers_url": "https://www.nsu.edu/",
       "research_areas": [],
-      "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 290 live postings. USCIS 534 approvals / DOL 55 research LCAs (3y).",
-      "probe_total_jobs": 290
-    },
-    {
-      "id": "oregon-health-science-university",
-      "name": "Oregon Health & Science University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:209490"
-      ],
-      "tier": "auto",
-      "ats_provider": null,
-      "ats_token": null,
-      "careers_url": "https://facultycareers-ohsu.icims.com/jobs/search?ss=1",
-      "research_areas": [],
-      "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 167 live postings. USCIS 235 approvals / DOL 12 research LCAs (3y).",
-      "probe_total_jobs": 167
-    },
-    {
-      "id": "auburn-university",
-      "name": "Auburn University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:100858"
-      ],
-      "tier": "auto",
-      "ats_provider": null,
-      "ats_token": null,
-      "careers_url": "https://jobs-auburn.icims.com/jobs/search?ss=1",
-      "research_areas": [],
-      "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 157 approvals / DOL 4 research LCAs (3y).",
-      "probe_total_jobs": 0
-    },
-    {
-      "id": "utah-state-university",
-      "name": "Utah State University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:230728"
-      ],
-      "tier": "auto",
-      "ats_provider": null,
-      "ats_token": null,
-      "careers_url": "https://workforce-usu.icims.com/jobs/search?ss=1",
-      "research_areas": [],
-      "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 90 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 0
-    },
-    {
-      "id": "clarkson-university",
-      "name": "Clarkson University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:190044"
-      ],
-      "tier": "auto",
-      "ats_provider": null,
-      "ats_token": null,
-      "careers_url": "https://careerhub-clarkson.icims.com/jobs/search?ss=1",
-      "research_areas": [],
-      "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 30 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 0
-    },
-    {
-      "id": "touro-university",
-      "name": "Touro University",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:196592"
-      ],
-      "tier": "auto",
-      "ats_provider": null,
-      "ats_token": null,
-      "careers_url": "https://tcnycareers-touro.icims.com/jobs/search?ss=1",
-      "research_areas": [],
-      "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 233 live postings. USCIS 1 approvals / DOL 1 research LCAs (3y).",
-      "probe_total_jobs": 233
-    },
-    {
-      "id": "touro-university-nevada",
-      "name": "Touro University Nevada",
-      "aliases": [],
-      "type": "institution_of_higher_education",
-      "cap_exempt_status": "likely",
-      "evidence_sources": [
-        "ats_discovery_crawl",
-        "ipeds:459824"
-      ],
-      "tier": "auto",
-      "ats_provider": null,
-      "ats_token": null,
-      "careers_url": "https://tuncareers-touro.icims.com/jobs/search?ss=1",
-      "research_areas": [],
-      "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 18 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y).",
-      "probe_total_jobs": 18
+      "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 10 live postings. USCIS 8 approvals / DOL 0 research LCAs (3y).",
+      "probe_total_jobs": 10
     }
   ],
   "skipped": [
+    {
+      "name": "Emory University",
+      "reason": "registry id exists"
+    },
     {
       "name": "University of Chicago",
       "reason": "registry id exists"
@@ -174,6 +75,10 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Oregon Health & Science University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Brown University",
       "reason": "registry id exists"
     },
@@ -203,6 +108,10 @@
     },
     {
       "name": "University of North Carolina at Chapel Hill",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Auburn University",
       "reason": "registry id exists"
     },
     {
@@ -251,6 +160,10 @@
     },
     {
       "name": "South Dakota State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Utah State University",
       "reason": "registry id exists"
     },
     {
@@ -383,6 +296,10 @@
     },
     {
       "name": "Montclair State University",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Clarkson University",
       "reason": "registry id exists"
     },
     {
@@ -646,10 +563,6 @@
       "reason": "registry id exists"
     },
     {
-      "name": "Norfolk State University",
-      "reason": "no live feed found on probes"
-    },
-    {
       "name": "University of Wisconsin-Whitewater",
       "reason": "registry id exists"
     },
@@ -866,6 +779,10 @@
       "reason": "registry id exists"
     },
     {
+      "name": "Touro University",
+      "reason": "registry id exists"
+    },
+    {
       "name": "Wingate University",
       "reason": "registry id exists"
     },
@@ -963,6 +880,10 @@
     },
     {
       "name": "University of Wisconsin-Milwaukee",
+      "reason": "registry id exists"
+    },
+    {
+      "name": "Touro University Nevada",
       "reason": "registry id exists"
     },
     {

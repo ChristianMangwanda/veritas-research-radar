@@ -64,6 +64,7 @@ const {
 } = require('../radar/scripts/build-profile.js');
 const { CLASS_LABELS } = require('../radar/scripts/lib/title-class.js');
 const RadarScoring = require('../radar/public/scoring.js');
+const RadarPipeline = require('../radar/public/pipeline.js');
 const {
   selectAmbiguousJobs,
   validateVerdict,
@@ -1549,6 +1550,98 @@ function testVerdictTiers() {
   assert.strictEqual(verdictFor(72, true), 'stretch'); // hard-gate cap overrides score
 }
 
+function testTriageMerge() {
+  const { mergeTriage } = RadarPipeline;
+
+  // Remote-newer wins the whole record, including variant_sent.
+  let merged = mergeTriage(
+    { j1: { status: 'applied', updated_at: '2026-08-01T00:00:00Z', variant_sent: 'ml-engineer' } },
+    { j1: { status: 'interview', updated_at: '2026-08-02T00:00:00Z', variant_sent: 'data-engineer' } }
+  );
+  assert.strictEqual(merged.j1.status, 'interview');
+  assert.strictEqual(merged.j1.variant_sent, 'data-engineer');
+
+  // Local-newer keeps local untouched.
+  merged = mergeTriage(
+    { j1: { status: 'offer', updated_at: '2026-08-03T00:00:00Z' } },
+    { j1: { status: 'applied', updated_at: '2026-08-01T00:00:00Z' } }
+  );
+  assert.strictEqual(merged.j1.status, 'offer');
+
+  // Equal timestamps keep local (strict >): a device never discards its own
+  // record for an equal remote echo.
+  merged = mergeTriage(
+    { j1: { status: 'applied', updated_at: '2026-08-01T00:00:00Z', note: 'local note' } },
+    { j1: { status: 'applied', updated_at: '2026-08-01T00:00:00Z' } }
+  );
+  assert.strictEqual(merged.j1.note, 'local note');
+
+  // Record-level LWW is deliberate: a newer remote record WITHOUT variant_sent
+  // replaces a local one that had it. Field-level merging would resurrect
+  // cleared values; this pins the accepted trade-off.
+  merged = mergeTriage(
+    { j1: { status: 'applied', updated_at: '2026-08-01T00:00:00Z', variant_sent: 'ml-engineer' } },
+    { j1: { status: 'applied', updated_at: '2026-08-02T00:00:00Z' } }
+  );
+  assert.strictEqual(merged.j1.variant_sent, undefined);
+
+  // Remote-only jobs are added; empty/missing maps are fine.
+  merged = mergeTriage(null, { j2: { status: 'shortlist', updated_at: '2026-08-01T00:00:00Z' } });
+  assert.strictEqual(merged.j2.status, 'shortlist');
+  assert.deepStrictEqual(mergeTriage({}, null), {});
+}
+
+function testDaysSince() {
+  const { daysSince } = RadarPipeline;
+  const now = Date.parse('2026-08-03T12:00:00Z');
+  assert.strictEqual(daysSince('2026-08-01T12:00:00Z', now), 2);
+  assert.strictEqual(daysSince('2026-08-03T00:00:00Z', now), 0);
+  assert.strictEqual(daysSince('2026-08-04T00:00:00Z', now), 0); // clock skew never goes negative
+  assert.strictEqual(daysSince('garbage', now), null);
+  assert.strictEqual(daysSince(null, now), null);
+  assert.strictEqual(daysSince(undefined, now), null);
+}
+
+function testPipelineGrouping() {
+  const { groupPipeline, PIPELINE_SET } = RadarPipeline;
+
+  const jobs = [
+    { id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { id: 'e' }, { id: 'f' }, { id: 'g' }, { id: 'h' }
+  ];
+  const triage = {
+    a: { status: 'applied', updated_at: '2026-07-20T00:00:00Z' },   // stalest applied
+    b: { status: 'applied', updated_at: '2026-08-01T00:00:00Z' },
+    c: { status: 'interview', updated_at: '2026-07-30T00:00:00Z' },
+    d: { status: 'offer', updated_at: '2026-08-02T00:00:00Z' },
+    e: { status: 'rejected', updated_at: '2026-07-01T00:00:00Z' },
+    f: { status: 'rejected', updated_at: '2026-07-15T00:00:00Z' },
+    g: { status: 'shortlist', updated_at: '2026-08-01T00:00:00Z' }, // intent, not pipeline
+    h: { status: 'needs_visa_check', updated_at: '2026-08-01T00:00:00Z' } // gate, not pipeline
+  };
+
+  const groups = groupPipeline(jobs, triage);
+  assert.deepStrictEqual(groups.map((group) => group.stage), ['offer', 'interview', 'applied', 'rejected']);
+
+  // In-flight: stalest first, so the application most in need of follow-up tops
+  // its group. Terminal: newest outcome first.
+  const applied = groups.find((group) => group.stage === 'applied');
+  assert.deepStrictEqual(applied.jobs.map((job) => job.id), ['a', 'b']);
+  assert.strictEqual(applied.terminal, false);
+  const rejected = groups.find((group) => group.stage === 'rejected');
+  assert.deepStrictEqual(rejected.jobs.map((job) => job.id), ['f', 'e']);
+  assert.strictEqual(rejected.terminal, true);
+
+  // Non-pipeline states are excluded from both grouping and membership set.
+  assert.strictEqual(PIPELINE_SET.has('shortlist'), false);
+  assert.strictEqual(PIPELINE_SET.has('needs_visa_check'), false);
+  assert.strictEqual(PIPELINE_SET.has('new'), false);
+  assert.strictEqual(PIPELINE_SET.has('ignore'), false);
+
+  // Untriaged jobs / empty maps produce no groups.
+  assert.deepStrictEqual(groupPipeline(jobs, {}), []);
+  assert.deepStrictEqual(groupPipeline([], triage), []);
+}
+
 function testVerdictRank() {
   const { verdictRank, VERDICT_TIERS } = RadarScoring;
   // Rank follows tier order: 0 = strong, worse tiers rank higher.
@@ -1834,6 +1927,9 @@ async function main() {
   testReachabilityDemotion();
   testVerdictTiers();
   testVerdictRank();
+  testTriageMerge();
+  testDaysSince();
+  testPipelineGrouping();
   testRoutingAmbiguity();
   testProfileV2();
   await testRouterSelection();

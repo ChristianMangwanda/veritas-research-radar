@@ -30,6 +30,7 @@ create table if not exists triage (
   status text not null,
   note text,
   applied_at timestamptz,
+  variant_sent text,
   updated_at timestamptz not null default now()
 );
 
@@ -76,18 +77,20 @@ begin
   if not check_sync_token(p_token) then
     raise exception 'invalid sync token';
   end if;
-  insert into triage (job_id, status, note, applied_at, updated_at)
+  insert into triage (job_id, status, note, applied_at, variant_sent, updated_at)
   select
     (r->>'job_id')::text,
     (r->>'status')::text,
     nullif(r->>'note', '')::text,
     nullif(r->>'applied_at', '')::timestamptz,
+    nullif(r->>'variant_sent', '')::text,
     coalesce(nullif(r->>'updated_at', '')::timestamptz, now())
   from jsonb_array_elements(p_rows) as r
   on conflict (job_id) do update set
     status = excluded.status,
     note = excluded.note,
     applied_at = excluded.applied_at,
+    variant_sent = excluded.variant_sent,
     updated_at = excluded.updated_at;
 end;
 $$;
