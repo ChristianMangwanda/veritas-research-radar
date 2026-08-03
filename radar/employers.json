@@ -5434,5 +5434,269 @@
     "careers_url": "https://jobs.usf.edu/hcmUI/CandidateExperience/en/sites/USF/",
     "research_areas": [],
     "notes": "Oracle Fusion HCM CandidateExperience feed resolved 2026-08-03: jobs.usf.edu reverse-proxies fa-ewkd-saasfaprod1.fa.ocs.oraclecloud.com (host leaked via CSP frame-ancestors header on the 303 redirect from jobs.usf.edu/). Single-site tenant — siteNumber is not gated (CX_1/CX/USF all return the same 236 postings); site_name=USF matches the real candidate-facing URL path. Follow-up from the 2026-08-03 ATS discovery scan (flagship-ats-findings.md)."
+  },
+  {
+    "id": "monmouth-university",
+    "name": "Monmouth University",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ipeds:185572"
+    ],
+    "tier": "auto",
+    "ats_provider": "ultipro",
+    "ats_token": "monmouth-university",
+    "ats_config": {
+      "host": "recruiting.ultipro.com",
+      "tenant": "MON1000MON",
+      "boards": [
+        "d4da5ea7-24db-4f02-a484-7497ffffb76d"
+      ]
+    },
+    "careers_url": "https://recruiting.ultipro.com/MON1000MON/JobBoard/d4da5ea7-24db-4f02-a484-7497ffffb76d",
+    "research_areas": [],
+    "notes": "UltiPro/UKG JobBoard JSON feed found via the 2026-07-05 ATS discovery crawl, resolved 2026-08-03 (board GUID surfaced in the tenant's own JobBoardView page). 80 live postings. USCIS 10 approvals (3y)."
+  },
+  {
+    "id": "cornell-college",
+    "name": "Cornell College",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ipeds:153162"
+    ],
+    "tier": "auto",
+    "ats_provider": "ultipro",
+    "ats_token": "cornell-college",
+    "ats_config": {
+      "host": "recruiting2.ultipro.com",
+      "tenant": "COR1036CORN",
+      "boards": [
+        "30d770d7-3983-4bf1-867a-479db251bad8"
+      ]
+    },
+    "careers_url": "https://recruiting2.ultipro.com/COR1036CORN/JobBoard/30d770d7-3983-4bf1-867a-479db251bad8",
+    "research_areas": [],
+    "notes": "UltiPro/UKG JobBoard JSON feed found via the 2026-07-05 ATS discovery crawl, resolved 2026-08-03 (board GUID surfaced in the tenant's own JobBoardView page). 18 live postings. USCIS 8 approvals (3y)."
+  },
+  {
+    "id": "school-of-the-art-institute-of-chicago",
+    "name": "School of the Art Institute of Chicago",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ipeds:143048"
+    ],
+    "tier": "auto",
+    "ats_provider": "ultipro",
+    "ats_token": "school-of-the-art-institute-of-chicago",
+    "ats_config": {
+      "host": "recruiting2.ultipro.com",
+      "tenant": "ART1010AICH",
+      "boards": [
+        "d263cd2b-c4ef-4e10-8876-a2896406a573"
+      ]
+    },
+    "careers_url": "https://recruiting2.ultipro.com/ART1010AICH/JobBoard/d263cd2b-c4ef-4e10-8876-a2896406a573",
+    "research_areas": [],
+    "notes": "UltiPro/UKG JobBoard JSON feed found via the 2026-07-05 ATS discovery crawl, resolved 2026-08-03 (board GUID surfaced in the tenant's own JobBoardView page). 10 live postings. USCIS 6 approvals (3y)."
+  },
+  {
+    "id": "ecpi-university",
+    "name": "ECPI University",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ipeds:248934"
+    ],
+    "tier": "auto",
+    "ats_provider": "ultipro",
+    "ats_token": "ecpi-university",
+    "ats_config": {
+      "host": "recruiting.ultipro.com",
+      "tenant": "ECP1000ECPI",
+      "boards": [
+        "e017f5e5-4f5e-4a98-a5d2-83db591e186f"
+      ]
+    },
+    "careers_url": "https://recruiting.ultipro.com/ECP1000ECPI/JobBoard/e017f5e5-4f5e-4a98-a5d2-83db591e186f",
+    "research_areas": [],
+    "notes": "UltiPro/UKG JobBoard JSON feed found via the 2026-07-05 ATS discovery crawl, resolved 2026-08-03 (board GUID surfaced in the tenant's own JobBoardView page). 189 live postings. USCIS 5 approvals (3y)."
+  },
+  {
+    "id": "university-of-redlands",
+    "name": "University of Redlands",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ipeds:121691"
+    ],
+    "tier": "auto",
+    "ats_provider": "ultipro",
+    "ats_token": "university-of-redlands",
+    "ats_config": {
+      "host": "recruiting2.ultipro.com",
+      "tenant": "UNI1089UOR",
+      "boards": [
+        "6af23b67-9dd3-4a6a-bda1-676b92a4fcb4"
+      ]
+    },
+    "careers_url": "https://recruiting2.ultipro.com/UNI1089UOR/JobBoard/6af23b67-9dd3-4a6a-bda1-676b92a4fcb4",
+    "research_areas": [],
+    "notes": "UltiPro/UKG JobBoard JSON feed found via the 2026-07-05 ATS discovery crawl, resolved 2026-08-03 (board GUID surfaced in the tenant's own JobBoardView page). 41 live postings. USCIS 4 approvals (3y)."
+  },
+  {
+    "id": "hood-college",
+    "name": "Hood College",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ipeds:162760"
+    ],
+    "tier": "auto",
+    "ats_provider": "ultipro",
+    "ats_token": "hood-college",
+    "ats_config": {
+      "host": "recruiting.ultipro.com",
+      "tenant": "HOO1003HOODC",
+      "boards": [
+        "58a51caa-edd5-4489-a43e-478413a6c821"
+      ]
+    },
+    "careers_url": "https://recruiting.ultipro.com/HOO1003HOODC/JobBoard/58a51caa-edd5-4489-a43e-478413a6c821",
+    "research_areas": [],
+    "notes": "UltiPro/UKG JobBoard JSON feed found via the 2026-07-05 ATS discovery crawl, resolved 2026-08-03 (board GUID surfaced in the tenant's own JobBoardView page). 16 live postings. USCIS 4 approvals (3y)."
+  },
+  {
+    "id": "lipscomb-university",
+    "name": "Lipscomb University",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ipeds:219976"
+    ],
+    "tier": "auto",
+    "ats_provider": "ultipro",
+    "ats_token": "lipscomb-university",
+    "ats_config": {
+      "host": "recruiting2.ultipro.com",
+      "tenant": "LIP1001LCMB",
+      "boards": [
+        "6e7649f2-aa46-44d5-969d-70429a5423e6"
+      ]
+    },
+    "careers_url": "https://recruiting2.ultipro.com/LIP1001LCMB/JobBoard/6e7649f2-aa46-44d5-969d-70429a5423e6",
+    "research_areas": [],
+    "notes": "UltiPro/UKG JobBoard JSON feed found via the 2026-07-05 ATS discovery crawl, resolved 2026-08-03 (board GUID surfaced in the tenant's own JobBoardView page). 166 live postings. USCIS 4 approvals (3y)."
+  },
+  {
+    "id": "adler-university",
+    "name": "Adler University",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ipeds:142832"
+    ],
+    "tier": "auto",
+    "ats_provider": "ultipro",
+    "ats_token": "adler-university",
+    "ats_config": {
+      "host": "recruiting.ultipro.com",
+      "tenant": "ADL1000",
+      "boards": [
+        "b809b751-42a6-bffa-f3ce-536e549e35d9"
+      ]
+    },
+    "careers_url": "https://recruiting.ultipro.com/ADL1000/JobBoard/b809b751-42a6-bffa-f3ce-536e549e35d9",
+    "research_areas": [],
+    "notes": "UltiPro/UKG JobBoard JSON feed found via the 2026-07-05 ATS discovery crawl, resolved 2026-08-03 (board GUID surfaced in the tenant's own JobBoardView page). 15 live postings. USCIS 3 approvals (3y)."
+  },
+  {
+    "id": "charles-r-drew-university-of-medicine-and-science",
+    "name": "Charles R. Drew University of Medicine and Science",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ipeds:111966"
+    ],
+    "tier": "auto",
+    "ats_provider": "ultipro",
+    "ats_token": "charles-r-drew-university-of-medicine-and-science",
+    "ats_config": {
+      "host": "recruiting2.ultipro.com",
+      "tenant": "CHA1037CHRS",
+      "boards": [
+        "7fb6ae1e-e3f6-44ac-8694-2577af27ab6b"
+      ]
+    },
+    "careers_url": "https://recruiting2.ultipro.com/CHA1037CHRS/JobBoard/7fb6ae1e-e3f6-44ac-8694-2577af27ab6b",
+    "research_areas": [],
+    "notes": "UltiPro/UKG JobBoard JSON feed found via the 2026-07-05 ATS discovery crawl, resolved 2026-08-03 (board GUID surfaced in the tenant's own JobBoardView page). 47 live postings. USCIS 1 approvals (3y)."
+  },
+  {
+    "id": "scripps-research-institute",
+    "name": "Scripps Research Institute",
+    "aliases": [],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "irs:330435954"
+    ],
+    "tier": "auto",
+    "ats_provider": "ultipro",
+    "ats_token": "scripps-research-institute",
+    "ats_config": {
+      "host": "recruiting2.ultipro.com",
+      "tenant": "SCR1003TSRI",
+      "boards": [
+        "98759e7d-7ede-4c0b-ac7b-2c6293c7b522"
+      ]
+    },
+    "careers_url": "https://recruiting2.ultipro.com/SCR1003TSRI/JobBoard/98759e7d-7ede-4c0b-ac7b-2c6293c7b522",
+    "research_areas": [],
+    "notes": "UltiPro/UKG JobBoard JSON feed found via the 2026-07-05 ATS discovery crawl, resolved 2026-08-03 (board GUID surfaced in the tenant's own JobBoardView page). 37 live postings. USCIS 110 approvals (3y)."
+  },
+  {
+    "id": "northern-california-institute-for-research-and-education",
+    "name": "Northern California Institute for Research and Education",
+    "aliases": [],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "irs:943084159"
+    ],
+    "tier": "auto",
+    "ats_provider": "ultipro",
+    "ats_token": "northern-california-institute-for-research-and-education",
+    "ats_config": {
+      "host": "recruiting.ultipro.com",
+      "tenant": "NOR1032NCIRE",
+      "boards": [
+        "82cac330-9aa5-417d-9b64-568d383f4ea0"
+      ]
+    },
+    "careers_url": "https://recruiting.ultipro.com/NOR1032NCIRE/JobBoard/82cac330-9aa5-417d-9b64-568d383f4ea0",
+    "research_areas": [],
+    "notes": "UltiPro/UKG JobBoard JSON feed found via the 2026-07-05 ATS discovery crawl, resolved 2026-08-03 (board GUID surfaced in the tenant's own JobBoardView page). 25 live postings. USCIS 5 approvals (3y)."
   }
 ]
