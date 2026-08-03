@@ -484,6 +484,243 @@
     "notes": "IHE (cap-exempt; USCIS 13 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Workday CXS feed verified 2026-08-03 (albanymed.wd5.myworkdayjobs.com/Albany_Med_System_Career_Site; small public board, 1 research-relevant today: Assistant Professor Biostatistician/Quantitative Epidemiologist). tier:auto → commits research-relevant postings only."
   },
   {
+    "id": "baylor-university",
+    "name": "Baylor University",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "oracle",
+    "ats_token": "baylor-university",
+    "ats_config": {
+      "host": "ejof.fa.us2.oraclecloud.com",
+      "site_name": "CX",
+      "site_number": "CX"
+    },
+    "careers_url": "https://ejof.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX/",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 45 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host ejof.fa.us2.oraclecloud.com, canonical ACTIVE site CX; 74 postings, 11 research-relevant incl. Faculty/staff roles). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only."
+  },
+  {
+    "id": "champlain-college",
+    "name": "Champlain College",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "oracle",
+    "ats_token": "champlain-college",
+    "ats_config": {
+      "host": "champlain-ibumjb.fa.ocs.oraclecloud.com",
+      "site_name": "CX_1",
+      "site_number": "CX_1"
+    },
+    "careers_url": "https://champlain-ibumjb.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 9 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host champlain-ibumjb.fa.ocs.oraclecloud.com, canonical ACTIVE site CX_1; 14 postings, 1 research-relevant incl. Faculty Support Specialist). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only."
+  },
+  {
+    "id": "depaul-university",
+    "name": "DePaul University",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "oracle",
+    "ats_token": "depaul-university",
+    "ats_config": {
+      "host": "ekze.fa.us2.oraclecloud.com",
+      "site_name": "CX_1001",
+      "site_number": "CX_1001"
+    },
+    "careers_url": "https://ekze.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 34 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host ekze.fa.us2.oraclecloud.com, canonical ACTIVE site CX_1001; 16 postings, 3 research-relevant incl. Research Assistant; Sr. Cloud Developer & Analyst). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only."
+  },
+  {
+    "id": "east-tennessee-state-university",
+    "name": "East Tennessee State University",
+    "aliases": [
+      "ETSU"
+    ],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "oracle",
+    "ats_token": "east-tennessee-state-university",
+    "ats_config": {
+      "host": "fa-evyu-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site_name": "CX_1",
+      "site_number": "CX_1"
+    },
+    "careers_url": "https://fa-evyu-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 33 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host fa-evyu-saasfaprod1.fa.ocs.oraclecloud.com, canonical ACTIVE site CX_1; 141 postings, 43 research-relevant incl. Research and Development Scientist; Pediatric Neurologist). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only."
+  },
+  {
+    "id": "loma-linda-university",
+    "name": "Loma Linda University",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "oracle",
+    "ats_token": "loma-linda-university",
+    "ats_config": {
+      "host": "egln.fa.us2.oraclecloud.com",
+      "site_name": "CX",
+      "site_number": "CX"
+    },
+    "careers_url": "https://egln.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX/",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 20 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host egln.fa.us2.oraclecloud.com, canonical ACTIVE site CX; 415 postings, 21 research-relevant incl. Coordinator-Clinical Research). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only."
+  },
+  {
+    "id": "st-olaf-college",
+    "name": "St. Olaf College",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "oracle",
+    "ats_token": "st-olaf-college",
+    "ats_config": {
+      "host": "fa-ewur-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site_name": "CX_3",
+      "site_number": "CX_3"
+    },
+    "careers_url": "https://fa-ewur-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_3/",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 7 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host fa-ewur-saasfaprod1.fa.ocs.oraclecloud.com, canonical ACTIVE site CX_3; 17 postings, 6 research-relevant incl. Assistant Professor). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only."
+  },
+  {
+    "id": "tennessee-technological-university",
+    "name": "Tennessee Technological University",
+    "aliases": [
+      "Tennessee Tech"
+    ],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "oracle",
+    "ats_token": "tennessee-technological-university",
+    "ats_config": {
+      "host": "fa-eygi-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site_name": "CX_1",
+      "site_number": "CX_1"
+    },
+    "careers_url": "https://fa-eygi-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 21 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host fa-eygi-saasfaprod1.fa.ocs.oraclecloud.com, canonical ACTIVE site CX_1; 62 postings, 19 research-relevant incl. Systems Analyst; Assistant/Associate Professor). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only."
+  },
+  {
+    "id": "university-of-maine",
+    "name": "University of Maine",
+    "aliases": [
+      "UMaine",
+      "University of Maine System"
+    ],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "oracle",
+    "ats_token": "university-of-maine",
+    "ats_config": {
+      "host": "fa-ewca-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site_name": "CX_1",
+      "site_number": "CX_1"
+    },
+    "careers_url": "https://fa-ewca-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 63 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host fa-ewca-saasfaprod1.fa.ocs.oraclecloud.com, canonical ACTIVE site CX_1; 147 postings, 61 research-relevant incl. Faculty; Network Engineer). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only."
+  },
+  {
+    "id": "university-of-tulsa",
+    "name": "University of Tulsa",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "oracle",
+    "ats_token": "university-of-tulsa",
+    "ats_config": {
+      "host": "utulsa-ibvjjb.fa.ocs.oraclecloud.com",
+      "site_name": "CX_1",
+      "site_number": "CX_1"
+    },
+    "careers_url": "https://utulsa-ibvjjb.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 15 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host utulsa-ibvjjb.fa.ocs.oraclecloud.com, canonical ACTIVE site CX_1; 78 postings, 8 research-relevant incl. Assistant Professor of Business Information Systems). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only."
+  },
+  {
+    "id": "vanderbilt-university",
+    "name": "Vanderbilt University",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "oracle",
+    "ats_token": "vanderbilt-university",
+    "ats_config": {
+      "host": "ecsr.fa.us2.oraclecloud.com",
+      "site_name": "CX_1",
+      "site_number": "CX_1"
+    },
+    "careers_url": "https://ecsr.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 143 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host ecsr.fa.us2.oraclecloud.com, canonical ACTIVE site CX_1; 127 postings, 15 research-relevant incl. Research Financial Analyst; Research Technician). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only."
+  },
+  {
     "id": "university-of-michigan",
     "name": "University of Michigan",
     "type": "institution_of_higher_education",
