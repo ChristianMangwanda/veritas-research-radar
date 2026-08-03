@@ -367,6 +367,123 @@
     "notes": "Likely cap-exempt institution. Workday CXS feed verified 2026-07-19 (wd5.myworkdaysite.com/recruiting/uw/UWHires — myworkdaysite host, not myworkdayjobs; 547 postings, 111 research-relevant incl. Research Scientist/Engineer, Epic Research Application Analyst). Tenant recovered from hr.uw.edu 'find a staff job' link; earlier public-board probes (2026-07-03) missed it."
   },
   {
+    "id": "liberty-university",
+    "name": "Liberty University",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "workday",
+    "ats_token": "liberty",
+    "ats_config": {
+      "host": "liberty.wd5.myworkdayjobs.com",
+      "tenant": "liberty",
+      "site": "lu_job_board_faculty"
+    },
+    "careers_url": "https://liberty.wd5.myworkdayjobs.com/lu_job_board_faculty",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt as institution of higher education; USCIS 14 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub) and confirmed by an ATS discovery scan (2026-08-03). Workday CXS feed verified 2026-08-03 (liberty.wd5.myworkdayjobs.com/lu_job_board_faculty, 49 postings, 30 research-relevant incl. Assistant Professor of Computer Engineering). tier:auto → commits research-relevant postings only."
+  },
+  {
+    "id": "new-jersey-institute-of-technology",
+    "name": "New Jersey Institute of Technology",
+    "aliases": [
+      "NJIT"
+    ],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "workday",
+    "ats_token": "njit",
+    "ats_config": {
+      "host": "njit.wd108.myworkdayjobs.com",
+      "tenant": "njit",
+      "site": "NJIT_Careers"
+    },
+    "careers_url": "https://njit.wd108.myworkdayjobs.com/NJIT_Careers",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 68 approvals 3y — strong sponsor). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Workday CXS feed verified 2026-08-03 (njit.wd108.myworkdayjobs.com/NJIT_Careers, 57 postings, 9 research-relevant). tier:auto → commits research-relevant postings only."
+  },
+  {
+    "id": "santa-clara-university",
+    "name": "Santa Clara University",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "workday",
+    "ats_token": "scu",
+    "ats_config": {
+      "host": "wd1.myworkdaysite.com",
+      "tenant": "scu",
+      "site": "scu"
+    },
+    "careers_url": "https://wd1.myworkdaysite.com/recruiting/scu/scu",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 22 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Workday CXS feed verified 2026-08-03 (wd1.myworkdaysite.com/recruiting/scu/scu — myworkdaysite shared host; 81 postings, 17 research-relevant). tier:auto → commits research-relevant postings only."
+  },
+  {
+    "id": "wentworth-institute-of-technology",
+    "name": "Wentworth Institute of Technology",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "workday",
+    "ats_token": "wit",
+    "ats_config": {
+      "host": "wit.wd1.myworkdayjobs.com",
+      "tenant": "wit",
+      "site": "WIT"
+    },
+    "careers_url": "https://wit.wd1.myworkdayjobs.com/WIT",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 14 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Workday CXS feed verified 2026-08-03 (wit.wd1.myworkdayjobs.com/WIT, 37 postings, 3 research-relevant incl. Laboratory Instructor/Coordinator, Mechanical Engineering). tier:auto → commits research-relevant postings only."
+  },
+  {
+    "id": "albany-medical-college",
+    "name": "Albany Medical College",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ipeds",
+      "uscis_h1b_datahub",
+      "ats_feed_verified"
+    ],
+    "tier": "auto",
+    "ats_provider": "workday",
+    "ats_token": "albanymed",
+    "ats_config": {
+      "host": "albanymed.wd5.myworkdayjobs.com",
+      "tenant": "albanymed",
+      "site": "Albany_Med_System_Career_Site"
+    },
+    "careers_url": "https://albanymed.wd5.myworkdayjobs.com/Albany_Med_System_Career_Site",
+    "research_areas": [],
+    "notes": "IHE (cap-exempt; USCIS 13 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Workday CXS feed verified 2026-08-03 (albanymed.wd5.myworkdayjobs.com/Albany_Med_System_Career_Site; small public board, 1 research-relevant today: Assistant Professor Biostatistician/Quantitative Epidemiologist). tier:auto → commits research-relevant postings only."
+  },
+  {
     "id": "university-of-michigan",
     "name": "University of Michigan",
     "type": "institution_of_higher_education",
