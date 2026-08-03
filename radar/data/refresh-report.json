@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-08-03T08:38:35.016Z",
+  "refreshed_at": "2026-08-03T11:01:04.846Z",
   "employer_count": 239,
   "ats_enabled_employer_count": 219,
   "job_count": 17626,
-  "active_job_count": 11491,
-  "closed_job_count": 6135,
-  "newly_closed_count": 21,
-  "errored_employers": 0,
+  "active_job_count": 11487,
+  "closed_job_count": 6139,
+  "newly_closed_count": 4,
+  "errored_employers": 24,
   "recall_anomalies": [],
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
@@ -344,10 +344,10 @@
       "name": "University of Rochester",
       "ats_provider": "workday",
       "ats_token": "rochester",
-      "fetched_jobs": 91,
+      "fetched_jobs": 90,
       "skipped": false,
       "error": null,
-      "closed_jobs": 55
+      "closed_jobs": 56
     },
     {
       "employer_id": "university-of-nevada-reno",
@@ -1444,9 +1444,9 @@
       "name": "University of Alabama at Birmingham",
       "ats_provider": "peopleadmin",
       "ats_token": "uab",
-      "fetched_jobs": 379,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 29
     },
     {
@@ -1514,9 +1514,9 @@
       "name": "University of Idaho",
       "ats_provider": "peopleadmin",
       "ats_token": "uidaho",
-      "fetched_jobs": 120,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 67
     },
     {
@@ -1594,9 +1594,9 @@
       "name": "University of Nebraska Medical Center",
       "ats_provider": "peopleadmin",
       "ats_token": "unmc",
-      "fetched_jobs": 210,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 82
     },
     {
@@ -1614,9 +1614,9 @@
       "name": "University of New England",
       "ats_provider": "peopleadmin",
       "ats_token": "une",
-      "fetched_jobs": 25,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 57
     },
     {
@@ -1636,7 +1636,7 @@
       "ats_token": "trumansu",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 0
     },
     {
@@ -1654,9 +1654,9 @@
       "name": "La Salle University",
       "ats_provider": "peopleadmin",
       "ats_token": "lasalle",
-      "fetched_jobs": 13,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 0
     },
     {
@@ -1704,9 +1704,9 @@
       "name": "Delta State University",
       "ats_provider": "peopleadmin",
       "ats_token": "deltastate",
-      "fetched_jobs": 11,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 4
     },
     {
@@ -1724,9 +1724,9 @@
       "name": "Winthrop University",
       "ats_provider": "peopleadmin",
       "ats_token": "winthrop",
-      "fetched_jobs": 12,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 5
     },
     {
@@ -1734,9 +1734,9 @@
       "name": "Sul Ross State University",
       "ats_provider": "peopleadmin",
       "ats_token": "sulross",
-      "fetched_jobs": 76,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 58
     },
     {
@@ -1744,9 +1744,9 @@
       "name": "Northeast Iowa Community College",
       "ats_provider": "peopleadmin",
       "ats_token": "nicc",
-      "fetched_jobs": 2,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 1
     },
     {
@@ -1814,9 +1814,9 @@
       "name": "Oregon State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.oregonstate.edu",
-      "fetched_jobs": 96,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 23
     },
     {
@@ -1844,9 +1844,9 @@
       "name": "University of Vermont",
       "ats_provider": "peopleadmin",
       "ats_token": "www.uvmjobs.com",
-      "fetched_jobs": 104,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 65
     },
     {
@@ -1906,7 +1906,7 @@
       "ats_token": "employment.marquette.edu",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 0
     },
     {
@@ -1954,9 +1954,9 @@
       "name": "Portland State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.hrc.pdx.edu",
-      "fetched_jobs": 32,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 16
     },
     {
@@ -2034,9 +2034,9 @@
       "name": "Lewis University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.lewisu.edu",
-      "fetched_jobs": 59,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 2
     },
     {
@@ -2044,9 +2044,9 @@
       "name": "Slippery Rock University of Pennsylvania",
       "ats_provider": "peopleadmin",
       "ats_token": "careers.sru.edu",
-      "fetched_jobs": 8,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 7
     },
     {
@@ -2066,7 +2066,7 @@
       "ats_token": "jobs.nicholls.edu",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 0
     },
     {
@@ -2084,9 +2084,9 @@
       "name": "University of the Incarnate Word",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.uiw.edu",
-      "fetched_jobs": 55,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 14
     },
     {
@@ -2106,7 +2106,7 @@
       "ats_token": "jobs.kettering.edu",
       "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 0
     },
     {
@@ -2114,9 +2114,9 @@
       "name": "South Dakota School of Mines and Technology",
       "ats_provider": "peopleadmin",
       "ats_token": "yourfuture.sdbor.edu",
-      "fetched_jobs": 115,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 71
     },
     {
@@ -2134,9 +2134,9 @@
       "name": "Fayetteville State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.uncfsu.edu",
-      "fetched_jobs": 21,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 4
     },
     {
@@ -2184,9 +2184,9 @@
       "name": "Linn-Benton Community College",
       "ats_provider": "peopleadmin",
       "ats_token": "www.jobs.linnbenton.edu",
-      "fetched_jobs": 53,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 44
     },
     {
@@ -2204,9 +2204,9 @@
       "name": "Concord University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.concord.edu",
-      "fetched_jobs": 7,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 1
     },
     {
@@ -2224,9 +2224,9 @@
       "name": "Bridgewater State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.bridgew.edu",
-      "fetched_jobs": 28,
+      "fetched_jobs": 0,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 500 Internal Server Error",
       "closed_jobs": 11
     },
     {
