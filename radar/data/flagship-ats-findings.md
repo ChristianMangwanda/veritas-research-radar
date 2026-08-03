@@ -96,6 +96,58 @@ Curl-friendly, no WAF on the API path (the HTML site 403s non-browser TLS).
 |----|---------------|-------|-------------------|
 | `johns-hopkins-university` | hiring.jhu.edu / jhu.edu | 529 | 211 (all w/ desc+loc+date) |
 
+## ✅ Wired — Workday, round 2 (2026-08-03)
+
+St. Jude's public careers page (stjude.org/jobs.html) fronts a Phenom board
+(talent.stjude.org) whose `JobDetail/<slug>-JR####/<id>` links **redirect into a
+Workday tenant**. Recovered the tenant by following those redirects and wired it
+through the existing `fetchWorkdayJobs`.
+
+| id | tenant / host / site | total | research-relevant |
+|----|----------------------|-------|-------------------|
+| `st-jude` | stjude / stjude.wd1.myworkdayjobs.com / stjude | 176 | 107 (all w/ full desc) |
+
+## ✅ Wired — UltiPro / UKG CSB (new `ultipro` driver, 2026-08-03)
+
+UKG Recruiting "JobBoard" tenants expose a public JSON search feed:
+`POST /{tenant}/JobBoard/{guid}/JobBoardView/LoadSearchResults` returns
+`opportunities[]` with `Title`, `RequisitionNumber`, `JobCategoryName`, rich
+`Locations[]` (address+state), `PostedDate`, and a real `BriefDescription`
+(a few hundred chars) **inline** — so no per-job detail call and no title
+prefilter (keep every posting; scoring ranks). `ats_config = { host, tenant,
+boards: [guid…] }`; a tenant can front several boards (staff/faculty), iterated
+and deduped by opportunity `Id`. `mapUltiproJob` keys the id on the stable
+`RequisitionNumber`, not the per-board opportunity GUID.
+
+| id | tenant / boards | total | research-relevant |
+|----|-----------------|-------|-------------------|
+| `salk-institute` | SAL1013SIBS / 2 non-empty boards | 11 | 11 (all w/ BriefDescription); incl. Research Software Engineer I (AIRC), 4 Postdoctoral Fellows |
+
+## Dedup — Dana-Farber (2026-08-03)
+
+`dana-farber` (null-ATS manual entry) was a duplicate of the live Workday entry
+`dana-farber-cancer-institute` (same careers.dana-farber.org tenant, ~76 jobs).
+Merged the curated fields (proper-case name, research_areas) into the Workday
+entry and **re-keyed its DOL sponsor signal** (101 certified LCAs, 3y) in
+`dol-sponsor-signals.json` so no sponsorship evidence is orphaned, then removed
+the null entry. Registry 239 → 238.
+
+## ⏸️ Deferred — no clean public endpoint (2026-08-03 probe)
+
+- `university-of-michigan` — careers.umich.edu is **Drupal**; jobs render via
+  AJAX Views/BigPipe (no server-rendered `job_detail` links, no `ajaxViews` in the
+  initial `drupalSettings`). The only structured feed is the marketing RSS
+  `/search/feed/advanced`, which is a limited recent-window slice (keyword search
+  returns ~9, no real pagination) — wiring it would trip the Tier-0 recall-anomaly
+  guard as jobs age out of the window. Needs an interactive-search + rendered
+  pagination scrape; not worth the fragility now.
+- `mit` — hr.mit.edu is Drupal but only **links out** to PeopleClick/PeopleFluent
+  (careers.peopleclick.com/careerscp/client_mit). That external site is an
+  AngularJS 1.2 app that returns a fixed ~90KB shell for every stateless request;
+  job results load only via a stateful in-app search (session + CSRF). No public
+  JSON/HTML inventory feed. A driver would mean replicating the stateful
+  PeopleFluent search — fragile and login-adjacent. Not wired.
+
 ## Suggested next increments (value order)
 
 1. ~~Oracle HCM driver~~ — **DONE** (Stanford + Mayo wired). The `oracle` fetcher can
@@ -104,10 +156,15 @@ Curl-friendly, no WAF on the API path (the HTML site 403s non-browser TLS).
 2. ~~SuccessFactors driver~~ — **DONE** (Baylor wired; the driver reaches any CSB
    tenant via `ats_config { host }`). ~~JHU staff~~ — **DONE** via the new
    `eightfold` driver (JHU migrated ATS between the crawl and 2026-07-30).
-3. **Scout tune** the custom same-origin boards (MIT, Salk, St Jude, U-Michigan,
-   Dana-Farber, UW-Madison, Harvard, + Northwestern's non-CE Oracle) — each ~1h: set
-   `listing_url` + anchor `selector` in `scout/jobs_scrape.yaml`, verify with
-   `scout/.venv` Playwright, `npm run radar:import-scouted`. Only viable where
-   job-detail anchors match `JOB_DETAIL_PATTERN`; some SPAs render cards without
-   per-job anchor hrefs.
-4. Avature / ClearCompany / Findly drivers — one flagship each, lowest leverage.
+3. ~~Scout tune the custom same-origin boards~~ — **INVESTIGATED 2026-08-03,
+   mostly not viable.** The "custom same-origin" premise dissolved on probe: St Jude
+   was really Workday (wired), Salk was UltiPro (new driver, wired), Dana-Farber was
+   a dup of an existing Workday entry (dedup). Only true same-origin scrape targets
+   left are Michigan + MIT, both **deferred** (Drupal-AJAX / PeopleFluent, no public
+   inventory — see above). Still-unprobed same-origin candidates: UW-Madison,
+   Harvard, Northwestern (non-CE Oracle).
+4. **UltiPro driver leverage** — the new `ultipro` fetcher reaches any UKG CSB tenant
+   via `ats_config { host, tenant, boards }`. Scan the 14k-nonprofit tail for
+   `recruiting*.ultipro.com` boards to thaw more employers with zero new code.
+5. Avature (`broad-institute`) / ClearCompany (`allen-institute`) / Findly
+   (`cleveland-clinic`) drivers — one flagship each, lowest leverage.
