@@ -51,3 +51,6 @@ __pycache__/
 *.pyc
 radar/data/aggregated/
 .codex/
+
+# Local digest secrets (never commit)
+radar/scripts/.digest.env
