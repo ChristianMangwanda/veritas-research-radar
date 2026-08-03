@@ -148,6 +148,34 @@ the null entry. Registry 239 → 238.
   JSON/HTML inventory feed. A driver would mean replicating the stateful
   PeopleFluent search — fragile and login-adjacent. Not wired.
 
+## ✅ ATS discovery scan over the candidate pool (2026-08-03)
+
+Beyond the 19 named flagships: ran an ATS-detection sweep
+(`scratchpad/ats_scan.py`) over the 220 top-scored discovery candidates
+(cap-exempt research orgs with websites in `cap-exempt-directory.json`), fetching
+each root + a careers page and matching every platform we already have a
+config-only driver for (UltiPro, Workday, Oracle CE, SuccessFactors, Eightfold).
+16 hits; **15 wired** as new `tier:auto` cap-exempt IHE entries after end-to-end
+driver verification:
+
+- **Workday (5)** — liberty-university, new-jersey-institute-of-technology,
+  santa-clara-university (myworkdaysite host), wentworth-institute-of-technology,
+  albany-medical-college. +60 research-relevant.
+- **Oracle CE (10)** — university-of-maine, east-tennessee-state-university,
+  loma-linda-university, tennessee-technological-university, vanderbilt-university,
+  baylor-university, university-of-tulsa, st-olaf-college, depaul-university,
+  champlain-college. ~197 research-relevant. **Trap:** Oracle hosts front several
+  sites; pick the `StatusCode: ORA_ACTIVE`, non-student/non-test site (Baylor's CX_1
+  is "Student Employment"; the real staff site is CX). The `SiteNumber` doubles as
+  the apply-URL path token (verified 200), so `site_name = site_number`.
+
+**Follow-up:** `University of South Florida` matched Oracle CE (`/hcmUI/CandidateExperience`
+in its careers HTML) but its Oracle host wasn't resolved from the page — needs a
+targeted probe to find the `*.oraclecloud.com` host + canonical site, then it wires
+like the others. No UltiPro/SuccessFactors/Eightfold hits in this pool (Salk's UltiPro
+board came from the curated set). Scan `cap-exempt-directory.json`'s 5,971
+websites for more `recruiting*.ultipro.com` boards next.
+
 ## Suggested next increments (value order)
 
 1. ~~Oracle HCM driver~~ — **DONE** (Stanford + Mayo wired). The `oracle` fetcher can
