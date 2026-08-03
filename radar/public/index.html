@@ -55,10 +55,12 @@
           <button id="reset-filters" class="link-button" type="button" hidden>Reset <span></span></button>
         </div>
 
-        <label class="field">
+        <label class="field search-field">
           <span class="field-label">Search</span>
           <input id="q" type="search" placeholder="Title, skill, employer…  ( / )">
         </label>
+
+        <p class="profile-note pipeline-note">Pipeline shows everything you've applied to or contacted, regardless of filters — only search narrows it.</p>
 
         <label class="field">
           <span class="field-label">Sort by</span>
@@ -216,16 +218,25 @@
 
       <section class="list-pane" aria-label="Job list">
         <div class="list-head">
+          <div id="view-seg" class="segmented view-seg" role="group" aria-label="View">
+            <button type="button" data-value="radar" class="is-active">Radar</button>
+            <button type="button" data-value="pipeline">Pipeline</button>
+          </div>
           <strong id="count">0 jobs</strong>
           <button id="today-chip" class="chip today-chip" type="button" title="Fresh good-or-better fits — the same cut the daily digest pushes">☀ Today</button>
           <button id="filters-toggle" class="chip filters-toggle" type="button">Filters <span></span></button>
           <span class="kbd-hint" title="Keyboard: j/k move · Enter open details · o open posting · s shortlist · a applied · x ignore">⌨ j k o s a x</span>
         </div>
         <div id="load-error" class="load-error" role="alert" hidden></div>
+        <div id="pipeline-stats" class="pipeline-stats" hidden></div>
         <div id="jobs" class="job-list" role="listbox" aria-label="Jobs"></div>
         <div id="empty-state" class="empty-state" hidden>
           <p><strong>No jobs match these filters.</strong></p>
           <p>Loosen a filter or <button id="empty-reset" class="link-button" type="button">reset all filters</button>.</p>
+        </div>
+        <div id="pipeline-empty" class="empty-state" hidden>
+          <p><strong>No applications yet.</strong></p>
+          <p>Mark a job Applied (or Emailed lab) and it shows up here with its stage and age.</p>
         </div>
       </section>
 

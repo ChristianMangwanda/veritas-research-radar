@@ -546,6 +546,80 @@ input[type="range"] {
   cursor: default;
 }
 
+.view-seg {
+  flex: 0 0 auto;
+}
+
+.view-seg button.is-active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.pipeline-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.group-header {
+  padding: 10px 4px 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+}
+
+.pipeline-terminal {
+  margin-top: 12px;
+}
+
+.pipeline-terminal summary {
+  cursor: pointer;
+  padding: 6px 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.pipeline-terminal .job-row {
+  margin-top: 8px;
+}
+
+/* Pipeline ignores every filter except search — make that visible instead of
+   leaving dead controls that appear to do nothing. */
+.pipeline-note { display: none; }
+body.pipeline-mode .pipeline-note { display: block; }
+body.pipeline-mode .filters > .field:not(.search-field),
+body.pipeline-mode .filters > .check,
+body.pipeline-mode .filters > .mark-seen {
+  opacity: 0.4;
+  pointer-events: none;
+}
+body.pipeline-mode .today-chip { display: none; }
+
+.alert-info { background: var(--info-soft); color: var(--info-ink); }
+
+.apply-nudge {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.apply-nudge .ghost-button {
+  padding: 3px 10px;
+  font-size: 12px;
+}
+
 .job-list {
   display: grid;
   gap: 8px;

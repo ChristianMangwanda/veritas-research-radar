@@ -99,6 +99,9 @@ const DOM = {
   minVerdict: document.querySelector('#min-verdict'),
   recency: document.querySelector('#recency'),
   todayChip: document.querySelector('#today-chip'),
+  viewSeg: document.querySelector('#view-seg'),
+  pipelineStats: document.querySelector('#pipeline-stats'),
+  pipelineEmpty: document.querySelector('#pipeline-empty'),
   resetFilters: document.querySelector('#reset-filters'),
   profileSummary: document.querySelector('#profile-summary'),
   profileFile: document.querySelector('#profile-file'),
@@ -135,6 +138,15 @@ const LIST_RENDER_CAP = 400;
 let showAllRows = false;
 
 let visaFilter = '';
+
+// 'radar' = the discovery list; 'pipeline' = jobs you've applied to /
+// contacted, grouped by stage. Pipeline ignores every filter except search —
+// an application must never vanish because a filter tightened.
+let viewMode = 'radar';
+
+// Job id whose detail pane shows the "did you apply?" nudge after the user
+// opened its posting. Self-scoped: only ever rendered for the matching job.
+let applyNudgeJobId = null;
 
 /* ------------------------------------------------------------------------ */
 /* Data + persistence                                                        */
@@ -709,6 +721,7 @@ function syncUrl() {
   if (DOM.minResearch.value !== '0') params.set('minResearch', DOM.minResearch.value);
   if (DOM.minVerdict.value) params.set('minVerdict', DOM.minVerdict.value);
   if (DOM.recency.value) params.set('recency', DOM.recency.value);
+  if (viewMode !== 'radar') params.set('view', viewMode);
   const qs = params.toString();
   history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
 }
@@ -730,6 +743,7 @@ function hydrateFromUrl() {
   if (params.has('minVerdict')) DOM.minVerdict.value = params.get('minVerdict');
   if (params.has('recency')) DOM.recency.value = params.get('recency');
   if (params.has('source')) DOM.source.value = params.get('source');
+  if (params.get('view') === 'pipeline') setViewMode('pipeline', { skipRender: true });
 }
 
 /* ------------------------------------------------------------------------ */
@@ -820,13 +834,23 @@ function render() {
   DOM.resetFilters.querySelector('span').textContent = `(${filters})`;
   DOM.filtersToggle.querySelector('span').textContent = filters ? `(${filters})` : '';
 
-  const jobs = filteredJobs();
-  state.visible = jobs;
-  DOM.count.textContent = `${jobs.length} job${jobs.length === 1 ? '' : 's'}`;
   if (DOM.loadError) {
     DOM.loadError.hidden = !state.loadError;
     if (state.loadError) DOM.loadError.textContent = state.loadError;
   }
+
+  if (viewMode === 'pipeline') {
+    renderPipelineList();
+    renderDetail();
+    return;
+  }
+
+  DOM.pipelineStats.hidden = true;
+  DOM.pipelineEmpty.hidden = true;
+
+  const jobs = filteredJobs();
+  state.visible = jobs;
+  DOM.count.textContent = `${jobs.length} job${jobs.length === 1 ? '' : 's'}`;
   // A hard load failure (zero rows loaded) is not "no filter matches" — show
   // the error banner instead of the empty-state hint. A *partial* load still
   // has rows, so filtering down to zero should show the normal hint with the
@@ -856,6 +880,70 @@ function render() {
   renderDetail();
 }
 
+// The pipeline list: only jobs the user acted on, only the search box narrows
+// it. No render cap — the pipeline is dozens of rows, and slicing across
+// stage groups would be incoherent.
+function pipelineJobs() {
+  const query = DOM.q.value.trim().toLowerCase();
+  return state.jobs
+    .filter((job) => RadarPipeline.PIPELINE_SET.has(triageFor(job)))
+    .filter((job) => !query || jobText(job).includes(query));
+}
+
+function renderPipelineList() {
+  const groups = RadarPipeline.groupPipeline(pipelineJobs(), state.local.triage);
+  const visible = groups.flatMap((group) => group.jobs);
+  state.visible = visible;
+  DOM.count.textContent = `${visible.length} application${visible.length === 1 ? '' : 's'}`;
+  DOM.emptyState.hidden = true;
+  // Same rule as the radar empty-state: a hard load failure shows the error
+  // banner, not a misleading "no applications yet".
+  DOM.pipelineEmpty.hidden = visible.length > 0 || (state.jobs.length === 0 && Boolean(state.loadError));
+  renderPipelineStats();
+  DOM.jobs.replaceChildren();
+
+  if (state.selectedId && !visible.some((job) => job.id === state.selectedId)) {
+    state.selectedId = null;
+  }
+
+  let terminalWrap = null;
+  for (const group of groups) {
+    let host = DOM.jobs;
+    if (group.terminal) {
+      if (!terminalWrap) {
+        const terminalCount = groups.filter((g) => g.terminal)
+          .reduce((total, g) => total + g.jobs.length, 0);
+        terminalWrap = el('details', 'pipeline-terminal');
+        terminalWrap.append(el('summary', '', `Closed out · ${terminalCount}`));
+        DOM.jobs.append(terminalWrap);
+      }
+      host = terminalWrap;
+    }
+    host.append(el('div', 'group-header', `${TRIAGE_LABELS[group.stage]} · ${group.jobs.length}`));
+    for (const job of group.jobs) host.append(buildRow(job));
+  }
+}
+
+// Funnel counts over the whole dataset (not the search-narrowed list, so the
+// numbers stay stable while typing). The four core stages always show; the
+// optional ones only when non-zero.
+function renderPipelineStats() {
+  const counts = {};
+  for (const job of state.jobs) {
+    const status = triageFor(job);
+    if (RadarPipeline.PIPELINE_SET.has(status)) counts[status] = (counts[status] || 0) + 1;
+  }
+  const always = new Set(['applied', 'interview', 'offer', 'rejected']);
+  const parts = [];
+  for (const stage of ['emailed_lab', 'applied', 'interview', 'offer', 'rejected', 'withdrawn']) {
+    const total = counts[stage] || 0;
+    if (total === 0 && !always.has(stage)) continue;
+    parts.push(`${TRIAGE_LABELS[stage]} ${total}`);
+  }
+  DOM.pipelineStats.textContent = parts.join(' · ');
+  DOM.pipelineStats.hidden = false;
+}
+
 function buildRow(job) {
   const node = DOM.rowTemplate.content.firstElementChild.cloneNode(true);
   node.dataset.id = job.id;
@@ -877,6 +965,24 @@ function buildRow(job) {
       : age === 0 ? 'updated today'
         : `${age}d ago`;
     chips.append(tag(text, stale ? 'tag-warn' : ''));
+  }
+  if (viewMode === 'pipeline') {
+    const record = state.local.triage[job.id];
+    const appliedAge = RadarPipeline.daysSince(record?.applied_at);
+    if (appliedAge !== null) {
+      chips.append(tag(appliedAge === 0 ? 'applied today' : `applied ${appliedAge}d ago`, ''));
+    }
+    // Stage age for the states followupAgeDays deliberately excludes
+    // (offer/rejected/withdrawn) — in-flight rows already show the ⏳ chip.
+    if (age === null) {
+      const stageAge = RadarPipeline.daysSince(record?.updated_at);
+      if (stageAge !== null && stageAge > 0) chips.append(tag(`in stage ${stageAge}d`, ''));
+    }
+    if (record?.variant_sent) {
+      const sent = tag(`sent ${variantAbbrev(record.variant_sent)}`, 'tag-variant');
+      sent.prepend(variantDot(record.variant_sent));
+      chips.append(sent);
+    }
   }
   if (noteFor(job)) chips.append(tag('📝 note', ''));
   const salaryText = formatSalary(job);
@@ -936,11 +1042,17 @@ function buildRow(job) {
 
 function selectJob(id, { scroll = false } = {}) {
   state.selectedId = id;
-  for (const row of DOM.jobs.children) {
+  // querySelectorAll, not children: pipeline rows can sit inside the
+  // collapsed "closed out" <details>.
+  for (const row of DOM.jobs.querySelectorAll('.job-row')) {
     row.classList.toggle('is-selected', row.dataset.id === id);
   }
   const row = DOM.jobs.querySelector(`[data-id="${CSS.escape(id)}"]`);
-  if (row && scroll) row.scrollIntoView({ block: 'nearest' });
+  if (row) {
+    const wrap = row.closest('details');
+    if (wrap) wrap.open = true;
+    if (scroll) row.scrollIntoView({ block: 'nearest' });
+  }
   renderDetail();
 }
 
@@ -1108,8 +1220,36 @@ function rebindDetailRefs() {
   bindDetailEvents();
 }
 
+// States where opening the posting plausibly means "I'm about to apply" —
+// anything already in the pipeline doesn't need the reminder.
+const NUDGE_STATES = new Set(['new', 'shortlist', 'emailed_lab', 'needs_visa_check']);
+
+function maybeNudgeApply(job) {
+  if (!NUDGE_STATES.has(triageFor(job))) return;
+  applyNudgeJobId = job.id;
+  renderDetail();
+}
+
 function renderDetailAlerts(job) {
   DOM.detailAlerts.replaceChildren();
+  if (applyNudgeJobId === job.id && NUDGE_STATES.has(triageFor(job))) {
+    const nudge = el('div', 'alert alert-info apply-nudge');
+    nudge.append(el('span', '', 'Opened the posting — did you apply?'));
+    const mark = el('button', 'ghost-button', 'Mark applied');
+    mark.type = 'button';
+    mark.addEventListener('click', () => {
+      applyNudgeJobId = null;
+      setTriage(job, 'applied');
+    });
+    const dismiss = el('button', 'ghost-button', 'Dismiss');
+    dismiss.type = 'button';
+    dismiss.addEventListener('click', () => {
+      applyNudgeJobId = null;
+      renderDetail();
+    });
+    nudge.append(mark, dismiss);
+    DOM.detailAlerts.append(nudge);
+  }
   if (isClosed(job)) {
     const kind = PROTECTED_TRIAGE.has(triageFor(job)) ? 'alert-warn' : 'alert-warn';
     DOM.detailAlerts.append(el('div', `alert ${kind}`,
@@ -1432,6 +1572,16 @@ function setVisaFilter(value, { skipRender = false } = {}) {
   if (!skipRender) render();
 }
 
+function setViewMode(value, { skipRender = false } = {}) {
+  viewMode = value === 'pipeline' ? 'pipeline' : 'radar';
+  for (const button of DOM.viewSeg.querySelectorAll('button')) {
+    button.classList.toggle('is-active', button.dataset.value === viewMode);
+  }
+  document.body.classList.toggle('pipeline-mode', viewMode === 'pipeline');
+  showAllRows = false;
+  if (!skipRender) render();
+}
+
 /* ------------------------------------------------------------------------ */
 /* Keyboard triage                                                           */
 
@@ -1460,7 +1610,10 @@ function handleKeydown(event) {
     if (previous) selectJob(previous.id, { scroll: true });
   } else if (event.key === 'o' || event.key === 'Enter') {
     const job = selectedJob();
-    if (job) window.open(job.url, '_blank', 'noreferrer');
+    if (job) {
+      window.open(job.url, '_blank', 'noreferrer');
+      maybeNudgeApply(job);
+    }
   } else if (TRIAGE_KEYS[event.key]) {
     const job = selectedJob();
     if (job) setTriage(job, TRIAGE_KEYS[event.key]);
@@ -1605,6 +1758,13 @@ function bindDetailEvents() {
     await setVariantSent(job, event.target.value);
     render();
   });
+
+  // The nudge also fires from the detail pane's own open-posting link (the
+  // <a> navigates normally; this just adds the reminder).
+  DOM.detailOpen.addEventListener('click', () => {
+    const job = selectedJob();
+    if (job) maybeNudgeApply(job);
+  });
 }
 
 function markAllSeen() {
@@ -1632,6 +1792,11 @@ function bindEvents() {
 
   DOM.markSeen.addEventListener('click', markAllSeen);
   DOM.todayChip.addEventListener('click', applyTodayPreset);
+
+  DOM.viewSeg.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-value]');
+    if (button) setViewMode(button.dataset.value);
+  });
 
   DOM.visaSeg.addEventListener('click', (event) => {
     const button = event.target.closest('button[data-value]');
