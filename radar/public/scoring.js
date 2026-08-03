@@ -43,7 +43,12 @@
     AMBIGUITY_FLOOR: 15
   };
 
-  const VERDICT_TIERS = [['strong', 70], ['good', 55], ['moderate', 40], ['weak', 25], ['stretch', 0]];
+  // Calibrated 2026-08-03 to the discriminated-weight score scale (skill weights
+  // now form a real 3/2/1 pyramid, so fits run lower and more honest — top real-
+  // dataset fit ≈ 65, not ≈ 80). Bands are data-driven from the fit histogram:
+  // strong ≈ top ~12 jobs, good adds the next ~20, then moderate/weak/stretch.
+  // Tunable — each is a single floor.
+  const VERDICT_TIERS = [['strong', 50], ['good', 38], ['moderate', 27], ['weak', 16], ['stretch', 0]];
 
   const DEGREE_RANK = { other: 0, bachelors: 1, masters: 2, phd: 3, md: 3 };
 

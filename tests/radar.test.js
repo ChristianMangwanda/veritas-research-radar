@@ -1504,10 +1504,12 @@ function testReachabilityDemotion() {
   assert.strictEqual(federal.verdict, 'stretch');
   assert.strictEqual(federal.gate.citizenship, true);
 
-  // RESTRICTED-only: −15, no hard-gate cap
+  // RESTRICTED-only: −15, no hard-gate cap. fit 36 sits in the moderate band
+  // (27-38) on the recalibrated scale — demoted from the un-penalized 51, but not
+  // hidden (demote-never-hide).
   const restricted = scoreJob({ ...base, veritas_state: 'RESTRICTED' }, compiled, null);
   assert.strictEqual(restricted.fit_score, 46 + 5 - 15);
-  assert.strictEqual(restricted.verdict, 'weak');
+  assert.strictEqual(restricted.verdict, 'moderate');
 
   // avoid signals demote (capped) and stage mismatch flags
   const avoid = scoreJob({
@@ -1534,16 +1536,17 @@ function testReachabilityDemotion() {
 }
 
 function testVerdictTiers() {
+  // Bands: strong>=50, good>=38, moderate>=27, weak>=16, stretch>=0
   const { verdictFor } = RadarScoring;
-  assert.strictEqual(verdictFor(70, false), 'strong');
-  assert.strictEqual(verdictFor(69, false), 'good');
-  assert.strictEqual(verdictFor(55, false), 'good');
-  assert.strictEqual(verdictFor(54, false), 'moderate');
-  assert.strictEqual(verdictFor(40, false), 'moderate');
-  assert.strictEqual(verdictFor(39, false), 'weak');
-  assert.strictEqual(verdictFor(25, false), 'weak');
-  assert.strictEqual(verdictFor(24, false), 'stretch');
-  assert.strictEqual(verdictFor(72, true), 'stretch');
+  assert.strictEqual(verdictFor(50, false), 'strong');
+  assert.strictEqual(verdictFor(49, false), 'good');
+  assert.strictEqual(verdictFor(38, false), 'good');
+  assert.strictEqual(verdictFor(37, false), 'moderate');
+  assert.strictEqual(verdictFor(27, false), 'moderate');
+  assert.strictEqual(verdictFor(26, false), 'weak');
+  assert.strictEqual(verdictFor(16, false), 'weak');
+  assert.strictEqual(verdictFor(15, false), 'stretch');
+  assert.strictEqual(verdictFor(72, true), 'stretch'); // hard-gate cap overrides score
 }
 
 function testRoutingAmbiguity() {

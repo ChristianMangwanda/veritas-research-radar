@@ -128,6 +128,8 @@ The system will use your output for deterministic text matching against thousand
 
 The candidate maintains several resume variants they wrote themselves, each tailored to a role type. You are extracting ONE variant; capture the emphasis of THIS variant rather than a generic average. Never invent skills or experience.
 
+Weights must DISCRIMINATE — they are the whole point of the ranking. Reserve weight 3 for AT MOST the 4-6 skills this variant is genuinely built around (the ones in its summary and leading bullets). Use weight 2 for solid working skills, weight 1 for anything merely familiar or secondary. A profile where every skill is weight 3 is useless to the matcher; if you are marking more than ~6 as weight 3, you are not discriminating hard enough.
+
 Be honest about career stage and degree status — the matcher penalizes jobs whose degree requirements the candidate cannot meet, and that protection only works if the profile is accurate.`;
 
 /* ------------------------------------------------------------------------ */
