@@ -186,6 +186,10 @@ async function tryJson(url) {
 
 async function loadJobs() {
   state.loadError = null;
+  state.loadFailedPages = 0;
+  state.loadTotalPages = 0;
+  state.loadShown = 0;
+  state.loadTotal = 0;
   // An empty local file (fresh clone — jobs.json is untracked now) must not
   // shadow the live database
   const local = await tryJson('/api/jobs');
@@ -230,8 +234,14 @@ async function loadJobs() {
       const jobs = pages.flat().map((row) => row.payload);
       if (jobs.length) {
         if (failedPages) {
+          // The banner renderer uses the structured fields; the message string
+          // doubles as the "there is a problem" signal.
+          state.loadFailedPages = failedPages;
+          state.loadTotalPages = pageCount;
+          state.loadShown = jobs.length;
+          state.loadTotal = total;
           state.loadError = `Showing ${jobs.length.toLocaleString()} of ~${total.toLocaleString()} jobs — `
-            + `${failedPages} data page${failedPages === 1 ? '' : 's'} failed to load. Refresh to try again.`;
+            + `${failedPages} data page${failedPages === 1 ? '' : 's'} failed to load.`;
         }
         return jobs;
       }
@@ -868,6 +878,59 @@ function shortDate(iso) {
 /* ------------------------------------------------------------------------ */
 /* Rendering: stat strip, list, detail                                       */
 
+const SORT_LABELS = {
+  fit: 'fit',
+  evidence: 'evidence',
+  research: 'research',
+  capexempt: 'cap-exempt',
+  newest_seen: 'newest found',
+  newest_posted: 'newest posted',
+  salary: 'salary',
+  closing: 'closing soon',
+  followup: 'follow-up age'
+};
+
+// Partial-load banner in the mock's wording: what failed, what's shown, and
+// the reassurance that matters (the pipeline aborts rather than overwrites —
+// Tier 0 behavior). Hard failures keep the plain message.
+function renderLoadBanner() {
+  if (!DOM.loadError) return;
+  DOM.loadError.hidden = !state.loadError;
+  if (!state.loadError) return;
+  DOM.loadError.replaceChildren();
+  if (state.loadFailedPages > 0) {
+    const pullTime = state.report?.refreshed_at
+      ? new Date(state.report.refreshed_at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+      : 'last';
+    DOM.loadError.append(
+      el('span', '',
+        `${state.loadFailedPages} of ${state.loadTotalPages} feed pages failed on the ${pullTime} pull. `
+        + `${state.loadShown.toLocaleString()} of ~${state.loadTotal.toLocaleString()} jobs shown. `
+        + 'Nothing was deleted — the dataset aborts rather than overwrite.')
+    );
+    const retry = el('button', 'ghost-button retry-pull', 'Retry pull');
+    retry.id = 'retry-pull';
+    retry.type = 'button';
+    retry.addEventListener('click', retryLoad);
+    DOM.loadError.append(retry);
+  } else {
+    DOM.loadError.textContent = state.loadError;
+  }
+}
+
+async function retryLoad() {
+  const button = document.querySelector('#retry-pull');
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Retrying…';
+  }
+  state.jobs = await loadJobs();
+  RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
+  populateSources();
+  renderStats();
+  render();
+}
+
 function renderStats() {
   // Citizen-gated federal jobs are excluded from the headline numbers — a
   // count the user is mostly ineligible for is a vanity metric, not a stat
@@ -893,11 +956,7 @@ function render() {
   DOM.resetFilters.querySelector('.count-slot').textContent = `(${filters})`;
   DOM.filtersToggle.querySelector('.count-slot').textContent = filters ? `(${filters})` : '';
   renderFacetCounts();
-
-  if (DOM.loadError) {
-    DOM.loadError.hidden = !state.loadError;
-    if (state.loadError) DOM.loadError.textContent = state.loadError;
-  }
+  renderLoadBanner();
 
   if (viewMode === 'pipeline') {
     renderPipelineList();
@@ -910,7 +969,8 @@ function render() {
 
   const jobs = filteredJobs();
   state.visible = jobs;
-  DOM.count.textContent = `${jobs.length} job${jobs.length === 1 ? '' : 's'}`;
+  DOM.count.textContent =
+    `${jobs.length.toLocaleString()} job${jobs.length === 1 ? '' : 's'} · sorted by ${SORT_LABELS[DOM.sort.value] || 'fit'}`;
   // A hard load failure (zero rows loaded) is not "no filter matches" — show
   // the error banner instead of the empty-state hint. A *partial* load still
   // has rows, so filtering down to zero should show the normal hint with the
@@ -1004,89 +1064,135 @@ function renderPipelineStats() {
   DOM.pipelineStats.hidden = false;
 }
 
+// The evidence sub-line under a row's visa tag — strongest behavioral signal
+// first: class-specific certifications, then any LCA history, then the
+// cap-exempt read. One line, so the column never wraps into chip soup.
+function visaEvidenceLine(job) {
+  if (job.class_evidence?.certified_count_3y) {
+    return `×${job.class_evidence.certified_count_3y} ${job.title_class_label || 'matching'} roles`;
+  }
+  if (job.dol_lca_certified_count_3y) return `${job.dol_lca_certified_count_3y} LCAs · 3y`;
+  return CAP_LABELS[job.cap_exempt_status] || '';
+}
+
+// "+7 over ML/comp-bio" — how decisively the recommended variant beats the
+// runner-up. With a single variant there is no runner-up; say the verdict.
+function sendDelta(fit) {
+  const ranked = [...(fit.variants || [])]
+    .filter((variant) => variant.score != null)
+    .sort((a, b) => b.score - a.score);
+  if (ranked.length < 2) return fit.verdict || '';
+  return `+${ranked[0].score - ranked[1].score} over ${ranked[1].label || ranked[1].id}`;
+}
+
 function buildRow(job) {
   const node = DOM.rowTemplate.content.firstElementChild.cloneNode(true);
   node.dataset.id = job.id;
-  node.querySelector('.row-title').textContent = job.title;
-  node.querySelector('.row-sub').textContent =
-    `${job.employer_name} · ${job.location || 'Location unspecified'}`;
-
-  const chips = node.querySelector('.row-chips');
   const status = triageFor(job);
-  if (status !== 'new') {
-    const label = el('span', 'tag');
-    label.append(triageDot(status), document.createTextNode(TRIAGE_LABELS[status]));
-    chips.append(label);
-  }
+  const fit = job.fit;
+
+  // ROLE — flags line, title, employer sub-line, note excerpt, pipeline meta
+  const flags = node.querySelector('.row-flags');
+  const addFlag = (text, kind = '') => flags.append(el('span', `flag ${kind}`, text));
+  if (isNewSinceLastVisit(job)) addFlag('NEW', 'flag-accent');
+  if (status !== 'new') addFlag(TRIAGE_LABELS[status], 'flag-status');
   const age = followupAgeDays(job);
-  if (age !== null) {
-    const stale = age >= FOLLOWUP_STALE_DAYS;
-    const text = stale ? `⏳ ${age}d, no update`
-      : age === 0 ? 'updated today'
-        : `${age}d ago`;
-    chips.append(tag(text, stale ? 'tag-warn' : ''));
-  }
-  if (viewMode === 'pipeline') {
-    const record = state.local.triage[job.id];
-    const appliedAge = RadarPipeline.daysSince(record?.applied_at);
-    if (appliedAge !== null) {
-      chips.append(tag(appliedAge === 0 ? 'applied today' : `applied ${appliedAge}d ago`, ''));
-    }
-    // Stage age for the states followupAgeDays deliberately excludes
-    // (offer/rejected/withdrawn) — in-flight rows already show the ⏳ chip.
-    if (age === null) {
-      const stageAge = RadarPipeline.daysSince(record?.updated_at);
-      if (stageAge !== null && stageAge > 0) chips.append(tag(`in stage ${stageAge}d`, ''));
-    }
-    if (record?.variant_sent) {
-      const sent = tag(`sent ${variantAbbrev(record.variant_sent)}`, 'tag-variant');
-      sent.prepend(variantDot(record.variant_sent));
-      chips.append(sent);
-    }
-  }
-  if (noteFor(job)) chips.append(tag('📝 note', ''));
-  const salaryText = formatSalary(job);
-  if (salaryText) chips.append(tag(salaryText, 'tag-friendly'));
-  const deadlineText = formatDeadline(job);
-  if (deadlineText) {
-    const soon = (deadlineDays(job) ?? 99) <= 7;
-    chips.append(tag(`⏱ ${deadlineText}`, soon ? 'tag-warn' : ''));
-  }
-  if (isNewSinceLastVisit(job)) chips.append(tag('NEW', 'tag-info'));
+  if (age !== null && age >= FOLLOWUP_STALE_DAYS) addFlag(`${age}d no update`, 'flag-red');
   if (isClosed(job)) {
     node.classList.add('is-closed');
-    chips.append(tag(PROTECTED_TRIAGE.has(status) ? 'closed — verify' : 'closed', 'tag-warn'));
+    addFlag(PROTECTED_TRIAGE.has(status) ? 'closed — verify' : 'closed', 'flag-red');
   }
-  // Behavioral evidence is the primary chip; the text scan only appears when
-  // it actually found language (NEUTRAL on every row was noise)
-  if (job.class_evidence?.certified_count_3y) {
-    chips.append(tag(`sponsors ${job.title_class_label} ×${job.class_evidence.certified_count_3y}`, 'tag-friendly'));
+  flags.hidden = flags.children.length === 0;
+
+  node.querySelector('.row-title').textContent = job.title;
+  const subParts = [job.employer_name, job.location || 'Location unspecified'];
+  if (job.work_mode === 'hybrid') subParts.push('Hybrid');
+  else if (job.remote === true) subParts.push('Remote');
+  const salaryText = formatSalary(job);
+  if (salaryText) subParts.push(salaryText);
+  node.querySelector('.row-sub').textContent = subParts.join(' · ');
+
+  const note = noteFor(job);
+  if (note) {
+    const noteEl = node.querySelector('.row-note');
+    noteEl.textContent = `📝 ${note.length > 80 ? `${note.slice(0, 80)}…` : note}`;
+    noteEl.hidden = false;
   }
-  if (job.veritas_state !== 'NEUTRAL') {
-    chips.append(tag(VISA_LABELS[job.veritas_state] || job.veritas_state, VISA_TAGS[job.veritas_state] ?? ''));
-  }
-  if (job.fit?.fit_score !== null && job.fit?.recommended_variant) {
-    const use = tag(`use ${variantAbbrev(job.fit.recommended_variant)}${job.fit.ambiguous && job.fit.recommended_source === 'deterministic' ? '?' : ''}`, 'tag-variant');
-    use.prepend(variantDot(job.fit.recommended_variant));
-    chips.append(use);
-    chips.append(tag(job.fit.verdict, VERDICT_TAGS[job.fit.verdict] ?? ''));
-    const gate = job.fit.gate;
-    if (gate?.citizenship) {
-      chips.append(tag('⚠ citizens only', 'tag-restricted'));
-    } else if (gate?.degree?.required && !gate.degree.met && !gate.degree.softened) {
-      chips.append(tag(`⚠ ${gate.degree.required} required`, 'tag-warn'));
+
+  if (viewMode === 'pipeline') {
+    const record = state.local.triage[job.id];
+    const metaParts = [];
+    const appliedAge = RadarPipeline.daysSince(record?.applied_at);
+    if (appliedAge !== null) metaParts.push(appliedAge === 0 ? 'applied today' : `applied ${appliedAge}d ago`);
+    if (age === null) {
+      // Stage age for the states followupAgeDays deliberately excludes
+      // (offer/rejected/withdrawn) — in-flight rows carry the no-update flag.
+      const stageAge = RadarPipeline.daysSince(record?.updated_at);
+      if (stageAge !== null && stageAge > 0) metaParts.push(`in stage ${stageAge}d`);
+    } else if (age > 0 && age < FOLLOWUP_STALE_DAYS) {
+      metaParts.push(`updated ${age}d ago`);
+    }
+    if (record?.variant_sent) metaParts.push(`sent ${variantAbbrev(record.variant_sent)}`);
+    if (metaParts.length) {
+      const metaEl = node.querySelector('.row-meta');
+      metaEl.textContent = metaParts.join(' · ');
+      metaEl.hidden = false;
     }
   }
 
-  const scores = node.querySelector('.row-scores');
-  if (job.fit?.fit_score != null) {
-    const cell = el('span', 'score-cell', `fit ${job.fit.fit_score}`);
-    cell.append(meter(job.fit.fit_score));
-    scores.append(cell);
+  // FIT — number + single-hue bar; research relevance stands in (and says so)
+  // when no profile is loaded.
+  const fitNum = node.querySelector('.fit-num');
+  const fitBarFill = node.querySelector('.fit-bar > i');
+  const scoreValue = fit?.fit_score != null ? fit.fit_score : (job.research_relevance_score || 0);
+  fitNum.textContent = scoreValue;
+  fitBarFill.style.width = `${Math.max(0, Math.min(100, scoreValue))}%`;
+  if (fit?.fit_score == null) {
+    fitNum.classList.add('fit-res');
+    node.querySelector('.cell-fit').title = 'Research relevance (no resume profile loaded)';
   }
-  const research = el('span', 'score-cell', `res ${job.research_relevance_score || 0}`);
-  research.append(meter(job.research_relevance_score || 0));
-  scores.append(research);
+
+  // VISA — the tag always renders (the mock's column has no blank cells)
+  const visaTag = node.querySelector('.visa-tag');
+  visaTag.textContent = job.veritas_state === 'NEUTRAL' ? 'No info' : (VISA_LABELS[job.veritas_state] || job.veritas_state);
+  visaTag.classList.add('tag');
+  if (VISA_TAGS[job.veritas_state]) visaTag.classList.add(VISA_TAGS[job.veritas_state]);
+  const evidence = visaEvidenceLine(job);
+  if (evidence) node.querySelector('.visa-evidence').textContent = evidence;
+
+  // SEND RÉSUMÉ — variant + winning margin; hard gates override the margin
+  const sendVariant = node.querySelector('.send-variant');
+  const sendDeltaEl = node.querySelector('.send-delta');
+  if (fit?.fit_score != null && fit.recommended_variant) {
+    const recommended = (fit.variants || []).find((variant) => variant.id === fit.recommended_variant);
+    sendVariant.textContent = (recommended?.label || fit.recommended_variant)
+      + (fit.ambiguous && fit.recommended_source === 'deterministic' ? ' ?' : '');
+    const gate = fit.gate;
+    if (gate?.citizenship) {
+      sendDeltaEl.textContent = '⚠ citizens only';
+      sendDeltaEl.classList.add('send-gate');
+    } else if (gate?.degree?.required && !gate.degree.met && !gate.degree.softened) {
+      sendDeltaEl.textContent = `⚠ ${gate.degree.required} required`;
+      sendDeltaEl.classList.add('send-gate');
+    } else {
+      sendDeltaEl.textContent = sendDelta(fit);
+    }
+    const compact = node.querySelector('.row-compact-send');
+    compact.textContent = `send ${variantAbbrev(fit.recommended_variant)}`;
+    compact.hidden = false;
+  } else {
+    sendVariant.textContent = '—';
+  }
+
+  // CLOSES
+  const closes = node.querySelector('.cell-closes');
+  const days = deadlineDays(job);
+  if (days != null && days >= 0) {
+    closes.textContent = `${days}d`;
+    if (days <= 7) closes.classList.add('closes-soon');
+  } else {
+    closes.textContent = '—';
+  }
 
   if (job.id === state.selectedId) node.classList.add('is-selected');
 
@@ -1787,6 +1893,10 @@ function renderDiscovery(discovery) {
 }
 
 function populateSources() {
+  // Idempotent: retry-pull repopulates, so clear everything but "Any source"
+  // and keep the current selection when it still exists.
+  const current = DOM.source.value;
+  while (DOM.source.options.length > 1) DOM.source.remove(1);
   const counts = new Map();
   for (const job of state.jobs) {
     counts.set(job.source, (counts.get(job.source) || 0) + 1);
@@ -1797,6 +1907,9 @@ function populateSources() {
     option.value = source;
     option.textContent = `${source} (${count})`;
     DOM.source.append(option);
+  }
+  if ([...DOM.source.options].some((option) => option.value === current)) {
+    DOM.source.value = current;
   }
 }
 

@@ -95,21 +95,6 @@
 
         <p class="profile-note pipeline-note">Pipeline shows everything you've applied to or contacted, regardless of filters — only search narrows it.</p>
 
-        <label class="field">
-          <span class="field-label">Sort by</span>
-          <select id="sort">
-            <option value="fit">Fit score</option>
-            <option value="evidence">Sponsorship evidence</option>
-            <option value="research">Research score</option>
-            <option value="capexempt">Cap-exempt score</option>
-            <option value="newest_seen">Newest found</option>
-            <option value="newest_posted">Newest posted</option>
-            <option value="salary">Salary (highest first)</option>
-            <option value="closing">Closing soon</option>
-            <option value="followup">Follow-up (stalest first)</option>
-          </select>
-        </label>
-
         <fieldset class="field">
           <legend class="field-label">Visa signal</legend>
           <div id="visa-seg" class="segmented" role="group">
@@ -258,11 +243,32 @@
           </div>
           <strong id="count">0 jobs</strong>
           <button id="today-chip" class="chip today-chip" type="button" title="Fresh good-or-better fits — the same cut the daily digest pushes">☀ Today</button>
+          <label class="sort-inline">
+            <span class="sort-inline-label">Sort</span>
+            <select id="sort">
+              <option value="fit">Fit ↓</option>
+              <option value="evidence">Evidence</option>
+              <option value="research">Research</option>
+              <option value="capexempt">Cap-exempt</option>
+              <option value="newest_seen">Newest found</option>
+              <option value="newest_posted">Newest posted</option>
+              <option value="salary">Salary</option>
+              <option value="closing">Closing soon</option>
+              <option value="followup">Follow-up</option>
+            </select>
+          </label>
           <button id="filters-toggle" class="chip filters-toggle" type="button">Filters <span class="count-slot"></span></button>
           <span class="kbd-hint" title="Keyboard: j/k move · Enter open details · o open posting · s shortlist · a applied · x ignore">⌨ j k o s a x</span>
         </div>
         <div id="load-error" class="load-error" role="alert" hidden></div>
         <div id="pipeline-stats" class="pipeline-stats" hidden></div>
+        <div id="jobs-header" class="row-grid jobs-header" aria-hidden="true">
+          <span class="cell-role">Role</span>
+          <span class="cell-fit">Fit</span>
+          <span class="cell-visa">Visa signal</span>
+          <span class="cell-send">Send résumé</span>
+          <span class="cell-closes">Closes</span>
+        </div>
         <div id="jobs" class="job-list" role="listbox" aria-label="Jobs"></div>
         <div id="empty-state" class="empty-state" hidden>
           <p><strong>No jobs match these filters.</strong></p>
@@ -325,15 +331,28 @@
     </main>
 
     <template id="job-row-template">
-      <article class="job-row" role="option" tabindex="0">
-        <div class="row-main">
+      <article class="job-row row-grid" role="option" tabindex="0">
+        <div class="cell cell-role">
+          <span class="row-flags" hidden></span>
           <span class="row-title"></span>
           <span class="row-sub"></span>
+          <span class="row-compact-send" hidden></span>
+          <span class="row-note" hidden></span>
+          <span class="row-meta" hidden></span>
         </div>
-        <div class="row-side">
-          <span class="row-chips"></span>
-          <span class="row-scores"></span>
+        <div class="cell cell-fit">
+          <span class="fit-num"></span>
+          <span class="fit-bar"><i></i></span>
         </div>
+        <div class="cell cell-visa">
+          <span class="visa-tag"></span>
+          <span class="visa-evidence"></span>
+        </div>
+        <div class="cell cell-send">
+          <span class="send-variant"></span>
+          <span class="send-delta"></span>
+        </div>
+        <div class="cell cell-closes"></div>
       </article>
     </template>
 
