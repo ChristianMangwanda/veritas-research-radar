@@ -122,6 +122,13 @@ const ORACLE_PAGE_LIMIT = 25;
 const ORACLE_MAX_PAGES = 60;
 const ORACLE_MAX_DETAIL_FETCHES = 400;
 const ORACLE_DETAIL_DELAY_MS = 200;
+// UltiPro / UKG Recruiting "JobBoard" JSON API (Salk, and other UKG tenants).
+// The public LoadSearchResults endpoint returns titles + a real BriefDescription
+// (a few hundred chars) inline, so no per-job detail call is needed. A tenant can
+// expose several board GUIDs (staff, faculty…); iterate over all configured.
+const ULTIPRO_PAGE_LIMIT = 100;
+const ULTIPRO_MAX_PAGES = 20;
+const ULTIPRO_BOARD_DELAY_MS = 300;
 const SUCCESSFACTORS_MAX_DETAIL_FETCHES = 400;
 const SUCCESSFACTORS_DETAIL_DELAY_MS = 250;
 // Eightfold's PCSX search ignores every page-size param and always returns 10.
@@ -131,7 +138,7 @@ const EIGHTFOLD_DETAIL_DELAY_MS = 200;
 const USAJOBS_PAGE_SIZE = 500;
 const USAJOBS_MAX_PAGES_PER_QUERY = 5;
 const USAJOBS_PAGE_DELAY_MS = 300;
-const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin', 'successfactors', 'eightfold'];
+const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'ultipro', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin', 'successfactors', 'eightfold'];
 
 const SIGNAL_PATTERNS = {
   cap_exempt_language: [
@@ -875,6 +882,91 @@ async function fetchOracleJobs(employer) {
   return jobs;
 }
 
+function mapUltiproJob(opp, boardId, employer) {
+  const config = employer.ats_config || {};
+  const id = String(opp.Id);
+  const reqId = opp.RequisitionNumber || id;
+  const locations = (opp.Locations || []).map((loc) => {
+    const address = loc.Address || {};
+    const state = address.State && (address.State.Code || address.State.Name);
+    return [address.City, state].filter(Boolean).join(', ') || loc.LocalizedDescription || '';
+  }).filter(Boolean);
+  const location = [...new Set(locations)].join('; ') || 'Unspecified';
+  const posted = opp.PostedDate && !Number.isNaN(Date.parse(opp.PostedDate))
+    ? new Date(opp.PostedDate).toISOString()
+    : null;
+  return {
+    id: `ultipro:${employer.ats_token}:${reqId}`,
+    employer_id: employer.id,
+    title: opp.Title || 'Untitled role',
+    department: opp.JobCategoryName || '',
+    location,
+    url: `https://${config.host}/${config.tenant}/JobBoard/${boardId}/OpportunityDetail?opportunityId=${id}`,
+    description_text: normalizeText(opp.BriefDescription || ''),
+    posted_or_updated_at: posted,
+    source: 'ultipro',
+    source_job_id: String(reqId)
+  };
+}
+
+async function fetchUltiproJobs(employer) {
+  const config = employer.ats_config || {};
+  const { host, tenant } = config;
+  // A tenant may front several boards; accept a `boards` array or a single `board`.
+  const boardIds = (config.boards && config.boards.length)
+    ? config.boards
+    : [config.board].filter(Boolean);
+  // The board feed carries BriefDescription inline (no per-job cost), so keep
+  // every posting and let the scoring/classification layers rank — no prefilter.
+  const seen = new Set();
+  const jobs = [];
+  for (const boardId of boardIds) {
+    const base = `https://${host}/${encodeURIComponent(tenant)}/JobBoard/${encodeURIComponent(boardId)}`;
+    let total = Infinity;
+    for (let page = 0; page < ULTIPRO_MAX_PAGES && page * ULTIPRO_PAGE_LIMIT < total; page += 1) {
+      let payload;
+      try {
+        payload = await fetchJson(`${base}/JobBoardView/LoadSearchResults`, {
+          method: 'POST',
+          retries: 2,
+          body: {
+            opportunitySearch: {
+              Top: ULTIPRO_PAGE_LIMIT,
+              Skip: page * ULTIPRO_PAGE_LIMIT,
+              QueryString: '',
+              OrderBy: [],
+              Filters: []
+            },
+            matchCriteria: {
+              PreferredJobs: [],
+              Educations: [],
+              LicenseAndCertifications: [],
+              Skills: [],
+              JobFamilies: [],
+              Languages: [],
+              MinimumRequiredJobFamilies: []
+            }
+          }
+        });
+      } catch (error) {
+        console.warn(`UltiPro board fetch failed for ${employer.id} board ${boardId}: ${error.message}`);
+        break;
+      }
+      if (page === 0) total = Number(payload.totalCount || 0);
+      const opps = payload.opportunities || [];
+      if (opps.length === 0) break;
+      for (const opp of opps) {
+        const key = String(opp.Id);
+        if (!opp.Id || seen.has(key)) continue;
+        seen.add(key);
+        jobs.push(mapUltiproJob(opp, boardId, employer));
+      }
+    }
+    await sleep(ULTIPRO_BOARD_DELAY_MS);
+  }
+  return jobs;
+}
+
 // Federal competitive-service positions require US citizenship by default,
 // and the requirement usually lives in "Who May Apply" metadata rather than
 // the description text — so gate on the metadata, defaulting to gated.
@@ -1214,6 +1306,7 @@ const ATS_FETCHERS = {
   smartrecruiters: fetchSmartRecruitersJobs,
   workday: fetchWorkdayJobs,
   oracle: fetchOracleJobs,
+  ultipro: fetchUltiproJobs,
   successfactors: fetchSuccessFactorsJobs,
   eightfold: fetchEightfoldJobs,
   recruitee: fetchRecruiteeJobs,
@@ -1560,6 +1653,8 @@ module.exports = {
   fetchWorkdayJobs,
   fetchOracleJobs,
   mapOracleJob,
+  fetchUltiproJobs,
+  mapUltiproJob,
   fetchSuccessFactorsJobs,
   parseSuccessFactorsSitemap,
   parseSuccessFactorsJobPage,

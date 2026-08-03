@@ -91,15 +91,23 @@
       "manual",
       "irs_eo_bmf_candidate"
     ],
-    "ats_provider": null,
-    "ats_token": null,
-    "careers_url": "https://www.salk.edu/about/careers/",
+    "ats_provider": "ultipro",
+    "ats_token": "salk",
+    "ats_config": {
+      "host": "recruiting2.ultipro.com",
+      "tenant": "SAL1013SIBS",
+      "boards": [
+        "e9f055e1-a105-4f91-9a67-21aea61655fa",
+        "6340e3d6-9512-4def-9fdf-68be001be337"
+      ]
+    },
+    "careers_url": "https://recruiting2.ultipro.com/SAL1013SIBS/JobBoard/e9f055e1-a105-4f91-9a67-21aea61655fa",
     "research_areas": [
       "biology",
       "neuroscience",
       "genomics"
     ],
-    "notes": "Likely nonprofit research institution. ATS source deferred until a clean public endpoint is verified. Probed Greenhouse/Lever/Ashby/SmartRecruiters public APIs on 2026-07-03: no public board found."
+    "notes": "Likely nonprofit research institution. UltiPro/UKG JobBoard JSON feed verified 2026-08-03 (recruiting2.ultipro.com/SAL1013SIBS LoadSearchResults, 11 postings across two boards incl. Research Software Engineer I - Center for AI & Research Computing (AIRC), Research Assistant I). Careers page (salk.edu/about/careers/open-positions) links out to the UKG boards; a third board GUID was empty and is omitted. BriefDescription arrives inline so no per-job detail fetch. Earlier Greenhouse/Lever/Ashby/SmartRecruiters probes (2026-07-03) found no board."
   },
   {
     "id": "st-jude",

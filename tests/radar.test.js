@@ -14,6 +14,7 @@ const {
   mapSmartRecruitersPosting,
   mapWorkdayJob,
   mapOracleJob,
+  mapUltiproJob,
   parseSuccessFactorsSitemap,
   parseSuccessFactorsJobPage,
   mapSuccessFactorsJob,
@@ -501,6 +502,49 @@ function testProviderMappers() {
   assert.strictEqual(oracleNoDetail.description_text, '');
   assert.strictEqual(oracleNoDetail.deadline_raw, null);
   assert.strictEqual(oracleNoDetail.url, 'https://careers.exampleu.edu/hcmUI/CandidateExperience/en/sites/exampleu/job/9');
+
+  // UltiPro / UKG JobBoard: LoadSearchResults opportunity carries BriefDescription
+  // and rich Locations inline, so the mapper needs no per-job detail record.
+  const ultiproEmployer = {
+    id: 'salk-institute',
+    ats_token: 'salk',
+    ats_config: { host: 'recruiting2.ultipro.com', tenant: 'SAL1013SIBS' },
+    research_areas: ['genomics']
+  };
+  const ultipro = mapUltiproJob({
+    Id: 'ffcfe13a-79d1-460e-b9d8-5482f0a4c6c8',
+    Title: 'Research Software Engineer I',
+    RequisitionNumber: 'RESEA002823',
+    JobCategoryName: 'Research Sciences',
+    BriefDescription: 'Build research software for AI-enabled discovery.',
+    PostedDate: '2026-07-21T19:10:29.970Z',
+    Locations: [{
+      LocalizedDescription: 'Salk Main Campus',
+      Address: { City: 'La Jolla', State: { Code: 'CA', Name: 'California' } }
+    }]
+  }, 'board-guid-1', ultiproEmployer);
+  // id keys on the stable requisition number, not the per-board opportunity GUID
+  assert.strictEqual(ultipro.id, 'ultipro:salk:RESEA002823');
+  assert.strictEqual(ultipro.source, 'ultipro');
+  assert.strictEqual(ultipro.source_job_id, 'RESEA002823');
+  assert.strictEqual(ultipro.department, 'Research Sciences');
+  assert.strictEqual(ultipro.location, 'La Jolla, CA');
+  assert.strictEqual(ultipro.description_text, 'Build research software for AI-enabled discovery.');
+  assert.strictEqual(ultipro.posted_or_updated_at, '2026-07-21T19:10:29.970Z');
+  assert.strictEqual(
+    ultipro.url,
+    'https://recruiting2.ultipro.com/SAL1013SIBS/JobBoard/board-guid-1/OpportunityDetail?opportunityId=ffcfe13a-79d1-460e-b9d8-5482f0a4c6c8'
+  );
+  // Missing location/req number -> falls back without throwing
+  const ultiproSparse = mapUltiproJob({
+    Id: 'abc-123',
+    Title: 'Postdoctoral Fellow',
+    Locations: []
+  }, 'board-guid-2', ultiproEmployer);
+  assert.strictEqual(ultiproSparse.id, 'ultipro:salk:abc-123');
+  assert.strictEqual(ultiproSparse.location, 'Unspecified');
+  assert.strictEqual(ultiproSparse.description_text, '');
+  assert.strictEqual(ultiproSparse.posted_or_updated_at, null);
 
   // SuccessFactors CSB: sitemap listing + microdata detail page
   const sfSitemap = parseSuccessFactorsSitemap(
