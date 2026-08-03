@@ -34,6 +34,20 @@ function slugify(name) {
   return String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48);
 }
 
+// scout_discover.py's icims pattern strips a literal "careers-" prefix when
+// present (`(?:careers-)?` in ATS_PATTERNS) to normalize decorative-prefixed
+// tenants for dedup — but for a handful of real hosts (careers-sri.icims.com,
+// careers-rockefelleruniversity.icims.com, ...) that prefix IS the subdomain,
+// and the stripped tenant 404s. The hit's own url is always the literal
+// matched string, so re-deriving the subdomain from it is always correct.
+function icimsSubdomain(hit) {
+  try {
+    return new URL(hit.url).host.replace(/\.icims\.com$/i, '');
+  } catch {
+    return hit.tenant;
+  }
+}
+
 async function fetchJsonWithTimeout(url, options = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
@@ -139,9 +153,17 @@ async function mineWorkdayTenant(url) {
 // 'ucla', 'ohsu', 'tuftscareers' — board tenants use acronyms and fused
 // substrings that word-overlap can't see
 function tenantMatchesName(tenant, name) {
-  const cleaned = tenant.toLowerCase().replace(/[^a-z0-9]/g, '');
+  // "careers"/"careers2" is a decorative subdomain prefix (see icimsSubdomain),
+  // not part of institutional identity — strip it before comparing, or a short
+  // real tenant like "sri" (as "careers-sri") never matches its own name.
+  const cleaned = tenant.toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^careers2?/, '');
   for (const token of distinctiveTokens(name)) {
-    if (token.length >= 4 && cleaned.includes(token.toLowerCase())) return true;
+    const lowerToken = token.toLowerCase();
+    // A short token (e.g. "SRI" in "SRI International") can't pass the
+    // substring rule below, but an exact whole-tenant match is strict enough
+    // to be safe at any length.
+    if (cleaned === lowerToken) return true;
+    if (token.length >= 4 && cleaned.includes(lowerToken)) return true;
   }
   const initialsSource = String(name).toUpperCase().replace(/[^A-Z ]+/g, ' ').split(/\s+/)
     .filter((t) => t && !['OF', 'THE', 'AT', 'AND', 'FOR', 'IN'].includes(t));
@@ -351,9 +373,10 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     // icims driver renders the board and extracts full descriptions
     if (!wiring) {
       for (const candidate of icimsHits) {
-        if (existingTenants.has(candidate.tenant)) continue;
-        console.log(`probing icims:${candidate.tenant} (${record.name})…`);
-        const probe = await probeIcims(candidate.tenant, record.name);
+        const subdomain = icimsSubdomain(candidate);
+        if (existingTenants.has(subdomain)) continue;
+        console.log(`probing icims:${subdomain} (${record.name})…`);
+        const probe = await probeIcims(subdomain, record.name);
         if (probe?.mismatch) {
           skipped.push({ name: record.name, reason: `icims board title "${probe.feed_title}" does not match — likely a shared board` });
           continue;
