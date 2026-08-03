@@ -84,6 +84,12 @@ resume variants and tells you which one to send.
   https://christianmangwanda.github.io/veritas-research-radar/ — triage state
   lives in that browser's localStorage; the local `npm start` server keeps
   using `radar/data/local-state.json`.
+- Two views, toggled in the list header: **Radar** (discovery, all filters) and
+  **Pipeline** (only jobs you applied to / contacted, grouped by stage with a
+  funnel stats bar; ignores every filter except search). The **☀ Today** chip
+  applies the digest's exact cut in-app: seen ≤24h (48h fallback), verdict ≥
+  good, sorted by fit. Marking a job Applied records which résumé variant was
+  sent (defaults to the recommendation, editable in the detail pane).
 - Daily digest: pick a private topic name, set it as the `NTFY_TOPIC` repo
   secret, then subscribe to `ntfy.sh/<topic>` in the ntfy app or browser.
   Until the secret exists the digest workflow just prints.

@@ -107,10 +107,12 @@ make the *product* help land jobs. Job-landing funnel status:
 |---|---|
 | **Fit ranking** — which jobs fit me, which résumé to send | ✅ now all 7 résumés (was 2): `.docx` support, matchable-term normalization, discriminated weights, recalibrated verdict tiers |
 | **Daily loop** — fit digest + cross-device triage sync | ⚠️ digest built + launchd scaffold shipped; **user arms it** (NTFY_TOPIC). Triage sync still off (needs Supabase migration + token + auth) |
-| **Pipeline** — applied→interview→offer | ✅ full triage funnel live |
+| **Pipeline** — applied→interview→offer | ✅ full triage funnel live; **2026-08-03: dedicated Pipeline view** (Radar \| Pipeline toggle, funnel stats bar, stage groups stalest-first, terminal states collapsed), `applied_at` rendered, **`variant_sent` recorded per application** (auto-stamped from the recommendation on apply, editable in the detail pane, in the sync schema), "did you apply?" nudge after opening a posting |
+| **Today view** — in-app digest parity | ✅ 2026-08-03: min-verdict + first-seen-recency filters (URL-serialized) + ☀ Today preset chip applying the exact digest cut (24h→48h fallback, ≥good, sorted by fit); `verdictRank` shared via scoring.js so dashboard and digest agree by construction |
 
 Next in this track: arm the digest, turn on triage sync, then daily-use UX
-(mobile triage, PWA). Details in `HANDOFF.md` "Pick-up state".
+(mobile triage, PWA). Details in `HANDOFF.md` "Pick-up state". Both 2026-08-03
+views browser-verified (24-assertion headless-Chromium pass).
 
 ## Small fixes / cleanups (bundle anytime)
 
