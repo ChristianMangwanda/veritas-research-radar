@@ -5414,5 +5414,25 @@
     "careers_url": "https://www.nsu.edu/",
     "research_areas": [],
     "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 10 live postings. USCIS 8 approvals / DOL 0 research LCAs (3y)."
+  },
+  {
+    "id": "university-of-south-florida",
+    "name": "University of South Florida",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ipeds_candidate"
+    ],
+    "ats_provider": "oracle",
+    "ats_token": "usf",
+    "ats_config": {
+      "host": "jobs.usf.edu",
+      "site_name": "USF",
+      "site_number": "USF"
+    },
+    "careers_url": "https://jobs.usf.edu/hcmUI/CandidateExperience/en/sites/USF/",
+    "research_areas": [],
+    "notes": "Oracle Fusion HCM CandidateExperience feed resolved 2026-08-03: jobs.usf.edu reverse-proxies fa-ewkd-saasfaprod1.fa.ocs.oraclecloud.com (host leaked via CSP frame-ancestors header on the 303 redirect from jobs.usf.edu/). Single-site tenant — siteNumber is not gated (CX_1/CX/USF all return the same 236 postings); site_name=USF matches the real candidate-facing URL path. Follow-up from the 2026-08-03 ATS discovery scan (flagship-ats-findings.md)."
   }
 ]
