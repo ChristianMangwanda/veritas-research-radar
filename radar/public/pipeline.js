@@ -62,6 +62,20 @@
     return groups;
   }
 
+  // Next scheduled radar pull: the refresh workflow runs at minute 15 of every
+  // 6th hour UTC (cron "15 */6 * * *" in research-radar.yml). Returns epoch ms
+  // of the next run strictly after `now`.
+  function nextPullAt(now) {
+    const reference = Number.isFinite(now) ? now : Date.now();
+    const date = new Date(reference);
+    const candidate = new Date(Date.UTC(
+      date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 15, 0, 0));
+    while (candidate.getTime() <= reference) {
+      candidate.setUTCHours(candidate.getUTCHours() + 6);
+    }
+    return candidate.getTime();
+  }
+
   // Last-write-wins per job by updated_at — merges a remote triage map into a
   // local one without losing either side's newer edits. Ties keep local
   // (strict >), so a device never discards its own record for an equal echo.
@@ -81,6 +95,7 @@
     PIPELINE_TERMINAL,
     PIPELINE_SET,
     daysSince,
+    nextPullAt,
     groupPipeline,
     mergeTriage
   };

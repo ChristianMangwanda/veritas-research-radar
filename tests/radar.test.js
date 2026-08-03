@@ -1681,6 +1681,20 @@ function testDaysSince() {
   assert.strictEqual(daysSince(undefined, now), null);
 }
 
+function testNextPullAt() {
+  const { nextPullAt } = RadarPipeline;
+  const at = (iso) => Date.parse(iso);
+  // Before the day's first run -> same-day 00:15 UTC
+  assert.strictEqual(nextPullAt(at('2026-08-03T00:00:00Z')), at('2026-08-03T00:15:00Z'));
+  // Just after a run -> next slot 6h later
+  assert.strictEqual(nextPullAt(at('2026-08-03T00:16:00Z')), at('2026-08-03T06:15:00Z'));
+  assert.strictEqual(nextPullAt(at('2026-08-03T11:21:00Z')), at('2026-08-03T12:15:00Z'));
+  // Late evening -> rolls to next day
+  assert.strictEqual(nextPullAt(at('2026-08-03T23:59:00Z')), at('2026-08-04T00:15:00Z'));
+  // Exact boundary is "already fired" -> next slot
+  assert.strictEqual(nextPullAt(at('2026-08-03T06:15:00Z')), at('2026-08-03T12:15:00Z'));
+}
+
 function testPipelineGrouping() {
   const { groupPipeline, PIPELINE_SET } = RadarPipeline;
 
@@ -2009,6 +2023,7 @@ async function main() {
   testVerdictRank();
   testTriageMerge();
   testDaysSince();
+  testNextPullAt();
   testPipelineGrouping();
   testRoutingAmbiguity();
   testProfileV2();

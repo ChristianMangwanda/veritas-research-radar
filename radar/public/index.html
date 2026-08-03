@@ -9,7 +9,7 @@
   <body>
     <header class="topbar">
       <div class="topbar-brand">
-        <span class="brand-mark" aria-hidden="true">◉</span>
+        <span class="brand-mark" aria-hidden="true">■</span>
         <div>
           <h1>Veritas Research Radar</h1>
           <p id="refresh-meta" class="refresh-meta">Loading radar data…</p>
@@ -18,14 +18,16 @@
 
       <div class="stat-strip" role="group" aria-label="Dataset overview">
         <div class="stat"><span class="stat-value" id="stat-active">–</span><span class="stat-label">active jobs</span></div>
-        <div class="stat"><span class="stat-value" id="stat-new">–</span><span class="stat-label">new for you</span></div>
+        <div class="stat"><span class="stat-value stat-accent" id="stat-new">–</span><span class="stat-label">new for you</span></div>
         <div class="stat"><span class="stat-value" id="stat-friendly">–</span><span class="stat-label">visa friendly</span></div>
         <div class="stat"><span class="stat-value" id="stat-employers">–</span><span class="stat-label">employers</span></div>
+        <div class="stat"><span class="stat-value" id="stat-discovered">–</span><span class="stat-label">discovered</span></div>
       </div>
 
       <div class="topbar-actions">
-        <button id="errors-toggle" class="chip chip-warning" type="button" hidden>⚠ <span></span></button>
-        <button id="discovery-toggle" class="chip" type="button" hidden>✦ <span></span></button>
+        <button id="errors-toggle" class="chip chip-warning" type="button" hidden>⚠ <span class="count-slot"></span></button>
+        <button id="discovery-toggle" class="chip" type="button" hidden>✦ <span class="count-slot"></span></button>
+        <button id="digest-arm" class="primary-button digest-arm" type="button">Arm daily digest</button>
       </div>
     </header>
 
@@ -47,11 +49,43 @@
       <div id="discovery-list" class="discovery-list"></div>
     </div>
 
+    <div id="digest-popover" class="drawer" hidden>
+      <div class="drawer-head">
+        <h2>Arm the daily digest</h2>
+        <button class="icon-button drawer-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <p class="drawer-note">A fit-aware digest of fresh good-or-better matches, pushed to your phone at
+        08:00 via ntfy.sh. It runs on this machine — your résumé profile never enters CI.</p>
+      <ol class="digest-steps">
+        <li>
+          <p>Create the env file, then set <code>NTFY_TOPIC</code> to a private topic
+            (optionally <code>SUPABASE_URL</code>/<code>SUPABASE_SERVICE_KEY</code> for live data):</p>
+          <div class="code-line">
+            <code>cp radar/scripts/.digest.env.example radar/scripts/.digest.env</code>
+            <button class="ghost-button copy-cmd" type="button" data-cmd="cp radar/scripts/.digest.env.example radar/scripts/.digest.env">Copy</button>
+          </div>
+        </li>
+        <li>
+          <p>Load the launch agent (daily 08:00; the plist header carries the same commands):</p>
+          <div class="code-line">
+            <code>cp radar/scripts/com.veritas.radar.digest.plist ~/Library/LaunchAgents/ &amp;&amp; launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.veritas.radar.digest.plist</code>
+            <button class="ghost-button copy-cmd" type="button" data-cmd="cp radar/scripts/com.veritas.radar.digest.plist ~/Library/LaunchAgents/ &amp;&amp; launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.veritas.radar.digest.plist">Copy</button>
+          </div>
+        </li>
+        <li>
+          <p>Subscribe to <code>ntfy.sh/&lt;your topic&gt;</code> on your phone. Optional: also set
+            <code>NTFY_TOPIC</code> as a repo secret so the CI fallback digest pushes — the local
+            one above is the fit-aware one.</p>
+        </li>
+      </ol>
+      <p class="drawer-note">Dry-run any time: <code>npm run radar:digest:local -- --dry-run</code></p>
+    </div>
+
     <main class="layout">
       <aside class="filters" aria-label="Filters">
         <div class="filters-head">
           <h2>Filters</h2>
-          <button id="reset-filters" class="link-button" type="button" hidden>Reset <span></span></button>
+          <button id="reset-filters" class="link-button" type="button" hidden>Reset <span class="count-slot"></span></button>
         </div>
 
         <label class="field search-field">
@@ -93,26 +127,25 @@
           </select>
         </label>
 
-        <label class="field">
-          <span class="field-label">Employer type</span>
-          <select id="type">
-            <option value="">Any</option>
-            <option value="institution_of_higher_education">Higher education</option>
-            <option value="nonprofit_research_org">Research nonprofit</option>
-            <option value="nonprofit_research_hospital">Research hospital</option>
-            <option value="federal_government">Federal government</option>
-          </select>
-        </label>
+        <fieldset class="field">
+          <legend class="field-label">Employer type</legend>
+          <div id="type-chips" class="chip-group" role="group" aria-label="Employer type">
+            <button type="button" data-value="institution_of_higher_education">University <span class="seg-count"></span></button>
+            <button type="button" data-value="nonprofit_research_org">Institute <span class="seg-count"></span></button>
+            <button type="button" data-value="nonprofit_research_hospital">Hospital <span class="seg-count"></span></button>
+            <button type="button" data-value="federal_government">Federal <span class="seg-count"></span></button>
+          </div>
+        </fieldset>
 
-        <label class="field">
-          <span class="field-label">Cap-exempt evidence</span>
-          <select id="cap">
-            <option value="">Any</option>
-            <option value="verified">Verified</option>
-            <option value="likely">Likely</option>
-            <option value="unknown">Unknown</option>
-          </select>
-        </label>
+        <fieldset class="field">
+          <legend class="field-label">Cap-exempt evidence</legend>
+          <div id="cap-radio" class="radio-list">
+            <label><input type="radio" name="cap-evidence" value="" checked><span class="radio-label">Any</span><span class="seg-count"></span></label>
+            <label><input type="radio" name="cap-evidence" value="verified"><span class="radio-label">Strong</span><span class="seg-count"></span></label>
+            <label><input type="radio" name="cap-evidence" value="likely"><span class="radio-label">Likely</span><span class="seg-count"></span></label>
+            <label><input type="radio" name="cap-evidence" value="unknown"><span class="radio-label">Thin</span><span class="seg-count"></span></label>
+          </div>
+        </fieldset>
 
         <label class="field">
           <span class="field-label">Triage state</span>
@@ -136,15 +169,15 @@
           <input id="min-research" type="range" min="0" max="100" value="0">
         </label>
 
-        <label class="field">
-          <span class="field-label">Minimum fit verdict</span>
-          <select id="min-verdict">
-            <option value="">Any</option>
-            <option value="moderate">Moderate or better</option>
-            <option value="good">Good or better</option>
-            <option value="strong">Strong only</option>
-          </select>
-        </label>
+        <fieldset class="field">
+          <legend class="field-label">Minimum fit verdict</legend>
+          <div id="verdict-seg" class="segmented" role="group" aria-label="Minimum fit verdict">
+            <button type="button" data-value="" class="is-active">Any</button>
+            <button type="button" data-value="moderate">Moderate</button>
+            <button type="button" data-value="good">Good</button>
+            <button type="button" data-value="strong">Strong</button>
+          </div>
+        </fieldset>
 
         <label class="field">
           <span class="field-label">First seen within</span>
@@ -182,6 +215,8 @@
           <input id="include-federal" type="checkbox">
           <span>Include citizen-only federal</span>
         </label>
+
+        <button id="feeds-note" class="feeds-note" type="button" hidden></button>
 
         <section class="profile">
           <h2>Resume profile</h2>
@@ -223,7 +258,7 @@
           </div>
           <strong id="count">0 jobs</strong>
           <button id="today-chip" class="chip today-chip" type="button" title="Fresh good-or-better fits — the same cut the daily digest pushes">☀ Today</button>
-          <button id="filters-toggle" class="chip filters-toggle" type="button">Filters <span></span></button>
+          <button id="filters-toggle" class="chip filters-toggle" type="button">Filters <span class="count-slot"></span></button>
           <span class="kbd-hint" title="Keyboard: j/k move · Enter open details · o open posting · s shortlist · a applied · x ignore">⌨ j k o s a x</span>
         </div>
         <div id="load-error" class="load-error" role="alert" hidden></div>
