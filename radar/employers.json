@@ -5392,5 +5392,27 @@
     "careers_url": "https://tuncareers-touro.icims.com/jobs/search?ss=1",
     "research_areas": [],
     "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 18 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y)."
+  },
+  {
+    "id": "norfolk-state-university",
+    "name": "Norfolk State University",
+    "aliases": [],
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ipeds:232937"
+    ],
+    "tier": "auto",
+    "ats_provider": "workday",
+    "ats_token": "nsu",
+    "ats_config": {
+      "host": "nsu.wd501.myworkdayjobs.com",
+      "tenant": "nsu",
+      "site": "nsu"
+    },
+    "careers_url": "https://www.nsu.edu/",
+    "research_areas": [],
+    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 10 live postings. USCIS 8 approvals / DOL 0 research LCAs (3y)."
   }
 ]
