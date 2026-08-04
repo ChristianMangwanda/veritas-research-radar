@@ -8,6 +8,15 @@ const { URL } = require('url');
 const { spawn } = require('child_process');
 const { profileFreshness } = require('./lib/profile-freshness.js');
 const { syncManifest, isResumeFile, RESUME_EXTENSIONS } = require('./lib/manifest-sync.js');
+const {
+  emptyPreferences, normalizeStructured, preferencesPrompt, preferencesHash,
+  STRUCTURE_SCHEMA, STRUCTURE_SYSTEM_PROMPT
+} = require('./lib/preferences.js');
+const {
+  JUDGMENT_SCHEMA, JUDGE_SYSTEM_PROMPT, judgeUserPrompt, matchCacheKey, normalizeJudgment
+} = require('./lib/match.js');
+const { DEFAULT_BASE_URL, ollamaChat, ollamaAvailable } = require('./lib/ollama.js');
+const RadarScoring = require('../public/scoring.js');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RADAR_DIR = path.join(ROOT, 'radar');
@@ -19,8 +28,18 @@ const MANIFEST_PATH = path.join(RESUMES_DIR, 'manifest.json');
 const PROFILE_PATH = path.join(DATA_DIR, 'profile.json');
 const BUILD_PROFILE = path.join(__dirname, 'build-profile.js');
 
+const PREFERENCES_PATH = path.join(DATA_DIR, 'preferences.json');
+const MATCH_CACHE_PATH = path.join(DATA_DIR, 'match-cache.json');
+
 const PORT = Number(process.env.PORT || 4173);
 const HOST = process.env.HOST || '127.0.0.1';
+
+// 14b reads postings noticeably better than 7b and fits comfortably in 24 GB.
+const MATCH_MODEL = process.env.RADAR_MATCH_MODEL || 'qwen2.5:14b-instruct';
+const OLLAMA_URL = process.env.OLLAMA_HOST || DEFAULT_BASE_URL;
+// Ollama queues past this anyway; 3 keeps the first screenful quick without
+// starving the machine the user is working on.
+const MATCH_CONCURRENCY = Number(process.env.RADAR_MATCH_CONCURRENCY || 3);
 
 // The hosted dashboard may pull the compiled profile from this local server
 // (never the other way around — resumes and profile stay on this machine).
@@ -211,6 +230,130 @@ async function listResumes() {
 }
 
 /* ------------------------------------------------------------------------ */
+/* Judged matching: the model reads a posting against resumes + preferences. */
+
+const matchCache = { entries: {}, dirty: false, loaded: false };
+
+async function loadMatchCache() {
+  if (matchCache.loaded) return;
+  const stored = await readJson(MATCH_CACHE_PATH, null);
+  matchCache.entries = (stored && typeof stored.entries === 'object') ? stored.entries : {};
+  matchCache.loaded = true;
+}
+
+let matchFlushTimer = null;
+function scheduleMatchCacheFlush() {
+  matchCache.dirty = true;
+  clearTimeout(matchFlushTimer);
+  matchFlushTimer = setTimeout(async () => {
+    if (!matchCache.dirty) return;
+    matchCache.dirty = false;
+    try {
+      await writeJson(MATCH_CACHE_PATH, { schema_version: 1, entries: matchCache.entries });
+    } catch (error) {
+      console.error(`[match] could not persist cache: ${error.message}`);
+    }
+  }, 3000);
+}
+
+/* A background queue, not a blocking call.
+ *
+ * One judgment costs ~19s (14b generating at ~11 tok/s on an M4, and the
+ * Ollama app runs llama-server with -np 1 so requests serialize no matter
+ * how many we fire). Blocking a request on 20 of those would be 6 minutes of
+ * staring at a spinner.
+ *
+ * So: answer instantly with whatever is cached, queue the rest, and let the
+ * UI fill in as results land. What the user is looking at right now jumps
+ * the queue; everything else drains behind it. */
+
+const judgeQueue = {
+  items: [],          // {job, key, priority} — lower priority number first
+  seen: new Set(),    // cache keys already queued or done
+  running: false,
+  judgedThisRun: 0,
+  lastError: null
+};
+
+function queueJudgments(jobs, context, priority) {
+  let added = 0;
+  for (const job of jobs) {
+    const key = matchCacheKey(RadarScoring.jobContentHash(job), context.profileHash, context.prefsHash);
+    if (matchCache.entries[key] || judgeQueue.seen.has(key)) continue;
+    judgeQueue.seen.add(key);
+    judgeQueue.items.push({ job, key, priority });
+    added += 1;
+  }
+  if (added) judgeQueue.items.sort((a, b) => a.priority - b.priority);
+  return added;
+}
+
+async function judgeOne(job, key, context) {
+  const parsed = await ollamaChat({
+    baseUrl: OLLAMA_URL,
+    model: MATCH_MODEL,
+    system: JUDGE_SYSTEM_PROMPT,
+    user: judgeUserPrompt(job, context.profile, context.prefsText),
+    format: JUDGMENT_SCHEMA,
+    options: { temperature: 0, num_predict: 300 }
+  });
+  const judgment = normalizeJudgment(parsed, context.resumeIds);
+  if (!judgment) return null;
+  const record = { ...judgment, judged_at: new Date().toISOString(), model: MATCH_MODEL };
+  matchCache.entries[key] = record;
+  scheduleMatchCacheFlush();
+  return record;
+}
+
+async function drainJudgeQueue(context) {
+  if (judgeQueue.running) return;
+  judgeQueue.running = true;
+  try {
+    while (judgeQueue.items.length) {
+      // Re-read the head each pass: a fresh high-priority batch (what the
+      // user just scrolled to) overtakes the background backlog.
+      const next = judgeQueue.items.shift();
+      try {
+        await judgeOne(next.job, next.key, context);
+        judgeQueue.judgedThisRun += 1;
+        judgeQueue.lastError = null;
+      } catch (error) {
+        judgeQueue.lastError = error.message;
+        console.error(`[match] ${next.job.id}: ${error.message}`);
+        // A dead model server would spin the whole queue at full tilt —
+        // stop and let the next request restart us.
+        if (/fetch failed|ECONNREFUSED/i.test(error.message)) break;
+      }
+    }
+  } finally {
+    judgeQueue.running = false;
+  }
+}
+
+async function matchContext() {
+  const profile = await readJson(PROFILE_PATH, null);
+  if (!profile) return null;
+  const preferences = await readJson(PREFERENCES_PATH, emptyPreferences());
+  return {
+    profile,
+    profileHash: RadarScoring.profileHash(profile),
+    prefsHash: preferencesHash(preferences),
+    prefsText: preferencesPrompt(preferences),
+    resumeIds: (profile.variants || []).map((variant) => variant.id)
+  };
+}
+
+function cachedJudgments(jobs, context) {
+  const out = {};
+  for (const job of jobs) {
+    const key = matchCacheKey(RadarScoring.jobContentHash(job), context.profileHash, context.prefsHash);
+    const hit = matchCache.entries[key];
+    if (hit) out[job.id] = hit;
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------------------ */
 
 // CORS for the hosted-dashboard bridge. Chrome's Private Network Access sends
 // a preflight for public->localhost requests; answer it or the bridge fails.
@@ -242,6 +385,85 @@ async function route(request, response) {
       building: rebuild.running,
       last_result: rebuild.last
     }), undefined, cors);
+    return;
+  }
+
+  /* What the user WANTS: free text is the source of truth; the model turns
+     it into fields they can correct. A bad structuring pass is always
+     recoverable because the prose is kept verbatim. */
+
+  if (request.method === 'GET' && url.pathname === '/api/preferences') {
+    send(response, 200, JSON.stringify(await readJson(PREFERENCES_PATH, emptyPreferences())));
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/preferences') {
+    const payload = JSON.parse(await readBody(request) || '{}');
+    const text = String(payload.text || '').slice(0, 4000);
+    const current = await readJson(PREFERENCES_PATH, emptyPreferences());
+    let structured = current.structured;
+
+    // Hand-edited fields win; otherwise re-read the prose.
+    if (payload.structured) {
+      structured = normalizeStructured(payload.structured);
+    } else if (text.trim() && text.trim() !== String(current.text || '').trim()) {
+      structured = emptyPreferences().structured;
+      try {
+        if (await ollamaAvailable(OLLAMA_URL)) {
+          const parsed = await ollamaChat({
+            baseUrl: OLLAMA_URL,
+            model: MATCH_MODEL,
+            system: STRUCTURE_SYSTEM_PROMPT,
+            user: `What they wrote:\n\n${text}`,
+            format: STRUCTURE_SCHEMA,
+            options: { temperature: 0, num_predict: 1024 }
+          });
+          structured = normalizeStructured(parsed);
+        }
+      } catch (error) {
+        console.error(`[preferences] structuring failed, keeping the text: ${error.message}`);
+      }
+    }
+
+    const saved = {
+      schema_version: 1,
+      updated_at: new Date().toISOString(),
+      text,
+      structured
+    };
+    await writeJson(PREFERENCES_PATH, saved);
+    send(response, 200, JSON.stringify(saved));
+    return;
+  }
+
+  // Returns what's judged NOW and queues the rest. The client posts the job
+  // payloads it wants read, so the server never loads the 44 MB job mirror.
+  // `priority` 0 = on screen, 1 = prefetch, 2 = background backlog.
+  if (request.method === 'POST' && url.pathname === '/api/match') {
+    await loadMatchCache();
+    const payload = JSON.parse(await readBody(request) || '{}');
+    const jobs = Array.isArray(payload.jobs) ? payload.jobs.slice(0, 200) : [];
+    const context = await matchContext();
+    if (!context || !jobs.length) {
+      send(response, 200, JSON.stringify({
+        judgments: {}, queued: 0, pending: 0, running: false,
+        reason: context ? 'no jobs posted' : 'no resume profile yet'
+      }));
+      return;
+    }
+    const priority = Number.isFinite(payload.priority) ? payload.priority : 0;
+    const judgments = cachedJudgments(jobs, context);
+    const queued = queueJudgments(jobs.filter((job) => !judgments[job.id]), context, priority);
+    drainJudgeQueue(context); // deliberately not awaited
+    send(response, 200, JSON.stringify({
+      judgments,
+      queued,
+      pending: judgeQueue.items.length,
+      running: judgeQueue.running,
+      judged_total: Object.keys(matchCache.entries).length,
+      last_error: judgeQueue.lastError,
+      model: MATCH_MODEL
+    }));
     return;
   }
 

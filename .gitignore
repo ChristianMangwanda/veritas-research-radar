@@ -57,3 +57,7 @@ radar/scripts/.digest.env
 
 # local data snapshots must never enter history
 radar/data/jobs.json.stale*
+
+# Judged matches + stated preferences: derived from private resume data
+radar/data/match-cache.json
+radar/data/preferences.json

@@ -2040,6 +2040,82 @@ function testQualifiedPredicate() {
   assert.strictEqual(isQualified(scored), false);
 }
 
+function testJudgedMatch() {
+  const {
+    deriveVerdict, normalizeJudgment, matchCacheKey, candidateBrief, jobBrief,
+    JUDGMENT_SCHEMA, VERDICT_RANK, compareJudged, DESCRIPTION_LIMIT
+  } = require('../radar/scripts/lib/match.js');
+
+  // The aggregation the model could not do reliably, now plain code.
+  assert.strictEqual(deriveVerdict({ different_profession: true, meets_requirements: true, matches_preferences: true }), 'no',
+    'a different profession is a no however well the words overlap');
+  assert.strictEqual(deriveVerdict({ different_profession: false, meets_requirements: false, matches_preferences: true }), 'stretch');
+  assert.strictEqual(deriveVerdict({ different_profession: false, meets_requirements: true, matches_preferences: false }), 'possible');
+  assert.strictEqual(deriveVerdict({ different_profession: false, meets_requirements: true, matches_preferences: true }), 'strong');
+
+  // FIELD ORDER IS THE FIX for the all-"strong" bug: evidence is decoded
+  // before any judgment, and the model never emits a verdict at all.
+  const order = JUDGMENT_SCHEMA.required;
+  assert.strictEqual(order[0], 'role_summary', 'the model must describe the role before judging it');
+  assert(order.indexOf('different_profession') < order.indexOf('reasons'));
+  assert(!('verdict' in JUDGMENT_SCHEMA.properties), 'verdict is derived, never asked for');
+
+  const ids = ['ml-engineer', 'bioinformatics'];
+  const raw = {
+    role_summary: 'Bedside nurse practitioner role, clinical not computational',
+    different_profession: true,
+    meets_requirements: false,
+    matches_preferences: false,
+    reasons: [],
+    gaps: ['  Requires   RN licence  '],
+    resume_id: 'ml-engineer'
+  };
+  const judged = normalizeJudgment(raw, ids);
+  assert.strictEqual(judged.verdict, 'no');
+  assert.strictEqual(judged.gaps[0], 'Requires RN licence', 'whitespace is collapsed for display');
+
+  // A missing boolean means the model did not answer — inventing a default
+  // would manufacture matches, so the judgment is discarded and retried.
+  assert.strictEqual(normalizeJudgment({ ...raw, meets_requirements: undefined }, ids), null);
+  assert.strictEqual(normalizeJudgment(null, ids), null);
+  // A hallucinated resume id falls back rather than dangling.
+  assert.strictEqual(normalizeJudgment({ ...raw, resume_id: 'not-a-variant' }, ids).resume_id, 'ml-engineer');
+  // Long lists and long lines are clamped so one bad judgment can't wreck a row.
+  const wordy = normalizeJudgment({ ...raw, reasons: ['a', 'b', 'c', 'd'], gaps: ['x'.repeat(400)] }, ids);
+  assert.strictEqual(wordy.reasons.length, 2);
+  assert(wordy.gaps[0].length <= 110);
+
+  // Cache identity must move when the profile or the preferences move —
+  // otherwise yesterday's judgment describes a person who has changed.
+  const key = matchCacheKey('job1', 'profA', 'prefA');
+  assert.strictEqual(key, matchCacheKey('job1', 'profA', 'prefA'));
+  assert.notStrictEqual(key, matchCacheKey('job1', 'profB', 'prefA'));
+  assert.notStrictEqual(key, matchCacheKey('job1', 'profA', 'prefB'));
+  assert.notStrictEqual(key, matchCacheKey('job2', 'profA', 'prefA'));
+
+  // Judged verdict outranks the deterministic score; fit only breaks ties.
+  const rows = [
+    { id: 'a', fit: { fit_score: 80 }, match: { verdict: 'stretch' } },
+    { id: 'b', fit: { fit_score: 10 }, match: { verdict: 'strong' } },
+    { id: 'c', fit: { fit_score: 40 }, match: { verdict: 'strong' } }
+  ];
+  assert.deepStrictEqual([...rows].sort(compareJudged).map((row) => row.id), ['c', 'b', 'a']);
+  assert(VERDICT_RANK.strong < VERDICT_RANK.no);
+
+  // The brief must actually carry the resume ids the model has to choose from.
+  const brief = candidateBrief({
+    core: { summary: 'ML person', degrees: [{ level: 'masters', status: 'in_progress' }], years_experience: 3 },
+    variants: [{ id: 'ml-engineer', label: 'ML Engineer', intent: 'production ML', skills: [{ term: 'pytorch', weight: 3 }] }]
+  }, 'Wants: health data');
+  assert(brief.includes('id "ml-engineer"'));
+  assert(brief.includes('pytorch'));
+  assert(brief.includes('health data'), 'stated preferences ride in the prompt');
+
+  // Postings get truncated so prefill time stays bounded.
+  const long = jobBrief({ title: 'T', employer_name: 'E', description_text: 'z'.repeat(20000) });
+  assert(long.length < DESCRIPTION_LIMIT + 500);
+}
+
 function testManifestSync() {
   const { syncManifest, slugify, isResumeFile, labelFromFile } = require('../radar/scripts/lib/manifest-sync.js');
 
@@ -2859,6 +2935,7 @@ async function main() {
   testEligibility();
   testRoleTrack();
   testQualifiedPredicate();
+  testJudgedMatch();
   testManifestSync();
   testProfileFreshness();
   testFitAudit();
