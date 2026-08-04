@@ -305,6 +305,9 @@ function normalizeVariantProfile(profile, warn) {
   return {
     ...profile,
     skills,
+    // Enum values, so dedupe without text normalization (order is meaningful:
+    // index 0 is the variant's primary class).
+    title_classes: [...new Set(profile.title_classes || [])],
     domains,
     target_titles: targetTitles,
     avoid_signals: avoidSignals

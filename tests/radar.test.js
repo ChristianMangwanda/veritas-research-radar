@@ -1670,6 +1670,47 @@ function testVariantScoring() {
   assert.strictEqual(capped.variants[0].score, RadarScoring.WEIGHTS.SKILL_CAP);
 }
 
+function testFitAudit() {
+  const { histogram, variantCeilings, sampleBlocked, seededShuffle, parseArgs } = require('../radar/scripts/fit-audit.js');
+
+  const jobs = [
+    { fit: { fit_score: 52, verdict: 'strong' } },
+    { fit: { fit_score: 51, verdict: 'strong' } },
+    { fit: { fit_score: 12, verdict: 'stretch' } },
+    { fit: { fit_score: null, verdict: null } },
+    {}
+  ];
+  const hist = histogram(jobs);
+  assert.strictEqual(hist.scored, 3, 'unscored jobs are excluded');
+  assert.strictEqual(hist.buckets.get(50), 2);
+  assert.strictEqual(hist.tiers.get('strong'), 2);
+
+  // Ceilings expose the breadth-beats-precision effect (a short skill list
+  // cannot reach the cap however perfect the posting).
+  const ceilings = variantCeilings({
+    variants: [
+      { id: 'wide', skills: Array.from({ length: 10 }, () => ({ weight: 3 })) },
+      { id: 'narrow', skills: [{ weight: 3 }, { weight: 1 }] }
+    ]
+  });
+  assert.strictEqual(ceilings[0].reachesCap, true);
+  assert.strictEqual(ceilings[1].reachesCap, false);
+  assert.strictEqual(ceilings[1].rawSkillPoints, 7);
+
+  // Sampling must be reproducible so a reviewed set can be re-checked.
+  const blocked = Array.from({ length: 20 }, (_, i) => ({ id: `j${i}`, fit: { eligibility: { verdict: 'blocked' } } }));
+  const first = sampleBlocked(blocked, 5, 7);
+  assert.strictEqual(first.total, 20);
+  assert.strictEqual(first.sample.length, 5);
+  assert.deepStrictEqual(first.sample.map((job) => job.id), sampleBlocked(blocked, 5, 7).sample.map((job) => job.id));
+  assert.notDeepStrictEqual(seededShuffle(blocked, 1).map((j) => j.id), seededShuffle(blocked, 2).map((j) => j.id));
+  assert.strictEqual(sampleBlocked([{ fit: { eligibility: { verdict: 'clear' } } }], 5, 7).total, 0);
+
+  assert.deepStrictEqual(parseArgs(['--sample-blocked', '12', '--seed', '3']), { mode: 'sample-blocked', count: 12, seed: 3 });
+  assert.strictEqual(parseArgs(['--histogram']).mode, 'histogram');
+  assert.strictEqual(parseArgs([]).mode, null);
+}
+
 function testFitEngineRepairs() {
   const { compileProfile, scoreJob, validateProfile, variantHeat, fnv1a, surfaceForms, WEIGHTS } = RadarScoring;
   const mkProfile = (variant) => ({
@@ -1720,7 +1761,12 @@ function testFitEngineRepairs() {
 
   // validateProfile structural checks (W11).
   assert.strictEqual(validateProfile(mkProfile({ skills: [] })), null);
-  assert(/duplicates/.test(validateProfile(mkProfile({ skills: [], title_classes: ['faculty', 'faculty'] }))));
+  // Duplicates are deduped at compile, not rejected — refusing a whole profile
+  // over a repeated title class would strand an otherwise usable import.
+  assert.strictEqual(validateProfile(mkProfile({ skills: [], title_classes: ['faculty', 'faculty'] })), null);
+  assert.deepStrictEqual(
+    compileProfile(mkProfile({ skills: [], title_classes: ['faculty', 'faculty'] })).variants[0].titleClasses,
+    ['faculty']);
   assert(/array of strings/.test(validateProfile(mkProfile({ skills: [], domains: [7] }))));
   assert(/broad_aliases/.test(validateProfile(mkProfile({ skills: [{ term: 'python', weight: 3, broad_aliases: 'etl' }] }))));
 
@@ -2353,6 +2399,7 @@ async function main() {
   testDegreeGateParsing();
   testVariantScoring();
   testFitEngineRepairs();
+  testFitAudit();
   testReachabilityDemotion();
   testVerdictTiers();
   testVerdictRank();

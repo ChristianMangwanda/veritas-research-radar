@@ -54,11 +54,11 @@
   WEIGHTS.VARIANT_SCORE_MAX = WEIGHTS.SKILL_CAP + WEIGHTS.TITLE_CLASS_PRIMARY
     + WEIGHTS.DOMAIN_CAP + WEIGHTS.TARGET_TITLE;
 
-  // Calibrated 2026-08-03 to the discriminated-weight score scale (skill weights
-  // now form a real 3/2/1 pyramid, so fits run lower and more honest — top real-
-  // dataset fit ≈ 65, not ≈ 80). Bands are data-driven from the fit histogram:
-  // strong ≈ top ~12 jobs, good adds the next ~20, then moderate/weak/stretch.
-  // Tunable — each is a single floor.
+  // Re-verified 2026-08-04 against the repaired matcher (fit-audit --histogram,
+  // 12,440 active jobs): strong 11 · good 34 · moderate 180 · weak 554. The
+  // repairs lifted the middle (live domains, plural/hyphen forms) without
+  // moving the shape, and the floors still sit on the histogram's natural
+  // breaks, so they stand. Tunable — each is a single floor.
   const VERDICT_TIERS = [['strong', 50], ['good', 38], ['moderate', 27], ['weak', 16], ['stretch', 0]];
 
   // Heat bands for PRE-penalty variant scores (0..VARIANT_SCORE_MAX). Distinct
@@ -139,11 +139,13 @@
           return `${where} has a skill with non-string broad_aliases`;
         }
       }
+      // Type checks only. Duplicates are deduped at compile time rather than
+      // rejected — a repeated title class is harmless, and refusing the whole
+      // profile over one would strand an otherwise usable import.
       for (const listName of ['title_classes', 'domains', 'target_titles']) {
         const list = variant[listName];
         if (list === undefined) continue;
         if (!isStringArray(list)) return `${where}.${listName} must be an array of strings`;
-        if (new Set(list).size !== list.length) return `${where}.${listName} contains duplicates`;
       }
     }
     return null;
@@ -243,7 +245,7 @@
         id: variant.id,
         label: variant.label,
         order,
-        titleClasses: variant.title_classes || [],
+        titleClasses: [...new Set(variant.title_classes || [])],
         matchRegex: alternates.length ? new RegExp(`(?:${alternates.join('|')})`, 'g') : null,
         phraseEntries,
         targetTitleRegex: targetTitles.length
