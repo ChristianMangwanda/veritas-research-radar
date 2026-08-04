@@ -66,22 +66,37 @@ async function fetchJsonWithTimeout(url, options = {}) {
   }
 }
 
-async function probeWorkday(tenant, dc, siteHint) {
+async function probeWorkday(tenant, dc, siteHint, expectedName) {
   const host = `${tenant}.wd${dc}.myworkdayjobs.com`;
   // The crawled URL sometimes points at a subsection board (athletics, one
   // department) — probe every candidate and keep the site with most postings
   const sites = [...new Set([siteHint, ...WORKDAY_SITE_CANDIDATES].filter(Boolean))];
   let best = null;
+  let mismatch = null;
   for (const site of sites) {
     const payload = await fetchJsonWithTimeout(
       `https://${host}/wday/cxs/${encodeURIComponent(tenant)}/${encodeURIComponent(site)}/jobs`,
       { method: 'POST', body: JSON.stringify({ appliedFacets: {}, limit: 1, offset: 0, searchText: '' }) });
     await sleep(PROBE_DELAY_MS);
     const total = Number(payload?.total || 0);
-    if (total > 0 && (!best || total > best.total_jobs)) {
+    if (total === 0) continue;
+    // Some Workday tenants are shared outsourced-services boards (dining,
+    // hospitality, facilities vendors) covering many unrelated client sites —
+    // a "hiringCompany" facet only shows up on these multi-company tenants;
+    // a genuine single-institution tenant (the normal case) has no such facet.
+    const companyFacet = (payload.facets || []).find((f) => f.facetParameter === 'hiringCompany');
+    if (companyFacet && expectedName) {
+      const companies = (companyFacet.values || []).map((v) => v.descriptor).filter(Boolean);
+      if (companies.length && !companies.some((name) => namesOverlap(name, expectedName))) {
+        mismatch = { mismatch: true, feed_title: companies.join(', ') };
+        continue;
+      }
+    }
+    if (!best || total > best.total_jobs) {
       best = { host, tenant, site, total_jobs: total };
     }
   }
+  if (!best && mismatch) return mismatch;
   return best;
 }
 
@@ -252,6 +267,23 @@ async function probePaylocity(clientGuid, expectedName) {
   return { client_guid: clientGuid, total_jobs: jobs.length };
 }
 
+// The public_job_boards list's own "title" field literally names the
+// institution ("X Positions" / "X Open Positions") — a clean identity check.
+async function probeInterfolio(tenantId, expectedName) {
+  const response = await fetchJsonWithTimeout(`https://logic.interfolio.com/byc-search/${encodeURIComponent(tenantId)}/public_job_boards?limit=1`);
+  await sleep(PROBE_DELAY_MS);
+  if (!response || !Array.isArray(response.results)) return null;
+  const feedTitle = String(response.title || '').replace(/\s+(open\s+)?positions$/i, '').trim();
+  // A blank title (seen for ids that are stale/deleted position-page links
+  // rather than a real tenant board) carries no identity signal at all —
+  // treat as unresolvable, not as a free pass.
+  if (!feedTitle) return null;
+  if (!namesOverlap(feedTitle, expectedName)) {
+    return { mismatch: true, feed_title: response.title };
+  }
+  return { tenant_id: Number(tenantId), total_jobs: Number(response.total_count || 0) };
+}
+
 function employerType(record) {
   // ipeds unitid => higher ed; otherwise research nonprofit
   return record.kind === 'ipeds' || record.kind === 'both' || record.unitid
@@ -263,8 +295,12 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
   const discovery = JSON.parse(await fsp.readFile(DISCOVERY_PATH, 'utf8'));
   const directory = JSON.parse(await fsp.readFile(path.join(DATA_DIR, 'cap-exempt-directory.json'), 'utf8')).entries;
   const employers = JSON.parse(await fsp.readFile(EMPLOYERS_PATH, 'utf8'));
-  const existingTenants = new Set(employers.filter((e) => e.ats_config?.tenant).map((e) => e.ats_config.tenant));
+  // Some wiring paths (vanity-domain PeopleAdmin) store identity under
+  // ats_config.host instead of .tenant — index both, or a shared feed
+  // registered via one path is invisible to the dedup check on the other.
+  const existingTenants = new Set(employers.flatMap((e) => [e.ats_config?.tenant, e.ats_config?.host].filter(Boolean)));
   const existingGuids = new Set(employers.filter((e) => e.ats_config?.client_guid).map((e) => e.ats_config.client_guid));
+  const existingInterfolioTenants = new Set(employers.filter((e) => e.ats_config?.tenant_id).map((e) => String(e.ats_config.tenant_id)));
   // Owner-declined tenants stay declined across probe reruns
   let holds = new Set();
   try {
@@ -291,9 +327,12 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     const workableHit = hits.find((a) => a.provider === 'workable' && a.tenant && !holds.has(a.tenant));
     const paylocityHit = hits.find((a) => a.provider === 'paylocity' && a.tenant
       && PAYLOCITY_GUID_PATTERN.test(a.tenant) && !holds.has(a.tenant));
+    // The crawler's fallback "interfolio" mention (no resolvable apply.interfolio.com id)
+    // has a null tenant — not auto-wirable, needs manual careers-page follow-up.
+    const interfolioHit = hits.find((a) => a.provider === 'interfolio' && a.tenant && !holds.has(a.tenant));
     const paSignature = hits.find((a) => a.provider === 'peopleadmin' && !a.tenant);
     const wdSignature = hits.find((a) => a.provider === 'workday' && !a.tenant);
-    const anyHit = workdayHit || peopleAdminHit || smartRecruitersHit || workableHit || paylocityHit || greenhouseHit || leverHit || ashbyHit || icimsHit || paSignature || wdSignature;
+    const anyHit = workdayHit || peopleAdminHit || smartRecruitersHit || workableHit || paylocityHit || interfolioHit || greenhouseHit || leverHit || ashbyHit || icimsHit || paSignature || wdSignature;
     if (!anyHit && !(includeScoutFallback && record.careers_url)) continue;
 
     const id = slugify(record.name);
@@ -305,7 +344,11 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     let wiring = null;
     if (workdayHit && !existingTenants.has(workdayHit.tenant)) {
       console.log(`probing workday:${workdayHit.tenant} (${record.name})…`);
-      const probe = await probeWorkday(workdayHit.tenant, workdayHit.workday_dc || '5', workdayHit.workday_site);
+      const probe = await probeWorkday(workdayHit.tenant, workdayHit.workday_dc || '5', workdayHit.workday_site, record.name);
+      if (probe?.mismatch) {
+        skipped.push({ name: record.name, reason: `workday tenant hires for "${probe.feed_title}" — shared outsourced-services board, not this employer` });
+        continue;
+      }
       if (probe) {
         wiring = {
           ats_provider: 'workday',
@@ -375,6 +418,17 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
         wiring = { ats_provider: 'paylocity', ats_token: id, ats_config: { client_guid: probe.client_guid }, total_jobs: probe.total_jobs };
       }
     }
+    if (!wiring && interfolioHit && !existingInterfolioTenants.has(interfolioHit.tenant)) {
+      console.log(`probing interfolio:${interfolioHit.tenant} (${record.name})…`);
+      const probe = await probeInterfolio(interfolioHit.tenant, record.name);
+      if (probe?.mismatch) {
+        skipped.push({ name: record.name, reason: `interfolio board title "${probe.feed_title}" does not match` });
+        continue;
+      }
+      if (probe) {
+        wiring = { ats_provider: 'interfolio', ats_token: id, ats_config: { tenant_id: probe.tenant_id }, total_jobs: probe.total_jobs };
+      }
+    }
     // Vanity-domain PeopleAdmin: the portal host serves the same Atom feed
     if (!wiring && paSignature) {
       const hostCandidates = [...new Set([paSignature.url, record.careers_url]
@@ -399,7 +453,11 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
       const mined = (await mineWorkdayTenant(wdSignature.url)) || (await mineWorkdayTenant(record.careers_url));
       if (mined && !holds.has(mined.tenant) && !existingTenants.has(mined.tenant)) {
         console.log(`probing mined workday:${mined.tenant} (${record.name})…`);
-        const probe = await probeWorkday(mined.tenant, mined.dc || '5', null);
+        const probe = await probeWorkday(mined.tenant, mined.dc || '5', null, record.name);
+        if (probe?.mismatch) {
+          skipped.push({ name: record.name, reason: `workday tenant hires for "${probe.feed_title}" — shared outsourced-services board, not this employer` });
+          continue;
+        }
         if (probe) {
           wiring = {
             ats_provider: 'workday',
