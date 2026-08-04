@@ -31,6 +31,8 @@ orientation in **`PROJECT-MAP.md`**.
 
 ```bash
 npm test                        # offline test suite (always run before committing)
+npm run app:install             # build "Veritas Radar.app" into /Applications
+npm run app                     # start the server (if needed) + open the dashboard
 npm run radar:refresh           # daily-layer fetch + enrich + lifecycle
 npm run radar:serve             # dashboard at http://127.0.0.1:4173
 npm run radar:enrich            # monthly joins (downloads ~350MB, cached 25 days)
@@ -48,10 +50,25 @@ Résumé files may be `.txt`, `.md`, `.pdf`, or `.docx` (`.docx` extracted local
 via the `unzip` CLI). The extractor forces a real 3/2/1 skill-weight pyramid so
 fit scores discriminate between variants.
 
-Both resume steps run a local model via Ollama (nothing leaves the machine).
-One shared knob: `OLLAMA_MODEL` (default `qwen2.5:7b-instruct`), `OLLAMA_URL`
-(default localhost). `radar:profile -- --provider anthropic` switches
-extraction to hosted Claude if local quality is not enough.
+Every model step runs locally via Ollama (nothing leaves the machine).
+Résumé extraction uses `OLLAMA_MODEL` (default `qwen2.5:7b-instruct`);
+**job matching uses `RADAR_MATCH_MODEL` (default `qwen2.5:14b-instruct`)** —
+14b reads postings materially better and fits comfortably in 24 GB. Shared
+`OLLAMA_URL` (default localhost). `radar:profile -- --provider anthropic`
+switches extraction to hosted Claude if local quality is not enough.
+
+## Opening the app
+
+`npm run app:install` builds **Veritas Radar.app** (in /Applications) — a stub
+bundle that execs `radar/scripts/launch.sh`, so it never goes stale. Double
+-click starts the server if needed, waits for it, and opens the dashboard;
+launching again is a no-op. Logs: `~/Library/Logs/veritas-radar.log`. First
+open needs right-click → Open (unsigned). `npm start` still works.
+
+The full experience is local by design — resumes, the compiled profile, and
+the judging model all live on this machine. The hosted Pages site remains a
+read-only mirror: it can browse jobs and (when the local radar is running)
+adopt the profile, but it cannot upload resumes or judge matches.
 
 ## Resume-variant ritual (ranking + routing)
 
@@ -62,30 +79,59 @@ resume variants and tells you which one to send.
    (the same model serves both extraction and routing). Extraction is
    structured parsing, not deep reasoning — a local 7-8B model handles it and
    your resume text never leaves the machine.
-1. Drop your resume variants (txt/md/pdf/docx) into `radar/data/resumes/`
-   (gitignored). The first `npm run radar:profile` scaffolds `manifest.json`;
-   fill in each variant's `label` and one-line `intent` ("Leads with
-   production ML, PyTorch, MLOps") and re-run. One local extraction per
-   variant, cached by content hash + model: adding a resume later re-extracts
-   only the new one (`--force` to redo all). If the local profile looks thin,
-   re-run with `-- --provider anthropic`.
+1. **Drag a resume into the dashboard's "Your resumes" panel** (or drop the
+   file into `radar/data/resumes/`, gitignored). It self-registers: the local
+   model writes its one-line `intent`, marked as a draft you can edit in the
+   panel along with its label. You never open `manifest.json` — the panel
+   writes it. One extraction per variant, cached by content hash + model, so
+   adding a resume re-reads only the new one (`--force` redoes all). If the
+   local profile looks thin, re-run with `-- --provider anthropic`.
+   *Before 2026-08-04 a dropped-in resume was silently ignored — the manifest
+   was non-empty so the scaffold never re-ran. That is the bug this replaced.*
 2. **After that, editing a resume file is the whole ritual (2026-08-04).**
    The `npm start` server watches `radar/data/resumes/` and rebuilds
    `profile.json` automatically (`build-profile.js --if-stale`; mtime-based,
    an unchanged file costs one cached no-model rebuild); the daily digest run
    does the same check at 08:00 so the profile stays fresh even without the
    server. The open dashboard tab polls `/api/profile-freshness`, narrates
-   rebuilds in the profile card, and adopts the result. New FILES still need
-   a manifest.json entry (a label/intent can't be invented) — a failed
-   rebuild shows up in the profile card with the reason.
-3. Jobs carry a fit score, a verdict tier, a "use <variant>" chip, and
-   ⚠ flags for hard gates (PhD required, citizens-only). Gates demote — they
-   never hide a job. The detail pane's why panel shows per-variant scores,
-   matched terms, and the posting's own degree-requirement sentence.
-4. Optional: `npm run radar:route` — the same local model re-judges only the
+   rebuilds in the profile card, and adopts the result. New files no longer
+   need any hand-editing (see step 1); a failed rebuild shows up in the
+   profile card with the reason.
+3. **Say what you want** in the sidebar's "What you want" panel — free text,
+   your own words. The model turns it into structured fields (locations,
+   remote, salary floor, role types, domains, deal-breakers) shown back to
+   you so a bad reading is visible and fixable. Stored in
+   `radar/data/preferences.json` (gitignored). The prose stays the source of
+   truth; editing it re-judges every job.
+4. **Matching is two-stage** (2026-08-04). The deterministic pass narrows
+   thousands to hundreds — open, in your tracks, no quoted barrier — and then
+   a local **qwen2.5:14b** READS each survivor against your resumes and
+   preferences (`radar/scripts/lib/match.js`, judged via `/api/match`,
+   cached in `radar/data/match-cache.json`). Each job gets a verdict with
+   its reasons and gaps printed on the row.
+   - The verdict is **derived in code**, not asked for: the model answers
+     three booleans (different profession / meets stated requirements /
+     matches what you want) and `deriveVerdict()` aggregates them. Asking for
+     a 4-way enum returned "strong" for everything, including postings the
+     model itself described as "Not a match" — constrained decoding fills
+     fields in declaration order, so the label was written before any
+     reasoning existed. **Do not reorder JUDGMENT_SCHEMA's properties.**
+   - One judgment is ~19s (14b at ~11 tok/s; the Ollama app runs
+     llama-server with `-np 1`, so requests serialize however many you
+     fire). `/api/match` therefore answers instantly from cache and drains
+     the rest through a priority queue — what is on screen jumps the
+     backlog. The count line says how many have been read.
+   - Cache key = posting content + profile hash + preferences hash, so any
+     of the three changing re-judges.
+   - Jobs judged "not your line of work" are set aside like blocked ones:
+     counted beside the list, one click back, reasoning attached.
+5. Jobs also carry the deterministic fit score (demoted to a hint once judged
+   — it is a compressed keyword count, not a percentage), a "use <variant>"
+   chip, and ⚠ flags for hard gates. Gates demote — they never hide a job.
+6. Optional: `npm run radar:route` — the same local model re-judges only the
    jobs where two variants scored within 8 points and caches the verdicts
    (`route-cache.json`, gitignored, invalidated when the profile changes).
-5. Hosted (Pages) dashboard: whenever the local radar is running, the hosted
+7. Hosted (Pages) dashboard: whenever the local radar is running, the hosted
    page pulls the compiled profile (+ route cache) from
    `http://localhost:4173` over a CORS bridge scoped to the Pages origin
    (Chrome-only in practice — Private Network Access preflight is answered)

@@ -4,6 +4,46 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Session 2026-08-04 (evening) — the model reads the job; the app is an app
+
+The remaining hand-work disappears and matching stops being keyword overlap.
+
+**Resumes live in the app.** Drag a PDF/DOCX into the sidebar's "Your resumes"
+panel; it self-registers, the local model writes its one-line intent (marked
+as a draft), and you edit labels/intents or remove variants from the same
+panel. `manifest.json` is never opened by hand. This also fixes a silent bug:
+a resume dropped into `radar/data/resumes/` used to be ignored entirely,
+because the manifest was non-empty so the scaffold never re-ran.
+
+**A new input: what you want.** Free text in your own words, structured by the
+model into correctable fields (locations, remote, salary floor, role types,
+domains, deal-breakers). The system previously knew what you *could* do and
+nothing about what you *wanted*.
+
+**Matching is judged, not counted.** Stage one still narrows thousands to
+hundreds deterministically; stage two has qwen2.5:14b read each survivor
+against your resumes and preferences, returning a verdict with its reasons
+and gaps on the row. The 0-100 fit score is demoted to a hint — measured on
+the live data, 8,942 of 12,440 jobs score 0-4 and only 12 clear 50, so it was
+a compressed keyword count printed at a precision it never had.
+
+Two findings worth keeping:
+- Asking the model for a 4-way verdict enum returned "strong" for *everything*
+  — including a nurse-practitioner posting whose own headline read "Not a
+  match". Constrained decoding fills fields in declaration order, so the label
+  preceded any reasoning. The model now answers three booleans and
+  `deriveVerdict()` aggregates in code; the spread went from `{strong:9}` to
+  `{no:6, stretch:2, strong:1}`.
+- A judgment costs ~19s (14b at ~11 tok/s, and the Ollama app runs
+  llama-server with `-np 1`). So `/api/match` answers instantly from cache and
+  drains the rest through a priority queue; on-screen jobs jump the backlog.
+
+**It's an app now.** `npm run app:install` builds Veritas Radar.app for the
+Dock — starts the server, opens the dashboard, no terminal.
+
+Also removed by request: the cryptic `j k o s a x` keyboard strip (shortcuts
+still work) and the "Qualified — needs your resume profile" label.
+
 ### Session 2026-08-04 (later still) — the profile follows the resume files
 
 profile.json stops being a thing the user manages and becomes a cache the
