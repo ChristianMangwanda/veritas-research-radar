@@ -1,0 +1,82 @@
+name: Radar Employer Discovery
+
+# Crawls candidate employer websites (radar/data/cap-exempt-directory.json)
+# for ATS-platform signatures, feeding radar/data/ats-discovery.json — the
+# raw material promote-employers.js turns into reviewed registry proposals.
+# Distinct from the weekly Employer Scout workflow, which scrapes job
+# postings for employers *already* in the registry with no ATS feed.
+#
+# Scheduled monthly, a few hours after the monthly enrichment run (which is
+# what actually adds freshly-discovered candidate employers to crawl) —
+# enrichment finishes first, then this run sees the newest candidate list.
+# Also runs on demand via workflow_dispatch. The crawl saves progress after
+# every site and skips anything already crawled within --recrawl-days, so a
+# run that hits the timeout below just resumes cleanly next time.
+on:
+  schedule:
+    - cron: "30 9 1 * *"
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max sites to crawl this run (blank = no cap, until the timeout)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+# Shares the radar-data group so its commit can never race the other
+# refresh/scout/enrich workflows.
+concurrency:
+  group: radar-data-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    # GitHub-hosted runners hard-cap job execution at 6h; stay safely under it.
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install scout deps
+        run: |
+          python -m venv scout/.venv
+          scout/.venv/bin/pip install -r scout/requirements.txt
+          scout/.venv/bin/python -m playwright install --with-deps chromium
+      - name: Crawl for ATS signatures
+        run: |
+          if [ -n "${{ inputs.limit }}" ]; then
+            scout/.venv/bin/python scout/scout_discover.py --all --limit "${{ inputs.limit }}"
+          else
+            scout/.venv/bin/python scout/scout_discover.py --all
+          fi
+      - name: Sync to latest main (this run's output wins)
+        # checkout pins github.sha from queue time, so commits that landed
+        # while this run was pending/running would make a rebase conflict.
+        # Runs in the radar-data group are serialized, so this run's output
+        # is always the freshest — save, reset, restore.
+        run: |
+          set -euo pipefail
+          tmp=$(mktemp -d)
+          cp radar/data/ats-discovery.json "$tmp"/
+          git fetch origin main
+          git reset --hard origin/main
+          cp "$tmp"/* radar/data/
+      - name: Commit discovery data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update ATS discovery crawl data"
+          file_pattern: "radar/data/ats-discovery.json"
+      - name: Alert on failure
+        if: failure()
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          [ -z "$NTFY_TOPIC" ] && { echo "NTFY_TOPIC not set; skipping alert"; exit 0; }
+          curl -sS -H "Title: ${{ github.workflow }} failed" \
+            -H "Tags: rotating_light" \
+            -d "Workflow '${{ github.workflow }}' failed on ${{ github.ref_name }}. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            "https://ntfy.sh/$NTFY_TOPIC" || true
