@@ -272,6 +272,15 @@
       for (const cls of variant.titleClasses) allClasses.add(cls);
     }
 
+    // Ranks answer "is this credential high enough", which is the right
+    // question for phd/masters/bachelors but not for md: a PhD is rank-equal
+    // to an MD and satisfies neither the licence nor the training it stands
+    // for. Eligibility checks the actual levels held.
+    const completedLevels = new Set((core.degrees || [])
+      .filter((degree) => degree.status === 'completed').map((degree) => degree.level));
+    const inProgressLevels = new Set((core.degrees || [])
+      .filter((degree) => degree.status === 'in_progress').map((degree) => degree.level));
+
     return {
       profile: profileFile,
       hash: profileHash(profileFile),
@@ -280,6 +289,8 @@
       tracks: { primaryClasses, allClasses },
       completedRank,
       inProgressRank,
+      completedLevels,
+      inProgressLevels,
       avoidRegexes: (core.avoid_signals || [])
         .map((signal) => collapseWhitespace(signal).toLowerCase())
         .filter((signal) => signal.length >= 2)
@@ -389,6 +400,7 @@
       variants: [],
       gate: null,
       track: null,
+      eligibility: null,
       avoid_hits: [],
       evidence_bonus: 0,
       research_bonus: 0,
@@ -481,6 +493,190 @@
       llm_reason: null,
       ambiguous
     };
+  }
+
+  /* ---------------------------------------------------------------------- */
+  /* Eligibility: could this person's application be considered at all?       */
+
+  /* Asymmetric by design. A job is only "blocked" on evidence we can quote
+     back; anything ambiguous stays "likely" and remains visible. A false
+     block hides a job the user could have had — the one unforgivable error.
+     Every extractor below therefore demands an explicit requirement cue and
+     returns the sentence that triggered it. */
+
+  const LICENSE_BANKS = [
+    { type: 'rn_license', pattern: /\bregistered\s+nurse\b|\brn\s+license|\blicensed\s+practical\s+nurse\b|\blpn\b/gi, needsContext: false },
+    { type: 'medical_license', pattern: /\bmedical\s+license|\bboard[-\s]?certified\b|\bboard\s+certification\b|\bmedical\s+licensure\b/gi, needsContext: false },
+    { type: 'pharmacy_license', pattern: /\bpharmacist\s+licens|\bpharm\.?d\.?\s+licens/gi, needsContext: false },
+    { type: 'professional_engineer', pattern: /\bprofessional\s+engineer\b|\bp\.?e\.?\s+licens/gi, needsContext: false },
+    { type: 'driver_license', pattern: /\bcdl\b|\bcommercial\s+driver'?s?\s+licens/gi, needsContext: false }
+  ];
+
+  const CLEARANCE_PATTERN = /\b(security\s+clearance|top\s+secret|ts\/sci|secret\s+clearance|public\s+trust\s+clearance)\b/gi;
+  const STUDENT_ONLY_PATTERN = /\b(currently\s+enrolled|must\s+be\s+a\s+(?:current\s+)?student|current\s+student\s+only|work[-\s]study|degree[-\s]seeking\s+student)\b/gi;
+  const INTERNAL_ONLY_PATTERN = /\b(internal\s+(?:applicants?|candidates?|employees?)\s+only|current\s+employees\s+only|open\s+to\s+current\s+employees)\b/gi;
+  // "5+ years", "minimum of 7 years", "at least 10 years of experience"
+  const YEARS_PATTERN = /\b(\d{1,2})\s*\+?\s*(?:or\s+more\s+)?years?\b/gi;
+  // How far past the user's experience a demand has to reach before it is a
+  // wall rather than a stretch. Postings routinely overstate; 3 years of slack
+  // keeps "5+ years" reachable for a 4-year candidate.
+  const YEARS_SLACK = 3;
+
+  function findRequirement(corpus, pattern, { context = null } = {}) {
+    pattern.lastIndex = 0;
+    let match;
+    while ((match = pattern.exec(corpus)) !== null) {
+      const clause = clauseAround(corpus, match.index, match[0].length);
+      if (SOFTENER.test(clause)) continue;
+      if (context && !context.test(clause)) continue;
+      if (!REQUIREMENT_NEARBY.test(clause)) continue;
+      return { evidence: snippetAround(corpus, match.index, match[0].length), match };
+    }
+    return null;
+  }
+
+  function parseYearsRequirement(corpus) {
+    YEARS_PATTERN.lastIndex = 0;
+    let match;
+    let strictest = null;
+    while ((match = YEARS_PATTERN.exec(corpus)) !== null) {
+      const years = Number(match[1]);
+      if (!Number.isFinite(years) || years <= 0 || years > 40) continue;
+      const clause = clauseAround(corpus, match.index, match[0].length);
+      if (SOFTENER.test(clause)) continue;
+      if (!REQUIREMENT_NEARBY.test(clause)) continue;
+      // "years of experience", not "5 years of funding" or "3 year appointment"
+      if (!/\b(experience|expertise|background|practice|working)\b/i.test(clause)) continue;
+      if (!strictest || years > strictest.min_years) {
+        strictest = { min_years: years, evidence: snippetAround(corpus, match.index, match[0].length) };
+      }
+    }
+    return strictest;
+  }
+
+  function parseLicenseRequirement(corpus) {
+    for (const bank of LICENSE_BANKS) {
+      const found = findRequirement(corpus, bank.pattern);
+      if (found) return { license: bank.type, evidence: found.evidence };
+    }
+    return null;
+  }
+
+  function parseClearanceRequirement(corpus) {
+    const found = findRequirement(corpus, CLEARANCE_PATTERN);
+    return found ? { evidence: found.evidence } : null;
+  }
+
+  // Enrollment language is usually phrased "must be currently enrolled", which
+  // the generic requirement cues (must HOLD/HAVE/POSSESS) miss.
+  const STUDENT_CUE = /\b(must\s+be|required|restricted\s+to|eligibility|only|limited\s+to)\b/i;
+  // "...students may also apply" invites, it does not restrict.
+  const INVITATION = /\b(may\s+(also\s+)?apply|are\s+encouraged|welcome\s+to\s+apply|including)\b/i;
+
+  function parseStudentOnly(corpus, title) {
+    // An internship title alone is not a block — plenty are open to grads.
+    STUDENT_ONLY_PATTERN.lastIndex = 0;
+    let match;
+    while ((match = STUDENT_ONLY_PATTERN.exec(corpus)) !== null) {
+      const clause = clauseAround(corpus, match.index, match[0].length);
+      if (SOFTENER.test(clause) || INVITATION.test(clause)) continue;
+      if (!STUDENT_CUE.test(clause)) continue;
+      return {
+        evidence: snippetAround(corpus, match.index, match[0].length),
+        title_hint: /\bintern(ship)?\b|\bco-?op\b/i.test(String(title || ''))
+      };
+    }
+    return null;
+  }
+
+  function parseInternalOnly(corpus) {
+    INTERNAL_ONLY_PATTERN.lastIndex = 0;
+    const match = INTERNAL_ONLY_PATTERN.exec(corpus);
+    // Self-describing: "internal applicants only" needs no requirement cue.
+    if (!match) return null;
+    return { evidence: snippetAround(corpus, match.index, match[0].length) };
+  }
+
+  // Merges the deterministic reads with any cached local-model extraction of
+  // the same posting. The model supplies job-side FACTS ("this asks for 8
+  // years"); the comparison against this person stays deterministic here, so
+  // no model ever decides that a job is out of reach.
+  function assessEligibility(job, corpusRaw, gateFinding, compiled, degreeMet) {
+    const blockers = [];
+    const cautions = [];
+    const claimed = job.classified_requirements || null;
+    const thinText = String(job.description_text || '').length < WEIGHTS.THIN_TEXT_CHARS;
+
+    if (job.citizenship_gated) {
+      blockers.push({
+        type: 'citizenship',
+        evidence: job.restricted_reason || 'Posting is restricted to U.S. citizens.',
+        source: 'metadata'
+      });
+    }
+
+    // "PhD preferred" is not a barrier — it is how a large share of research
+    // postings are written, and treating it as one would empty the clear
+    // bucket. Only unsoftened requirements are weighed.
+    if (gateFinding.required && !degreeMet && !gateFinding.softened) {
+      const requiredRank = DEGREE_RANK[gateFinding.required];
+      // An MD is a specific credential, not a level — no amount of PhD
+      // progress reaches it.
+      const inProgressCovers = gateFinding.required === 'md'
+        ? compiled.inProgressLevels.has('md')
+        : compiled.inProgressRank >= requiredRank;
+      const entry = {
+        type: 'degree',
+        detail: gateFinding.required,
+        evidence: gateFinding.evidence || `Requires a ${gateFinding.required}.`,
+        source: gateFinding.source === 'title_class' ? 'title_class' : 'text'
+      };
+      // A credential already under way lands before most start dates.
+      if (inProgressCovers) cautions.push(entry);
+      else blockers.push(entry);
+    }
+
+    const years = parseYearsRequirement(corpusRaw)
+      || (claimed && Number.isFinite(claimed.min_years) && claimed.min_years > 0
+        ? { min_years: claimed.min_years, evidence: job.classified_quotes?.min_years || null }
+        : null);
+    if (years) {
+      const gap = years.min_years - compiled.yearsExperience;
+      const entry = { type: 'experience', detail: `${years.min_years} years`, evidence: years.evidence, source: 'text' };
+      if (gap >= YEARS_SLACK && years.evidence) blockers.push(entry);
+      else if (gap > 0) cautions.push(entry);
+    }
+
+    const license = parseLicenseRequirement(corpusRaw);
+    if (license) blockers.push({ type: 'license', detail: license.license, evidence: license.evidence, source: 'text' });
+
+    const clearance = parseClearanceRequirement(corpusRaw);
+    if (clearance) blockers.push({ type: 'clearance', evidence: clearance.evidence, source: 'text' });
+
+    const student = parseStudentOnly(corpusRaw, job.title);
+    if (student) blockers.push({ type: 'student_only', evidence: student.evidence, source: 'text' });
+
+    const internal = parseInternalOnly(corpusRaw);
+    if (internal) blockers.push({ type: 'internal_only', evidence: internal.evidence, source: 'text' });
+
+    // Every blocker must be quotable. A blocker without evidence would hide a
+    // job for a reason we cannot show, so it is demoted to a caution.
+    const quotable = blockers.filter((entry) => entry.source === 'metadata' || entry.evidence);
+    for (const entry of blockers) if (!quotable.includes(entry)) cautions.push(entry);
+
+    let verdict;
+    if (quotable.length) verdict = 'blocked';
+    // Thin text can't support "clear" — nothing was read, so nothing is known.
+    else if (cautions.length || thinText) verdict = 'likely';
+    else verdict = 'clear';
+
+    // Where a local model would add something the regexes can't settle.
+    const needsReview = Boolean(
+      (thinText && !quotable.length)
+      || cautions.some((entry) => entry.type === 'experience')
+    );
+
+    return { verdict, blockers: quotable, cautions, insufficient_text: thinText, needs_review: needsReview };
   }
 
   /* ---------------------------------------------------------------------- */
@@ -646,6 +842,7 @@
         stage_mismatch: stageMismatch
       },
       track: roleTrack(job, compiled),
+      eligibility: assessEligibility(job, corpusRaw, gateFinding, compiled, degreeMet),
       avoid_hits: avoidHits,
       evidence_bonus: evidence,
       research_bonus: researchBonus,
@@ -715,6 +912,12 @@
     parseDegreeGate,
     seniorityFlag,
     resolveVariant,
+    assessEligibility,
+    parseYearsRequirement,
+    parseLicenseRequirement,
+    parseClearanceRequirement,
+    parseStudentOnly,
+    parseInternalOnly,
     roleTrack,
     applyJobClassifications,
     jobContentHash,

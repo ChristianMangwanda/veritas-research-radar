@@ -1670,6 +1670,96 @@ function testVariantScoring() {
   assert.strictEqual(capped.variants[0].score, RadarScoring.WEIGHTS.SKILL_CAP);
 }
 
+function testEligibility() {
+  const { compileProfile, scoreJob, parseYearsRequirement, parseLicenseRequirement,
+    parseClearanceRequirement, parseStudentOnly, parseInternalOnly } = RadarScoring;
+  const compiled = compileProfile(SCORING_FIXTURE_PROFILE); // 4 yrs, masters done, phd in progress
+  const assess = (description, extra = {}) => scoreJob({
+    title: 'Data Scientist', title_class: 'data_computational',
+    description_text: description, research_relevance_score: 0, ...extra
+  }, compiled, null).eligibility;
+
+  const LONG = 'We are a research group building analysis pipelines for a large study. '.repeat(8);
+
+  // Clean posting: nothing found, enough text read → clear.
+  const clean = assess(`${LONG} Responsibilities include analysis and reporting.`);
+  assert.strictEqual(clean.verdict, 'clear');
+  assert.deepStrictEqual(clean.blockers, []);
+  assert.strictEqual(clean.insufficient_text, false);
+
+  // Years: far beyond reach blocks; near the user's experience only cautions.
+  const tooSenior = assess(`${LONG} Minimum of 10 years of experience is required.`);
+  assert.strictEqual(tooSenior.verdict, 'blocked');
+  assert.strictEqual(tooSenior.blockers[0].type, 'experience');
+  assert(tooSenior.blockers[0].evidence.includes('10 years'));
+  assert.strictEqual(assess(`${LONG} Requires a minimum of 5 years of experience.`).verdict, 'likely');
+  // "Preferred" is not a wall.
+  assert.strictEqual(assess(`${LONG} 10 years of experience preferred.`).verdict, 'clear');
+  // Years that aren't about experience must not count.
+  assert.strictEqual(assess(`${LONG} The required grant runs for 10 years.`).verdict, 'clear');
+  assert.strictEqual(parseYearsRequirement('a 3 year appointment is required'), null);
+
+  // Licences: real requirement blocks, a mention does not.
+  const nurse = assess(`${LONG} A current Registered Nurse license is required.`);
+  assert.strictEqual(nurse.verdict, 'blocked');
+  assert.strictEqual(nurse.blockers[0].type, 'license');
+  assert.strictEqual(assess(`${LONG} You will collaborate with registered nurses on the ward.`).verdict, 'clear');
+  assert(parseLicenseRequirement('An active RN license is required for this post'));
+  assert.strictEqual(parseLicenseRequirement('Board certification preferred but not required'), null);
+
+  // Clearance, student-only, internal-only.
+  assert.strictEqual(assess(`${LONG} An active security clearance is required.`).verdict, 'blocked');
+  assert.strictEqual(assess(`${LONG} Clearance is not required for this position.`).verdict, 'clear');
+  assert.strictEqual(assess(`${LONG} Applicants must be currently enrolled students.`).verdict, 'blocked');
+  // An invitation is not a restriction.
+  assert.strictEqual(assess(`${LONG} Currently enrolled students may also apply.`).verdict, 'clear');
+  assert.strictEqual(assess(`${LONG} Internal applicants only.`).verdict, 'blocked');
+  assert(parseClearanceRequirement('A top secret clearance is required'));
+  assert(parseStudentOnly('Must be a current student, minimum 6 credits required', 'Intern'));
+  assert(parseInternalOnly('This posting is open to current employees only.'));
+
+  // Citizenship comes from metadata and always blocks, with a reason.
+  const federal = assess(LONG, { citizenship_gated: true, restricted_reason: 'U.S. citizens only' });
+  assert.strictEqual(federal.verdict, 'blocked');
+  assert.strictEqual(federal.blockers[0].source, 'metadata');
+
+  // Degree: unreachable blocks, in-progress only cautions (it lands before
+  // most start dates), softened never blocks.
+  const mdOnly = assess(`${LONG} An MD degree in medicine is required for this clinical role.`);
+  assert.strictEqual(mdOnly.verdict, 'blocked');
+  assert.strictEqual(mdOnly.blockers[0].type, 'degree');
+  const phd = assess(`${LONG} A PhD is required.`);
+  assert.strictEqual(phd.verdict, 'likely', 'PhD in progress is a caution, not a wall');
+  assert.strictEqual(phd.cautions[0].type, 'degree');
+  assert.strictEqual(assess(`${LONG} A PhD is preferred.`).verdict, 'clear');
+
+  // Thin text can never claim "clear" — nothing was read — but also never
+  // blocks on absence alone.
+  const thin = assess('Analyst wanted.');
+  assert.strictEqual(thin.verdict, 'likely');
+  assert.strictEqual(thin.insufficient_text, true);
+  assert.strictEqual(thin.needs_review, true);
+  assert.deepStrictEqual(thin.blockers, []);
+  // A quoted blocker still blocks in thin text.
+  assert.strictEqual(assess('Internal applicants only.').verdict, 'blocked');
+
+  // Every blocker must be quotable — the UI shows the sentence.
+  for (const description of [
+    `${LONG} Minimum of 10 years of experience is required.`,
+    `${LONG} A current Registered Nurse license is required.`,
+    `${LONG} An active security clearance is required.`
+  ]) {
+    for (const blocker of assess(description).blockers) {
+      assert(blocker.evidence && blocker.evidence.length > 0, `blocker ${blocker.type} must carry evidence`);
+    }
+  }
+
+  // A cached local-model reading supplies job-side facts only; the comparison
+  // stays deterministic. Without a quote it cannot block.
+  const claimed = assess(LONG, { classified_requirements: { min_years: 12 } });
+  assert.strictEqual(claimed.verdict, 'likely');
+}
+
 function testRoleTrack() {
   const { compileProfile, scoreJob, roleTrack, applyJobClassifications, jobContentHash } = RadarScoring;
   const compiled = compileProfile(SCORING_FIXTURE_PROFILE);
@@ -2454,6 +2544,7 @@ async function main() {
   testDegreeGateParsing();
   testVariantScoring();
   testFitEngineRepairs();
+  testEligibility();
   testRoleTrack();
   testFitAudit();
   testReachabilityDemotion();
