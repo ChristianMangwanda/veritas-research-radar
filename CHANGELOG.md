@@ -4,6 +4,64 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Session 2026-08-04 (late) — the reading continues when you stop watching
+
+**The app wears the logo.** `logo.png` is composed into a proper macOS icon by
+`radar/scripts/make-icon.py` — the flat backdrop is dissolved (alpha recovered
+from the blend, so the anti-aliased edge fades to nothing instead of to a grey
+halo) and the artwork re-inset to Apple's ~82% safe area. The `.icns` is
+committed, so installing needs no Pillow and no `sips`/`iconutil` chain —
+which also retires the trap where `icons/icon128.png` is a JPEG wearing a
+`.png` name and silently poisoned every generated iconset.
+
+**Highlights say which question they answer.** Visa language is warm (red when
+restrictive, amber when welcoming) and research/skills stays blue. Both were
+blue before and were indistinguishable mid-paragraph. The legend now names
+which kind of visa language it found. Highlights longer than 200 characters
+are skipped: 202 of 3,671 captured phrases are extraction spill rather than a
+phrase — one runs 14,262 characters, the entire posting — and painting the
+whole description one colour says nothing. Classification still uses them.
+
+**Less arithmetic above the list.** `989 qualified · 12 read so far, still
+reading… +714 set aside (714 blocked) · show` is now `980 jobs · 43 read…`
+and `723 set aside · show`, with the breakdown on the tooltip. The header stat
+already says QUALIFIED and the tab says it again; the line only carries what
+they cannot — the count *after* filtering, and whether the model is still
+working. Reading progress moved to the Status drawer as a gauge.
+
+**Judging no longer stops when you close the tab.** The queue used to hold
+only the ~20-40 postings the screen had asked about. That kept the model busy
+while you watched and ran dry minutes after you looked away — which is why a
+989-posting list had 75 judgments. The page now hands over the whole qualified
+backlog on load (from any tab, in fit order) and polls with an empty body plus
+a cursor to collect what finished, instead of re-uploading megabytes of
+postings to ask "done yet?". Measured with no browser open: **20.0s per
+posting, 180/hour, sustained** — 989 postings is ~5 hours the server does
+without you, cached to disk.
+
+**14b stays the default, and now there is a measurement behind that.**
+Re-judging the same 52 postings the 14b had already read, `qwen2.5:7b-instruct`
+runs 21.4s → 11.5s each but agrees on only 21 of 52, and drops six to "no"
+that the 14b kept — including a Clinical Informatics Analyst at an institute
+for genomic health and a Bioinformatics Data Analyst the 14b called a strong
+match. `RADAR_MATCH_MODEL=qwen2.5:7b-instruct` takes the trade if you want it.
+`RADAR_MATCH_CONCURRENCY` is gone: it was never read, and could not have
+helped — Ollama runs llama-server with `-np 1`, so requests serialize anyway.
+
+Also: HR/legal boilerplate (EEO statements, search-firm notices, pay-band
+blurbs) is cut from the tail of a posting before the model reads it, from the
+half-way mark only so a posting that opens with an equal-opportunity line
+keeps its requirements. Worth ~2% of prompt on this dataset — kept because it
+is free and the model has less to wade through, not because it is fast.
+
+**A bug caught in verification, not in production.** Trimming
+`description_text` to 4,000 characters in the match payload looked like free
+bandwidth. It is not: `jobContentHash` hashes the description, so a truncated
+payload hashes differently and silently invalidated every judgment already
+made for a long posting — cached-and-displayed judgments fell from 52 to 13.
+Payloads go over whole; truncation for the prompt belongs in `jobBrief`, where
+it does not touch cache identity.
+
 ### Session 2026-08-04 (evening) — the model reads the job; the app is an app
 
 The remaining hand-work disappears and matching stops being keyword overlap.

@@ -152,6 +152,48 @@ function candidateBrief(profile, preferencesText) {
 // statements, benefits). Trimming here cuts prefill time on every judgment.
 const DESCRIPTION_LIMIT = 3000;
 
+/* Legal and HR boilerplate the judge never uses. On this dataset it is a
+ * fifth to a quarter of a posting — equal-opportunity statements, search-firm
+ * warnings, accommodation notices, pay-transparency blurbs, the "Personnel
+ * area / FLSA status" footer universities append.
+ *
+ * Cutting it is strictly better than lowering DESCRIPTION_LIMIT, which was the
+ * obvious alternative: a blind truncation can land in the middle of the
+ * requirements and make the model judge on half a posting, whereas everything
+ * below these markers is the same text on every posting from that employer. */
+const BOILERPLATE_MARKERS = [
+  /\bequal (?:opportunity|employment opportunity)\b/i,
+  /\baffirmative action\b/i,
+  /\bno search firms\b/i,
+  /\bdoes not accept unsolicited\b/i,
+  /\breasonable accommodation/i,
+  /\bAmericans with Disabilities Act\b/i,
+  /\bE-Verify\b/i,
+  /\bbackground (?:check|investigation)\b/i,
+  /\bdrug (?:screen|test)/i,
+  /\bexplore our (?:exceptional )?benefits\b/i,
+  /\bpay transparency\b/i,
+  /\bFLSA Status:/i,
+  /\bPersonnel area:/i
+];
+
+// Only cut past the halfway mark: a short posting can open with "we are an
+// equal opportunity employer", and beheading it there would leave nothing to
+// judge on.
+function stripBoilerplate(text) {
+  const floor = Math.floor(text.length * 0.5);
+  let cut = text.length;
+  for (const marker of BOILERPLATE_MARKERS) {
+    const found = text.slice(floor).search(marker);
+    if (found >= 0) cut = Math.min(cut, floor + found);
+  }
+  if (cut >= text.length) return text.trimEnd();
+  // Back up to the start of the sentence the marker sits in, so the cut does
+  // not leave a dangling "The University is an" on the end.
+  const boundary = Math.max(text.lastIndexOf('.', cut), text.lastIndexOf('\n', cut));
+  return text.slice(0, boundary > floor ? boundary + 1 : cut).trimEnd();
+}
+
 function jobBrief(job) {
   const bits = [`POSTING: ${job.title}`, `Employer: ${job.employer_name}`];
   if (job.location) bits.push(`Location: ${job.location}${job.remote ? ' (remote available)' : ''}`);
@@ -160,7 +202,7 @@ function jobBrief(job) {
     bits.push(`Salary: ${range}`);
   }
   if (job.department) bits.push(`Department: ${job.department}`);
-  const description = String(job.description_text || '').slice(0, DESCRIPTION_LIMIT);
+  const description = stripBoilerplate(String(job.description_text || '')).slice(0, DESCRIPTION_LIMIT);
   return `${bits.join('\n')}\n\n${description}`;
 }
 
@@ -217,6 +259,7 @@ module.exports = {
   JUDGMENT_SCHEMA,
   JUDGE_SYSTEM_PROMPT,
   DESCRIPTION_LIMIT,
+  stripBoilerplate,
   deriveVerdict,
   candidateBrief,
   jobBrief,

@@ -2114,6 +2114,21 @@ function testJudgedMatch() {
   // Postings get truncated so prefill time stays bounded.
   const long = jobBrief({ title: 'T', employer_name: 'E', description_text: 'z'.repeat(20000) });
   assert(long.length < DESCRIPTION_LIMIT + 500);
+
+  // Boilerplate is cut from the tail, and only from the tail. The floor
+  // matters: plenty of postings open with an equal-opportunity line, and
+  // cutting there would hand the model an empty posting to judge.
+  const { stripBoilerplate } = require('../radar/scripts/lib/match.js');
+  const requirements = 'Requires Python, SQL and three years of experience building ML pipelines. ';
+  assert.strictEqual(
+    stripBoilerplate(`${requirements}${requirements}The University is an Equal Opportunity Employer and does not discriminate.`),
+    `${requirements}${requirements}`.trimEnd(),
+    'the EEO tail goes'
+  );
+  const frontLoaded = `We are an equal opportunity employer. ${requirements.repeat(3)}`;
+  assert.strictEqual(stripBoilerplate(frontLoaded), frontLoaded.trimEnd(),
+    'a boilerplate opening is kept — the requirements are behind it');
+  assert.strictEqual(stripBoilerplate(''), '');
 }
 
 function testManifestSync() {

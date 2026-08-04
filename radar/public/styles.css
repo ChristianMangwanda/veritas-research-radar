@@ -73,8 +73,13 @@
   --neutral-ink: #7a7a7d;
   --neutral-soft: #f5f5f8;
 
-  --mark-restricted: #ffd2cc;
-  --mark-friendly: #d6ebff;
+  /* Description highlights answer two different questions, so they sit on
+     opposite sides of the wheel: warm = what this posting says about visas,
+     blue = where it overlaps your skills. Both were blue before and the two
+     kinds of highlight were indistinguishable mid-paragraph. The warm pair
+     still separates restrictive language (red) from welcoming (amber). */
+  --mark-restricted: #ffc9c2;
+  --mark-friendly: #ffdfa8;
   --mark-skill: #bdd8f2;
 
   --warn-red: #ff8a80;

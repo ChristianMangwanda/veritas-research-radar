@@ -21,7 +21,8 @@
     "radar:fit-audit": "node radar/scripts/fit-audit.js",
     "test": "node tests/radar.test.js",
     "app": "bash radar/scripts/launch.sh",
-    "app:install": "bash radar/scripts/install-app.sh"
+    "app:install": "bash radar/scripts/install-app.sh",
+    "app:icon": "python3 radar/scripts/make-icon.py"
   },
   "engines": {
     "node": ">=18"

@@ -34,12 +34,19 @@ const MATCH_CACHE_PATH = path.join(DATA_DIR, 'match-cache.json');
 const PORT = Number(process.env.PORT || 4173);
 const HOST = process.env.HOST || '127.0.0.1';
 
-// 14b reads postings noticeably better than 7b and fits comfortably in 24 GB.
+/* 14b stays the default on accuracy, not inertia. Re-judging the same 52
+ * postings the 14b had already read, the 7b runs 21.4s -> 11.5s each but
+ * agrees on only 21 of 52, and six it drops to "no" outright — among them a
+ * Clinical Informatics Analyst at an institute for genomic health, and a
+ * Bioinformatics Data Analyst the 14b called a strong match. Those are the
+ * target roles, not the noise. Speed bought with recall is the one trade this
+ * list cannot make.
+ *
+ * RADAR_MATCH_MODEL=qwen2.5:7b-instruct takes it anyway if you want it. There
+ * is no concurrency setting because there is nothing to configure: Ollama runs
+ * llama-server with -np 1, so requests serialize whatever we do. */
 const MATCH_MODEL = process.env.RADAR_MATCH_MODEL || 'qwen2.5:14b-instruct';
 const OLLAMA_URL = process.env.OLLAMA_HOST || DEFAULT_BASE_URL;
-// Ollama queues past this anyway; 3 keeps the first screenful quick without
-// starving the machine the user is working on.
-const MATCH_CONCURRENCY = Number(process.env.RADAR_MATCH_CONCURRENCY || 3);
 
 // The hosted dashboard may pull the compiled profile from this local server
 // (never the other way around — resumes and profile stay on this machine).
@@ -272,8 +279,31 @@ const judgeQueue = {
   seen: new Set(),    // cache keys already queued or done
   running: false,
   judgedThisRun: 0,
-  lastError: null
+  lastError: null,
+  /* Everything judged this run, in order, so the page can collect results
+   * without re-posting the postings it wants collected. Polling used to mean
+   * shipping back a megabyte of job descriptions every few seconds just to
+   * ask "done yet?", which capped how much the page bothered to ask about. */
+  log: [],
+  seq: 0
 };
+const JUDGE_LOG_LIMIT = 4000;
+
+function recordJudgment(jobId, record) {
+  judgeQueue.seq += 1;
+  judgeQueue.log.push({ seq: judgeQueue.seq, id: jobId, record });
+  if (judgeQueue.log.length > JUDGE_LOG_LIMIT) judgeQueue.log.splice(0, judgeQueue.log.length - JUDGE_LOG_LIMIT);
+}
+
+// Judgments finished after `since`. The client passes back the cursor it last
+// saw, so a poll costs one small JSON body either way.
+function judgmentsSince(since) {
+  const out = {};
+  for (const entry of judgeQueue.log) {
+    if (entry.seq > since) out[entry.id] = entry.record;
+  }
+  return out;
+}
 
 function queueJudgments(jobs, context, priority) {
   let added = 0;
@@ -301,6 +331,7 @@ async function judgeOne(job, key, context) {
   if (!judgment) return null;
   const record = { ...judgment, judged_at: new Date().toISOString(), model: MATCH_MODEL };
   matchCache.entries[key] = record;
+  recordJudgment(job.id, record);
   scheduleMatchCacheFlush();
   return record;
 }
@@ -317,6 +348,11 @@ async function drainJudgeQueue(context) {
         await judgeOne(next.job, next.key, context);
         judgeQueue.judgedThisRun += 1;
         judgeQueue.lastError = null;
+        // The backlog is hours of work; a heartbeat in the log is how you
+        // tell "still reading" from "wedged" without opening the browser.
+        if (judgeQueue.judgedThisRun % 25 === 0) {
+          console.log(`[match] ${judgeQueue.judgedThisRun} judged this run, ${judgeQueue.items.length} to go`);
+        }
       } catch (error) {
         judgeQueue.lastError = error.message;
         console.error(`[match] ${next.job.id}: ${error.message}`);
@@ -443,20 +479,26 @@ async function route(request, response) {
     await loadMatchCache();
     const payload = JSON.parse(await readBody(request) || '{}');
     const jobs = Array.isArray(payload.jobs) ? payload.jobs.slice(0, 200) : [];
+    const since = Number.isFinite(payload.since) ? payload.since : 0;
     const context = await matchContext();
-    if (!context || !jobs.length) {
+    if (!context) {
       send(response, 200, JSON.stringify({
-        judgments: {}, queued: 0, pending: 0, running: false,
-        reason: context ? 'no jobs posted' : 'no resume profile yet'
+        judgments: {}, queued: 0, pending: 0, running: false, cursor: 0,
+        reason: 'no resume profile yet'
       }));
       return;
     }
     const priority = Number.isFinite(payload.priority) ? payload.priority : 0;
-    const judgments = cachedJudgments(jobs, context);
-    const queued = queueJudgments(jobs.filter((job) => !judgments[job.id]), context, priority);
+    // A body with no jobs is a collect-only poll — still answer it with
+    // whatever finished since the client's cursor.
+    const judgments = jobs.length ? cachedJudgments(jobs, context) : {};
+    const queued = jobs.length
+      ? queueJudgments(jobs.filter((job) => !judgments[job.id]), context, priority)
+      : 0;
     drainJudgeQueue(context); // deliberately not awaited
     send(response, 200, JSON.stringify({
-      judgments,
+      judgments: { ...judgmentsSince(since), ...judgments },
+      cursor: judgeQueue.seq,
       queued,
       pending: judgeQueue.items.length,
       running: judgeQueue.running,

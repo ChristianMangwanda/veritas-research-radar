@@ -33,22 +33,16 @@ mkdir -p "$(dirname "${APP_DIR}")"
 # unregistering nor re-signing recovered it.
 osacompile -o "${APP_DIR}" -e "do shell script \"'${LAUNCHER}' || true\""
 
-# Reuse the extension's icon. Two gotchas, both silent: iconutil rejects an
-# iconset that lacks the @2x variants, and icons/icon128.png is actually a
-# JPEG — sips preserves the source format, so the output must be forced to
-# PNG or iconutil refuses the lot.
-if [[ -f "${REPO_DIR}/icons/icon128.png" ]] && command -v sips >/dev/null && command -v iconutil >/dev/null; then
-  WORK="$(mktemp -d)/icon.iconset"
-  mkdir -p "${WORK}"
-  for size in 16 32 128 256 512; do
-    sips -s format png -z "${size}" "${size}" "${REPO_DIR}/icons/icon128.png" \
-      --out "${WORK}/icon_${size}x${size}.png" >/dev/null 2>&1 || true
-    sips -s format png -z "$((size * 2))" "$((size * 2))" "${REPO_DIR}/icons/icon128.png" \
-      --out "${WORK}/icon_${size}x${size}@2x.png" >/dev/null 2>&1 || true
-  done
-  # osacompile bundles name their icon applet.icns — overwrite that one.
-  iconutil -c icns "${WORK}" -o "${APP_DIR}/Contents/Resources/applet.icns" >/dev/null 2>&1 \
-    || echo "(icon generation skipped — the app still works, it just wears the default icon)"
+# The icon is built ahead of time by radar/scripts/make-icon.py and committed,
+# so installing needs no Python, no Pillow, and no sips/iconutil conversion
+# chain — the step that used to silently produce an unusable iconset because
+# icons/icon128.png is a JPEG wearing a .png name. Change logo.png, re-run
+# make-icon.py, then re-run this script.
+# osacompile bundles name their icon applet.icns — overwrite that one.
+if [[ -f "${REPO_DIR}/icons/veritas-radar.icns" ]]; then
+  cp "${REPO_DIR}/icons/veritas-radar.icns" "${APP_DIR}/Contents/Resources/applet.icns"
+else
+  echo "(no icons/veritas-radar.icns — run 'python3 radar/scripts/make-icon.py'; the app still works, it just wears the default icon)"
 fi
 
 # RE-SIGN LAST. osacompile signs the bundle on the way out, and every edit

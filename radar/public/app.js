@@ -228,7 +228,9 @@ async function loadJobs() {
       let nextPage = 0;
       let failedPages = 0;
       const fetchPage = async (page) => {
-        const query = `/jobs?select=payload&order=id&limit=${pageSize}&offset=${page * pageSize}`;
+        // description_text lives in its own column and is no longer duplicated
+        // inside payload, so it has to be selected and rejoined below.
+        const query = `/jobs?select=payload,description_text&order=id&limit=${pageSize}&offset=${page * pageSize}`;
         try {
           return await supabaseGet(query);
         } catch {
@@ -249,7 +251,14 @@ async function loadJobs() {
           }
         }
       }));
-      const jobs = pages.flat().map((row) => row.payload);
+      // Rows written before the payload slimming still carry the description
+      // inside payload, so prefer the column and fall back to it.
+      const jobs = pages.flat()
+        .filter((row) => row && row.payload)
+        .map((row) => ({
+          ...row.payload,
+          description_text: row.description_text ?? row.payload.description_text ?? null
+        }));
       if (jobs.length) {
         if (failedPages) {
           // The banner renderer uses the structured fields; the message string
@@ -824,25 +833,39 @@ function matchRank(job) {
   return verdict ? MATCH_RANK[verdict] : UNJUDGED_RANK;
 }
 
-// One flight at a time; the server queues internally, so piling on requests
-// only wastes round trips.
-let matchInFlight = false;
+/* Requests go out one at a time — the server judges serially, so parallel
+ * posts only waste round trips — but they QUEUE rather than get dropped. The
+ * earlier version bailed out whenever a request was already in flight, and a
+ * dropped poll took the whole poll chain with it: the backlog then sat still
+ * until some unrelated re-render happened to restart it. */
+let matchChain = Promise.resolve();
 let matchPollTimer = null;
+let backlogSent = false;
+let matchCursor = 0; // last judgment sequence number this page has collected
 const matchRequested = new Set();
 
-async function requestMatches(jobs, priority) {
-  if (!jobs.length || matchInFlight) return;
-  matchInFlight = true;
+function serializeMatch(task) {
+  const next = matchChain.then(task, task);
+  matchChain = next.catch(() => {});
+  return next;
+}
+
+function requestMatches(jobs, priority) {
+  return serializeMatch(() => postMatch(jobs, priority));
+}
+
+async function postMatch(jobs, priority) {
   try {
     const response = await fetch('/api/match', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ priority, jobs: jobs.map(matchPayload) })
+      body: JSON.stringify({ priority, since: matchCursor, jobs: jobs.map(matchPayload) })
     });
     if (!response.ok) throw new Error(String(response.status));
     const result = await response.json();
     state.matchAvailable = true;
     state.matchPending = result.pending || 0;
+    if (Number.isFinite(result.cursor)) matchCursor = result.cursor;
     let fresh = 0;
     for (const [id, judgment] of Object.entries(result.judgments || {})) {
       if (!state.matches[id]) fresh += 1;
@@ -854,8 +877,6 @@ async function requestMatches(jobs, priority) {
     scheduleMatchPoll(result);
   } catch {
     state.matchAvailable = false; // hosted dashboard, or the server went away
-  } finally {
-    matchInFlight = false;
   }
 }
 
@@ -871,6 +892,12 @@ function matchPayload(job) {
     remote: job.remote,
     salary_min: job.salary_min,
     salary_max: job.salary_max,
+    // Send the description WHOLE. Trimming it here to save bandwidth looks
+    // free and is not: the match cache is keyed on jobContentHash, which
+    // hashes description_text, so a truncated payload hashes differently and
+    // silently invalidates every judgment already made for a long posting.
+    // Truncation for the prompt belongs in jobBrief, where it does not touch
+    // identity. (Measured cost of sending them whole: ~4 MB once per load.)
     description_text: job.description_text
   };
 }
@@ -878,11 +905,39 @@ function matchPayload(job) {
 function scheduleMatchPoll(result) {
   clearTimeout(matchPollTimer);
   if (!result || (!result.pending && !result.running)) return;
-  // A judgment takes ~19s; poll a little faster so results feel live.
-  matchPollTimer = setTimeout(() => {
-    const waiting = state.visible.filter((job) => !state.matches[job.id]).slice(0, 20);
-    if (waiting.length) requestMatches(waiting, 0);
-  }, 8000);
+  // Collect-only: the whole backlog is already queued server-side, and the
+  // cursor brings back everything finished since the last poll, so this posts
+  // an empty body rather than re-uploading postings to ask about them.
+  matchPollTimer = setTimeout(() => requestMatches([], 2), 6000);
+}
+
+/* Hand the server the whole qualified backlog, once, in fit order.
+ *
+ * The queue used to hold only the ~20-40 postings this page had asked about.
+ * That kept the model busy while you were watching, but it ran dry a few
+ * minutes after you closed the tab — so the reading only ever happened at the
+ * speed you were looking, and a 989-posting list stayed 92% unread. Handing
+ * over everything lets the server keep going on its own; judgments are cached
+ * to disk, so the reading you slept through is there in the morning. */
+const BACKLOG_CHUNK = 150;
+
+function sendBacklog() {
+  if (backlogSent || !state.compiled || !state.jobs.length) return;
+  backlogSent = true;
+  // Built from the full dataset rather than the current view: a search box
+  // with something in it must not decide how much of the backlog gets read.
+  const backlog = state.jobs
+    .filter((job) => RadarScoring.isQualified(job) && !state.matches[job.id])
+    .sort((a, b) => (b.fit?.fit_score || 0) - (a.fit?.fit_score || 0));
+  if (!backlog.length) return;
+  serializeMatch(async () => {
+    for (let i = 0; i < backlog.length; i += BACKLOG_CHUNK) {
+      await postMatch(backlog.slice(i, i + BACKLOG_CHUNK), 2);
+      // The hosted dashboard has no model behind it. Stop at the first
+      // refusal rather than firing the remaining chunks into the void.
+      if (!state.matchAvailable) return;
+    }
+  });
 }
 
 // What's on screen gets judged first; the next screenful is queued behind it
@@ -1063,6 +1118,7 @@ function renderBlockedNote() {
       || state.matches[job.id]?.verdict === 'no').length;
     DOM.blockedNote.hidden = shown === 0;
     DOM.blockedNote.textContent = `Showing ${shown.toLocaleString()} set aside · hide`;
+    DOM.blockedNote.title = '';
     return;
   }
   // Count what only THIS rule removes, so the number matches what the toggle
@@ -1088,10 +1144,14 @@ function renderBlockedNote() {
     DOM.blockedNote.textContent = `${hidden.toLocaleString()} blocked hidden · show`;
     return;
   }
+  // The breakdown moves to the tooltip. Spelled out inline it read
+  // "+714 set aside (714 blocked) · show" — a number, then the same number
+  // again — on the busiest row of the page.
   const parts = [];
-  if (hidden) parts.push(`${hidden.toLocaleString()} blocked`);
-  if (setAside) parts.push(`${setAside.toLocaleString()} not your line of work`);
-  DOM.blockedNote.textContent = `+${total.toLocaleString()} set aside (${parts.join(', ')}) · show`;
+  if (hidden) parts.push(`${hidden.toLocaleString()} with a quoted barrier`);
+  if (setAside) parts.push(`${setAside.toLocaleString()} the model reads as a different line of work`);
+  DOM.blockedNote.textContent = `${total.toLocaleString()} set aside · show`;
+  DOM.blockedNote.title = parts.join(' · ');
 }
 
 function filteredJobs() {
@@ -1358,6 +1418,9 @@ function renderStats() {
     ? state.jobs.filter((job) => RadarScoring.isQualified(job)).length.toLocaleString()
     : '–';
   renderHealthDot();
+  // Reading the backlog is not the Qualified tab's private business — start it
+  // from any tab, on the first render that has a profile and some jobs.
+  sendBacklog();
 }
 
 // One dot summarizes system health: red when a feed errored, a recall alarm
@@ -1451,19 +1514,17 @@ function render() {
   pumpMatches();
 }
 
-// Says what the list IS, and — while the model is still reading — that more
-// is coming, so a half-judged list never looks like the finished answer.
+// Deliberately terse. The header stat above already says QUALIFIED and the tab
+// says it a third time, so this line only carries what they cannot: the count
+// after filtering, and whether the model is still working through the list.
 function qualifiedCountLine(jobs) {
   // Without a profile the list is a prompt, not a result — "0 qualified"
   // would read as an answer.
   if (!state.compiled) return '';
+  const total = `${jobs.length.toLocaleString()} job${jobs.length === 1 ? '' : 's'}`;
+  if (!state.matchAvailable) return total;
   const judged = jobs.filter((job) => state.matches[job.id]).length;
-  const total = jobs.length.toLocaleString();
-  if (!state.matchAvailable) return `${total} qualified · ranked by fit`;
-  if (judged < jobs.length) {
-    return `${total} qualified · ${judged} read so far, still reading…`;
-  }
-  return `${total} qualified · all read`;
+  return judged < jobs.length ? `${total} · ${judged.toLocaleString()} read…` : total;
 }
 
 // The Qualified first-run prompt. The import flow persists profile.json into
@@ -1594,6 +1655,7 @@ function renderStatusPanel() {
   head.append(el('span', 'instrument-head-label', 'Next pull'), gauge,
     el('span', 'instrument-eta', formatEta(nextAt - Date.now())), pullNow);
   DOM.statusRefresh.append(head);
+  renderJudgeProgress();
 
   DOM.statusInstruments.replaceChildren();
   const tiles = el('div', 'instrument-tiles');
@@ -1634,6 +1696,31 @@ function renderStatusPanel() {
     tiles.append(tile);
   }
   DOM.statusInstruments.append(tiles);
+}
+
+/* How far the model has got through the qualified list. This belongs in the
+ * status drawer and not above the list: reading 989 postings is hours of
+ * background work, so it wants a place you can check, not a number that sits
+ * in front of you counting. Absent entirely on the hosted dashboard, which
+ * has no model behind it. */
+function renderJudgeProgress() {
+  if (!state.matchAvailable || !state.compiled) return;
+  const qualified = state.jobs.filter((job) => RadarScoring.isQualified(job));
+  const read = qualified.filter((job) => state.matches[job.id]).length;
+  const row = el('div', 'instrument-head');
+  const bar = el('span', 'pull-gauge');
+  const fill = el('i');
+  fill.style.width = `${qualified.length ? Math.round((read / qualified.length) * 100) : 0}%`;
+  bar.append(fill);
+  row.append(
+    el('span', 'instrument-head-label', 'Postings read'),
+    bar,
+    el('span', 'instrument-eta', `${read.toLocaleString()} / ${qualified.length.toLocaleString()}`)
+  );
+  row.title = state.matchPending
+    ? `${state.matchPending.toLocaleString()} still queued — the model keeps reading while this app is open`
+    : 'Nothing queued';
+  DOM.statusRefresh.append(row);
 }
 
 // Triage backup: localStorage is the only durable store on the hosted
@@ -2437,6 +2524,9 @@ function escapeRegExp(text) {
 
 // Highlight matched phrases inside the escaped description. Visa phrases wear
 // the posting's overall state color; research/skill phrases wear the accent.
+// A visa clause is a sentence at most. Anything longer is a capture bug.
+const HIGHLIGHT_PHRASE_LIMIT = 200;
+
 function highlightDescription(job) {
   const source = job.description_text || '';
   if (!source) return '<p class="fit-skills">No description text captured. Open the posting to read it at the source.</p>';
@@ -2453,6 +2543,11 @@ function highlightDescription(job) {
     for (const phrase of phrases) {
       const key = phrase.toLowerCase();
       if (!phrase || seen.has(key)) continue;
+      // 202 of 3,671 captured phrases are extraction spill rather than a
+      // phrase — one runs 14,262 characters, the whole posting. Highlighting
+      // those paints the entire description one colour and says nothing.
+      // Classification still uses them; only the highlight is skipped.
+      if (phrase.length > HIGHLIGHT_PHRASE_LIMIT) continue;
       seen.add(key);
       // Match against the escaped text so entities never split a phrase match
       const pattern = new RegExp(`(?![^<]*>)(${escapeRegExp(escapeHtml(phrase))})`, 'gi');
@@ -2464,8 +2559,12 @@ function highlightDescription(job) {
 
 function renderDetailDescription(job) {
   const legend = el('div', 'legend-row');
+  // Warm swatch = visa language, blue = skills. Naming which kind of visa
+  // language it is earns the two warm shades their difference.
   const entries = [
-    [job.veritas_state === 'RESTRICTED' ? 'var(--mark-restricted)' : 'var(--mark-friendly)', 'visa language'],
+    job.veritas_state === 'RESTRICTED'
+      ? ['var(--mark-restricted)', 'restrictive visa language']
+      : ['var(--mark-friendly)', 'visa-friendly language'],
     ['var(--mark-skill)', 'research / skills']
   ];
   for (const [color, label] of entries) {

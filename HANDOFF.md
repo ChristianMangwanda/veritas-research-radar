@@ -116,11 +116,26 @@ resume variants and tells you which one to send.
      model itself described as "Not a match" — constrained decoding fills
      fields in declaration order, so the label was written before any
      reasoning existed. **Do not reorder JUDGMENT_SCHEMA's properties.**
-   - One judgment is ~19s (14b at ~11 tok/s; the Ollama app runs
-     llama-server with `-np 1`, so requests serialize however many you
-     fire). `/api/match` therefore answers instantly from cache and drains
-     the rest through a priority queue — what is on screen jumps the
-     backlog. The count line says how many have been read.
+   - One judgment is ~21s (measured over 52 postings; 14b at ~8 tok/s on an
+     M4, and the Ollama app runs llama-server with `-np 1`, so requests
+     serialize however many you fire — there is no concurrency knob because
+     there is nothing to turn). `/api/match` answers instantly from cache
+     and drains the rest through a priority queue: what is on screen jumps
+     the backlog.
+   - **The page hands over the whole qualified backlog on load**, then polls
+     with an empty body and a cursor to collect whatever finished. The queue
+     used to hold only the ~20-40 postings the screen had asked about, which
+     was enough to keep the model busy *while you watched* but ran dry within
+     minutes of closing the tab. Now the server keeps reading for as long as
+     it is up — the point of the launcher app — and 989 postings is ~6 hours
+     of work it can do without you. Progress is in the Status drawer
+     ("Postings read"), not above the list.
+   - `RADAR_MATCH_MODEL=qwen2.5:7b-instruct` is 1.9x faster (11.5s vs 21.4s
+     per posting) and is **not** the default: re-judging 52 postings the 14b
+     had already read, it agreed on 21 and dropped six to "no" that the 14b
+     kept — including a Clinical Informatics Analyst at an institute for
+     genomic health and a Bioinformatics Data Analyst the 14b called strong.
+     Speed paid for in recall is the wrong trade for this list.
    - Cache key = posting content + profile hash + preferences hash, so any
      of the three changing re-judges.
    - Jobs judged "not your line of work" are set aside like blocked ones:

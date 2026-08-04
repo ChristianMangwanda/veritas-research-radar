@@ -159,7 +159,8 @@ See [CHANGELOG.md](CHANGELOG.md) for full version history.
 ```
 veritas/
 ├── manifest.json          # Extension config
-├── icons/                 # Extension icons (16, 48, 128px)
+├── logo.png               # Source logo — edit, then run radar/scripts/make-icon.py
+├── icons/                 # Extension icons (16, 48, 128px) + the app icon/.icns
 ├── scripts/
 │   ├── background.js      # Service worker
 │   ├── content.js         # Main content script
