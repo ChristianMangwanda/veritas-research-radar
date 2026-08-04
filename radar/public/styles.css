@@ -754,6 +754,25 @@ input[type="range"] {
 
 .list-head #count { white-space: nowrap; }
 
+/* Says what the default view is holding back, and reveals it. Quiet, but
+   never absent while anything is hidden. */
+.blocked-note {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.blocked-note:hover { color: var(--ink); }
+
 .kbd-hint {
   color: var(--faint);
   font-size: 11.5px;
@@ -1195,6 +1214,7 @@ body.pipeline-mode .jobs-header { display: none; }
 .flag-accent { color: var(--accent-ink); }
 .flag-status { color: var(--accent-ink); }
 .flag-red { color: var(--restricted-ink); }
+.flag-muted { color: var(--faint); }
 
 .row-title {
   font-weight: 650;
@@ -1527,6 +1547,12 @@ body.pipeline-mode .jobs-header { display: none; }
   font-size: 11px;
   font-weight: 450;
   color: var(--faint);
+}
+
+/* A barrier that hides a job has to be legible, not a footnote. */
+.signal-note.is-warn {
+  color: var(--restricted-ink);
+  font-weight: 500;
 }
 
 .fit-block {

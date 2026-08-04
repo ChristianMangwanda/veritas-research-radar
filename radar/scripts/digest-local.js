@@ -85,7 +85,11 @@ async function buildDigest({ hours, minVerdict }) {
 
   const fits = jobs.filter((job) => {
     if (job.status === 'closed') return false;
-    if (job.citizenship_gated) return false; // can't act on it; dashboard still shows it (demote-never-hide)
+    // A push notification is a call to act, so anything with a quoted
+    // barrier stays out of it. The dashboard still lists them behind the
+    // blocked toggle — demote-never-hide applies there, not here.
+    if (job.citizenship_gated) return false;
+    if (job.fit?.eligibility?.verdict === 'blocked') return false;
     if (!Number.isFinite(Date.parse(job.first_seen_at || ''))) return false;
     if (Date.parse(job.first_seen_at) < cutoff) return false;
     const rank = RadarScoring.verdictRank(job.fit?.verdict);

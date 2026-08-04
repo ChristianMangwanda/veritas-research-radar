@@ -56,6 +56,8 @@ const DOM = {
   statActive: document.querySelector('#stat-active'),
   statNew: document.querySelector('#stat-new'),
   statFriendly: document.querySelector('#stat-friendly'),
+  statTrack: document.querySelector('#stat-track'),
+  statClear: document.querySelector('#stat-clear'),
   statEmployers: document.querySelector('#stat-employers'),
   errorsToggle: document.querySelector('#errors-toggle'),
   errorsPanel: document.querySelector('#errors-panel'),
@@ -97,6 +99,7 @@ const DOM = {
   undoBtn: document.querySelector('#undo-btn'),
   feedsNote: document.querySelector('#feeds-note'),
   todayChip: document.querySelector('#today-chip'),
+  blockedNote: document.querySelector('#blocked-note'),
   viewSeg: document.querySelector('#view-seg'),
   pipelineStats: document.querySelector('#pipeline-stats'),
   pipelineEmpty: document.querySelector('#pipeline-empty'),
@@ -144,6 +147,8 @@ let showAllRows = false;
 
 let visaFilter = '';
 let typeFilter = '';
+// The radar opens on what you can apply to; blocked jobs are one click away.
+let showBlocked = false;
 let verdictFilter = '';
 
 // 'radar' = the discovery list; 'pipeline' = jobs you've applied to /
@@ -691,6 +696,17 @@ function filterPredicates() {
       const status = triageFor(job);
       return PROTECTED_TRIAGE.has(status) || RadarPipeline.PIPELINE_SET.has(status);
     },
+    // The default view is "jobs you could actually apply to". Blocked jobs are
+    // hidden, never deleted: the counter beside the list says how many and
+    // reveals them with their evidence. Anything already acted on stays put —
+    // the pipeline is sacred. Citizenship keeps its own control, so gated jobs
+    // are excluded here to avoid two switches fighting over the same rows.
+    eligibility: (job) => {
+      if (showBlocked || job.fit?.eligibility?.verdict !== 'blocked') return true;
+      if (job.citizenship_gated) return true;
+      const status = triageFor(job);
+      return PROTECTED_TRIAGE.has(status) || RadarPipeline.PIPELINE_SET.has(status);
+    },
     federal: (job) => !job.citizenship_gated || DOM.includeFederal.checked,
     closed: (job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)),
     newOnly: (job) => !DOM.newOnly.checked || isNewSinceLastVisit(job),
@@ -714,6 +730,31 @@ function filterPredicates() {
       return Number.isFinite(seen) && seen >= recencyFloor;
     }
   };
+}
+
+// Hiding jobs silently would be the same mistake as not finding them. The
+// counter says exactly how many the eligibility rule is holding back, and one
+// click shows them with the sentence that blocked each one.
+function renderBlockedNote() {
+  if (!state.compiled) {
+    DOM.blockedNote.hidden = true;
+    return;
+  }
+  if (showBlocked) {
+    const shown = state.visible.filter((job) => job.fit?.eligibility?.verdict === 'blocked').length;
+    DOM.blockedNote.hidden = shown === 0;
+    DOM.blockedNote.textContent = `Showing ${shown.toLocaleString()} blocked · hide`;
+    return;
+  }
+  // Count what only THIS rule removes, so the number matches what the toggle
+  // would reveal rather than everything every filter dropped.
+  const predicates = filterPredicates();
+  const others = Object.entries(predicates).filter(([key]) => key !== 'eligibility').map(([, fn]) => fn);
+  const hidden = state.jobs.filter((job) => job.fit?.eligibility?.verdict === 'blocked'
+    && !predicates.eligibility(job)
+    && others.every((predicate) => predicate(job))).length;
+  DOM.blockedNote.hidden = hidden === 0;
+  DOM.blockedNote.textContent = `${hidden.toLocaleString()} blocked hidden · show`;
 }
 
 function filteredJobs() {
@@ -775,6 +816,9 @@ function activeFilterCount() {
   if (DOM.minResearch.value !== '0') count += 1;
   if (verdictFilter) count += 1;
   if (DOM.recency.value) count += 1;
+  // Showing blocked jobs is a departure from the default view, so it counts
+  // as an active filter and gets a removable chip.
+  if (showBlocked) count += 1;
   return count;
 }
 
@@ -794,6 +838,8 @@ function clearAllFilters() {
   setCapValue('', { skipRender: true });
   setVerdictFilter('', { skipRender: true });
   setVisaFilter('', { skipRender: true });
+  // Reset returns to the default view, which hides blocked jobs.
+  showBlocked = false;
 }
 
 function resetFilters() {
@@ -839,6 +885,7 @@ function buildParams() {
   if (DOM.minResearch.value !== '0') params.set('minResearch', DOM.minResearch.value);
   if (verdictFilter) params.set('minVerdict', verdictFilter);
   if (DOM.recency.value) params.set('recency', DOM.recency.value);
+  if (showBlocked) params.set('blocked', '1');
   if (viewMode !== 'radar') params.set('view', viewMode);
   return params;
 }
@@ -857,6 +904,7 @@ function hydrateFromUrl(paramsOverride) {
   DOM.remoteOnly.checked = params.get('remote') === '1';
   DOM.includeClosed.checked = params.get('includeClosed') === '1';
   DOM.includeFederal.checked = params.get('federal') === '1';
+  showBlocked = params.get('blocked') === '1';
   if (params.has('visa')) setVisaFilter(params.get('visa'), { skipRender: true });
   if (params.has('type')) setTypeFilter(params.get('type'), { skipRender: true });
   if (params.has('cap')) setCapValue(params.get('cap'), { skipRender: true });
@@ -1097,6 +1145,13 @@ function renderStats() {
   DOM.statFriendly.textContent = active.filter((job) => job.veritas_state === 'FRIENDLY').length.toLocaleString();
   DOM.statEmployers.textContent = new Set(active.map((job) => job.employer_id)).size.toLocaleString();
   DOM.statDiscovered.textContent = (state.discovery?.candidates?.length || 0).toLocaleString();
+  // The funnel in two numbers: of everything active, how much is your line of
+  // work, and of that, how much has no barrier in the posting. Both read '–'
+  // without a profile, since neither question is answerable without one.
+  const inTrack = active.filter((job) => ['reachable', 'adjacent'].includes(job.fit?.track?.status));
+  const clear = inTrack.filter((job) => job.fit?.eligibility?.verdict !== 'blocked');
+  DOM.statTrack.textContent = state.compiled ? inTrack.length.toLocaleString() : '–';
+  DOM.statClear.textContent = state.compiled ? clear.length.toLocaleString() : '–';
 }
 
 function render() {
@@ -1139,6 +1194,7 @@ function render() {
   state.visible = jobs;
   DOM.count.textContent =
     `${jobs.length.toLocaleString()} job${jobs.length === 1 ? '' : 's'} · sorted by ${SORT_LABELS[DOM.sort.value] || 'fit'}`;
+  renderBlockedNote();
   // A hard load failure (zero rows loaded) is not "no filter matches" — show
   // the error banner instead of the empty-state hint. A *partial* load still
   // has rows, so filtering down to zero should show the normal hint with the
@@ -1362,6 +1418,7 @@ function renderActiveFilterChips() {
   if (DOM.remoteOnly.checked) add('Remote only', () => { DOM.remoteOnly.checked = false; });
   if (DOM.includeClosed.checked) add('Incl. closed', () => { DOM.includeClosed.checked = false; });
   if (DOM.includeFederal.checked) add('Incl. citizen-only', () => { DOM.includeFederal.checked = false; });
+  if (showBlocked) add('Showing blocked', () => { showBlocked = false; });
 
   for (const chip of chips) {
     const button = el('button', 'filter-chip', `${chip.label} ×`);
@@ -1564,6 +1621,23 @@ function visaEvidenceLine(job) {
   return CAP_LABELS[job.cap_exempt_status] || '';
 }
 
+const BLOCKER_LABELS = {
+  citizenship: 'citizens only',
+  degree: 'degree',
+  experience: 'experience',
+  license: 'licence',
+  clearance: 'clearance',
+  student_only: 'students only',
+  internal_only: 'internal only'
+};
+
+const TRACK_LABELS = {
+  reachable: 'in your track',
+  adjacent: 'adjacent to your track',
+  unknown: 'unclassified role',
+  none: 'outside your tracks'
+};
+
 // "+7 over ML/comp-bio" — how decisively the RECOMMENDED variant beats the
 // best other one. When a local-LLM verdict picked a variant the deterministic
 // scores didn't rank first, a "+N over" line would contradict itself; say who
@@ -1589,6 +1663,13 @@ function buildRow(job) {
   const addFlag = (text, kind = '') => flags.append(el('span', `flag ${kind}`, text));
   if (isNewSinceLastVisit(job)) addFlag('NEW', 'flag-accent');
   if (status !== 'new') addFlag(TRIAGE_LABELS[status], 'flag-status');
+  const eligibility = job.fit?.eligibility;
+  if (eligibility?.verdict === 'blocked') {
+    addFlag(`BLOCKED — ${BLOCKER_LABELS[eligibility.blockers[0]?.type] || 'requirement'}`, 'flag-red');
+  } else if (eligibility?.insufficient_text) {
+    // Distinct from a clean read: the posting was too thin to judge.
+    addFlag('thin text', 'flag-muted');
+  }
   const age = followupAgeDays(job);
   if (age !== null && age >= FOLLOWUP_STALE_DAYS) addFlag(`${age}d no update`, 'flag-red');
   if (isClosed(job)) {
@@ -2201,8 +2282,33 @@ function renderDetailWhy(job) {
   }
   DOM.detailFit.append(variantList);
 
-  // Gates + bonuses — the honest "why is this ranked here" ledger
+  // Eligibility first: whether the application can be considered at all
+  // outranks how well it scores. Every barrier shows the sentence it came
+  // from, so a wrong call is visible rather than mysterious.
   const ledger = el('div', 'why-ledger');
+  const eligibility = fit.eligibility;
+  if (eligibility) {
+    const verdictText = eligibility.verdict === 'blocked' ? 'blocked'
+      : eligibility.verdict === 'likely' ? 'likely eligible'
+        : 'clear to apply';
+    const line = whyLine('Eligibility', document.createTextNode(verdictText));
+    const value = line.querySelector('.why-value');
+    for (const entry of [...eligibility.blockers, ...eligibility.cautions]) {
+      const label = BLOCKER_LABELS[entry.type] || entry.type;
+      const isBlocker = eligibility.blockers.includes(entry);
+      value.append(el('span', `signal-note${isBlocker ? ' is-warn' : ''}`,
+        `${isBlocker ? '⚠' : '·'} ${label}${entry.detail ? ` (${entry.detail})` : ''}${entry.evidence ? `: “${entry.evidence}”` : ''}`));
+    }
+    if (eligibility.insufficient_text) {
+      value.append(el('span', 'signal-note', '· posting text too short to judge — read it before ruling it out'));
+    }
+    ledger.append(line);
+  }
+  if (fit.track) {
+    const via = fit.track.via.map((id) => fit.variants.find((variant) => variant.id === id)?.label || id);
+    ledger.append(whyLine('Role track', document.createTextNode(
+      `${TRACK_LABELS[fit.track.status] || fit.track.status}${via.length ? ` — via ${via.join(', ')}` : ''}`)));
+  }
   const degree = fit.gate?.degree;
   if (degree?.required) {
     const status = degree.met ? 'met'
@@ -2730,6 +2836,11 @@ function bindEvents() {
   DOM.markSeen.addEventListener('click', markAllSeen);
   DOM.undoBtn.addEventListener('click', undoLast);
   DOM.todayChip.addEventListener('click', applyTodayPreset);
+  DOM.blockedNote.addEventListener('click', () => {
+    showBlocked = !showBlocked;
+    showAllRows = false;
+    render();
+  });
 
   DOM.viewSeg.addEventListener('click', (event) => {
     const button = event.target.closest('button[data-value]');

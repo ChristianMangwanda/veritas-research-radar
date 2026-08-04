@@ -19,6 +19,8 @@
       <div class="stat-strip" role="group" aria-label="Dataset overview">
         <div class="stat"><span class="stat-value" id="stat-active">–</span><span class="stat-label">active jobs</span></div>
         <div class="stat"><span class="stat-value stat-accent" id="stat-new">–</span><span class="stat-label">new for you</span></div>
+        <div class="stat"><span class="stat-value" id="stat-track">–</span><span class="stat-label">in your tracks</span></div>
+        <div class="stat"><span class="stat-value stat-accent" id="stat-clear">–</span><span class="stat-label">clear to apply</span></div>
         <div class="stat"><span class="stat-value" id="stat-friendly">–</span><span class="stat-label">visa friendly</span></div>
         <div class="stat"><span class="stat-value" id="stat-employers">–</span><span class="stat-label">employers</span></div>
         <div class="stat"><span class="stat-value" id="stat-discovered">–</span><span class="stat-label">discovered</span></div>
@@ -266,6 +268,7 @@
             <button type="button" data-value="routing">Routing</button>
           </div>
           <strong id="count">0 jobs</strong>
+          <button id="blocked-note" class="blocked-note" type="button" hidden title="Jobs whose posting states a requirement you don't meet — shown with the sentence that blocked each one"></button>
           <button id="today-chip" class="chip today-chip" type="button" title="Fresh good-or-better fits — the same cut the daily digest pushes">☀ Today</button>
           <label class="sort-inline">
             <span class="sort-inline-label">Sort</span>
