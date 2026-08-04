@@ -100,13 +100,13 @@ async function probeWorkday(tenant, dc, siteHint, expectedName) {
   return best;
 }
 
-async function fetchTextWithTimeout(url) {
+async function fetchTextWithTimeout(url, headers = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
   try {
     const response = await fetch(url, {
       signal: controller.signal,
-      headers: { 'user-agent': 'veritas-research-radar ats probe' }
+      headers: { 'user-agent': 'veritas-research-radar ats probe', ...headers }
     });
     if (!response.ok) return null;
     return await response.text();
@@ -309,6 +309,31 @@ async function probeInterfolio(tenantId, expectedName) {
   return { tenant_id: Number(tenantId), total_jobs: Number(response.total_count || 0) };
 }
 
+// GovernmentJobs/NeoGov (schooljobs.com for education tenants) — the plain
+// page load carries a "Career Opportunities at {Institution}" <title>, a
+// clean identity check; a second request with the XHR header the real app
+// sends returns the job-table fragment for a real count (found by
+// network-capturing the real request tonight — same URL, different content
+// depending on that header).
+async function probeGovernmentJobs(agency, expectedName) {
+  const html = await fetchTextWithTimeout(`https://www.governmentjobs.com/careers/${encodeURIComponent(agency)}`);
+  await sleep(PROBE_DELAY_MS);
+  if (!html) return null;
+  const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/);
+  const feedTitle = (titleMatch?.[1] || '').replace(/\s*\|.*$/, '').replace(/^Career Opportunities at\s*/i, '').trim();
+  if (!feedTitle) return null;
+  if (!namesOverlap(feedTitle, expectedName)) {
+    return { mismatch: true, feed_title: feedTitle };
+  }
+  const listHtml = await fetchTextWithTimeout(
+    `https://www.schooljobs.com/careers/home/index?agency=${encodeURIComponent(agency)}&sort=PostingDate&isDescendingSort=true`,
+    { accept: 'text/html, */*', 'x-requested-with': 'XMLHttpRequest' }
+  );
+  await sleep(PROBE_DELAY_MS);
+  const total = (listHtml?.match(/data-job-id="\d+"/g) || []).length;
+  return { agency, host: 'www.schooljobs.com', total_jobs: total };
+}
+
 function employerType(record) {
   // ipeds unitid => higher ed; otherwise research nonprofit
   return record.kind === 'ipeds' || record.kind === 'both' || record.unitid
@@ -326,7 +351,7 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
   // Also flatMap secondary_ats_feeds, or an already-approved secondary feed
   // (or the same tenant under a different employer) could be re-proposed.
   const allConfigs = (e) => [e.ats_config, ...(e.secondary_ats_feeds || []).map((f) => f.ats_config)];
-  const existingTenants = new Set(employers.flatMap((e) => allConfigs(e).flatMap((c) => [c?.tenant, c?.host])).filter(Boolean));
+  const existingTenants = new Set(employers.flatMap((e) => allConfigs(e).flatMap((c) => [c?.tenant, c?.host, c?.agency])).filter(Boolean));
   const existingGuids = new Set(employers.flatMap((e) => allConfigs(e).map((c) => c?.client_guid)).filter(Boolean));
   const existingInterfolioTenants = new Set(employers.flatMap((e) => allConfigs(e).map((c) => c?.tenant_id)).filter(Boolean).map(String));
   // Owner-declined tenants stay declined across probe reruns
@@ -411,14 +436,19 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     if (interfolioHit && !existingInterfolioTenants.has(interfolioHit.tenant)) {
       await consider('interfolio', interfolioHit.tenant, () => probeInterfolio(interfolioHit.tenant, record.name));
     }
+    const governmentJobsHit = hits.find((a) => a.provider === 'governmentjobs' && a.tenant && !holds.has(a.tenant));
+    if (governmentJobsHit && !existingTenants.has(governmentJobsHit.tenant)) {
+      await consider('governmentjobs', governmentJobsHit.tenant, () => probeGovernmentJobs(governmentJobsHit.tenant, record.name));
+    }
 
     return candidates.map(({ provider, probe }) => ({
       ats_provider: provider,
-      ats_token: provider === 'paylocity' || provider === 'interfolio' ? employer.id : probe.token,
+      ats_token: provider === 'paylocity' || provider === 'interfolio' ? employer.id : provider === 'governmentjobs' ? probe.agency : probe.token,
       ats_config: provider === 'workday' ? { host: probe.host, tenant: probe.tenant, site: probe.site }
         : provider === 'peopleadmin' ? { tenant: probe.tenant }
         : provider === 'paylocity' ? { client_guid: probe.client_guid }
         : provider === 'interfolio' ? { tenant_id: probe.tenant_id }
+        : provider === 'governmentjobs' ? { host: probe.host, agency: probe.agency }
         : undefined,
       total_jobs: probe.total_jobs
     }));
@@ -446,9 +476,10 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     // The crawler's fallback "interfolio" mention (no resolvable apply.interfolio.com id)
     // has a null tenant — not auto-wirable, needs manual careers-page follow-up.
     const interfolioHit = hits.find((a) => a.provider === 'interfolio' && a.tenant && !holds.has(a.tenant));
+    const governmentJobsHit = hits.find((a) => a.provider === 'governmentjobs' && a.tenant && !holds.has(a.tenant));
     const paSignature = hits.find((a) => a.provider === 'peopleadmin' && !a.tenant);
     const wdSignature = hits.find((a) => a.provider === 'workday' && !a.tenant);
-    const anyHit = workdayHit || peopleAdminHit || smartRecruitersHit || workableHit || paylocityHit || interfolioHit || greenhouseHit || leverHit || ashbyHit || icimsHit || paSignature || wdSignature;
+    const anyHit = workdayHit || peopleAdminHit || smartRecruitersHit || workableHit || paylocityHit || interfolioHit || governmentJobsHit || greenhouseHit || leverHit || ashbyHit || icimsHit || paSignature || wdSignature;
     if (!anyHit && !(includeScoutFallback && record.careers_url)) continue;
 
     const id = slugify(record.name);
@@ -567,6 +598,17 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
       }
       if (probe) {
         wiring = { ats_provider: 'interfolio', ats_token: id, ats_config: { tenant_id: probe.tenant_id }, total_jobs: probe.total_jobs };
+      }
+    }
+    if (!wiring && governmentJobsHit && !existingTenants.has(governmentJobsHit.tenant)) {
+      console.log(`probing governmentjobs:${governmentJobsHit.tenant} (${record.name})…`);
+      const probe = await probeGovernmentJobs(governmentJobsHit.tenant, record.name);
+      if (probe?.mismatch) {
+        skipped.push({ name: record.name, reason: `governmentjobs page title "${probe.feed_title}" does not match` });
+        continue;
+      }
+      if (probe) {
+        wiring = { ats_provider: 'governmentjobs', ats_token: probe.agency, ats_config: { host: probe.host, agency: probe.agency }, total_jobs: probe.total_jobs };
       }
     }
     // Vanity-domain PeopleAdmin: the portal host serves the same Atom feed

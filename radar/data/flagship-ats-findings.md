@@ -361,3 +361,46 @@ host was already registered under a punctuation-different name) found:
   Center at San Antonio" — two unrelated institutions sharing only the
   token HEALTH.** Caught before anything was wired; the id-mismatch gap
   itself remains open, undersized for a loose name-overlap fix.
+
+## Phase 4: the next four un-driven platforms (2026-08-04)
+
+Probed one real, live, discovered tenant for each before writing any driver
+code, per the session's own discipline (a lesson from PageUp/Paylocity
+earlier).
+
+- **ADP Workforce Now: not viable.** Discovered links
+  (`workforcenow.adp.com/mascsr/.../recruitment.html?cid=...&ccId=...`) are
+  per-posting/per-category deep links, not a stable company-wide board — 8
+  real discovered links across 2 institutions (Bradley University,
+  Jacksonville University; every `ccId` variant tried for each) all returned
+  "This page is currently not available." The generic company-level URL
+  (`.../careercenter/public/index.html?cid=...`) redirects into an ADP login
+  page instead of a public board. Not pursued further.
+- **GovernmentJobs/NeoGov: real driver shipped.** Discovered links resolve to
+  `schooljobs.com` for education-sector tenants (NeoGov's higher-ed brand).
+  The public board page looks JS-rendered (spinners, no server-rendered job
+  rows) — but network-capturing the real request found the same list URL
+  (`schooljobs.com/careers/home/index?agency={agency}&sort=...`) returns a
+  totally different response depending on one header: with
+  `X-Requested-With: XMLHttpRequest` it returns the plain HTML job table
+  fragment directly (department, location, posting date, job id — no JS
+  execution needed), confirmed live against Youngstown State University (94
+  real postings, including genuine faculty roles). Detail pages are plain
+  server-rendered HTML too. `fetchGovernmentJobsJobs`/`mapGovernmentJobsJob`
+  added following the Workday/Oracle list+detail shape; `probeGovernmentJobs`
+  added to `promote-employers.js` (identity via the page's own "Career
+  Opportunities at {Institution}" `<title>`). 49 hits discovered so far.
+- **Cornerstone OnDemand and Taleo: inconclusive, not pursued further this
+  session.** Both show the same "enterprise-SaaS, needs deeper reverse-
+  engineering than a quick probe" shape as ADP: Cornerstone's board is a
+  JWT-token-gated SPA (`us.api.csod.com` with a bearer token embedded in
+  page context) that requires in-app navigation past a generic "Welcome"
+  page before any job data loads; Taleo's bare tenant domain
+  (`{tenant}.taleo.net`) redirects into `smartorg/.../toc.jsf` — an internal
+  recruiter tool, not the public candidate board — and the public board's
+  numeric "career section" id isn't captured by the discovery crawl's
+  bare-domain signature (guessed ids 1–10 against a real UAB tenant all
+  failed). Both need either a Playwright scout path (finding the real
+  in-app navigation/API calls) or mining the real deep link off each
+  institution's own careers page, same as `mineWorkdayTenant` does for
+  vanity Workday portals — real future work, not a quick win.

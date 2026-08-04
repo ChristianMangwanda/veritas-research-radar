@@ -219,10 +219,20 @@ const PAYLOCITY_DETAIL_DELAY_MS = 200;
 const INTERFOLIO_PAGE_LIMIT = 100;
 const INTERFOLIO_MAX_PAGES = 30;
 const INTERFOLIO_PAGE_DELAY_MS = 300;
+// GovernmentJobs/NeoGov (schooljobs.com for education-sector tenants) — the
+// same list URL a browser hits serves the full page shell UNLESS the request
+// carries an X-Requested-With: XMLHttpRequest header, in which case it
+// returns just the plain HTML job table fragment (found by network-capturing
+// the real request). List rows carry no description, so detail pages are
+// fetched per job like Workday/Oracle.
+const GOVERNMENTJOBS_PAGE_SIZE = 10;
+const GOVERNMENTJOBS_MAX_PAGES = 60;
+const GOVERNMENTJOBS_MAX_DETAIL_FETCHES = 400;
+const GOVERNMENTJOBS_DETAIL_DELAY_MS = 200;
 const USAJOBS_PAGE_SIZE = 500;
 const USAJOBS_MAX_PAGES_PER_QUERY = 5;
 const USAJOBS_PAGE_DELAY_MS = 300;
-const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'ultipro', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin', 'successfactors', 'eightfold', 'paylocity', 'interfolio'];
+const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'ultipro', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin', 'successfactors', 'eightfold', 'paylocity', 'interfolio', 'governmentjobs'];
 
 const SIGNAL_PATTERNS = {
   cap_exempt_language: [
@@ -590,6 +600,9 @@ function validateAtsFeedConfig(label, provider, token, config) {
   }
   if (provider === 'interfolio' && !config?.tenant_id) {
     throw new Error(`${label} uses interfolio but ats_config.tenant_id is missing`);
+  }
+  if (provider === 'governmentjobs' && !config?.agency) {
+    throw new Error(`${label} uses governmentjobs but ats_config.agency is missing`);
   }
 }
 
@@ -1172,14 +1185,14 @@ async function fetchUsaJobsJobs(employer) {
 // --- PeopleAdmin (PowerSchool) — Atom feed, one request, descriptions inline
 
 async function fetchText(url, options = {}) {
-  const { retries = 1, retryDelayMs = 1000 } = options;
+  const { retries = 1, retryDelayMs = 1000, headers = {} } = options;
   let lastError;
   for (let attempt = 0; attempt <= retries; attempt += 1) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     try {
       const response = await fetch(url, {
-        headers: { accept: 'application/atom+xml, application/xml, text/xml', 'user-agent': USER_AGENT },
+        headers: { accept: 'application/atom+xml, application/xml, text/xml', 'user-agent': USER_AGENT, ...headers },
         signal: controller.signal
       });
       if (!response.ok) {
@@ -1536,6 +1549,104 @@ async function fetchInterfolioJobs(employer) {
   return jobs;
 }
 
+function parseGovJobsDate(value) {
+  const match = String(value || '').match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
+  if (!match) return null;
+  const [, mm, dd, yy] = match;
+  const iso = `20${yy}-${mm}-${dd}T00:00:00Z`;
+  return Number.isNaN(Date.parse(iso)) ? null : iso;
+}
+
+function parseGovernmentJobsListPage(html) {
+  const jobs = [];
+  const rowPattern = /<tr>\s*<th scope="row" class="job-table-title" data-job-id="(\d+)">([\s\S]*?)<\/tr>/g;
+  let match;
+  while ((match = rowPattern.exec(String(html || '')))) {
+    const [, jobId, block] = match;
+    const linkMatch = block.match(/<a[^>]*href="([^"]+)"[^>]*>([^<]*)<\/a>/);
+    const postedMatch = block.match(/class="job-table-posted[^"]*">\s*([^<]*)</);
+    const locationMatch = block.match(/class="job-table-location[^"]*">\s*([^<]*)</);
+    const departments = [...block.matchAll(/class="job-table-department">\s*([^<]*)</g)]
+      .map((m) => m[1].trim())
+      .filter(Boolean);
+    jobs.push({
+      jobId,
+      title: normalizeText(linkMatch?.[2] || ''),
+      url: linkMatch?.[1] || '',
+      posted: postedMatch?.[1]?.trim() || '',
+      location: locationMatch?.[1]?.trim() || '',
+      department: departments.join(' / ')
+    });
+  }
+  return jobs;
+}
+
+function parseGovernmentJobsDetailPage(html) {
+  const match = String(html || '').match(/<div id="details-info"[\s\S]*?<dl>([\s\S]*?)<\/dl>/);
+  return { description: match ? match[1] : '' };
+}
+
+function mapGovernmentJobsJob(listItem, detail, employer) {
+  const config = employer.ats_config || {};
+  const host = config.host || 'www.schooljobs.com';
+  return {
+    id: `governmentjobs:${employer.ats_token}:${listItem.jobId}`,
+    employer_id: employer.id,
+    title: listItem.title || 'Untitled role',
+    department: listItem.department || '',
+    location: listItem.location || 'Unspecified',
+    url: listItem.url?.startsWith('http') ? listItem.url : `https://${host}${listItem.url}`,
+    description_text: normalizeText(detail?.description || ''),
+    posted_or_updated_at: parseGovJobsDate(listItem.posted),
+    source: 'governmentjobs',
+    source_job_id: listItem.jobId
+  };
+}
+
+async function fetchGovernmentJobsJobs(employer) {
+  const config = employer.ats_config || {};
+  const host = config.host || 'www.schooljobs.com';
+  const agency = config.agency;
+  const listItems = [];
+  for (let page = 1; page <= GOVERNMENTJOBS_MAX_PAGES; page += 1) {
+    const html = await fetchText(
+      `https://${host}/careers/home/index?agency=${encodeURIComponent(agency)}&sort=PostingDate&isDescendingSort=true&page=${page}`,
+      { headers: { accept: 'text/html, */*', 'x-requested-with': 'XMLHttpRequest' } }
+    );
+    const pageItems = parseGovernmentJobsListPage(html);
+    if (pageItems.length === 0) break;
+    listItems.push(...pageItems);
+    if (pageItems.length < GOVERNMENTJOBS_PAGE_SIZE) break;
+    await sleep(GOVERNMENTJOBS_DETAIL_DELAY_MS);
+  }
+
+  const seen = new Set();
+  const unique = listItems.filter((item) => {
+    if (!item.jobId || seen.has(item.jobId)) return false;
+    seen.add(item.jobId);
+    return true;
+  });
+
+  const { relevant: filtered, excluded } = filterResearchRelevant(unique, (item) => item.title, employer);
+  const relevant = filtered.slice(0, GOVERNMENTJOBS_MAX_DETAIL_FETCHES);
+
+  const jobs = [];
+  for (const listItem of relevant) {
+    let detail = null;
+    try {
+      const detailHtml = await fetchText(`https://${host}${listItem.url}`, { headers: { accept: 'text/html' } });
+      detail = parseGovernmentJobsDetailPage(detailHtml);
+    } catch (error) {
+      console.warn(`GovernmentJobs detail fetch failed for ${employer.id} job ${listItem.jobId}: ${error.message}`);
+    }
+    jobs.push(mapGovernmentJobsJob(listItem, detail, employer));
+    await sleep(GOVERNMENTJOBS_DETAIL_DELAY_MS);
+  }
+  jobs.prefiltered_count = excluded;
+  jobs.prefilter_survived_count = filtered.length;
+  return jobs;
+}
+
 const ATS_FETCHERS = {
   greenhouse: fetchGreenhouseJobs,
   lever: fetchLeverJobs,
@@ -1548,6 +1659,7 @@ const ATS_FETCHERS = {
   eightfold: fetchEightfoldJobs,
   paylocity: fetchPaylocityJobs,
   interfolio: fetchInterfolioJobs,
+  governmentjobs: fetchGovernmentJobsJobs,
   recruitee: fetchRecruiteeJobs,
   breezy: fetchBreezyJobs,
   workable: fetchWorkableJobs,
@@ -1980,6 +2092,10 @@ module.exports = {
   parsePaylocityDetailPage,
   fetchInterfolioJobs,
   mapInterfolioJob,
+  fetchGovernmentJobsJobs,
+  mapGovernmentJobsJob,
+  parseGovernmentJobsListPage,
+  parseGovernmentJobsDetailPage,
   fetchEmployerJobs,
   validateEmployer,
   ATS_FETCHERS,
