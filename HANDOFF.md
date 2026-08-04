@@ -174,8 +174,10 @@ lost triage state comes up; a triage export/import button is the preferred
 lightweight insurance) and the CI-digest `NTFY_TOPIC` repo secret (no push
 notifications wanted).
 
-Next build session (user's call): desktop polish — Enter double-fire fix,
-keyboard keys for interview/offer/rejected, undo, triage export/import.
+The desktop-polish bundle shipped 2026-08-03 late night: Enter/o keyboard
+split, full-funnel triage keys (`i`/`O`/`r`/`w`), undo (`u`/Cmd+Z + bar),
+sidebar triage export/import, and quiet auto-refresh when the tab regains
+focus after a pull. No agreed next build — the backlog lives in ROADMAP.md.
 
 ## Open follow-ups (nice-to-have, not blocking)
 

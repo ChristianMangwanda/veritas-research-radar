@@ -4,6 +4,30 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Session 2026-08-03 (late night) — desktop polish bundle
+
+Five commits, each shippable; 23-assertion browser pass + new unit tests.
+
+- **Enter double-fire fixed**: Enter selects/opens details, `o` opens the
+  posting — one keypress no longer does both (row handlers stop propagation;
+  the global Enter branch only acts from bare-body focus, so focused buttons
+  keep native activation).
+- **Keyboard covers the whole funnel**: `i` interview, `O` offer (shift+o),
+  `r` rejected, `w` withdrawn join the existing map; full reference in the
+  ⌨ tooltip.
+- **Undo**: every triage change and employer-ignore pushes onto a 20-deep
+  stack; a transient bottom-left bar shows "Rejected — was Offer · Undo",
+  and `u` / Cmd+Z / the button walk it back. Restores are verbatim
+  (`RadarPipeline.restoreTriageRecord`): old `updated_at` kept, an
+  absent record stays absent — follow-up aging and sync LWW both survive.
+- **Triage backup**: sidebar Export/Import of statuses, notes, and ignored
+  employers as one JSON file; imports LWW-merge (an old backup never
+  clobbers newer local work) with strict shape validation.
+- **Focus auto-refresh**: returning to a long-lived tab re-fetches quietly
+  when >15 min have passed and a 6-hourly pull slot has landed since the
+  last load (`RadarPipeline.shouldAutoRefresh`); selection and scroll
+  survive.
+
 ### Session 2026-08-03 (night) — digest armed; steady state
 
 - Redesign deployed and verified on the live Pages site (fonts serving,
