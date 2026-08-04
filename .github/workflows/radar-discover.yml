@@ -54,10 +54,22 @@ jobs:
             scout/.venv/bin/python scout/scout_discover.py --all
           fi
       - name: Sync to latest main (this run's output wins)
+        # if: always() is the fix for a real bug: the crawl step runs right up
+        # against the 350-minute cap and gets cancelled there on most runs
+        # (a multi-thousand-site backlog won't finish in one window). Without
+        # this, a cancelled step skips every step after it by default, so the
+        # sync+commit below never ran and a full run's worth of crawl
+        # progress (hours of it) was silently discarded, not just left
+        # unresumed. The crawl script itself is safe to cancel mid-run — it
+        # saves to disk after every site — so whatever's on disk here is
+        # real, valid progress worth committing regardless of how this job
+        # ended.
+        #
         # checkout pins github.sha from queue time, so commits that landed
         # while this run was pending/running would make a rebase conflict.
         # Runs in the radar-data group are serialized, so this run's output
         # is always the freshest — save, reset, restore.
+        if: always()
         run: |
           set -euo pipefail
           tmp=$(mktemp -d)
@@ -66,12 +78,13 @@ jobs:
           git reset --hard origin/main
           cp "$tmp"/* radar/data/
       - name: Commit discovery data
+        if: always()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update ATS discovery crawl data"
           file_pattern: "radar/data/ats-discovery.json"
       - name: Alert on failure
-        if: failure()
+        if: failure() || cancelled()
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: |
