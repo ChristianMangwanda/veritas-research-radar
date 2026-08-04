@@ -37,7 +37,8 @@ const {
   detectPrefilterAnomalies,
   filterResearchRelevant,
   activeScoutedJobs,
-  applyEnrichmentOverlay
+  applyEnrichmentOverlay,
+  fetchEmployerJobs
 } = require('../radar/scripts/refresh.js');
 const {
   parseIpedsCsv,
@@ -1041,6 +1042,53 @@ function testRecallAnomalies() {
     employerOutcomes: outcomes({ big: { attempted: true, ok: true } })
   });
   assert.strictEqual(anomalies.length, 0);
+
+  // Multi-feed employer: fetched_jobs is a SUM across feeds, so a dead
+  // secondary feed can hide behind the primary's healthy count and never
+  // trip the check above -- the per-feed check catches it independently.
+  anomalies = detectRecallAnomalies({
+    previousJobs: [],
+    employerReports: [{
+      employer_id: 'dual', name: 'Dual U', ats_provider: 'workday', fetched_jobs: 12,
+      feeds: [
+        { ats_provider: 'workday', ok: true, skipped: false, fetchedCount: 12 },
+        { ats_provider: 'interfolio', ok: true, skipped: false, fetchedCount: 0 }
+      ]
+    }],
+    employerOutcomes: outcomes({ dual: { attempted: true, ok: true } })
+  });
+  assert.strictEqual(anomalies.length, 1);
+  assert.strictEqual(anomalies[0].ats_provider, 'interfolio');
+  assert.strictEqual(anomalies[0].partial_feed, true);
+
+  // Both feeds healthy -> no alarm
+  anomalies = detectRecallAnomalies({
+    previousJobs: [],
+    employerReports: [{
+      employer_id: 'dual', name: 'Dual U', ats_provider: 'workday', fetched_jobs: 12,
+      feeds: [
+        { ats_provider: 'workday', ok: true, skipped: false, fetchedCount: 12 },
+        { ats_provider: 'interfolio', ok: true, skipped: false, fetchedCount: 3 }
+      ]
+    }],
+    employerOutcomes: outcomes({ dual: { attempted: true, ok: true } })
+  });
+  assert.strictEqual(anomalies.length, 0);
+
+  // A feed that errored (not skipped, not ok) shouldn't double-report --
+  // that's already visible via the report's own error field
+  anomalies = detectRecallAnomalies({
+    previousJobs: [],
+    employerReports: [{
+      employer_id: 'dual', name: 'Dual U', ats_provider: 'workday', fetched_jobs: 12,
+      feeds: [
+        { ats_provider: 'workday', ok: true, skipped: false, fetchedCount: 12 },
+        { ats_provider: 'interfolio', ok: false, skipped: false, fetchedCount: 0, error: 'HTTP 500' }
+      ]
+    }],
+    employerOutcomes: outcomes({ dual: { attempted: true, ok: true } })
+  });
+  assert.strictEqual(anomalies.length, 0);
 }
 
 function testPrefilterAnomalies() {
@@ -1098,6 +1146,58 @@ function testPrefilterAnomalies() {
   );
   assert.strictEqual(relevant.length, 2);
   assert.strictEqual(excluded, 1);
+}
+
+async function testMultiFeedEmployer() {
+  // Some institutions genuinely run two separate ATS feeds -- e.g. a Workday
+  // staff board plus a completely separate Interfolio faculty board
+  // (University of Rochester: confirmed live to have exactly this, a
+  // 353-posting faculty board the registry couldn't represent before this).
+  const employer = {
+    id: 'dual-u', name: 'Dual University', ats_provider: 'workday', ats_token: 'dual',
+    ats_config: { host: 'h', tenant: 'dual', site: 's' },
+    secondary_ats_feeds: [{ ats_provider: 'interfolio', ats_token: 'dual', ats_config: { tenant_id: 999 } }]
+  };
+  const okJobs = [{ id: 'workday:dual:1', employer_id: 'dual-u' }];
+  okJobs.prefiltered_count = 3;
+  okJobs.prefilter_survived_count = 1;
+
+  // One feed fails -> soft success: jobs merge, counts sum, error stays null
+  let result = await fetchEmployerJobs(employer, {
+    workday: async () => okJobs,
+    interfolio: async () => { throw new Error('interfolio 500'); }
+  });
+  assert.strictEqual(result.jobs.length, 1);
+  assert.strictEqual(result.error, null);
+  assert.strictEqual(result.skipped, false);
+  assert.strictEqual(result.prefilteredCount, 3);
+  assert.strictEqual(result.prefilterSurvivedCount, 1);
+  assert.strictEqual(result.feeds.length, 2);
+  assert.strictEqual(result.feeds[0].ok, true);
+  assert.strictEqual(result.feeds[1].ok, false);
+  assert.match(result.feeds[1].error, /interfolio 500/);
+
+  // Both feeds fail -> error is set, jobs empty
+  result = await fetchEmployerJobs(employer, {
+    workday: async () => { throw new Error('workday 500'); },
+    interfolio: async () => { throw new Error('interfolio 500'); }
+  });
+  assert.strictEqual(result.jobs.length, 0);
+  assert.match(result.error, /workday 500/);
+  assert.match(result.error, /interfolio 500/);
+
+  // Single-feed employers (the ~337 without a secondary feed) keep today's
+  // exact shape -- no `feeds` array, so the committed report stays
+  // byte-identical for everyone not using this feature.
+  const singleFeedEmployer = { id: 'solo-u', name: 'Solo University', ats_provider: 'workday', ats_token: 'solo', ats_config: {} };
+  result = await fetchEmployerJobs(singleFeedEmployer, { workday: async () => okJobs });
+  assert.strictEqual(result.feeds, undefined);
+  assert.strictEqual(result.jobs.length, 1);
+
+  // No ats_provider and no secondary feeds -> skipped, matching today's behavior
+  result = await fetchEmployerJobs({ id: 'none-u', name: 'None University' }, {});
+  assert.strictEqual(result.skipped, true);
+  assert.strictEqual(result.jobs.length, 0);
 }
 
 function buildSingleEntryZip(name, content, method = 8) {
@@ -2552,6 +2652,7 @@ async function main() {
   testWorkModeAndLocation();
   testRecallAnomalies();
   testPrefilterAnomalies();
+  await testMultiFeedEmployer();
   testZipExtraction();
   testScoutedImporter();
   testAggregatedImporter();

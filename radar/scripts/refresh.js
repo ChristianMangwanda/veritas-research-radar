@@ -55,6 +55,25 @@ function detectRecallAnomalies({ previousJobs, employerReports, employerOutcomes
         previous_active: before
       });
     }
+    // Multi-feed employers: fetched_jobs is a SUM across feeds, so one feed
+    // silently dying can hide behind another feed's healthy count and never
+    // trip the check above. This has no previous-active baseline to compare
+    // against (unlike the per-employer check), so it's a coarser signal —
+    // "a wired feed returned zero jobs with no error" — but that alone is
+    // already meaningful for an employer known to have more than one feed.
+    if (report.feeds) {
+      for (const feed of report.feeds) {
+        if (feed.ok && !feed.skipped && feed.fetchedCount === 0) {
+          anomalies.push({
+            employer_id: report.employer_id,
+            name: report.name,
+            ats_provider: feed.ats_provider,
+            previous_active: null,
+            partial_feed: true
+          });
+        }
+      }
+    }
   }
   return anomalies;
 }
@@ -546,35 +565,46 @@ function applyJobLifecycle({ previousJobs, fetchedJobs, employerOutcomes, now, r
   return jobs;
 }
 
+// Shared by the primary feed and every secondary_ats_feeds entry — label
+// identifies which one in a thrown error (e.g. "Employer x" vs
+// "Employer x secondary_ats_feeds[0]").
+function validateAtsFeedConfig(label, provider, token, config) {
+  if (!SUPPORTED_ATS_PROVIDERS.includes(provider)) {
+    throw new Error(`${label} has unsupported ats_provider ${provider}`);
+  }
+  if (!token) {
+    throw new Error(`${label} has ats_provider but no ats_token`);
+  }
+  if (provider === 'workday') {
+    for (const key of ['host', 'tenant', 'site']) {
+      if (!(config || {})[key]) throw new Error(`${label} uses workday but ats_config.${key} is missing`);
+    }
+  }
+  if (provider === 'oracle') {
+    for (const key of ['host', 'site_name', 'site_number']) {
+      if (!(config || {})[key]) throw new Error(`${label} uses oracle but ats_config.${key} is missing`);
+    }
+  }
+  if (provider === 'paylocity' && !config?.client_guid) {
+    throw new Error(`${label} uses paylocity but ats_config.client_guid is missing`);
+  }
+  if (provider === 'interfolio' && !config?.tenant_id) {
+    throw new Error(`${label} uses interfolio but ats_config.tenant_id is missing`);
+  }
+}
+
 function validateEmployer(employer) {
   const required = ['id', 'name', 'type', 'cap_exempt_status', 'evidence_sources', 'careers_url'];
   for (const key of required) {
     if (!employer[key]) throw new Error(`Employer ${employer.id || employer.name || '<unknown>'} is missing ${key}`);
   }
-  if (employer.ats_provider && !SUPPORTED_ATS_PROVIDERS.includes(employer.ats_provider)) {
-    throw new Error(`Employer ${employer.id} has unsupported ats_provider ${employer.ats_provider}`);
+  const label = `Employer ${employer.id}`;
+  if (employer.ats_provider) {
+    validateAtsFeedConfig(label, employer.ats_provider, employer.ats_token, employer.ats_config);
   }
-  if (employer.ats_provider && !employer.ats_token) {
-    throw new Error(`Employer ${employer.id} has ats_provider but no ats_token`);
-  }
-  if (employer.ats_provider === 'workday') {
-    const config = employer.ats_config || {};
-    for (const key of ['host', 'tenant', 'site']) {
-      if (!config[key]) throw new Error(`Employer ${employer.id} uses workday but ats_config.${key} is missing`);
-    }
-  }
-  if (employer.ats_provider === 'oracle') {
-    const config = employer.ats_config || {};
-    for (const key of ['host', 'site_name', 'site_number']) {
-      if (!config[key]) throw new Error(`Employer ${employer.id} uses oracle but ats_config.${key} is missing`);
-    }
-  }
-  if (employer.ats_provider === 'paylocity' && !employer.ats_config?.client_guid) {
-    throw new Error(`Employer ${employer.id} uses paylocity but ats_config.client_guid is missing`);
-  }
-  if (employer.ats_provider === 'interfolio' && !employer.ats_config?.tenant_id) {
-    throw new Error(`Employer ${employer.id} uses interfolio but ats_config.tenant_id is missing`);
-  }
+  (employer.secondary_ats_feeds || []).forEach((feed, index) => {
+    validateAtsFeedConfig(`${label} secondary_ats_feeds[${index}]`, feed.ats_provider, feed.ats_token, feed.ats_config);
+  });
 }
 
 function mapGreenhouseJob(job, employer) {
@@ -1525,36 +1555,75 @@ const ATS_FETCHERS = {
   peopleadmin: fetchPeopleAdminJobs
 };
 
-async function fetchEmployerJobs(employer) {
-  if (!employer.ats_provider) {
-    return { jobs: [], skipped: true, error: null, prefilteredCount: 0, prefilterSurvivedCount: 0 };
+// A few employers genuinely run two separate ATS feeds — most commonly a
+// Workday/PeopleAdmin/Oracle board for staff and a completely separate
+// Interfolio board for faculty searches (University of Rochester: a
+// Workday "Staff" site plus a 353-posting Interfolio faculty board the
+// registry couldn't represent at all before this). secondary_ats_feeds is
+// optional and absent for nearly every employer.
+async function fetchEmployerJobs(employer, fetchers = ATS_FETCHERS) {
+  const descriptors = [
+    { ats_provider: employer.ats_provider, ats_token: employer.ats_token, ats_config: employer.ats_config },
+    ...(employer.secondary_ats_feeds || [])
+  ].filter((feed) => feed.ats_provider);
+
+  if (descriptors.length === 0) {
+    return { jobs: [], skipped: true, error: null, prefilteredCount: 0, prefilterSurvivedCount: null, feeds: undefined };
   }
-  const fetcher = ATS_FETCHERS[employer.ats_provider];
-  if (!fetcher) {
-    return { jobs: [], skipped: true, error: `Unsupported ATS provider ${employer.ats_provider}`, prefilteredCount: 0, prefilterSurvivedCount: 0 };
-  }
-  try {
-    const jobs = await fetcher(employer);
-    return {
-      jobs,
-      skipped: false,
-      error: null,
-      prefilteredCount: Number(jobs.prefiltered_count) || 0,
-      // Title-prefilter pass-through, BEFORE the separate auto-tier relevance-score
-      // filter downstream. Comparing prefiltered_count against final fetched_jobs
-      // conflates two independent filters — an auto-tier employer whose survivors
-      // all score below AUTO_TIER_MIN_RESEARCH_SCORE looks identical to a broken
-      // prefilter regex unless this is tracked separately (confirmed live against
-      // Bank Street College of Education: 4 titles passed the prefilter fine, all
-      // 4 legitimately scored too low to ship — not a prefilter bug).
-      prefilterSurvivedCount: jobs.prefilter_survived_count === undefined ? null : Number(jobs.prefilter_survived_count) || 0
-    };
-  } catch (error) {
-    if (error.skipped) {
-      return { jobs: [], skipped: true, error: null, prefilteredCount: 0, prefilterSurvivedCount: 0 };
+
+  const jobs = [];
+  const feeds = [];
+  let prefilteredCount = 0;
+  let prefilterSurvivedCount = null;
+
+  for (const feed of descriptors) {
+    const view = { ...employer, ats_provider: feed.ats_provider, ats_token: feed.ats_token, ats_config: feed.ats_config };
+    const fetcher = fetchers[feed.ats_provider];
+    if (!fetcher) {
+      feeds.push({ ats_provider: feed.ats_provider, ats_token: feed.ats_token, ok: false, skipped: false, error: `Unsupported ATS provider ${feed.ats_provider}`, fetchedCount: 0 });
+      continue;
     }
-    return { jobs: [], skipped: false, error: error.message, prefilteredCount: 0, prefilterSurvivedCount: 0 };
+    try {
+      // Fail-soft per feed (matching the existing SmartRecruiters
+      // per-posting precedent): one broken feed shouldn't sink the other.
+      const feedJobs = await fetcher(view);
+      // prefilter_survived_count is a property stapled onto the returned
+      // array — it's lost once jobs from multiple feeds are concatenated
+      // together, so it must be read here, immediately after this feed's
+      // own call, not off the merged array afterward.
+      const feedExcluded = Number(feedJobs.prefiltered_count) || 0;
+      const feedSurvived = feedJobs.prefilter_survived_count === undefined ? null : Number(feedJobs.prefilter_survived_count) || 0;
+      jobs.push(...feedJobs);
+      prefilteredCount += feedExcluded;
+      if (feedSurvived !== null) prefilterSurvivedCount = (prefilterSurvivedCount || 0) + feedSurvived;
+      feeds.push({ ats_provider: feed.ats_provider, ats_token: feed.ats_token, ok: true, skipped: false, error: null, fetchedCount: feedJobs.length });
+    } catch (error) {
+      if (error.skipped) {
+        feeds.push({ ats_provider: feed.ats_provider, ats_token: feed.ats_token, ok: true, skipped: true, error: null, fetchedCount: 0 });
+        continue;
+      }
+      feeds.push({ ats_provider: feed.ats_provider, ats_token: feed.ats_token, ok: false, skipped: false, error: error.message, fetchedCount: 0 });
+    }
   }
+
+  const allSkipped = feeds.every((feed) => feed.skipped);
+  const allFailed = feeds.every((feed) => !feed.ok);
+  return {
+    jobs,
+    skipped: allSkipped,
+    // Only report an error if EVERY feed failed — one feed down while
+    // another still returns jobs is a soft success, not a hard failure.
+    error: allFailed ? feeds.map((feed) => feed.error).filter(Boolean).join('; ') || null : null,
+    prefilteredCount,
+    prefilterSurvivedCount,
+    // Kept only for employers with more than one feed, so the committed
+    // report stays byte-identical for the ~337 single-feed employers.
+    // Required, not cosmetic: detectRecallAnomalies below reads this to
+    // catch one feed of a multi-feed employer silently dying — without it,
+    // fetched_jobs is a sum across feeds and can stay nonzero even if a
+    // secondary feed is broken.
+    feeds: feeds.length > 1 ? feeds : undefined
+  };
 }
 
 async function runRefresh() {
@@ -1620,7 +1689,8 @@ async function runRefresh() {
       prefiltered_count: result.prefilteredCount,
       prefilter_survived_count: result.prefilterSurvivedCount,
       skipped: result.skipped,
-      error: result.error
+      error: result.error,
+      feeds: result.feeds
     });
   }
 
@@ -1910,5 +1980,8 @@ module.exports = {
   parsePaylocityDetailPage,
   fetchInterfolioJobs,
   mapInterfolioJob,
+  fetchEmployerJobs,
+  validateEmployer,
+  ATS_FETCHERS,
   runRefresh
 };

@@ -323,15 +323,100 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
   // Some wiring paths (vanity-domain PeopleAdmin) store identity under
   // ats_config.host instead of .tenant — index both, or a shared feed
   // registered via one path is invisible to the dedup check on the other.
-  const existingTenants = new Set(employers.flatMap((e) => [e.ats_config?.tenant, e.ats_config?.host].filter(Boolean)));
-  const existingGuids = new Set(employers.filter((e) => e.ats_config?.client_guid).map((e) => e.ats_config.client_guid));
-  const existingInterfolioTenants = new Set(employers.filter((e) => e.ats_config?.tenant_id).map((e) => String(e.ats_config.tenant_id)));
+  // Also flatMap secondary_ats_feeds, or an already-approved secondary feed
+  // (or the same tenant under a different employer) could be re-proposed.
+  const allConfigs = (e) => [e.ats_config, ...(e.secondary_ats_feeds || []).map((f) => f.ats_config)];
+  const existingTenants = new Set(employers.flatMap((e) => allConfigs(e).flatMap((c) => [c?.tenant, c?.host])).filter(Boolean));
+  const existingGuids = new Set(employers.flatMap((e) => allConfigs(e).map((c) => c?.client_guid)).filter(Boolean));
+  const existingInterfolioTenants = new Set(employers.flatMap((e) => allConfigs(e).map((c) => c?.tenant_id)).filter(Boolean).map(String));
   // Owner-declined tenants stay declined across probe reruns
   let holds = new Set();
   try {
     holds = new Set(JSON.parse(await fsp.readFile(HOLDS_PATH, 'utf8')).holds.map((h) => h.tenant));
   } catch { /* no holds file */ }
   const existingIds = new Set(employers.map((e) => e.id));
+  const employersById = new Map(employers.map((e) => [e.id, e]));
+  // Pre-existing gap, not fixed here: some employers have id !== slugify(name)
+  // (manual short ids like `mit`, plus a few slugify() truncation artifacts),
+  // which would make the id-based lookup below miss them. Defensive fallback,
+  // scoped to only the employers actually affected rather than a full
+  // namesOverlap scan of the whole registry.
+  const manuallyNamedEmployers = employers.filter((e) => e.id !== slugify(e.name));
+
+  // For an ALREADY-registered employer, check every hit type this employer
+  // isn't already wired to (primary or secondary) — unlike the main wiring
+  // cascade's "first clean probe wins", more than one additional feed is
+  // plausible, so every type gets its own independent probe. Deliberately
+  // excludes icims/paSignature/wdSignature/scout-fallback: those all resolve
+  // to ats_provider: null and can never form a valid secondary_ats_feeds
+  // entry — without this exclusion, every scout-routed employer (ats_provider
+  // already null) would look like it has a phantom secondary feed.
+  async function findSecondaryFeedCandidates(hits, record, employer) {
+    const alreadyWired = new Set([
+      employer.ats_provider,
+      ...(employer.secondary_ats_feeds || []).map((f) => f.ats_provider)
+    ].filter(Boolean));
+    const candidates = [];
+
+    const consider = async (provider, tenant, probeFn) => {
+      if (alreadyWired.has(provider) || !tenant) return;
+      console.log(`  probing secondary ${provider}:${tenant} (${record.name})…`);
+      const probe = await probeFn();
+      if (probe?.mismatch) {
+        console.log(`    -> title "${probe.feed_title}" does not match, skipping`);
+        return;
+      }
+      if (probe) candidates.push({ provider, probe });
+    };
+
+    const workdayHit = hits.find((a) => a.provider === 'workday' && a.tenant && !holds.has(a.tenant));
+    if (workdayHit && !existingTenants.has(workdayHit.tenant)) {
+      await consider('workday', workdayHit.tenant, () => probeWorkday(workdayHit.tenant, workdayHit.workday_dc || '5', workdayHit.workday_site, record.name));
+    }
+    const peopleAdminHit = hits.find((a) => a.provider === 'peopleadmin' && a.tenant && !holds.has(a.tenant));
+    if (peopleAdminHit && !existingTenants.has(peopleAdminHit.tenant)) {
+      await consider('peopleadmin', peopleAdminHit.tenant, () => probePeopleAdmin(peopleAdminHit.tenant, record.name));
+    }
+    const greenhouseHit = hits.find((a) => a.provider === 'greenhouse' && a.tenant && !holds.has(a.tenant));
+    if (greenhouseHit && !existingTenants.has(greenhouseHit.tenant)) {
+      await consider('greenhouse', greenhouseHit.tenant, () => probeGreenhouse(greenhouseHit.tenant, record.name));
+    }
+    const leverHit = hits.find((a) => a.provider === 'lever' && a.tenant && !holds.has(a.tenant));
+    if (leverHit && !existingTenants.has(leverHit.tenant)) {
+      await consider('lever', leverHit.tenant, () => probeLever(leverHit.tenant));
+    }
+    const ashbyHit = hits.find((a) => a.provider === 'ashby' && a.tenant && !holds.has(a.tenant));
+    if (ashbyHit && !existingTenants.has(ashbyHit.tenant)) {
+      await consider('ashby', ashbyHit.tenant, () => probeAshby(ashbyHit.tenant));
+    }
+    const smartRecruitersHit = hits.find((a) => a.provider === 'smartrecruiters' && a.tenant && !holds.has(a.tenant));
+    if (smartRecruitersHit && !existingTenants.has(smartRecruitersHit.tenant)) {
+      await consider('smartrecruiters', smartRecruitersHit.tenant, () => probeSmartRecruiters(smartRecruitersHit.tenant, record.name));
+    }
+    const workableHit = hits.find((a) => a.provider === 'workable' && a.tenant && !holds.has(a.tenant));
+    if (workableHit && !existingTenants.has(workableHit.tenant)) {
+      await consider('workable', workableHit.tenant, () => probeWorkable(workableHit.tenant, record.name));
+    }
+    const paylocityHit = hits.find((a) => a.provider === 'paylocity' && a.tenant && PAYLOCITY_GUID_PATTERN.test(a.tenant) && !holds.has(a.tenant));
+    if (paylocityHit && !existingGuids.has(paylocityHit.tenant)) {
+      await consider('paylocity', paylocityHit.tenant, () => probePaylocity(paylocityHit.tenant, record.name));
+    }
+    const interfolioHit = hits.find((a) => a.provider === 'interfolio' && a.tenant && !holds.has(a.tenant));
+    if (interfolioHit && !existingInterfolioTenants.has(interfolioHit.tenant)) {
+      await consider('interfolio', interfolioHit.tenant, () => probeInterfolio(interfolioHit.tenant, record.name));
+    }
+
+    return candidates.map(({ provider, probe }) => ({
+      ats_provider: provider,
+      ats_token: provider === 'paylocity' || provider === 'interfolio' ? employer.id : probe.token,
+      ats_config: provider === 'workday' ? { host: probe.host, tenant: probe.tenant, site: probe.site }
+        : provider === 'peopleadmin' ? { tenant: probe.tenant }
+        : provider === 'paylocity' ? { client_guid: probe.client_guid }
+        : provider === 'interfolio' ? { tenant_id: probe.tenant_id }
+        : undefined,
+      total_jobs: probe.total_jobs
+    }));
+  }
 
   const proposals = [];
   const skipped = [];
@@ -361,8 +446,25 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     if (!anyHit && !(includeScoutFallback && record.careers_url)) continue;
 
     const id = slugify(record.name);
-    if (existingIds.has(id)) {
-      skipped.push({ name: record.name, reason: 'registry id exists' });
+    const existingEmployer = employersById.get(id)
+      || manuallyNamedEmployers.find((e) => namesOverlap(e.name, record.name));
+    if (existingEmployer) {
+      const secondaryFeeds = await findSecondaryFeedCandidates(hits, record, existingEmployer);
+      for (const feed of secondaryFeeds) {
+        proposals.push({
+          kind: 'secondary_feed',
+          employer_id: existingEmployer.id,
+          name: record.name,
+          ats_provider: feed.ats_provider,
+          ats_token: feed.ats_token,
+          ats_config: feed.ats_config,
+          notes: `Secondary ${feed.ats_provider} feed discovered alongside existing ${existingEmployer.ats_provider} wiring (ATS discovery crawl ${record.crawled_at?.slice(0, 10)}); probe saw ${feed.total_jobs} live postings.`,
+          probe_total_jobs: feed.total_jobs
+        });
+      }
+      if (secondaryFeeds.length === 0) {
+        skipped.push({ name: record.name, reason: 'registry id exists' });
+      }
       continue;
     }
 
@@ -540,6 +642,7 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
       continue;
     }
     proposals.push({
+      kind: 'new_employer',
       id,
       name: record.name,
       aliases: [],
@@ -567,7 +670,11 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     const wiringLabel = proposal.ats_provider
       ? `${proposal.ats_provider}:${proposal.ats_config?.tenant || proposal.ats_token}${proposal.ats_config?.site ? '/' + proposal.ats_config.site : ''}`
       : `scout:${proposal.careers_url}`;
-    console.log(`  + ${proposal.name} — ${wiringLabel} (${proposal.probe_total_jobs} postings)`);
+    // ~ marks an extra feed on an institution already tracked, vs + for a
+    // brand-new one — worth telling apart at a glance during --approve review.
+    const marker = proposal.kind === 'secondary_feed' ? '~' : '+';
+    const label = proposal.kind === 'secondary_feed' ? `${proposal.name} (secondary feed on ${proposal.employer_id})` : proposal.name;
+    console.log(`  ${marker} ${label} — ${wiringLabel} (${proposal.probe_total_jobs} postings)`);
   }
   for (const skip of skipped) console.log(`  - ${skip.name}: ${skip.reason}`);
 }
@@ -577,14 +684,30 @@ async function approveProposals() {
   const employers = JSON.parse(await fsp.readFile(EMPLOYERS_PATH, 'utf8'));
   const existingIds = new Set(employers.map((e) => e.id));
   let added = 0;
+  let secondaryAdded = 0;
   for (const proposal of proposals) {
+    if (proposal.kind === 'secondary_feed') {
+      const employer = employers.find((e) => e.id === proposal.employer_id);
+      if (!employer) {
+        console.warn(`secondary feed proposal references unknown employer ${proposal.employer_id}, skipping`);
+        continue;
+      }
+      employer.secondary_ats_feeds = employer.secondary_ats_feeds || [];
+      const alreadyHasFeed = employer.secondary_ats_feeds.some((f) =>
+        f.ats_provider === proposal.ats_provider && f.ats_token === proposal.ats_token);
+      if (alreadyHasFeed) continue;
+      const { ats_provider, ats_token, ats_config } = proposal;
+      employer.secondary_ats_feeds.push({ ats_provider, ats_token, ats_config });
+      secondaryAdded += 1;
+      continue;
+    }
     if (existingIds.has(proposal.id)) continue;
-    const { probe_total_jobs, ...entry } = proposal;
+    const { probe_total_jobs, kind, ...entry } = proposal;
     employers.push(entry);
     added += 1;
   }
   await fsp.writeFile(EMPLOYERS_PATH, `${JSON.stringify(employers, null, 2)}\n`, 'utf8');
-  console.log(`Merged ${added} employers into the registry (${employers.length} total)`);
+  console.log(`Merged ${added} employers and ${secondaryAdded} secondary feeds into the registry (${employers.length} total)`);
 }
 
 if (require.main === module) {
