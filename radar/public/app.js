@@ -1454,6 +1454,9 @@ function render() {
 // Says what the list IS, and — while the model is still reading — that more
 // is coming, so a half-judged list never looks like the finished answer.
 function qualifiedCountLine(jobs) {
+  // Without a profile the list is a prompt, not a result — "0 qualified"
+  // would read as an answer.
+  if (!state.compiled) return '';
   const judged = jobs.filter((job) => state.matches[job.id]).length;
   const total = jobs.length.toLocaleString();
   if (!state.matchAvailable) return `${total} qualified · ranked by fit`;
