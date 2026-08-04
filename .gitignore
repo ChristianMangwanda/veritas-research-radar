@@ -54,3 +54,6 @@ radar/data/aggregated/
 
 # Local digest secrets (never commit)
 radar/scripts/.digest.env
+
+# local data snapshots must never enter history
+radar/data/jobs.json.stale*
