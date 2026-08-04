@@ -202,13 +202,27 @@ async function probeIcims(tenant, expectedName) {
   return { tenant, total_jobs: total };
 }
 
-async function probeGreenhouse(token) {
+async function probeGreenhouse(token, expectedName) {
   const response = await fetchJsonWithTimeout(`https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(token)}/jobs`);
   await sleep(PROBE_DELAY_MS);
   const total = Array.isArray(response?.jobs) ? response.jobs.length : 0;
-  return total > 0 ? { token, total_jobs: total } : null;
+  if (total === 0) return null;
+  // The /jobs response carries no company identity; a separate board-metadata
+  // endpoint (no /jobs suffix) returns {name, content} for the same token.
+  const board = await fetchJsonWithTimeout(`https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(token)}`);
+  await sleep(PROBE_DELAY_MS);
+  if (board?.name && !namesOverlap(board.name, expectedName)) {
+    return { mismatch: true, feed_title: board.name };
+  }
+  return { token, total_jobs: total };
 }
 
+// Lever's public API (postings list) carries no company-identity field
+// anywhere — no separate board-metadata endpoint either. Accepted residual
+// gap, not fixed: only 3 registered employers use Lever today, and tokens
+// come from links scraped directly off the institution's own site rather
+// than guessed via multi-site probing (the pattern that made the Workday
+// gap risky), so the exposure is real but low. See flagship-ats-findings.md.
 async function probeLever(token) {
   const response = await fetchJsonWithTimeout(`https://api.lever.co/v0/postings/${encodeURIComponent(token)}?mode=json`);
   await sleep(PROBE_DELAY_MS);
@@ -216,6 +230,10 @@ async function probeLever(token) {
   return total > 0 ? { token, total_jobs: total } : null;
 }
 
+// Ashby's public job-board API carries no organization/company field either
+// (checked the full response shape live). Accepted residual gap, not fixed:
+// zero registered employers use Ashby today, so this is currently
+// theoretical. See flagship-ats-findings.md.
 async function probeAshby(token) {
   const response = await fetchJsonWithTimeout(`https://api.ashbyhq.com/posting-api/job-board/${encodeURIComponent(token)}`);
   await sleep(PROBE_DELAY_MS);
@@ -223,11 +241,18 @@ async function probeAshby(token) {
   return total > 0 ? { token, total_jobs: total } : null;
 }
 
-async function probeSmartRecruiters(token) {
+async function probeSmartRecruiters(token, expectedName) {
   const response = await fetchJsonWithTimeout(`https://api.smartrecruiters.com/v1/companies/${encodeURIComponent(token)}/postings?limit=1`);
   await sleep(PROBE_DELAY_MS);
   const total = Number(response?.totalFound || 0);
-  return total > 0 ? { token, total_jobs: total } : null;
+  if (total === 0) return null;
+  // No extra request needed -- the postings response already embeds the
+  // employing company's name on every item.
+  const companyName = response?.content?.[0]?.company?.name;
+  if (companyName && !namesOverlap(companyName, expectedName)) {
+    return { mismatch: true, feed_title: companyName };
+  }
+  return { token, total_jobs: total };
 }
 
 async function probeWorkable(slug, expectedName) {
@@ -376,7 +401,11 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     }
     if (!wiring && greenhouseHit && !existingTenants.has(greenhouseHit.tenant)) {
       console.log(`probing greenhouse:${greenhouseHit.tenant} (${record.name})…`);
-      const probe = await probeGreenhouse(greenhouseHit.tenant);
+      const probe = await probeGreenhouse(greenhouseHit.tenant, record.name);
+      if (probe?.mismatch) {
+        skipped.push({ name: record.name, reason: `greenhouse board title "${probe.feed_title}" does not match` });
+        continue;
+      }
       if (probe) wiring = { ats_provider: 'greenhouse', ats_token: probe.token, ats_config: undefined, total_jobs: probe.total_jobs };
     }
     if (!wiring && leverHit && !existingTenants.has(leverHit.tenant)) {
@@ -391,7 +420,11 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     }
     if (!wiring && smartRecruitersHit && !existingTenants.has(smartRecruitersHit.tenant)) {
       console.log(`probing smartrecruiters:${smartRecruitersHit.tenant} (${record.name})…`);
-      const probe = await probeSmartRecruiters(smartRecruitersHit.tenant);
+      const probe = await probeSmartRecruiters(smartRecruitersHit.tenant, record.name);
+      if (probe?.mismatch) {
+        skipped.push({ name: record.name, reason: `smartrecruiters company name "${probe.feed_title}" does not match` });
+        continue;
+      }
       if (probe) {
         wiring = { ats_provider: 'smartrecruiters', ats_token: probe.token, ats_config: undefined, total_jobs: probe.total_jobs };
       }

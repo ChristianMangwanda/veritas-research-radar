@@ -324,3 +324,16 @@ host was already registered under a punctuation-different name) found:
   cosmetology, HVAC adjunct instructors). No `isResearchRelevantTitle`
   keyword changes were needed — the regex itself held up under direct
   inspection every time.
+- **The Workday identity-check gap (fixed 2026-08-03) had two live siblings.**
+  Greenhouse and SmartRecruiters probes in `promote-employers.js` skipped
+  identity verification entirely, same as Workday did before. Fixed both:
+  Greenhouse's `/v1/boards/{token}` endpoint (separate from the `/jobs`
+  listing) returns `{name}`; SmartRecruiters' existing postings response
+  already embeds `content[0].company.name` for free, no extra request. Both
+  verified live against real registered tenants (American Institute,
+  Scripps Research) with zero false rejections. Lever and Ashby have no
+  identity-bearing field anywhere in their public APIs (checked live) — an
+  accepted, documented residual gap: Lever has only 3 registered employers
+  and tokens come from links scraped off the institution's own site, not
+  guessed via multi-site probing (what made the Workday case risky); Ashby
+  has zero registered employers today, so it's currently theoretical.
