@@ -76,6 +76,36 @@
     return candidate.getTime();
   }
 
+  function csvField(value) {
+    const text = value == null ? '' : String(value);
+    return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  }
+
+  // CSV of a shortlist export (routing view). RFC-4180 quoting; one row per
+  // job in the order given (already filtered + sorted by the caller).
+  function buildShortlistCsv(jobs, triageMap) {
+    const header = ['title', 'employer', 'location', 'url', 'fit', 'verdict',
+      'best_variant', 'closes', 'visa', 'status'];
+    const lines = [header.join(',')];
+    for (const job of jobs || []) {
+      const fit = job.fit || {};
+      const recommended = (fit.variants || []).find((variant) => variant.id === fit.recommended_variant);
+      lines.push([
+        csvField(job.title),
+        csvField(job.employer_name),
+        csvField(job.location),
+        csvField(job.url),
+        csvField(fit.fit_score ?? ''),
+        csvField(fit.verdict ?? ''),
+        csvField(recommended?.label || fit.recommended_variant || ''),
+        csvField(job.deadline || ''),
+        csvField(job.veritas_state || ''),
+        csvField(triageMap?.[job.id]?.status || 'new')
+      ].join(','));
+    }
+    return `${lines.join('\n')}\n`;
+  }
+
   // Last-write-wins per job by updated_at — merges a remote triage map into a
   // local one without losing either side's newer edits. Ties keep local
   // (strict >), so a device never discards its own record for an equal echo.
@@ -97,7 +127,8 @@
     daysSince,
     nextPullAt,
     groupPipeline,
-    mergeTriage
+    mergeTriage,
+    buildShortlistCsv
   };
 
   root.RadarPipeline = RadarPipeline;

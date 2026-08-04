@@ -1718,6 +1718,39 @@ function testNextPullAt() {
   assert.strictEqual(nextPullAt(at('2026-08-03T06:15:00Z')), at('2026-08-03T12:15:00Z'));
 }
 
+function testShortlistCsv() {
+  const { buildShortlistCsv } = RadarPipeline;
+  // Empty -> header only
+  assert.strictEqual(buildShortlistCsv([], {}).trim().split('\n').length, 1);
+  const jobs = [{
+    id: 'j1',
+    title: 'Data Scientist, "RegLab"',
+    employer_name: 'Stanford, Law School',
+    location: 'Stanford, CA',
+    url: 'https://example.org/j1',
+    deadline: '2026-08-20',
+    veritas_state: 'FRIENDLY',
+    fit: {
+      fit_score: 85,
+      verdict: 'strong',
+      recommended_variant: 'ds',
+      variants: [{ id: 'ds', label: 'Data science' }]
+    }
+  }, {
+    id: 'j2', title: 'Line\nBreak', employer_name: 'X', location: null, url: 'u', fit: null
+  }];
+  const csv = buildShortlistCsv(jobs, { j1: { status: 'applied' } });
+  const lines = csv.trim().split('\n');
+  assert.strictEqual(lines[0], 'title,employer,location,url,fit,verdict,best_variant,closes,visa,status');
+  // Quotes doubled, comma-bearing fields wrapped
+  assert.ok(lines[1].startsWith('"Data Scientist, ""RegLab""","Stanford, Law School"'));
+  assert.ok(lines[1].endsWith('85,strong,Data science,2026-08-20,FRIENDLY,applied'));
+  // Newline-bearing field is quoted (row spans two physical lines)
+  assert.ok(csv.includes('"Line\nBreak"'));
+  // Missing fit/triage -> blanks and default status
+  assert.ok(csv.trim().endsWith(',,,,,new'));
+}
+
 function testPipelineGrouping() {
   const { groupPipeline, PIPELINE_SET } = RadarPipeline;
 
@@ -2048,6 +2081,7 @@ async function main() {
   testDaysSince();
   testVariantInitials();
   testNextPullAt();
+  testShortlistCsv();
   testPipelineGrouping();
   testRoutingAmbiguity();
   testProfileV2();

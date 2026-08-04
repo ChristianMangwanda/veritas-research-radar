@@ -82,6 +82,7 @@ const DOM = {
   recency: document.querySelector('#recency'),
   statDiscovered: document.querySelector('#stat-discovered'),
   instrumentStrip: document.querySelector('#instrument-strip'),
+  activeFilters: document.querySelector('#active-filters'),
   digestArm: document.querySelector('#digest-arm'),
   digestPopover: document.querySelector('#digest-popover'),
   feedsNote: document.querySelector('#feeds-note'),
@@ -791,7 +792,8 @@ function hydrateFromUrl() {
   if (params.has('minVerdict')) setVerdictFilter(params.get('minVerdict'), { skipRender: true });
   if (params.has('recency')) DOM.recency.value = params.get('recency');
   if (params.has('source')) DOM.source.value = params.get('source');
-  if (params.get('view') === 'pipeline') setViewMode('pipeline', { skipRender: true });
+  const view = params.get('view');
+  if (view === 'pipeline' || view === 'routing') setViewMode(view, { skipRender: true });
 }
 
 /* ------------------------------------------------------------------------ */
@@ -933,6 +935,7 @@ function render() {
   renderLoadBanner();
 
   if (viewMode === 'pipeline') {
+    DOM.activeFilters.hidden = true;
     renderPipelineList();
     renderDetail();
     return;
@@ -941,6 +944,14 @@ function render() {
   DOM.pipelineStats.hidden = true;
   DOM.pipelineEmpty.hidden = true;
   DOM.instrumentStrip.hidden = true;
+
+  if (viewMode === 'routing') {
+    renderRoutingList();
+    renderDetail();
+    return;
+  }
+
+  DOM.activeFilters.hidden = true;
 
   const jobs = filteredJobs();
   state.visible = jobs;
@@ -1129,6 +1140,222 @@ function renderInstruments() {
   DOM.instrumentStrip.hidden = false;
 }
 
+/* ------------------------------------------------------------------------ */
+/* Routing matrix — all résumés scored in-row, send decision without a pane  */
+
+const TYPE_FACET_LABELS = {
+  institution_of_higher_education: 'University',
+  nonprofit_research_org: 'Institute',
+  nonprofit_research_hospital: 'Hospital',
+  federal_government: 'Federal'
+};
+
+const CAP_FACET_LABELS = { verified: 'strong', likely: 'likely', unknown: 'thin' };
+
+// Heat intensity follows the CALIBRATED verdict tiers, not the mock's
+// illustrative 40→90 range — on the discriminated score scale a strong fit
+// sits near 50-65, and the matrix must differentiate there.
+const HEAT_BY_VERDICT = { strong: 'h4', good: 'h3', moderate: 'h2', weak: 'h1', stretch: 'h0' };
+
+function heatClass(score) {
+  if (!Number.isFinite(score)) return 'h0';
+  return HEAT_BY_VERDICT[RadarScoring.verdictFor(score, false)] || 'h0';
+}
+
+// Every active filter as a removable chip — the routing view hides the
+// sidebar, so its filters must be visible AND clearable in place.
+function renderActiveFilterChips() {
+  DOM.activeFilters.replaceChildren();
+  const chips = [];
+  const add = (label, clear) => chips.push({ label, clear });
+  if (DOM.q.value.trim()) add(`“${DOM.q.value.trim()}”`, () => { DOM.q.value = ''; });
+  if (visaFilter) add(`Visa: ${visaFilter.toLowerCase()}`, () => setVisaFilter('', { skipRender: true }));
+  if (DOM.source.value) add(`Source: ${DOM.source.value}`, () => { DOM.source.value = ''; });
+  if (typeFilter) add(`Type: ${TYPE_FACET_LABELS[typeFilter] || typeFilter}`, () => setTypeFilter('', { skipRender: true }));
+  if (capValue()) add(`Evidence: ${CAP_FACET_LABELS[capValue()] || capValue()}`, () => setCapValue('', { skipRender: true }));
+  if (DOM.triageFilter.value) add(`Triage: ${TRIAGE_LABELS[DOM.triageFilter.value]}`, () => { DOM.triageFilter.value = ''; });
+  if (DOM.minResearch.value !== '0') add(`Research ≥ ${DOM.minResearch.value}`, () => { DOM.minResearch.value = '0'; });
+  if (verdictFilter) add(`Verdict ≥ ${verdictFilter}`, () => setVerdictFilter('', { skipRender: true }));
+  if (DOM.recency.value) add(`Seen ≤ ${DOM.recency.value}h`, () => { DOM.recency.value = ''; });
+  if (DOM.newOnly.checked) add('New only', () => { DOM.newOnly.checked = false; });
+  if (DOM.followupOnly.checked) add('Needs follow-up', () => { DOM.followupOnly.checked = false; });
+  if (DOM.remoteOnly.checked) add('Remote only', () => { DOM.remoteOnly.checked = false; });
+  if (DOM.includeClosed.checked) add('Incl. closed', () => { DOM.includeClosed.checked = false; });
+  if (DOM.includeFederal.checked) add('Incl. citizen-only', () => { DOM.includeFederal.checked = false; });
+
+  for (const chip of chips) {
+    const button = el('button', 'filter-chip', `${chip.label} ×`);
+    button.type = 'button';
+    button.addEventListener('click', () => {
+      chip.clear();
+      showAllRows = false;
+      render();
+    });
+    DOM.activeFilters.append(button);
+  }
+
+  const addFilter = el('button', 'link-button add-filter', '+ add filter');
+  addFilter.type = 'button';
+  addFilter.addEventListener('click', () => {
+    document.body.classList.add('show-filters');
+    DOM.q.focus();
+  });
+  DOM.activeFilters.append(addFilter);
+
+  const exportButton = el('button', 'primary-button export-csv', `Export ${state.visible.length.toLocaleString()}`);
+  exportButton.id = 'export-csv';
+  exportButton.type = 'button';
+  exportButton.addEventListener('click', exportShortlist);
+  DOM.activeFilters.append(exportButton);
+
+  DOM.activeFilters.hidden = false;
+}
+
+function exportShortlist() {
+  const csv = RadarPipeline.buildShortlistCsv(state.visible, state.local.triage);
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `veritas-shortlist-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function buildRoutingRow(job, variants) {
+  const row = el('article', 'job-row routing-row');
+  row.dataset.id = job.id;
+  row.setAttribute('role', 'option');
+  row.tabIndex = 0;
+
+  const role = el('div', 'r-role');
+  role.append(
+    el('span', 'row-title', job.title),
+    el('span', 'row-sub', `${job.employer_name} · ${job.location || 'Location unspecified'}`)
+  );
+
+  const visa = el('div', 'r-visa');
+  const visaTag = tag(job.veritas_state === 'NEUTRAL' ? 'No info' : (VISA_LABELS[job.veritas_state] || job.veritas_state),
+    VISA_TAGS[job.veritas_state] ?? '');
+  visa.append(visaTag);
+
+  const heat = el('div', 'r-heat');
+  const scored = new Map((job.fit?.variants || []).map((variant) => [variant.id, variant]));
+  for (const variant of variants) {
+    const score = scored.get(variant.id)?.score;
+    const cell = el('i', `heat-cell ${heatClass(score)}${variant.id === job.fit?.recommended_variant ? ' is-best' : ''}`);
+    cell.title = `${variant.label}: ${Number.isFinite(score) ? score : '—'}`;
+    heat.append(cell);
+  }
+
+  const fit = job.fit;
+  const recommended = fit?.recommended_variant
+    ? (fit.variants || []).find((variant) => variant.id === fit.recommended_variant)
+    : null;
+  const route = el('div', 'r-route', recommended?.label || '—');
+  const fitCell = el('div', 'r-fit', fit?.fit_score != null ? String(fit.fit_score) : '—');
+  const days = deadlineDays(job);
+  const closes = el('div', `r-closes${days != null && days <= 7 ? ' closes-soon' : ''}`,
+    days != null && days >= 0 ? `${days}d` : '—');
+
+  const act = el('div', 'r-act');
+  const status = triageFor(job);
+  if (status === 'new') {
+    const shortlist = el('button', 'ghost-button shortlist-btn', 'Shortlist');
+    shortlist.type = 'button';
+    shortlist.addEventListener('click', (event) => {
+      event.stopPropagation();
+      setTriage(job, 'shortlist');
+    });
+    act.append(shortlist);
+  } else {
+    act.append(el('span', 'r-status', TRIAGE_LABELS[status]));
+  }
+
+  row.append(role, visa, heat, route, fitCell, closes, act);
+  if (job.id === state.selectedId) row.classList.add('is-selected');
+  row.addEventListener('click', () => selectJob(job.id));
+  row.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      selectJob(job.id);
+    }
+  });
+  return row;
+}
+
+function renderRoutingList() {
+  DOM.jobs.replaceChildren();
+
+  const variants = state.profile?.variants || [];
+  if (!variants.length) {
+    state.visible = [];
+    renderActiveFilterChips();
+    DOM.count.textContent = 'routing matrix';
+    const empty = el('div', 'empty-state');
+    empty.append(
+      el('p', '', 'Load a résumé profile to use the routing matrix.'),
+      el('p', '', 'It scores every job across all your variants in one dense table.')
+    );
+    DOM.jobs.append(empty);
+    return;
+  }
+
+  const jobs = filteredJobs();
+  state.visible = jobs;
+  renderActiveFilterChips();
+  DOM.count.textContent =
+    `${jobs.length.toLocaleString()} of ${state.jobs.length.toLocaleString()} · sorted by ${SORT_LABELS[DOM.sort.value] || 'fit'}`;
+  DOM.jobs.style.setProperty('--variant-cols', `repeat(${variants.length}, 26px)`);
+
+  if (state.selectedId && !jobs.some((job) => job.id === state.selectedId)) {
+    state.selectedId = null;
+  }
+
+  const header = el('div', 'routing-row routing-table-head');
+  header.setAttribute('aria-hidden', 'true');
+  const heatHead = el('span', 'r-heat');
+  for (const variant of variants) {
+    heatHead.append(el('i', 'heat-col-label', variantAbbrev(variant.id)));
+  }
+  header.append(
+    el('span', 'r-role', 'Role · employer'),
+    el('span', 'r-visa', 'Visa'),
+    heatHead,
+    el('span', 'r-route', 'Best route'),
+    el('span', 'r-fit', 'Fit'),
+    el('span', 'r-closes', 'Closes'),
+    el('span', 'r-act', '')
+  );
+  DOM.jobs.append(header);
+
+  const toRender = showAllRows ? jobs : jobs.slice(0, LIST_RENDER_CAP);
+  for (const job of toRender) {
+    DOM.jobs.append(buildRoutingRow(job, variants));
+  }
+  if (jobs.length > toRender.length) {
+    const more = el('button', 'ghost-button show-all', `Show all ${jobs.length.toLocaleString()} jobs (rendering first ${toRender.length})`);
+    more.type = 'button';
+    more.addEventListener('click', () => {
+      showAllRows = true;
+      render();
+    });
+    DOM.jobs.append(more);
+  }
+
+  // Legend: the intensity ramp + the outlined "send this one" marker + key
+  const legend = el('div', 'routing-legend');
+  const ramp = el('span', 'legend-ramp');
+  for (const bucket of ['h1', 'h2', 'h3', 'h4']) ramp.append(el('i', `heat-cell ${bucket}`));
+  const best = el('i', 'heat-cell h2 is-best');
+  legend.append(
+    el('span', '', 'Fit'), ramp, el('span', '', 'weak → strong'),
+    el('span', 'legend-sep', '·'), best, el('span', '', 'the résumé to send'),
+    el('span', 'legend-key', variants.map((variant) => `${variantAbbrev(variant.id)} ${variant.label}`).join(' · '))
+  );
+  DOM.jobs.append(legend);
+}
+
 // The evidence sub-line under a row's visa tag — strongest behavioral signal
 // first: class-specific certifications, then any LCA history, then the
 // cap-exempt read. One line, so the column never wraps into chip soup.
@@ -1294,7 +1521,9 @@ function selectedJob() {
 function renderDetail() {
   const job = selectedJob();
 
-  if (narrowLayout.matches) {
+  // Routing is a single wide table — the detail pane appears as an overlay
+  // only when a row is selected, exactly like the narrow layout.
+  if (narrowLayout.matches || viewMode === 'routing') {
     DOM.detailPane.hidden = !job;
   } else {
     DOM.detailPane.hidden = false;
@@ -1921,11 +2150,12 @@ function setVerdictFilter(value, { skipRender = false } = {}) {
 }
 
 function setViewMode(value, { skipRender = false } = {}) {
-  viewMode = value === 'pipeline' ? 'pipeline' : 'radar';
+  viewMode = value === 'pipeline' || value === 'routing' ? value : 'radar';
   for (const button of DOM.viewSeg.querySelectorAll('button')) {
     button.classList.toggle('is-active', button.dataset.value === viewMode);
   }
   document.body.classList.toggle('pipeline-mode', viewMode === 'pipeline');
+  document.body.classList.toggle('routing-mode', viewMode === 'routing');
   showAllRows = false;
   if (!skipRender) render();
 }
@@ -1942,6 +2172,13 @@ function handleKeydown(event) {
   if (event.key === '/' && !typing) {
     event.preventDefault();
     DOM.q.focus();
+    return;
+  }
+  // Escape must close the routing filters drawer even from inside its inputs —
+  // the typing guard below would otherwise eat the only keyboard way out.
+  if (event.key === 'Escape' && viewMode === 'routing' && document.body.classList.contains('show-filters')) {
+    document.body.classList.remove('show-filters');
+    if (typing) target.blur();
     return;
   }
   if (typing || event.metaKey || event.ctrlKey || event.altKey) return;
@@ -1970,7 +2207,9 @@ function handleKeydown(event) {
       DOM.discoveryPanel.hidden = true;
       DOM.errorsPanel.hidden = true;
       DOM.digestPopover.hidden = true;
-    } else if (narrowLayout.matches) {
+    } else if (document.body.classList.contains('show-filters') && viewMode === 'routing') {
+      document.body.classList.remove('show-filters');
+    } else if (narrowLayout.matches || viewMode === 'routing') {
       state.selectedId = null;
       render();
     }
@@ -2289,6 +2528,16 @@ function bindEvents() {
 
   document.addEventListener('keydown', handleKeydown);
   narrowLayout.addEventListener('change', renderDetail);
+
+  // Routing mode floats the filters as a drawer — clicking anywhere outside
+  // it (except the button that opens it) closes it, so the chips row and the
+  // table stay reachable without hunting for a close control.
+  document.addEventListener('click', (event) => {
+    if (viewMode === 'routing' && document.body.classList.contains('show-filters')
+      && !event.target.closest('.filters') && !event.target.closest('.add-filter')) {
+      document.body.classList.remove('show-filters');
+    }
+  });
   // Detail events bind in rebindDetailRefs() after the skeleton is built —
   // the shell in index.html is empty until the first selection.
 }
@@ -2354,9 +2603,10 @@ async function init() {
   renderSyncStatus();
   bindEvents();
 
-  // Preselect the first job on wide screens so the detail pane is never empty
+  // Preselect the first job on wide screens so the detail pane is never
+  // empty — except in routing mode, where detail is an on-demand overlay.
   render();
-  if (!narrowLayout.matches && state.visible.length && !state.selectedId) {
+  if (!narrowLayout.matches && viewMode !== 'routing' && state.visible.length && !state.selectedId) {
     selectJob(state.visible[0].id);
   }
 }
