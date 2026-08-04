@@ -1414,6 +1414,7 @@ function buildRoutingRow(job, variants) {
   row.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
+      event.stopPropagation();
       selectJob(job.id);
     }
   });
@@ -1628,6 +1629,7 @@ function buildRow(job) {
   node.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
+      event.stopPropagation();
       selectJob(job.id);
     }
   });
@@ -2338,11 +2340,20 @@ function handleKeydown(event) {
     event.preventDefault();
     const previous = state.visible[Math.max(index - 1, 0)];
     if (previous) selectJob(previous.id, { scroll: true });
-  } else if (event.key === 'o' || event.key === 'Enter') {
+  } else if (event.key === 'o') {
     const job = selectedJob();
     if (job) {
       window.open(job.url, '_blank', 'noreferrer');
       maybeNudgeApply(job);
+    }
+  } else if (event.key === 'Enter') {
+    // Rows stop propagation; a focused button/link must keep native
+    // activation — only bare-body Enter re-reveals the selected job.
+    if (event.target !== document.body) return;
+    const job = selectedJob();
+    if (job) {
+      event.preventDefault();
+      selectJob(job.id, { scroll: true });
     }
   } else if (TRIAGE_KEYS[event.key]) {
     const job = selectedJob();
