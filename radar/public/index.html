@@ -201,6 +201,18 @@
           <span>Include citizen-only federal</span>
         </label>
 
+        <div class="save-view-wrap">
+          <button id="save-view" class="ghost-button" type="button">Save this view</button>
+          <div id="save-view-form" class="save-view-form" hidden>
+            <input id="save-view-name" type="text" placeholder="Name this view" maxlength="40">
+            <button id="save-view-confirm" class="ghost-button" type="button">Save</button>
+          </div>
+          <div id="saved-views" class="saved-views"></div>
+        </div>
+
+        <button id="ignored-note" class="feeds-note" type="button" hidden></button>
+        <div id="ignored-panel" class="ignored-panel" hidden></div>
+
         <button id="feeds-note" class="feeds-note" type="button" hidden></button>
 
         <section class="profile">

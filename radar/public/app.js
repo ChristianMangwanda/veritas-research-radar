@@ -83,6 +83,13 @@ const DOM = {
   statDiscovered: document.querySelector('#stat-discovered'),
   instrumentStrip: document.querySelector('#instrument-strip'),
   activeFilters: document.querySelector('#active-filters'),
+  saveView: document.querySelector('#save-view'),
+  saveViewForm: document.querySelector('#save-view-form'),
+  saveViewName: document.querySelector('#save-view-name'),
+  saveViewConfirm: document.querySelector('#save-view-confirm'),
+  savedViews: document.querySelector('#saved-views'),
+  ignoredNote: document.querySelector('#ignored-note'),
+  ignoredPanel: document.querySelector('#ignored-panel'),
   digestArm: document.querySelector('#digest-arm'),
   digestPopover: document.querySelector('#digest-popover'),
   feedsNote: document.querySelector('#feeds-note'),
@@ -278,22 +285,51 @@ async function getJson(url, fallback) {
 function loadTriageFromBrowser() {
   try {
     const stored = JSON.parse(localStorage.getItem(LOCAL_TRIAGE_KEY));
-    if (stored && typeof stored.triage === 'object') return stored;
+    if (stored && typeof stored.triage === 'object') {
+      if (!Array.isArray(stored.ignored_employers)) stored.ignored_employers = [];
+      return stored;
+    }
   } catch { /* corrupted -> fresh */ }
-  return { version: 1, triage: {} };
+  return { version: 1, triage: {}, ignored_employers: [] };
 }
 
 async function saveLocalState() {
+  const payload = {
+    triage: state.local.triage,
+    ignored_employers: state.local.ignored_employers || []
+  };
   try {
     const response = await fetch('/api/local-state', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ triage: state.local.triage })
+      body: JSON.stringify(payload)
     });
     if (!response.ok) throw new Error(String(response.status));
   } catch {
-    localStorage.setItem(LOCAL_TRIAGE_KEY, JSON.stringify({ version: 1, triage: state.local.triage }));
+    localStorage.setItem(LOCAL_TRIAGE_KEY, JSON.stringify({ version: 1, ...payload }));
   }
+}
+
+// Employers the user has hidden from discovery. A device-local preference —
+// deliberately NOT in the triage sync (it is not application state).
+function ignoredEmployers() {
+  return new Set(state.local.ignored_employers || []);
+}
+
+async function ignoreEmployer(job) {
+  const set = ignoredEmployers();
+  set.add(job.employer_id);
+  state.local.ignored_employers = [...set];
+  state.selectedId = null;
+  await saveLocalState();
+  render();
+}
+
+async function unignoreEmployer(employerId) {
+  state.local.ignored_employers = (state.local.ignored_employers || [])
+    .filter((id) => id !== employerId);
+  await saveLocalState();
+  render();
 }
 
 /* ------------------------------------------------------------------------ */
@@ -626,8 +662,16 @@ function filterPredicates() {
   // must not blank the list for a profile-less browser).
   const verdictCutoff = state.compiled ? RadarScoring.verdictRank(verdictFilter) : -1;
   const recencyFloor = DOM.recency.value ? Date.now() - Number(DOM.recency.value) * 3600 * 1000 : null;
+  const ignored = ignoredEmployers();
 
   return {
+    // Ignored employers vanish from discovery — but never a job you already
+    // acted on (demote-never-hide: the pipeline is sacred).
+    ignoredEmployer: (job) => {
+      if (!ignored.size || !ignored.has(job.employer_id)) return true;
+      const status = triageFor(job);
+      return PROTECTED_TRIAGE.has(status) || RadarPipeline.PIPELINE_SET.has(status);
+    },
     federal: (job) => !job.citizenship_gated || DOM.includeFederal.checked,
     closed: (job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)),
     newOnly: (job) => !DOM.newOnly.checked || isNewSinceLastVisit(job),
@@ -715,7 +759,7 @@ function activeFilterCount() {
   return count;
 }
 
-function resetFilters() {
+function clearAllFilters() {
   DOM.q.value = '';
   DOM.source.value = '';
   DOM.triageFilter.value = '';
@@ -726,10 +770,15 @@ function resetFilters() {
   DOM.includeFederal.checked = false;
   DOM.minResearch.value = '0';
   DOM.recency.value = '';
+  DOM.sort.value = 'fit';
   setTypeFilter('', { skipRender: true });
   setCapValue('', { skipRender: true });
   setVerdictFilter('', { skipRender: true });
-  setVisaFilter('');
+  setVisaFilter('', { skipRender: true });
+}
+
+function resetFilters() {
+  clearAllFilters();
   render();
 }
 
@@ -753,7 +802,8 @@ function applyTodayPreset() {
 /* ------------------------------------------------------------------------ */
 /* URL state                                                                 */
 
-function syncUrl() {
+// One serialization for both the URL and saved views.
+function buildParams() {
   const params = new URLSearchParams();
   if (DOM.q.value.trim()) params.set('q', DOM.q.value.trim());
   if (DOM.sort.value !== 'fit') params.set('sort', DOM.sort.value);
@@ -771,12 +821,16 @@ function syncUrl() {
   if (verdictFilter) params.set('minVerdict', verdictFilter);
   if (DOM.recency.value) params.set('recency', DOM.recency.value);
   if (viewMode !== 'radar') params.set('view', viewMode);
-  const qs = params.toString();
+  return params;
+}
+
+function syncUrl() {
+  const qs = buildParams().toString();
   history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
 }
 
-function hydrateFromUrl() {
-  const params = new URLSearchParams(window.location.search);
+function hydrateFromUrl(paramsOverride) {
+  const params = paramsOverride || new URLSearchParams(window.location.search);
   if (params.has('q')) DOM.q.value = params.get('q');
   if (params.has('sort') && SORTERS[params.get('sort')]) DOM.sort.value = params.get('sort');
   DOM.newOnly.checked = params.get('newOnly') === '1';
@@ -794,6 +848,87 @@ function hydrateFromUrl() {
   if (params.has('source')) DOM.source.value = params.get('source');
   const view = params.get('view');
   if (view === 'pipeline' || view === 'routing') setViewMode(view, { skipRender: true });
+}
+
+/* ------------------------------------------------------------------------ */
+/* Saved views — named filter presets, local to this browser                 */
+
+const VIEWS_KEY = 'veritas_radar_views';
+
+function loadViews() {
+  try {
+    const views = JSON.parse(localStorage.getItem(VIEWS_KEY));
+    return Array.isArray(views) ? views : [];
+  } catch { return []; }
+}
+
+function persistViews(views) {
+  localStorage.setItem(VIEWS_KEY, JSON.stringify(views));
+}
+
+function renderSavedViews() {
+  const views = loadViews();
+  DOM.savedViews.replaceChildren();
+  for (const view of views) {
+    const row = el('div', 'saved-view-row');
+    const apply = el('button', 'link-button saved-view-apply', view.name);
+    apply.type = 'button';
+    apply.title = 'Apply this view';
+    apply.addEventListener('click', () => applyView(view));
+    const remove = el('button', 'link-button saved-view-delete', '×');
+    remove.type = 'button';
+    remove.title = 'Delete this saved view';
+    remove.addEventListener('click', () => {
+      persistViews(loadViews().filter((entry) => entry.name !== view.name));
+      renderSavedViews();
+    });
+    row.append(apply, remove);
+    DOM.savedViews.append(row);
+  }
+}
+
+function applyView(view) {
+  clearAllFilters();
+  hydrateFromUrl(new URLSearchParams(view.params || ''));
+  showAllRows = false;
+  render();
+}
+
+function saveCurrentView() {
+  const name = (DOM.saveViewName.value || '').trim() || `View ${loadViews().length + 1}`;
+  const views = loadViews().filter((entry) => entry.name !== name);
+  views.push({ name, params: buildParams().toString(), created_at: new Date().toISOString() });
+  persistViews(views);
+  DOM.saveViewName.value = '';
+  DOM.saveViewForm.hidden = true;
+  renderSavedViews();
+}
+
+/* ------------------------------------------------------------------------ */
+/* Ignored employers — sidebar management                                    */
+
+function renderIgnoredNote() {
+  const ignored = state.local.ignored_employers || [];
+  DOM.ignoredNote.hidden = ignored.length === 0;
+  if (!ignored.length) {
+    DOM.ignoredPanel.hidden = true;
+    return;
+  }
+  DOM.ignoredNote.textContent = `${ignored.length} employer${ignored.length === 1 ? '' : 's'} hidden · manage`;
+  if (!DOM.ignoredPanel.hidden) renderIgnoredPanel();
+}
+
+function renderIgnoredPanel() {
+  DOM.ignoredPanel.replaceChildren();
+  for (const employerId of state.local.ignored_employers || []) {
+    const name = state.jobs.find((job) => job.employer_id === employerId)?.employer_name || employerId;
+    const row = el('div', 'ignored-row');
+    const unhide = el('button', 'link-button', 'Unhide');
+    unhide.type = 'button';
+    unhide.addEventListener('click', () => unignoreEmployer(employerId));
+    row.append(el('span', 'ignored-name', name), unhide);
+    DOM.ignoredPanel.append(row);
+  }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -933,6 +1068,7 @@ function render() {
   DOM.filtersToggle.querySelector('.count-slot').textContent = filters ? `(${filters})` : '';
   renderFacetCounts();
   renderLoadBanner();
+  renderIgnoredNote();
 
   if (viewMode === 'pipeline') {
     DOM.activeFilters.hidden = true;
@@ -1714,6 +1850,12 @@ function buildDetailSkeleton() {
     button.dataset.value = value;
     links.append(button);
   }
+  // An action, not a status — no data-value, so the triage delegation skips it
+  const ignoreEmp = el('button', 'link-button ignore-employer', 'Ignore employer');
+  ignoreEmp.id = 'ignore-employer';
+  ignoreEmp.type = 'button';
+  ignoreEmp.title = 'Hide every posting from this employer (undo in the sidebar; jobs you acted on stay)';
+  links.append(ignoreEmp);
   controls.append(controlsLabel, stepper, stateLine, links);
 
   const notes = el('section', 'detail-notes');
@@ -2342,6 +2484,11 @@ function bindDetailEvents() {
     render();
   });
 
+  document.querySelector('#ignore-employer').addEventListener('click', () => {
+    const job = selectedJob();
+    if (job) ignoreEmployer(job);
+  });
+
   DOM.copyResumePath.addEventListener('click', async () => {
     const path = DOM.copyResumePath.dataset.path;
     if (!path) return;
@@ -2511,6 +2658,20 @@ function bindEvents() {
   DOM.digestArm.addEventListener('click', () => toggleDrawer(DOM.digestPopover));
   DOM.feedsNote.addEventListener('click', () => toggleDrawer(DOM.errorsPanel));
 
+  DOM.saveView.addEventListener('click', () => {
+    DOM.saveViewForm.hidden = !DOM.saveViewForm.hidden;
+    if (!DOM.saveViewForm.hidden) DOM.saveViewName.focus();
+  });
+  DOM.saveViewConfirm.addEventListener('click', saveCurrentView);
+  DOM.saveViewName.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') saveCurrentView();
+  });
+
+  DOM.ignoredNote.addEventListener('click', () => {
+    DOM.ignoredPanel.hidden = !DOM.ignoredPanel.hidden;
+    if (!DOM.ignoredPanel.hidden) renderIgnoredPanel();
+  });
+
   DOM.digestPopover.addEventListener('click', async (event) => {
     const button = event.target.closest('.copy-cmd');
     if (!button) return;
@@ -2569,6 +2730,7 @@ async function init() {
   state.discovery = discovery || null;
   // null means no API server (static hosting) -> browser-local triage
   state.local = local || loadTriageFromBrowser();
+  if (!Array.isArray(state.local.ignored_employers)) state.local.ignored_employers = [];
   // Cross-device sync (1.2): pull Supabase triage, merge last-write-wins, and
   // push the merged set back so remote picks up any local-only edits. Off (and
   // a clean no-op) until a sync token is set; never blocks load on failure.
@@ -2601,6 +2763,7 @@ async function init() {
   // Keep the next-pull countdown honest without touching anything else
   setInterval(renderRefreshMetaLine, 60000);
   renderSyncStatus();
+  renderSavedViews();
   bindEvents();
 
   // Preselect the first job on wide screens so the detail pane is never

@@ -570,6 +570,58 @@ input[type="range"] {
 
 .feeds-note.feeds-warn { color: var(--restricted-ink); }
 
+.save-view-wrap {
+  display: grid;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.save-view-wrap .ghost-button { justify-self: start; font-size: 12px; padding: 4px 10px; }
+
+.save-view-form { display: flex; gap: 6px; }
+
+.save-view-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 8px;
+  font-size: 12.5px;
+}
+
+.saved-views { display: grid; gap: 2px; }
+
+.saved-view-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.saved-view-apply { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.saved-view-delete { color: var(--faint); }
+.saved-view-delete:hover { color: var(--restricted-ink); }
+
+.ignored-panel {
+  display: grid;
+  gap: 4px;
+  padding: 6px 0;
+  font-size: 12px;
+}
+
+.ignored-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ignored-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+
+.ignore-employer { color: var(--faint); }
+
+
 .check {
   display: flex;
   align-items: center;
@@ -622,16 +674,8 @@ input[type="range"] {
 .profile-variants li { display: flex; align-items: center; gap: 6px; }
 .profile-variants .variant-terms { margin-left: auto; color: var(--faint); font-size: 11px; }
 
-.variant-dot {
-  width: 8px;
-  height: 8px;
-  flex: none;
-  display: inline-block;
-}
 .variant-abbrev { font-weight: 700; font-size: 11px; letter-spacing: 0.04em; }
 .variant-label { font-size: 12.5px; }
-
-.tag-variant { background: var(--panel-2); border: 1px solid var(--line); }
 
 .file-button {
   position: relative;
@@ -1237,12 +1281,6 @@ body.pipeline-mode .jobs-header { display: none; }
 .tag-warn { background: var(--warn-soft); color: var(--warn-ink); }
 .tag-info { background: var(--info-soft); color: var(--info-ink); }
 .tag-accent { background: var(--accent-soft); color: var(--accent-ink); }
-
-.triage-dot {
-  width: 8px;
-  height: 8px;
-  flex-shrink: 0;
-}
 
 .empty-state {
   padding: 48px 20px;

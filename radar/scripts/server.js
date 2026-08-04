@@ -74,6 +74,7 @@ function defaultLocalState() {
   return {
     version: 1,
     updated_at: null,
+    ignored_employers: [],
     triage: {}
   };
 }
@@ -123,7 +124,10 @@ async function route(request, response) {
     const state = {
       version: 1,
       updated_at: new Date().toISOString(),
-      triage: payload.triage && typeof payload.triage === 'object' ? payload.triage : {}
+      triage: payload.triage && typeof payload.triage === 'object' ? payload.triage : {},
+      ignored_employers: Array.isArray(payload.ignored_employers)
+        ? payload.ignored_employers.filter((id) => typeof id === 'string')
+        : []
     };
     await writeJson(LOCAL_STATE_PATH, state);
     send(response, 200, JSON.stringify(state));
