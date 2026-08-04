@@ -23,6 +23,9 @@ const {
   parsePaylocityListPage,
   parsePaylocityDetailPage,
   mapInterfolioJob,
+  mapGovernmentJobsJob,
+  parseGovernmentJobsListPage,
+  parseGovernmentJobsDetailPage,
   mapRecruiteeJob,
   mapBreezyJob,
   mapWorkableJob,
@@ -692,6 +695,59 @@ function testProviderMappers() {
   assert.strictEqual(ilNoLegacy.location, 'Unspecified');
   assert.strictEqual(ilNoLegacy.description_text, '');
   assert.strictEqual(ilNoLegacy.posted_or_updated_at, null);
+
+  // GovernmentJobs/NeoGov (schooljobs.com): the same list URL a browser hits
+  // serves a full page shell UNLESS the request carries an
+  // X-Requested-With: XMLHttpRequest header, in which case it returns the
+  // plain HTML job table fragment used here (found by network-capturing the
+  // real request against a live tenant).
+  const govJobsListHtml = `
+    <table><tbody>
+      <tr>
+        <th scope="row" class="job-table-title" data-job-id="5431244">
+          <a class="item-details-link" href="/careers/ysu/jobs/5431244/lecturer-civil-engineering">Lecturer, Civil Engineering</a>
+        </th>
+        <td class="job-table-type">Professional Administrative</td>
+        <td class="job-table-posted hidden-sm hidden-xs">07/30/26</td>
+        <td class="job-table-closing"></td>
+        <td class="job-table-department">Academic Affairs</td>
+        <td class="job-table-department">Civil Engineering</td>
+        <td class="job-table-location hidden-sm hidden-xs">Youngstown, Ohio</td>
+        <td class="job-table-jobnumber">202600123</td>
+      </tr>
+    </tbody></table>`;
+  const govJobsListItems = parseGovernmentJobsListPage(govJobsListHtml);
+  assert.strictEqual(govJobsListItems.length, 1);
+  assert.strictEqual(govJobsListItems[0].title, 'Lecturer, Civil Engineering');
+  assert.strictEqual(govJobsListItems[0].department, 'Academic Affairs / Civil Engineering');
+  assert.strictEqual(govJobsListItems[0].location, 'Youngstown, Ohio');
+  assert.deepStrictEqual(parseGovernmentJobsListPage('<html>no rows here</html>'), []);
+
+  const govJobsDetailHtml = `
+    <div id="details-info" class="tab-content">
+      <dl>
+        <dt><h2>Summary of Position</h2></dt>
+        <dd><p>Teach undergraduate civil engineering courses.</p></dd>
+        <dt><h2>Qualifications</h2></dt>
+        <dd><p>PhD in Civil Engineering required.</p></dd>
+      </dl>
+    </div>`;
+  const govJobsDetail = parseGovernmentJobsDetailPage(govJobsDetailHtml);
+  assert.match(govJobsDetail.description, /Teach undergraduate civil engineering/);
+
+  const govJobsEmployer = { id: 'exampleu-gj', ats_token: 'exgj', ats_config: { host: 'www.schooljobs.com', agency: 'exgj' }, research_areas: [] };
+  const gj = mapGovernmentJobsJob(govJobsListItems[0], govJobsDetail, govJobsEmployer);
+  assert.strictEqual(gj.id, 'governmentjobs:exgj:5431244');
+  assert.strictEqual(gj.source, 'governmentjobs');
+  assert.strictEqual(gj.url, 'https://www.schooljobs.com/careers/ysu/jobs/5431244/lecturer-civil-engineering');
+  assert.strictEqual(gj.department, 'Academic Affairs / Civil Engineering');
+  assert.strictEqual(gj.description_text, 'Summary of Position Teach undergraduate civil engineering courses. Qualifications PhD in Civil Engineering required.');
+  assert.strictEqual(gj.posted_or_updated_at, '2026-07-30T00:00:00Z');
+  assert.strictEqual(gj.source_job_id, '5431244');
+  // Detail fetch failed -> falls back to list-only fields, still usable
+  const gjNoDetail = mapGovernmentJobsJob(govJobsListItems[0], null, govJobsEmployer);
+  assert.strictEqual(gjNoDetail.description_text, '');
+  assert.strictEqual(gjNoDetail.title, 'Lecturer, Civil Engineering');
 
   // Title prefilter: research-shaped titles pass, admin titles do not
   assert.strictEqual(isResearchRelevantTitle('Senior Research Scientist', workdayEmployer), true);
@@ -1984,6 +2040,51 @@ function testQualifiedPredicate() {
   assert.strictEqual(isQualified(scored), false);
 }
 
+function testManifestSync() {
+  const { syncManifest, slugify, isResumeFile, labelFromFile } = require('../radar/scripts/lib/manifest-sync.js');
+
+  // The bug this exists to kill: a dropped-in resume used to be silently
+  // ignored because the manifest was non-empty and valid.
+  const existing = {
+    schema_version: 1,
+    variants: [{ id: 'ml-engineer', label: 'ML Engineer', file: 'ML.pdf', intent: 'ML engineer' }]
+  };
+  const synced = syncManifest(existing, ['ML.pdf', 'New_Resume.docx', '.DS_Store', 'notes.rtf']);
+  assert.strictEqual(synced.added.length, 1, 'only the unregistered resume is added');
+  assert.strictEqual(synced.added[0].file, 'New_Resume.docx');
+  assert.strictEqual(synced.added[0].intent, '', 'intent is left for the caller to fill');
+  assert.strictEqual(synced.added[0].intent_source, 'auto');
+  assert.strictEqual(synced.changed, true);
+  assert.strictEqual(synced.manifest.variants.length, 2);
+  // The hand-written entry is untouched.
+  assert.deepStrictEqual(synced.manifest.variants[0], existing.variants[0]);
+  // Dotfiles (.extract-cache.json lives in this dir) and non-resume types are ignored.
+  assert.strictEqual(isResumeFile('.extract-cache.json'), false);
+  assert.strictEqual(isResumeFile('notes.rtf'), false);
+  assert.strictEqual(isResumeFile('CV.PDF'), true, 'extension check is case-insensitive');
+
+  // A file that vanished is reported, never auto-deleted — a moved file must
+  // cost one variant, not the whole profile.
+  const gone = syncManifest(existing, []);
+  assert.strictEqual(gone.missing.length, 1);
+  assert.strictEqual(gone.missing[0].file, 'ML.pdf');
+  assert.strictEqual(gone.added.length, 0);
+
+  // Ids stay unique when two files slugify the same.
+  const collide = syncManifest({ schema_version: 1, variants: [] }, ['Resume.pdf', 'resume.docx']);
+  const ids = collide.manifest.variants.map((v) => v.id);
+  assert.strictEqual(new Set(ids).size, 2, `ids must be unique, got ${ids.join(',')}`);
+  for (const id of ids) assert.match(id, /^[a-z0-9][a-z0-9-]{0,23}$/, `${id} must satisfy manifest id rules`);
+
+  // Null/absent manifest bootstraps from the directory listing.
+  const fresh = syncManifest(null, ['Mangwanda_Resume_DataEngineer.docx']);
+  assert.strictEqual(fresh.manifest.schema_version, 1);
+  assert.strictEqual(fresh.manifest.variants[0].id, 'mangwanda-resume-dataeng');
+  assert.strictEqual(fresh.manifest.variants[0].label, 'Mangwanda Resume DataEngineer');
+  assert.strictEqual(labelFromFile('CM Resume .pdf'), 'CM Resume');
+  assert.strictEqual(slugify('CM Resume .pdf'), 'cm-resume');
+}
+
 function testProfileFreshness() {
   const { profileFreshness } = require('../radar/scripts/lib/profile-freshness.js');
   const os = require('os');
@@ -2758,6 +2859,7 @@ async function main() {
   testEligibility();
   testRoleTrack();
   testQualifiedPredicate();
+  testManifestSync();
   testProfileFreshness();
   testFitAudit();
   testReachabilityDemotion();

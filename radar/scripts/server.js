@@ -7,6 +7,7 @@ const path = require('path');
 const { URL } = require('url');
 const { spawn } = require('child_process');
 const { profileFreshness } = require('./lib/profile-freshness.js');
+const { syncManifest, isResumeFile, RESUME_EXTENSIONS } = require('./lib/manifest-sync.js');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RADAR_DIR = path.join(ROOT, 'radar');
@@ -14,6 +15,7 @@ const DATA_DIR = path.join(RADAR_DIR, 'data');
 const PUBLIC_DIR = path.join(RADAR_DIR, 'public');
 const LOCAL_STATE_PATH = path.join(DATA_DIR, 'local-state.json');
 const RESUMES_DIR = path.join(DATA_DIR, 'resumes');
+const MANIFEST_PATH = path.join(RESUMES_DIR, 'manifest.json');
 const PROFILE_PATH = path.join(DATA_DIR, 'profile.json');
 const BUILD_PROFILE = path.join(__dirname, 'build-profile.js');
 
@@ -55,6 +57,38 @@ async function readBody(request) {
   const chunks = [];
   for await (const chunk of request) chunks.push(chunk);
   return Buffer.concat(chunks).toString('utf8');
+}
+
+const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
+
+async function readBodyBuffer(request) {
+  const chunks = [];
+  let total = 0;
+  for await (const chunk of request) {
+    total += chunk.length;
+    if (total > MAX_UPLOAD_BYTES) throw new Error('file too large (15 MB max)');
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}
+
+// Uploads name their file in a header rather than multipart — one filename,
+// no parser dependency. Everything about the name is rebuilt from scratch
+// here: basename only, allowed extension only, no separators, no dotfiles.
+function safeResumeName(raw) {
+  const decoded = (() => {
+    try { return decodeURIComponent(String(raw || '')); } catch { return String(raw || ''); }
+  })();
+  const base = path.basename(decoded).replace(/[/\\]/g, '');
+  const extension = path.extname(base).toLowerCase();
+  if (!RESUME_EXTENSIONS.includes(extension)) return null;
+  const stem = base.slice(0, base.length - extension.length)
+    .replace(/[^A-Za-z0-9 ._-]/g, '')
+    .replace(/^[.\s]+/, '')
+    .trim()
+    .slice(0, 80);
+  if (!stem) return null;
+  return `${stem}${extension}`;
 }
 
 function send(response, status, body, contentType = 'application/json; charset=utf-8', extraHeaders = null) {
@@ -146,6 +180,36 @@ function watchResumes() {
   }
 }
 
+// What the Resumes panel renders: manifest entries joined with what's really
+// on disk, plus the current build state so the panel can narrate itself.
+async function listResumes() {
+  let files = [];
+  try {
+    files = (await fs.readdir(RESUMES_DIR)).filter(isResumeFile);
+  } catch { /* no dir yet */ }
+  const manifest = await readJson(MANIFEST_PATH, { schema_version: 1, variants: [] });
+  const { manifest: synced, missing } = syncManifest(manifest, files);
+  const missingFiles = new Set(missing.map((variant) => variant.file));
+  const profile = await readJson(PROFILE_PATH, null);
+  const skillCounts = new Map(
+    (profile?.variants || []).map((variant) => [variant.id, (variant.skills || []).length])
+  );
+  return {
+    variants: (synced.variants || []).map((variant) => ({
+      id: variant.id,
+      label: variant.label,
+      file: variant.file,
+      intent: variant.intent,
+      intent_source: variant.intent_source || 'user',
+      missing: missingFiles.has(variant.file),
+      pending: !skillCounts.has(variant.id),
+      skill_terms: skillCounts.get(variant.id) ?? null
+    })),
+    building: rebuild.running,
+    last_result: rebuild.last
+  };
+}
+
 /* ------------------------------------------------------------------------ */
 
 // CORS for the hosted-dashboard bridge. Chrome's Private Network Access sends
@@ -178,6 +242,74 @@ async function route(request, response) {
       building: rebuild.running,
       last_result: rebuild.last
     }), undefined, cors);
+    return;
+  }
+
+  /* Resume variants: the dashboard owns these now — upload, rename, retitle,
+     remove. manifest.json is written here so the user never opens it. Writes
+     are localhost-only (never in BRIDGE_PATHS). */
+
+  if (request.method === 'GET' && url.pathname === '/api/resumes') {
+    send(response, 200, JSON.stringify(await listResumes()));
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/resumes') {
+    const name = safeResumeName(request.headers['x-resume-filename']);
+    if (!name) {
+      send(response, 400, JSON.stringify({ error: `Give the file a name ending in ${RESUME_EXTENSIONS.join(', ')}.` }));
+      return;
+    }
+    let body;
+    try {
+      body = await readBodyBuffer(request);
+    } catch (error) {
+      send(response, 413, JSON.stringify({ error: error.message }));
+      return;
+    }
+    if (!body.length) {
+      send(response, 400, JSON.stringify({ error: 'empty file' }));
+      return;
+    }
+    await fs.mkdir(RESUMES_DIR, { recursive: true });
+    await fs.writeFile(path.join(RESUMES_DIR, name), body);
+    // build-profile registers it (and writes an intent) on the rebuild.
+    runProfileRebuild(`upload: ${name}`);
+    send(response, 200, JSON.stringify({ ok: true, file: name, ...(await listResumes()) }));
+    return;
+  }
+
+  // Edit labels/intents, or drop a variant. Body: {variants:[{id,label,intent}],
+  // remove:[id], delete_files:bool}
+  if (request.method === 'POST' && url.pathname === '/api/resume-variants') {
+    const payload = JSON.parse(await readBody(request) || '{}');
+    const manifest = await readJson(MANIFEST_PATH, { schema_version: 1, variants: [] });
+    const byId = new Map((manifest.variants || []).map((variant) => [variant.id, variant]));
+
+    for (const edit of Array.isArray(payload.variants) ? payload.variants : []) {
+      const variant = byId.get(edit.id);
+      if (!variant) continue;
+      if (typeof edit.label === 'string' && edit.label.trim()) variant.label = edit.label.trim().slice(0, 60);
+      if (typeof edit.intent === 'string' && edit.intent.trim()) {
+        variant.intent = edit.intent.trim().slice(0, 600);
+        variant.intent_source = 'user'; // a hand-written intent is never overwritten
+      }
+    }
+
+    const removing = new Set(Array.isArray(payload.remove) ? payload.remove : []);
+    const removed = (manifest.variants || []).filter((variant) => removing.has(variant.id));
+    manifest.variants = (manifest.variants || []).filter((variant) => !removing.has(variant.id));
+
+    // Removing a variant deletes its FILE too — otherwise the next rebuild
+    // re-registers it and the removal looks broken.
+    for (const variant of removed) {
+      const target = path.join(RESUMES_DIR, path.basename(variant.file));
+      if (target.startsWith(RESUMES_DIR)) await fs.rm(target, { force: true });
+    }
+
+    await writeJson(MANIFEST_PATH, manifest);
+    runProfileRebuild('variants edited');
+    send(response, 200, JSON.stringify({ ok: true, ...(await listResumes()) }));
     return;
   }
 

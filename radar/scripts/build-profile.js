@@ -45,6 +45,8 @@ const {
   ollamaChat
 } = require('./lib/ollama.js');
 
+const { syncManifest, slugify } = require('./lib/manifest-sync.js');
+
 const DATA_DIR = path.resolve(__dirname, '../data');
 const RESUMES_DIR = path.join(DATA_DIR, 'resumes');
 const MANIFEST_PATH = path.join(RESUMES_DIR, 'manifest.json');
@@ -140,14 +142,8 @@ Be honest about career stage and degree status — the matcher penalizes jobs wh
 /* ------------------------------------------------------------------------ */
 /* Pure helpers (exported for tests)                                         */
 
-function slugify(value) {
-  return String(value || '')
-    .toLowerCase()
-    .replace(/\.[a-z0-9]+$/, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 24) || 'variant';
-}
+// slugify now lives in lib/manifest-sync.js (shared with the auto-registration
+// path); re-exported below so callers and tests keep one import site.
 
 function validateManifest(manifest) {
   if (!manifest || typeof manifest !== 'object') return 'manifest is not an object';
@@ -476,20 +472,69 @@ async function scaffoldManifest() {
   }
 }
 
+// One line telling the extractor how to read an otherwise ambiguous resume.
+// It's the only thing the file itself can't supply, so when a resume arrives
+// unannounced we ask the model to write it rather than dropping the file or
+// blocking on a hand-edit. Marked intent_source:'auto' so the dashboard can
+// show it as a draft worth overriding.
+const INTENT_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['intent'],
+  properties: {
+    intent: {
+      type: 'string',
+      description: 'One sentence, under 30 words: what this resume variant leads with and the kind of role it targets. Write it as the candidate would ("Data engineer building Python/SQL pipelines end to end").'
+    }
+  }
+};
+
+async function inferIntent(ctx, text, label) {
+  if (ctx.provider !== 'ollama') return null; // hosted path: keep it cheap, fall back to the label
+  try {
+    if (!ctx.ollamaChecked) {
+      if (!(await ollamaAvailable(ctx.baseUrl))) return null;
+      ctx.ollamaChecked = true;
+    }
+    const parsed = await ollamaChat({
+      baseUrl: ctx.baseUrl,
+      model: ctx.model,
+      system: 'You summarize a resume in one line for a job-matching system. Be concrete and specific to THIS resume; never invent experience.',
+      user: `Resume filename hints the variant is "${label}". Write its one-line intent.\n\n${text.slice(0, 4000)}`,
+      format: INTENT_SCHEMA,
+      options: { temperature: 0, num_predict: 256 }
+    });
+    const intent = parsed && typeof parsed.intent === 'string' ? parsed.intent.trim() : '';
+    return intent.length >= MIN_INTENT_CHARS ? intent : null;
+  } catch {
+    return null; // never block a build on the nicety
+  }
+}
+
 async function loadManifest() {
-  const manifest = await readJson(MANIFEST_PATH, null);
-  // Missing manifest, or an untouched empty scaffold (user dropped resume
-  // files in after the first run): (re)scaffold from the directory listing.
-  if (!manifest || (Array.isArray(manifest.variants) && manifest.variants.length === 0)) {
+  const stored = await readJson(MANIFEST_PATH, null);
+  let files = [];
+  try {
+    files = await fsp.readdir(RESUMES_DIR);
+  } catch { /* dir missing -> scaffold path below */ }
+
+  // Reconcile with what's actually on disk BEFORE validating: a resume you
+  // dropped in is a variant you want ranked, not an error and never a silent
+  // no-op.
+  const { manifest, added, missing } = syncManifest(stored, files);
+
+  if (manifest.variants.length === 0) {
     await scaffoldManifest();
     process.exit(1);
   }
-  const problem = validateManifest(manifest);
-  if (problem) {
-    console.error(`Invalid ${path.relative(process.cwd(), MANIFEST_PATH)}: ${problem}`);
-    process.exit(1);
+
+  if (added.length) {
+    console.log(`Found ${added.length} new resume file(s) — registering: ${added.map((v) => v.file).join(', ')}`);
   }
-  return manifest;
+  for (const variant of missing) {
+    console.error(`Warning: ${variant.file} ("${variant.label}") is in the manifest but not on disk — skipping it this build.`);
+  }
+  return { manifest, added, missing, storedWasValid: Boolean(stored) };
 }
 
 /* ------------------------------------------------------------------------ */
@@ -603,6 +648,8 @@ async function main() {
 
   let manifest;
   let baseDir;
+  let added = [];
+  let missing = [];
   if (opts.positional.length > 0) {
     // Legacy single-file mode: one variant named "default".
     const resumePath = path.resolve(opts.positional[0]);
@@ -617,8 +664,33 @@ async function main() {
     };
     baseDir = path.dirname(resumePath);
   } else {
-    manifest = await loadManifest();
+    ({ manifest, added, missing } = await loadManifest());
     baseDir = RESUMES_DIR;
+  }
+
+  // Give every auto-registered variant an intent before validation: ask the
+  // model to read the resume, fall back to the filename-derived label. The
+  // manifest is the user's file, so this is written back once and then left
+  // alone — later builds see a normal hand-editable entry.
+  for (const variant of added) {
+    let text = null;
+    try {
+      text = await readResumeText(path.resolve(baseDir, variant.file));
+    } catch { /* handled in the main loop */ }
+    const inferred = text ? await inferIntent(ctx, text, variant.label) : null;
+    variant.intent = inferred || `${variant.label} resume`;
+    variant.intent_source = inferred ? 'auto' : 'filename';
+    console.log(`  ${variant.file} -> "${variant.label}": ${variant.intent}`);
+  }
+  if (added.length && opts.positional.length === 0) {
+    await writeJson(MANIFEST_PATH, manifest);
+    console.log(`Updated ${path.relative(process.cwd(), MANIFEST_PATH)} — edit any auto-written intent in the dashboard's Resumes panel.`);
+  }
+
+  const problem = validateManifest(manifest);
+  if (problem) {
+    console.error(`Invalid ${path.relative(process.cwd(), MANIFEST_PATH)}: ${problem}`);
+    process.exit(1);
   }
 
   const cache = await readJson(CACHE_PATH, { schema_version: 1, entries: {} });
@@ -627,8 +699,11 @@ async function main() {
   const variants = [];
   let extractedCount = 0;
   let cachedCount = 0;
+  const missingFiles = new Set(missing.map((variant) => variant.file));
 
   for (const variant of manifest.variants) {
+    // A moved or renamed file costs one variant, not the whole profile.
+    if (missingFiles.has(variant.file)) continue;
     const filePath = path.resolve(baseDir, variant.file);
     let text;
     try {
@@ -677,6 +752,11 @@ async function main() {
     });
   }
 
+  if (variants.length === 0) {
+    console.error('No readable resume files — nothing to build. Check radar/data/resumes/.');
+    process.exit(1);
+  }
+
   const core = reconcileCore(variants.map((variant) => variant.profile));
   const output = {
     schema_version: PROFILE_SCHEMA_VERSION,
@@ -715,6 +795,7 @@ module.exports = {
   STAGE_ORDER,
   VARIANT_SCHEMA,
   PROFILE_SCHEMA_VERSION,
+  MIN_INTENT_CHARS,
   slugify,
   validateManifest,
   variantCacheKey,
