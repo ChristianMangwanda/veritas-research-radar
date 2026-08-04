@@ -1932,6 +1932,58 @@ function testRoleTrack() {
   assert.strictEqual(applyJobClassifications([edited], { entries: {} }), 0);
 }
 
+function testQualifiedPredicate() {
+  const { isQualified, compileProfile, scoreAll, emptyFit } = RadarScoring;
+  const job = (fit, extra = {}) => ({ status: 'active', citizenship_gated: false, fit, ...extra });
+  const fit = (track, eligibility) => ({
+    fit_score: 10,
+    track: track ? { status: track } : null,
+    eligibility: eligibility ? { verdict: eligibility } : null
+  });
+
+  // No scored profile → unanswerable, never "zero qualified".
+  assert.strictEqual(isQualified(job(emptyFit())), false);
+  assert.strictEqual(isQualified({ status: 'active' }), false);
+
+  // In-track and not blocked, in both track flavors.
+  assert.strictEqual(isQualified(job(fit('reachable', 'clear'))), true);
+  assert.strictEqual(isQualified(job(fit('adjacent', 'likely'))), true);
+  // Missing eligibility (thin data) must not disqualify — only a quotable block does.
+  assert.strictEqual(isQualified(job(fit('reachable', null))), true);
+
+  // Closed and citizen-only postings are out regardless of fit.
+  assert.strictEqual(isQualified(job(fit('reachable', 'clear'), { status: 'closed' })), false);
+  assert.strictEqual(isQualified(job(fit('reachable', 'clear'), { citizenship_gated: true })), false);
+
+  // Off-track: unknown stays out of Qualified (it lives in All jobs), none is out.
+  assert.strictEqual(isQualified(job(fit('unknown', 'clear'))), false);
+  assert.strictEqual(isQualified(job(fit('none', 'clear'))), false);
+  assert.strictEqual(isQualified(job(fit(null, 'clear'))), false);
+
+  // Blocked is excluded by default but revealable — the same predicate must
+  // serve the "+N blocked" count so the two can never disagree.
+  const blocked = job(fit('reachable', 'blocked'));
+  assert.strictEqual(isQualified(blocked), false);
+  assert.strictEqual(isQualified(blocked, { includeBlocked: true }), true);
+  // includeBlocked only lifts the eligibility gate, nothing else.
+  assert.strictEqual(isQualified(job(fit('none', 'blocked')), { includeBlocked: true }), false);
+
+  // Integration: the shapes scoreAll actually stamps satisfy the predicate.
+  const scored = {
+    id: 'q1', status: 'active', citizenship_gated: false,
+    title: 'Machine Learning Engineer', title_class: 'data_computational',
+    description_text: `${ML_JOB_DESCRIPTION} ${'filler '.repeat(80)}`,
+    research_relevance_score: 40
+  };
+  const compiled = compileProfile(SCORING_FIXTURE_PROFILE);
+  scoreAll([scored], compiled, null);
+  assert.strictEqual(scored.fit.track.status, 'reachable');
+  assert.strictEqual(isQualified(scored), true);
+  // And without a profile, scoreAll stamps emptyFit → not qualified.
+  scoreAll([scored], null, null);
+  assert.strictEqual(isQualified(scored), false);
+}
+
 function testFitAudit() {
   const { histogram, variantCeilings, sampleBlocked, seededShuffle, parseArgs } = require('../radar/scripts/fit-audit.js');
 
@@ -2664,6 +2716,7 @@ async function main() {
   testFitEngineRepairs();
   testEligibility();
   testRoleTrack();
+  testQualifiedPredicate();
   testFitAudit();
   testReachabilityDemotion();
   testVerdictTiers();

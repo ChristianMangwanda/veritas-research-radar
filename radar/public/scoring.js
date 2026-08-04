@@ -733,6 +733,23 @@
     return { status: 'none', basis: 'title_class', via: [] };
   }
 
+  // The dashboard's "Qualified" cut: open, in the user's line of work, and not
+  // blocked by quotable evidence. Fit score is deliberately NOT consulted —
+  // fit ranks this list, it never gates it. Unanswerable without a scored
+  // profile (fit_score null), so callers must treat "no profile" as a prompt
+  // to import one, not as zero qualified jobs. includeBlocked exists so the
+  // blocked-reveal count can reuse this predicate instead of duplicating it.
+  function isQualified(job, { includeBlocked = false } = {}) {
+    const fit = job.fit;
+    if (!fit || fit.fit_score === null) return false;
+    if (job.status === 'closed') return false;
+    if (job.citizenship_gated) return false;
+    const track = fit.track && fit.track.status;
+    if (track !== 'reachable' && track !== 'adjacent') return false;
+    if (!includeBlocked && fit.eligibility && fit.eligibility.verdict === 'blocked') return false;
+    return true;
+  }
+
   // Upgrades job.title_class from cached local-model classifications, for jobs
   // the title regexes couldn't place. Profile-INDEPENDENT: it describes the
   // job, so it applies before scoring and survives profile changes. Entries
@@ -937,6 +954,7 @@
     parseStudentOnly,
     parseInternalOnly,
     roleTrack,
+    isQualified,
     applyJobClassifications,
     jobContentHash,
     verdictFor,
