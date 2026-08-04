@@ -287,3 +287,40 @@ host was already registered under a punctuation-different name) found:
   backlog, the iCIMS bug-fix batch, the Paylocity batch, an extended
   1,100→1,500-site discovery crawl, and — in a follow-on pass — the
   Interfolio driver).
+
+## 2026-08-04 session: prefilter-anomaly metric fix + verification pass
+
+- **Registry: 331 → 346** (4 Interfolio, 11 more from the continued
+  discovery crawl). Discovery crawl then moved off the laptop entirely into
+  a new `radar-discover.yml` GitHub Actions workflow (monthly + on-demand),
+  since the remaining ~4,471-site backlog needs hours of wall-clock time.
+- **Prefilter-anomaly detector: found and fixed a real metric conflation
+  bug on its first night of live production data.** It flagged 21
+  employers. Investigating live (fetching each one's raw title list) found
+  the detector was comparing `prefiltered_count` (titles rejected by the
+  title regex) against `fetched_jobs` — the FINAL count, taken *after* the
+  separate `tier: 'auto'` relevance-score filter (`AUTO_TIER_MIN_RESEARCH_SCORE`)
+  runs downstream. Those are two independent filters: an employer whose
+  title-prefilter correctly passed several candidates, all of which then
+  legitimately scored too low to ship, looked identical to a genuinely
+  broken prefilter regex. Confirmed concretely against Bank Street College
+  of Education: the title prefilter passed 4 of 79 titles fine ("Faculty -
+  Leadership Programs" and similar); all 4 legitimately scored below the
+  auto-tier threshold on their actual description content (K-12 pedagogy
+  training, not scientific research) — not a prefilter defect.
+  Fix: every prefiltering driver (workday/oracle/successfactors/eightfold/
+  paylocity) now also stamps `prefilter_survived_count` (the title regex's
+  own pass-through, before any detail fetch or scoring); the detector
+  compares against that instead. Re-running all 21 flagged employers live
+  against the corrected metric dropped the flagged count to 5, then to 3
+  after also raising `PREFILTER_ALARM_MIN_EXCLUDED` 20 → 25 (two of the
+  five sat exactly at the old floor — too small a sample to mean much
+  either way). All 3 remaining were manually reviewed title-by-title and
+  are genuinely low-research employers, not bugs: Washington and Lee
+  University (0 research-shaped titles among 25 real postings — food
+  service, athletics, safety), Hult International Business School (an
+  enrollment/marketing-heavy for-profit operator, not primarily academic),
+  Palm Beach State College (a trade/vocational community college — welding,
+  cosmetology, HVAC adjunct instructors). No `isResearchRelevantTitle`
+  keyword changes were needed — the regex itself held up under direct
+  inspection every time.

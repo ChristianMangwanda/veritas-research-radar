@@ -64,7 +64,18 @@ function detectRecallAnomalies({ previousJobs, employerReports, employerOutcomes
 // Above it, on a large-enough sample, the pattern set itself is the more
 // likely explanation — this is how the "Open Rank" faculty-title miss should
 // have been caught the day it was introduced, instead of by chance.
-const PREFILTER_ALARM_MIN_EXCLUDED = 20;
+// Calibrated 2026-08-04 against the first live production batch (21 flagged
+// employers): the ratio compared prefiltered_count against fetched_jobs (the
+// FINAL count, after the separate auto-tier relevance-score filter), which
+// conflated two independent filters — fixed by comparing against
+// prefilter_survived_count instead (the title-prefilter's own pass-through).
+// That alone dropped 21 -> 5; manually reviewing all 5 remaining found no
+// regex gaps, just genuinely low-research employers (a seminary, a trade
+// college, an enrollment/business-services company). MIN_EXCLUDED raised
+// 20 -> 25 to drop two of those five sitting exactly at the old floor
+// (20 excluded, 0 survived) — too small a sample to distinguish "genuinely
+// no research openings" from noise either way, so not worth alarm fatigue.
+const PREFILTER_ALARM_MIN_EXCLUDED = 25;
 const PREFILTER_ALARM_RATIO = 0.97;
 
 /**
@@ -77,8 +88,17 @@ const PREFILTER_ALARM_RATIO = 0.97;
 function detectPrefilterAnomalies({ employerReports, minExcluded = PREFILTER_ALARM_MIN_EXCLUDED, ratioThreshold = PREFILTER_ALARM_RATIO }) {
   const anomalies = [];
   for (const report of employerReports) {
+    // fetched_jobs is the FINAL count, after the separate auto-tier
+    // relevance-score filter — comparing prefiltered_count against it
+    // conflates two independent filters. An auto-tier employer whose
+    // prefilter-passed titles all legitimately score too low looks
+    // identical to a broken prefilter regex unless we use the prefilter's
+    // own pass-through count instead (confirmed live against Bank Street
+    // College of Education: prefilter passed 4 titles fine; all 4 correctly
+    // scored below the auto-tier threshold — not a prefilter bug).
+    if (report.prefilter_survived_count == null) continue;
     const excluded = report.prefiltered_count || 0;
-    const seen = excluded + report.fetched_jobs;
+    const seen = excluded + report.prefilter_survived_count;
     if (excluded < minExcluded || seen === 0) continue;
     if (excluded / seen >= ratioThreshold) {
       anomalies.push({
@@ -86,6 +106,7 @@ function detectPrefilterAnomalies({ employerReports, minExcluded = PREFILTER_ALA
         name: report.name,
         ats_provider: report.ats_provider,
         prefiltered_count: excluded,
+        prefilter_survived_count: report.prefilter_survived_count,
         fetched_jobs: report.fetched_jobs
       });
     }
@@ -866,6 +887,7 @@ async function fetchWorkdayJobs(employer) {
     await sleep(WORKDAY_DETAIL_DELAY_MS);
   }
   jobs.prefiltered_count = excluded;
+  jobs.prefilter_survived_count = filtered.length;
   return jobs;
 }
 
@@ -946,6 +968,7 @@ async function fetchOracleJobs(employer) {
     await sleep(ORACLE_DETAIL_DELAY_MS);
   }
   jobs.prefiltered_count = oracleExcluded;
+  jobs.prefilter_survived_count = filteredOracle.length;
   return jobs;
 }
 
@@ -1298,6 +1321,7 @@ async function fetchSuccessFactorsJobs(employer) {
     await sleep(SUCCESSFACTORS_DETAIL_DELAY_MS);
   }
   jobs.prefiltered_count = sfExcluded;
+  jobs.prefilter_survived_count = filteredSf.length;
   return jobs;
 }
 
@@ -1363,6 +1387,7 @@ async function fetchEightfoldJobs(employer) {
     await sleep(EIGHTFOLD_DETAIL_DELAY_MS);
   }
   jobs.prefiltered_count = efExcluded;
+  jobs.prefilter_survived_count = filteredEf.length;
   return jobs;
 }
 
@@ -1441,6 +1466,7 @@ async function fetchPaylocityJobs(employer) {
     await sleep(PAYLOCITY_DETAIL_DELAY_MS);
   }
   jobs.prefiltered_count = excluded;
+  jobs.prefilter_survived_count = filtered.length;
   return jobs;
 }
 
@@ -1501,20 +1527,33 @@ const ATS_FETCHERS = {
 
 async function fetchEmployerJobs(employer) {
   if (!employer.ats_provider) {
-    return { jobs: [], skipped: true, error: null, prefilteredCount: 0 };
+    return { jobs: [], skipped: true, error: null, prefilteredCount: 0, prefilterSurvivedCount: 0 };
   }
   const fetcher = ATS_FETCHERS[employer.ats_provider];
   if (!fetcher) {
-    return { jobs: [], skipped: true, error: `Unsupported ATS provider ${employer.ats_provider}`, prefilteredCount: 0 };
+    return { jobs: [], skipped: true, error: `Unsupported ATS provider ${employer.ats_provider}`, prefilteredCount: 0, prefilterSurvivedCount: 0 };
   }
   try {
     const jobs = await fetcher(employer);
-    return { jobs, skipped: false, error: null, prefilteredCount: Number(jobs.prefiltered_count) || 0 };
+    return {
+      jobs,
+      skipped: false,
+      error: null,
+      prefilteredCount: Number(jobs.prefiltered_count) || 0,
+      // Title-prefilter pass-through, BEFORE the separate auto-tier relevance-score
+      // filter downstream. Comparing prefiltered_count against final fetched_jobs
+      // conflates two independent filters — an auto-tier employer whose survivors
+      // all score below AUTO_TIER_MIN_RESEARCH_SCORE looks identical to a broken
+      // prefilter regex unless this is tracked separately (confirmed live against
+      // Bank Street College of Education: 4 titles passed the prefilter fine, all
+      // 4 legitimately scored too low to ship — not a prefilter bug).
+      prefilterSurvivedCount: jobs.prefilter_survived_count === undefined ? null : Number(jobs.prefilter_survived_count) || 0
+    };
   } catch (error) {
     if (error.skipped) {
-      return { jobs: [], skipped: true, error: null, prefilteredCount: 0 };
+      return { jobs: [], skipped: true, error: null, prefilteredCount: 0, prefilterSurvivedCount: 0 };
     }
-    return { jobs: [], skipped: false, error: error.message, prefilteredCount: 0 };
+    return { jobs: [], skipped: false, error: error.message, prefilteredCount: 0, prefilterSurvivedCount: 0 };
   }
 }
 
@@ -1579,6 +1618,7 @@ async function runRefresh() {
       ats_token: employer.ats_token,
       fetched_jobs: enriched.length,
       prefiltered_count: result.prefilteredCount,
+      prefilter_survived_count: result.prefilterSurvivedCount,
       skipped: result.skipped,
       error: result.error
     });
