@@ -171,10 +171,18 @@ const EIGHTFOLD_MAX_DETAIL_FETCHES = 400;
 const EIGHTFOLD_DETAIL_DELAY_MS = 200;
 const PAYLOCITY_MAX_DETAIL_FETCHES = 400;
 const PAYLOCITY_DETAIL_DELAY_MS = 200;
+// Interfolio "Faculty Search" public job board — found by network-capturing
+// the Angular SPA at apply.interfolio.com; the list response already carries
+// full HTML description/qualifications/instructions, so no detail fetch is
+// needed (unlike the separate dossier-api position lookup, which uses an
+// unrelated internal id space and isn't used here).
+const INTERFOLIO_PAGE_LIMIT = 100;
+const INTERFOLIO_MAX_PAGES = 30;
+const INTERFOLIO_PAGE_DELAY_MS = 300;
 const USAJOBS_PAGE_SIZE = 500;
 const USAJOBS_MAX_PAGES_PER_QUERY = 5;
 const USAJOBS_PAGE_DELAY_MS = 300;
-const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'ultipro', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin', 'successfactors', 'eightfold', 'paylocity'];
+const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'ultipro', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin', 'successfactors', 'eightfold', 'paylocity', 'interfolio'];
 
 const SIGNAL_PATTERNS = {
   cap_exempt_language: [
@@ -542,6 +550,9 @@ function validateEmployer(employer) {
   }
   if (employer.ats_provider === 'paylocity' && !employer.ats_config?.client_guid) {
     throw new Error(`Employer ${employer.id} uses paylocity but ats_config.client_guid is missing`);
+  }
+  if (employer.ats_provider === 'interfolio' && !employer.ats_config?.tenant_id) {
+    throw new Error(`Employer ${employer.id} uses interfolio but ats_config.tenant_id is missing`);
   }
 }
 
@@ -1433,6 +1444,42 @@ async function fetchPaylocityJobs(employer) {
   return jobs;
 }
 
+function mapInterfolioJob(item, employer) {
+  const applyId = item.legacy_position_id || item.id;
+  const description = [item.description, item.qualifications, item.instructions]
+    .filter(Boolean)
+    .join(' ');
+  const posted = item.open_date_raw || null;
+  return {
+    id: `interfolio:${employer.ats_token}:${item.id}`,
+    employer_id: employer.id,
+    title: item.name || 'Untitled role',
+    department: item.unit_name || '',
+    location: item.location || 'Unspecified',
+    url: `https://apply.interfolio.com/${applyId}`,
+    description_text: normalizeText(description),
+    posted_or_updated_at: posted && !Number.isNaN(Date.parse(posted)) ? new Date(posted).toISOString() : null,
+    source: 'interfolio',
+    source_job_id: String(item.id || '')
+  };
+}
+
+async function fetchInterfolioJobs(employer) {
+  const tenantId = employer.ats_config?.tenant_id;
+  const jobs = [];
+  for (let page = 1; page <= INTERFOLIO_MAX_PAGES; page += 1) {
+    const url = `https://logic.interfolio.com/byc-search/${encodeURIComponent(tenantId)}/public_job_boards?limit=${INTERFOLIO_PAGE_LIMIT}&page=${page}`;
+    const payload = await fetchJson(url);
+    const results = payload.results || [];
+    if (results.length === 0) break;
+    jobs.push(...results.map((item) => mapInterfolioJob(item, employer)));
+    const total = Number(payload.total_count);
+    if (results.length < INTERFOLIO_PAGE_LIMIT || (!Number.isNaN(total) && jobs.length >= total)) break;
+    await sleep(INTERFOLIO_PAGE_DELAY_MS);
+  }
+  return jobs;
+}
+
 const ATS_FETCHERS = {
   greenhouse: fetchGreenhouseJobs,
   lever: fetchLeverJobs,
@@ -1444,6 +1491,7 @@ const ATS_FETCHERS = {
   successfactors: fetchSuccessFactorsJobs,
   eightfold: fetchEightfoldJobs,
   paylocity: fetchPaylocityJobs,
+  interfolio: fetchInterfolioJobs,
   recruitee: fetchRecruiteeJobs,
   breezy: fetchBreezyJobs,
   workable: fetchWorkableJobs,
@@ -1820,5 +1868,7 @@ module.exports = {
   mapPaylocityJob,
   parsePaylocityListPage,
   parsePaylocityDetailPage,
+  fetchInterfolioJobs,
+  mapInterfolioJob,
   runRefresh
 };

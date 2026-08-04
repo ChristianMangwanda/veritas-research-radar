@@ -22,6 +22,7 @@ const {
   mapPaylocityJob,
   parsePaylocityListPage,
   parsePaylocityDetailPage,
+  mapInterfolioJob,
   mapRecruiteeJob,
   mapBreezyJob,
   mapWorkableJob,
@@ -660,6 +661,35 @@ function testProviderMappers() {
   const plNoDetail = mapPaylocityJob(paylocityListJobs[0], null, paylocityEmployer);
   assert.strictEqual(plNoDetail.description_text, 'Job ID AF01 Position Summary The Research Data');
   assert.strictEqual(plNoDetail.location, 'Main Campus');
+
+  // Interfolio: the public_job_boards list response already carries full
+  // description/qualifications/instructions HTML — no detail fetch needed
+  const interfolioEmployer = { id: 'exampleu-il', ats_token: 'exil', ats_config: { tenant_id: 31694 }, research_areas: [] };
+  const il = mapInterfolioJob({
+    id: 166705,
+    legacy_position_id: 171533,
+    name: 'Research Data Coordinator',
+    location: 'Boston, MA',
+    unit_name: 'Neurosciences (FAC/RA/RS)',
+    open_date_raw: '2025-10-01',
+    description: '<p>Analyze study data.</p>',
+    qualifications: '<p>PhD required.</p>',
+    instructions: '<p>Submit a CV.</p>'
+  }, interfolioEmployer);
+  assert.strictEqual(il.id, 'interfolio:exil:166705');
+  assert.strictEqual(il.source, 'interfolio');
+  // The public apply URL uses legacy_position_id, not the list item's own id
+  assert.strictEqual(il.url, 'https://apply.interfolio.com/171533');
+  assert.strictEqual(il.department, 'Neurosciences (FAC/RA/RS)');
+  assert.strictEqual(il.description_text, 'Analyze study data. PhD required. Submit a CV.');
+  assert.strictEqual(il.posted_or_updated_at, new Date('2025-10-01').toISOString());
+  assert.strictEqual(il.source_job_id, '166705');
+  // No legacy_position_id -> falls back to the list item's own id for the apply URL
+  const ilNoLegacy = mapInterfolioJob({ id: 999, name: 'Postdoctoral Fellow', location: '' }, interfolioEmployer);
+  assert.strictEqual(ilNoLegacy.url, 'https://apply.interfolio.com/999');
+  assert.strictEqual(ilNoLegacy.location, 'Unspecified');
+  assert.strictEqual(ilNoLegacy.description_text, '');
+  assert.strictEqual(ilNoLegacy.posted_or_updated_at, null);
 
   // Title prefilter: research-shaped titles pass, admin titles do not
   assert.strictEqual(isResearchRelevantTitle('Senior Research Scientist', workdayEmployer), true);
