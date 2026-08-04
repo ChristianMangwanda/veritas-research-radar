@@ -55,15 +55,13 @@ const DOM = {
   refreshMeta: document.querySelector('#refresh-meta'),
   statActive: document.querySelector('#stat-active'),
   statNew: document.querySelector('#stat-new'),
-  statFriendly: document.querySelector('#stat-friendly'),
-  statTrack: document.querySelector('#stat-track'),
-  statClear: document.querySelector('#stat-clear'),
-  statEmployers: document.querySelector('#stat-employers'),
-  errorsToggle: document.querySelector('#errors-toggle'),
-  errorsPanel: document.querySelector('#errors-panel'),
+  statQualified: document.querySelector('#stat-qualified'),
+  statusToggle: document.querySelector('#status-toggle'),
+  statusPanel: document.querySelector('#status-panel'),
+  statusRefresh: document.querySelector('#status-refresh'),
+  statusInstruments: document.querySelector('#status-instruments'),
   errorsList: document.querySelector('#errors-list'),
-  discoveryToggle: document.querySelector('#discovery-toggle'),
-  discoveryPanel: document.querySelector('#discovery-panel'),
+  discoverySummary: document.querySelector('#discovery-summary'),
   discoveryList: document.querySelector('#discovery-list'),
   q: document.querySelector('#q'),
   sort: document.querySelector('#sort'),
@@ -73,12 +71,8 @@ const DOM = {
   includeClosed: document.querySelector('#include-closed'),
   includeFederal: document.querySelector('#include-federal'),
   recency: document.querySelector('#recency'),
-  statDiscovered: document.querySelector('#stat-discovered'),
-  instrumentStrip: document.querySelector('#instrument-strip'),
   ignoredNote: document.querySelector('#ignored-note'),
   ignoredPanel: document.querySelector('#ignored-panel'),
-  digestArm: document.querySelector('#digest-arm'),
-  digestPopover: document.querySelector('#digest-popover'),
   undoBar: document.querySelector('#undo-bar'),
   undoMsg: document.querySelector('#undo-msg'),
   undoBtn: document.querySelector('#undo-btn'),
@@ -978,20 +972,29 @@ async function maybeRefreshOnFocus() {
 
 function renderStats() {
   // Citizen-gated federal jobs are excluded from the headline numbers — a
-  // count the user is mostly ineligible for is a vanity metric, not a stat
+  // count the user is mostly ineligible for is a vanity metric, not a stat.
   const active = state.jobs.filter((job) => !isClosed(job) && !job.citizenship_gated);
   DOM.statActive.textContent = active.length.toLocaleString();
   DOM.statNew.textContent = active.filter(isNewSinceLastVisit).length.toLocaleString();
-  DOM.statFriendly.textContent = active.filter((job) => job.veritas_state === 'FRIENDLY').length.toLocaleString();
-  DOM.statEmployers.textContent = new Set(active.map((job) => job.employer_id)).size.toLocaleString();
-  DOM.statDiscovered.textContent = (state.discovery?.candidates?.length || 0).toLocaleString();
-  // The funnel in two numbers: of everything active, how much is your line of
-  // work, and of that, how much has no barrier in the posting. Both read '–'
-  // without a profile, since neither question is answerable without one.
-  const inTrack = active.filter((job) => ['reachable', 'adjacent'].includes(job.fit?.track?.status));
-  const clear = inTrack.filter((job) => job.fit?.eligibility?.verdict !== 'blocked');
-  DOM.statTrack.textContent = state.compiled ? inTrack.length.toLocaleString() : '–';
-  DOM.statClear.textContent = state.compiled ? clear.length.toLocaleString() : '–';
+  // Headline number = the Qualified tab's count, from the same predicate, so
+  // the two can never disagree. '–' without a profile: unanswerable, not zero.
+  DOM.statQualified.textContent = state.compiled
+    ? state.jobs.filter((job) => RadarScoring.isQualified(job)).length.toLocaleString()
+    : '–';
+  renderHealthDot();
+}
+
+// One dot summarizes system health: red when a feed errored, a recall alarm
+// fired, or the browser itself failed to load pages of data.
+function renderHealthDot() {
+  const report = state.report;
+  const errored = (report?.employers || []).some((employer) => employer.error);
+  const alarms = (report?.recall_anomalies || []).length > 0;
+  const trouble = errored || alarms || Boolean(state.loadError);
+  DOM.statusToggle.querySelector('.health-dot').classList.toggle('is-alarm', trouble);
+  DOM.statusToggle.title = trouble
+    ? 'Something needs attention — open for details'
+    : 'All systems quiet';
 }
 
 function render() {
@@ -1021,7 +1024,6 @@ function render() {
 
   DOM.pipelineStats.hidden = true;
   DOM.pipelineEmpty.hidden = true;
-  DOM.instrumentStrip.hidden = true;
 
   const jobs = filteredJobs();
   state.visible = jobs;
@@ -1106,7 +1108,6 @@ function renderPipelineList() {
   // Same rule as the radar empty-state: a hard load failure shows the error
   // banner, not a misleading "no applications yet".
   DOM.pipelineEmpty.hidden = visible.length > 0 || (state.jobs.length === 0 && Boolean(state.loadError));
-  renderInstruments();
   renderPipelineStats();
   DOM.jobs.replaceChildren();
 
@@ -1162,7 +1163,7 @@ function renderPipelineStats() {
 }
 
 /* ------------------------------------------------------------------------ */
-/* Instrument strip — the seven systems behind the dataset                   */
+/* Status panel — the seven systems behind the dataset, one drawer           */
 
 const GITHUB_REPO_URL = 'https://github.com/ChristianMangwanda/veritas-research-radar';
 
@@ -1179,10 +1180,11 @@ const INSTRUMENTS = [
   { id: 'deadman', label: 'Dead-man switch', cadence: 'every 2h' }
 ];
 
-function renderInstruments() {
-  DOM.instrumentStrip.replaceChildren();
-
-  // Strip header: countdown bar to the next pull + the manual-trigger link
+// Everything live inside the status drawer: the next-pull countdown and the
+// system tiles. Re-run on refresh-report updates and every drawer open, so
+// the countdown is honest whenever it's actually visible.
+function renderStatusPanel() {
+  DOM.statusRefresh.replaceChildren();
   const head = el('div', 'instrument-head');
   const nextAt = RadarPipeline.nextPullAt(Date.now());
   const windowMs = 6 * 3600 * 1000;
@@ -1198,8 +1200,9 @@ function renderInstruments() {
   pullNow.title = 'Opens the GitHub Actions workflow — Run workflow triggers a pull';
   head.append(el('span', 'instrument-head-label', 'Next pull'), gauge,
     el('span', 'instrument-eta', formatEta(nextAt - Date.now())), pullNow);
-  DOM.instrumentStrip.append(head);
+  DOM.statusRefresh.append(head);
 
+  DOM.statusInstruments.replaceChildren();
   const tiles = el('div', 'instrument-tiles');
   const report = state.report;
   for (const instrument of INSTRUMENTS) {
@@ -1237,8 +1240,7 @@ function renderInstruments() {
     }
     tiles.append(tile);
   }
-  DOM.instrumentStrip.append(tiles);
-  DOM.instrumentStrip.hidden = false;
+  DOM.statusInstruments.append(tiles);
 }
 
 // Triage backup: localStorage is the only durable store on the hosted
@@ -2226,10 +2228,8 @@ function handleKeydown(event) {
     const job = selectedJob();
     if (job) setTriage(job, TRIAGE_KEYS[event.key]);
   } else if (event.key === 'Escape') {
-    if (!DOM.discoveryPanel.hidden || !DOM.errorsPanel.hidden || !DOM.digestPopover.hidden) {
-      DOM.discoveryPanel.hidden = true;
-      DOM.errorsPanel.hidden = true;
-      DOM.digestPopover.hidden = true;
+    if (!DOM.statusPanel.hidden) {
+      DOM.statusPanel.hidden = true;
     } else if (narrowLayout.matches) {
       state.selectedId = null;
       render();
@@ -2268,24 +2268,23 @@ function renderRefreshStatus(report) {
   renderRefreshMetaLine();
 
   const errored = (report.employers || []).filter((employer) => employer.error);
-  if (errored.length) {
-    DOM.errorsToggle.hidden = false;
-    DOM.errorsToggle.querySelector('.count-slot').textContent =
-      `${errored.length} source error${errored.length === 1 ? '' : 's'}`;
-    DOM.errorsList.replaceChildren();
-    for (const employer of errored) {
-      DOM.errorsList.append(el('li', '', `${employer.name} (${employer.ats_provider}) — ${employer.error}`));
-    }
+  DOM.errorsList.hidden = errored.length === 0;
+  DOM.errorsList.replaceChildren();
+  for (const employer of errored) {
+    DOM.errorsList.append(el('li', '', `${employer.name} (${employer.ats_provider}) — ${employer.error}`));
   }
+  renderStatusPanel();
+  renderHealthDot();
 }
 
 function renderDiscovery(discovery) {
   const candidates = discovery?.candidates || [];
   if (!candidates.length) return;
-  DOM.discoveryToggle.hidden = false;
-  DOM.discoveryToggle.querySelector('.count-slot').textContent = `${candidates.length} discovered employers`;
+  // A maintenance queue, not a coverage stat — it lives collapsed in the
+  // status drawer. (The list is capped upstream at 250 by enrich.js.)
+  DOM.discoverySummary.textContent = `Employer discovery queue · ${candidates.length} candidates`;
   DOM.discoveryList.replaceChildren();
-  for (const candidate of candidates.slice(0, 60)) {
+  for (const candidate of candidates.slice(0, 10)) {
     const row = el('div', 'discovery-row');
     const head = el('div');
     head.style.display = 'flex';
@@ -2303,17 +2302,20 @@ function renderDiscovery(discovery) {
     }
     DOM.discoveryList.append(row);
   }
+  if (candidates.length > 10) {
+    DOM.discoveryList.append(el('p', 'drawer-note',
+      `Top 10 of ${candidates.length} shown — the full queue lives in radar/data/discovery-candidates.json.`));
+  }
 }
 
 /* ------------------------------------------------------------------------ */
 /* Events + init                                                             */
 
-function toggleDrawer(panel) {
-  const isHidden = panel.hidden;
-  DOM.errorsPanel.hidden = true;
-  DOM.discoveryPanel.hidden = true;
-  DOM.digestPopover.hidden = true;
-  panel.hidden = !isHidden;
+function toggleStatusPanel() {
+  const opening = DOM.statusPanel.hidden;
+  // Re-render on open so the countdown reflects now, not page-load time.
+  if (opening) renderStatusPanel();
+  DOM.statusPanel.hidden = !opening;
 }
 
 function bindDetailEvents() {
@@ -2512,16 +2514,14 @@ function bindEvents() {
   DOM.syncSave.addEventListener('click', saveSyncToken);
   DOM.syncClear.addEventListener('click', clearSyncToken);
 
-  DOM.errorsToggle.addEventListener('click', () => toggleDrawer(DOM.errorsPanel));
-  DOM.discoveryToggle.addEventListener('click', () => toggleDrawer(DOM.discoveryPanel));
-  DOM.digestArm.addEventListener('click', () => toggleDrawer(DOM.digestPopover));
+  DOM.statusToggle.addEventListener('click', toggleStatusPanel);
 
   DOM.ignoredNote.addEventListener('click', () => {
     DOM.ignoredPanel.hidden = !DOM.ignoredPanel.hidden;
     if (!DOM.ignoredPanel.hidden) renderIgnoredPanel();
   });
 
-  DOM.digestPopover.addEventListener('click', async (event) => {
+  DOM.statusPanel.addEventListener('click', async (event) => {
     const button = event.target.closest('.copy-cmd');
     if (!button) return;
     try {

@@ -220,12 +220,51 @@ button { font: inherit; color: inherit; }
 
 .stat-accent { color: var(--accent-ink); }
 
-.digest-arm {
-  font-size: 12.5px;
-  padding: 7px 14px;
+/* Status button: one dot for the whole machine room */
+.health-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--faint);
+  display: inline-block;
 }
 
-/* Digest popover steps */
+.health-dot.is-alarm { background: var(--restricted-ink); }
+
+/* Status drawer sections */
+.status-refresh { margin-bottom: 10px; }
+
+.status-instruments { margin-bottom: 12px; }
+
+.status-section {
+  border-top: 1px solid var(--line);
+  padding: 10px 0;
+}
+
+.status-section > summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-heading);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.status-section > summary::-webkit-details-marker { display: none; }
+
+.status-section > summary::after {
+  content: '+';
+  float: right;
+  color: var(--faint);
+}
+
+.status-section[open] > summary::after { content: '–'; }
+
+.status-section[open] > summary { margin-bottom: 8px; }
+
+/* Digest steps */
 .digest-steps {
   margin: 0 0 12px;
   padding-left: 20px;
@@ -286,12 +325,6 @@ button { font: inherit; color: inherit; }
 }
 
 .chip:hover { border-color: var(--line-strong); }
-
-.chip-warning {
-  background: var(--warn-soft);
-  color: var(--warn-ink);
-  border-color: transparent;
-}
 
 .icon-button {
   display: inline-flex;
@@ -758,13 +791,7 @@ textarea { resize: vertical; }
   white-space: nowrap;
 }
 
-/* Instrument strip — the seven systems as hairline tiles */
-.instrument-strip {
-  display: grid;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
+/* Instruments — the seven systems as hairline tiles (status drawer) */
 .instrument-head {
   display: flex;
   align-items: center;
