@@ -177,7 +177,25 @@ notifications wanted).
 The desktop-polish bundle shipped 2026-08-03 late night: Enter/o keyboard
 split, full-funnel triage keys (`i`/`O`/`r`/`w`), undo (`u`/Cmd+Z + bar),
 sidebar triage export/import, and quiet auto-refresh when the tab regains
-focus after a pull. No agreed next build — the backlog lives in ROADMAP.md.
+focus after a pull.
+
+The **funnel redesign** shipped 2026-08-04 (see CHANGELOG): fit-engine
+repairs, role tracks, an eligibility layer, and the Can-apply default view.
+Every job now carries `fit.track` (is this your line of work) and
+`fit.eligibility` (is there a stated barrier, with the sentence that proves
+it). `npm run radar:fit-audit -- --histogram|--tracks|--sample-blocked N`
+measures the distribution; re-run `--sample-blocked` after touching any
+extractor, since a false block is the one error that hides a job you could
+have had.
+
+**Next increment (designed, not built):** `radar/scripts/classify-jobs.js` —
+a local-Ollama pass over the 34% of jobs whose title matched no regex
+(`title_class === 'other'`, ~4,255 jobs) plus any posting flagged
+`eligibility.needs_review`. It writes `radar/data/classify-cache.json`
+(gitignore it — the route-cache rule is exact-name), keyed by
+`RadarScoring.jobContentHash` so an edited posting is re-judged; the read
+path is already live in scoring.js (`applyJobClassifications`), the
+dashboard, and the digest. Plan in `~/.claude/plans/sparkling-booping-sloth.md`.
 
 ## Open follow-ups (nice-to-have, not blocking)
 

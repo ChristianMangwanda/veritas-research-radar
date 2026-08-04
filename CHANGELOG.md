@@ -4,6 +4,46 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Session 2026-08-04 — funnel redesign: from "8,000 jobs" to "jobs I can get"
+
+The radar found jobs well but could not say which ones would take you. Three
+layers, eight commits, each shippable.
+
+**Fit-engine repairs.** Five defects in how postings were matched:
+underscored profile entries (`machine_learning`) could never match prose,
+killing ~2/3 of the domain channel; no plural or hyphen tolerance; auto-
+recovered atomic tokens crediting a compound skill's full weight; a word
+counting twice as skill and domain; and longer descriptions inflating fit
+monotonically (now a 4000-char matching window, with gates still reading the
+whole text). Extraction was also emitting unmatchable résumé sentences into
+weight-3 slots — terms are now cut at the first connective and capped at three
+words, with parenthetical and comma lists becoming aliases. Avoid signals moved
+from the model to a curated list after every run returned the user's own
+history, once including "machine learning", which would have docked every ML
+job. Top-of-list is transformed: Data Scientist roles at CMU, Rochester, MSK,
+Stanford and UChicago now rank 51-65 where the old ceiling was ~52.
+
+**Role tracks** (`fit.track`) answer a question fit cannot: is this your line
+of work at all? Pooled from every variant's title classes and target titles —
+reachable / adjacent / unknown / none. Never touches the score.
+
+**Eligibility** (`fit.eligibility`) reads the posting for hard barriers —
+years, licences, clearance, student-only, internal-only, plus the existing
+degree and citizenship gates — and returns clear / likely / blocked. Blocking
+requires evidence quotable back to the user; anything ambiguous stays visible.
+A live precision review of every blocked job with fit ≥ 25 found two ways a
+good job could be hidden ("Ph.D. (optional)" read as required; "5-7 years"
+read as 7), both fixed and pinned as regressions.
+
+**The Can-apply view.** The radar now opens on jobs with no stated barrier;
+a counter beside the list says how many are hidden and reveals them with their
+evidence. Applied and shortlisted jobs are never hidden. Two header stats make
+the funnel legible: **12,440 active → 980 in your tracks → 409 clear to
+apply**.
+
+New: `npm run radar:fit-audit` (`--histogram`, `--tracks`, `--sample-blocked N`)
+for measuring the distribution instead of guessing at it.
+
 ### Session 2026-08-03 (late night) — desktop polish bundle
 
 Five commits, each shippable; 23-assertion browser pass + new unit tests.
