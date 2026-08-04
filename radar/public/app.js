@@ -2298,6 +2298,9 @@ function setViewMode(value, { skipRender = false } = {}) {
   }
   document.body.classList.toggle('pipeline-mode', viewMode === 'pipeline');
   document.body.classList.toggle('routing-mode', viewMode === 'routing');
+  // Routing's detail is an on-demand overlay — a selection carried over from
+  // another view must not pop it open over the table.
+  if (viewMode === 'routing') state.selectedId = null;
   showAllRows = false;
   if (!skipRender) render();
 }
