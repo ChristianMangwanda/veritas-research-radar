@@ -4,7 +4,46 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
-### Session 2026-08-04 — funnel redesign: from "8,000 jobs" to "jobs I can get"
+### Session 2026-08-04 (later) — dashboard restructure: three tabs, one status corner
+
+The funnel redesign gave the data honest layers; this session gave the UI the
+same shape. Ten commits, each leaving the app working.
+
+**Three tabs replace Radar / Pipeline / Routing.** **Qualified** (default) =
+open + in your tracks + no quoted barrier, ranked by fit with no cutoff — the
+predicate is `RadarScoring.isQualified`, tested, and shared with the header
+stat so the two can never disagree. Blocked-in-track jobs stay one click away
+("+N in your field but blocked · show"); without a profile the tab shows the
+one-time import prompt, never an unranked fallback. **All jobs** = every
+active posting, newest first. **Applied** = the pipeline view renamed, with
+Export backup surfaced (localStorage is the only durable store). The Routing
+view was deleted outright — its per-job value (recommended résumé + why)
+already lives in the row and the detail why-panel.
+
+**Header: 7 stats + 3 drawers → 3 stats + 1 status corner.** Qualified · New
+for you · Active are the only headline numbers. The "250 discovered" stat is
+gone — it was a hard cap (enrich.js DISCOVERY_LIMIT), not a count. Errors,
+discovery queue, digest setup, and the instrument tiles all live in one
+Status drawer behind a health dot (red on feed errors, recall alarms, or a
+failed page load), with the next-pull countdown and Pull-now link.
+
+**Sidebar: 16 controls → 4 visible.** Search, Visa signal, First-seen,
+Remote; everything rare folds into a collapsed More. Deleted: source,
+employer-type, cap-exempt evidence, triage-state, min-research, min-fit
+verdict (fit is a sort, never a filter — only ~45 of 12k active jobs rate
+good+), new-only, follow-up, saved views, Today chip. Old bookmark params are
+ignored and scrubbed.
+
+**Apply flow.** Hovering a row reveals **Apply ↗**: opens the posting and
+arms the existing did-you-apply nudge; confirming stamps `applied_at` and
+which résumé was sent. Notion sync was considered and deliberately deferred —
+tracking stays local, export/import is the backup.
+
+**Fixes along the way:** importing a profile now refreshes the header stats
+without a reload (the root cause of "in your tracks: –" on the hosted site,
+together with the never-done one-time import); a boot tripwire warns on any
+missing DOM id instead of crashing mid-render; the phantom
+`/api/classify-cache` fetch is gone. Net: app.js shrank ~700 lines.
 
 The radar found jobs well but could not say which ones would take you. Three
 layers, eight commits, each shippable.

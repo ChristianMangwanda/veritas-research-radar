@@ -87,17 +87,24 @@ resume variants and tells you which one to send.
   https://christianmangwanda.github.io/veritas-research-radar/ — triage state
   lives in that browser's localStorage; the local `npm start` server keeps
   using `radar/data/local-state.json`.
-- Three views, toggled in the list header (2026-08-03 redesign — light steel
-  system, Barlow type, per the design brief in the repo root): **Radar** (the
-  5-column cockpit table: role, fit bar, visa + evidence, send-résumé call,
-  closes), **Pipeline** (your applications grouped by stage under the
-  instrument strip: next-pull gauge + the 7 system tiles; ignores every filter
-  except search), and **Routing** (every résumé heat-scored in-row, filter
-  chips, CSV export). The **☀ Today** chip applies the digest's exact cut
-  in-app: seen ≤24h (48h fallback), verdict ≥ good, sorted by fit. Marking a
-  job Applied records which résumé variant was sent (editable in the detail
-  pane; "Copy résumé path" hands you the file). Save-this-view presets and
-  Ignore-employer live in the sidebar footer.
+- Three tabs, toggled in the list header (2026-08-04 restructure; same light
+  steel system + Barlow type from the 2026-08-03 brief): **Qualified** — the
+  default — is open + in your tracks + no quoted barrier, ranked by fit with
+  no cutoff (`RadarScoring.isQualified`; a "+N in your field but blocked"
+  link reveals what the eligibility rule held back). **All jobs** is every
+  active posting, newest first. **Applied** is your applications grouped by
+  stage with follow-up aging and an Export-backup button (ignores every
+  filter except search). Hover a row for the **Apply ↗** quick action: opens
+  the posting and arms the did-you-apply nudge; confirming stamps applied_at
+  + which résumé was sent. Visible filters are just Search / Visa signal /
+  First-seen / Remote; the rare toggles, profile import, triage backup, and
+  sync UI sit under the sidebar's collapsed **More**. The header shows three
+  stats (Qualified · New for you · Active) plus a **Status** button whose
+  dot goes red on feed errors, recall alarms, or a failed page load — its
+  drawer holds the next-pull countdown, the 7 system tiles, source errors,
+  the discovery queue, and the digest setup steps. On the hosted dashboard,
+  Qualified needs the one-time profile import (persists in that browser's
+  localStorage) and prompts for it until done.
 - Daily digest: the **local** fit digest is armed (2026-08-03) — a launchd
   agent (`com.veritas.radar.digest`) runs `run-digest.sh` at 08:00 daily,
   reading `radar/scripts/.digest.env` (gitignored; holds the private ntfy
@@ -179,8 +186,19 @@ split, full-funnel triage keys (`i`/`O`/`r`/`w`), undo (`u`/Cmd+Z + bar),
 sidebar triage export/import, and quiet auto-refresh when the tab regains
 focus after a pull.
 
-The **funnel redesign** shipped 2026-08-04 (see CHANGELOG): fit-engine
-repairs, role tracks, an eligibility layer, and the Can-apply default view.
+The **dashboard restructure** shipped 2026-08-04 (see CHANGELOG): three tabs
+(Qualified / All jobs / Applied) replace Radar/Pipeline/Routing, the header
+is 3 stats + a status corner, and the sidebar dropped from 16 controls to 4
+visible. Routing view and saved views were deleted; the Qualified predicate
+lives in `RadarScoring.isQualified` (tested). Notion sync of applications was
+considered and deliberately deferred — the Applied tab runs on the existing
+local triage store, with export/import as the backup. If revisited, the
+right shape is a Supabase Edge Function proxy (public repo: no token can
+ship in the page).
+
+The **funnel redesign** shipped earlier on 2026-08-04 (see CHANGELOG):
+fit-engine repairs, role tracks, an eligibility layer, and the Can-apply
+default view.
 Every job now carries `fit.track` (is this your line of work) and
 `fit.eligibility` (is there a stated barrier, with the sentence that proves
 it). `npm run radar:fit-audit -- --histogram|--tracks|--sample-blocked N`

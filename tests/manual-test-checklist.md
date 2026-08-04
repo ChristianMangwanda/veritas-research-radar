@@ -109,6 +109,20 @@
 - [ ] Test Microsoft Edge (Chromium-based)
 - [ ] Verify manifest V3 compliance
 
+## Test 11: Radar Dashboard (radar/public, 2026-08-04 layout)
+Run `npm start` and open http://localhost:4173 (or the hosted dashboard).
+
+- [ ] Opens on **Qualified**, sorted by fit, count line matches the header Qualified stat
+- [ ] Without a profile, Qualified shows the "Load your resume profile" prompt (not an empty/full list); importing profile.json fills the stats without a reload
+- [ ] "+N in your field but blocked · show" reveals blocked jobs and back
+- [ ] **All jobs** shows every active posting, default sort "Newest found"
+- [ ] Hovering a row shows **Apply ↗**; clicking opens the posting and the did-you-apply nudge appears; "Mark applied" moves the job to **Applied** with age + resume-sent
+- [ ] **Applied** groups by stage, shows Export backup, downloads valid JSON
+- [ ] **Status** button opens the drawer (next-pull countdown, 7 tiles, discovery queue, digest steps); Escape and ✕ close it; dot is red only when a feed errored / recall alarm / load failure
+- [ ] Sidebar shows only Search, Visa signal, First seen, Remote + More; filters apply on Qualified and All jobs
+- [ ] Keyboard still works: j/k navigate, o opens posting, a marks applied, u undoes
+- [ ] At ~1100px the 3 stats stay visible; at ~700px stats wrap to their own row, no horizontal scroll
+
 ## Known Issues Log
 Document any issues found during testing:
 
