@@ -455,6 +455,7 @@ async function persistTriage() {
 
 const PROFILE_KEY = 'veritas_radar_profile';
 const ROUTE_CACHE_KEY = 'veritas_radar_route_cache';
+const CLASSIFY_CACHE_KEY = 'veritas_radar_classify_cache';
 
 function jobText(job) {
   // Built once per job and cached — the search filter runs this for every job on
@@ -474,6 +475,14 @@ function loadRouteCacheFromBrowser() {
   try {
     const stored = JSON.parse(localStorage.getItem(ROUTE_CACHE_KEY));
     if (stored && typeof stored.verdicts === 'object') return stored;
+  } catch { /* corrupted -> none */ }
+  return null;
+}
+
+function loadClassifyCacheFromBrowser() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(CLASSIFY_CACHE_KEY));
+    if (stored && typeof stored.entries === 'object') return stored;
   } catch { /* corrupted -> none */ }
   return null;
 }
@@ -1041,6 +1050,7 @@ function renderLoadBanner() {
 
 async function reloadData() {
   state.jobs = await loadJobs();
+  RadarScoring.applyJobClassifications(state.jobs, state.classifyCache);
   RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
   populateSources();
   renderStats();
@@ -2889,15 +2899,20 @@ async function init() {
   }
   hydrateFromUrl();
 
-  const [jobs, local, report, discovery, profile, routeCache] = await Promise.all([
+  const [jobs, local, report, discovery, profile, routeCache, classifyCache] = await Promise.all([
     loadJobs(),
     getJson('/api/local-state', null),
     loadRefreshReport(),
     getJson('/api/discovery', { candidates: [] }),
     getJson('/api/profile', null),
-    getJson('/api/route-cache', null)
+    getJson('/api/route-cache', null),
+    getJson('/api/classify-cache', null)
   ]);
   state.jobs = jobs;
+  // Job-side classifications describe the posting, not the person, so they
+  // apply before scoring and regardless of whether a profile is loaded.
+  state.classifyCache = classifyCache || loadClassifyCacheFromBrowser();
+  RadarScoring.applyJobClassifications(state.jobs, state.classifyCache);
   state.report = report || null;
   state.discovery = discovery || null;
   // null means no API server (static hosting) -> browser-local triage

@@ -262,10 +262,22 @@
       .filter((degree) => degree.status === 'in_progress')
       .map((degree) => DEGREE_RANK[degree.level] || 0));
 
+    // Which kinds of role this person can plausibly hold, pooled across every
+    // variant. Distinct from per-variant class points (which decide WHICH
+    // resume to send): this decides whether the job is their line of work.
+    const primaryClasses = new Set();
+    const allClasses = new Set();
+    for (const variant of variants) {
+      if (variant.titleClasses[0]) primaryClasses.add(variant.titleClasses[0]);
+      for (const cls of variant.titleClasses) allClasses.add(cls);
+    }
+
     return {
       profile: profileFile,
       hash: profileHash(profileFile),
       careerStage: core.career_stage || 'early_career',
+      yearsExperience: Number(core.years_experience) || 0,
+      tracks: { primaryClasses, allClasses },
       completedRank,
       inProgressRank,
       avoidRegexes: (core.avoid_signals || [])
@@ -376,6 +388,7 @@
       ambiguous: false,
       variants: [],
       gate: null,
+      track: null,
       avoid_hits: [],
       evidence_bonus: 0,
       research_bonus: 0,
@@ -468,6 +481,70 @@
       llm_reason: null,
       ambiguous
     };
+  }
+
+  /* ---------------------------------------------------------------------- */
+  /* Role track: is this the kind of job this person does at all?             */
+
+  // Answers a different question from fit_score. Fit asks "how well do the
+  // skills line up"; track asks "is this their line of work" — a mismatch the
+  // score alone can't express, since a data scientist's terms appear in plenty
+  // of postings they could never hold. Never touches the score.
+  function roleTrack(job, compiled) {
+    const titleLower = String(job.title || '').toLowerCase();
+    const via = compiled.variants
+      .filter((variant) => variant.targetTitleRegex && variant.targetTitleRegex.test(titleLower))
+      .map((variant) => variant.id);
+    if (via.length) return { status: 'reachable', basis: 'target_title', via };
+
+    const jobClass = job.title_class;
+    if (jobClass && compiled.tracks.primaryClasses.has(jobClass)) {
+      return {
+        status: 'reachable',
+        basis: 'title_class',
+        via: compiled.variants.filter((variant) => variant.titleClasses[0] === jobClass).map((variant) => variant.id)
+      };
+    }
+    if (jobClass && compiled.tracks.allClasses.has(jobClass)) {
+      return {
+        status: 'adjacent',
+        basis: 'title_class',
+        via: compiled.variants.filter((variant) => variant.titleClasses.includes(jobClass)).map((variant) => variant.id)
+      };
+    }
+    // 'other' is the classifier's fallthrough, not a verdict — the title just
+    // didn't match its regexes. Unknown, not out (the classify layer resolves
+    // these); demote-never-hide applies.
+    if (!jobClass || jobClass === 'other') return { status: 'unknown', basis: null, via: [] };
+    return { status: 'none', basis: 'title_class', via: [] };
+  }
+
+  // Upgrades job.title_class from cached local-model classifications, for jobs
+  // the title regexes couldn't place. Profile-INDEPENDENT: it describes the
+  // job, so it applies before scoring and survives profile changes. Entries
+  // whose content hash no longer matches the posting are ignored — an edited
+  // description must be re-judged, not silently trusted.
+  function jobContentHash(job) {
+    return fnv1a(`${job.title || ''} ${job.department || ''} ${job.description_text || ''}`);
+  }
+
+  function applyJobClassifications(jobs, classifyCache) {
+    const entries = classifyCache && classifyCache.entries;
+    if (!entries) return 0;
+    let applied = 0;
+    for (const job of jobs) {
+      const entry = entries[job.id];
+      if (!entry || !entry.title_class) continue;
+      if (entry.content_hash !== jobContentHash(job)) continue;
+      job.title_class = entry.title_class;
+      job.title_class_source = 'llm';
+      if (classifyCache.labels && classifyCache.labels[entry.title_class]) {
+        job.title_class_label = classifyCache.labels[entry.title_class];
+      }
+      job.classified_requirements = entry.requirements || null;
+      applied += 1;
+    }
+    return applied;
   }
 
   function verdictFor(score, hardGateFailed) {
@@ -568,6 +645,7 @@
         citizenship,
         stage_mismatch: stageMismatch
       },
+      track: roleTrack(job, compiled),
       avoid_hits: avoidHits,
       evidence_bonus: evidence,
       research_bonus: researchBonus,
@@ -637,6 +715,9 @@
     parseDegreeGate,
     seniorityFlag,
     resolveVariant,
+    roleTrack,
+    applyJobClassifications,
+    jobContentHash,
     verdictFor,
     variantHeat,
     profileHash,

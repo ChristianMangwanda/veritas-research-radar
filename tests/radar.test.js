@@ -1670,6 +1670,61 @@ function testVariantScoring() {
   assert.strictEqual(capped.variants[0].score, RadarScoring.WEIGHTS.SKILL_CAP);
 }
 
+function testRoleTrack() {
+  const { compileProfile, scoreJob, roleTrack, applyJobClassifications, jobContentHash } = RadarScoring;
+  const compiled = compileProfile(SCORING_FIXTURE_PROFILE);
+  const job = (title, titleClass) => ({ title, title_class: titleClass, description_text: 'x', research_relevance_score: 0 });
+
+  // Primary class of any variant → this is their line of work.
+  assert.strictEqual(roleTrack(job('Analyst', 'data_computational'), compiled).status, 'reachable');
+  // engineering_software is the 'de' variant's primary class → reachable.
+  assert.strictEqual(roleTrack(job('Developer', 'engineering_software'), compiled).status, 'reachable');
+  // A class that is only ever secondary → adjacent, not the main track.
+  const secondaryOnly = compileProfile({
+    ...SCORING_FIXTURE_PROFILE,
+    variants: [{ ...SCORING_FIXTURE_PROFILE.variants[0], title_classes: ['data_computational', 'research_associate'] }]
+  });
+  const adjacent = roleTrack(job('Research Associate', 'research_associate'), secondaryOnly);
+  assert.strictEqual(adjacent.status, 'adjacent');
+  assert.deepStrictEqual(adjacent.via, ['ml']);
+  // A target title outranks the class: the title says exactly what it is.
+  const byTitle = roleTrack(job('Machine Learning Engineer', 'faculty'), compiled);
+  assert.strictEqual(byTitle.status, 'reachable');
+  assert.strictEqual(byTitle.basis, 'target_title');
+  // 'other' is the classifier's fallthrough, not a judgment — unknown, not out.
+  assert.strictEqual(roleTrack(job('Widget Coordinator', 'other'), compiled).status, 'unknown');
+  assert.strictEqual(roleTrack(job('Widget Coordinator', null), compiled).status, 'unknown');
+  // A class no variant claims is genuinely off-track.
+  assert.strictEqual(roleTrack(job('Staff Nurse', 'clinical'), compiled).status, 'none');
+  // Stamped on the fit, and never moves the score.
+  const scored = scoreJob(job('Analyst', 'data_computational'), compiled, null);
+  assert.strictEqual(scored.track.status, 'reachable');
+  assert.strictEqual(scored.fit_score, scoreJob(job('Analyst', 'data_computational'), compiled, null).fit_score);
+
+  // Cached classifications upgrade title_class before scoring.
+  const target = { id: 'j1', title: 'Widget Analyst', department: 'Ops', description_text: 'Some text', title_class: 'other' };
+  const cache = {
+    labels: { data_computational: 'data & computational' },
+    entries: {
+      j1: { content_hash: jobContentHash(target), title_class: 'data_computational', requirements: { min_years: 3 } }
+    }
+  };
+  assert.strictEqual(applyJobClassifications([target], cache), 1);
+  assert.strictEqual(target.title_class, 'data_computational');
+  assert.strictEqual(target.title_class_source, 'llm');
+  assert.strictEqual(target.title_class_label, 'data & computational');
+  assert.strictEqual(target.classified_requirements.min_years, 3);
+
+  // An edited posting must be re-judged, not silently trusted (the staleness
+  // bug the route cache has).
+  const edited = { id: 'j1', title: 'Widget Analyst', department: 'Ops', description_text: 'Rewritten text', title_class: 'other' };
+  assert.strictEqual(applyJobClassifications([edited], cache), 0);
+  assert.strictEqual(edited.title_class, 'other');
+  // Missing/empty cache is a clean no-op.
+  assert.strictEqual(applyJobClassifications([edited], null), 0);
+  assert.strictEqual(applyJobClassifications([edited], { entries: {} }), 0);
+}
+
 function testFitAudit() {
   const { histogram, variantCeilings, sampleBlocked, seededShuffle, parseArgs } = require('../radar/scripts/fit-audit.js');
 
@@ -2399,6 +2454,7 @@ async function main() {
   testDegreeGateParsing();
   testVariantScoring();
   testFitEngineRepairs();
+  testRoleTrack();
   testFitAudit();
   testReachabilityDemotion();
   testVerdictTiers();

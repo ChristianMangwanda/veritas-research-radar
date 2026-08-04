@@ -28,6 +28,7 @@ const DATA_DIR = path.resolve(__dirname, '../data');
 const JOBS_PATH = path.join(DATA_DIR, 'jobs.json');
 const PROFILE_PATH = path.join(DATA_DIR, 'profile.json');
 const ROUTE_CACHE_PATH = path.join(DATA_DIR, 'route-cache.json');
+const CLASSIFY_CACHE_PATH = path.join(DATA_DIR, 'classify-cache.json');
 const DEFAULT_DASHBOARD = 'https://christianmangwanda.github.io/veritas-research-radar/';
 const MAX_LISTED = 8;
 
@@ -73,6 +74,9 @@ async function buildDigest({ hours, minVerdict }) {
   const jobs = await loadJobs();
   const compiled = RadarScoring.compileProfile(profile);
   const routeCache = await readJsonFile(ROUTE_CACHE_PATH, null);
+  // Cached job classifications sharpen title_class before scoring, so the
+  // digest sees the same tracks the dashboard does.
+  RadarScoring.applyJobClassifications(jobs, await readJsonFile(CLASSIFY_CACHE_PATH, null));
   RadarScoring.scoreAll(jobs, compiled, routeCache);
 
   const maxRank = RadarScoring.verdictRank(minVerdict);
