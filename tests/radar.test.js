@@ -1786,6 +1786,28 @@ function testTriageTransfer() {
   assert.deepStrictEqual(local.ignored_employers, ['emp-1']);
 }
 
+function testShouldAutoRefresh() {
+  const { shouldAutoRefresh } = RadarPipeline;
+  const MIN = 60 * 1000;
+  // Pull slots (cron 15 */6 UTC): 00:15, 06:15, 12:15, 18:15.
+  const afternoon = Date.parse('2026-08-03T13:00:00Z'); // next slot 18:15
+
+  // Too soon, no slot passed.
+  assert.strictEqual(shouldAutoRefresh(afternoon, afternoon + 5 * MIN), false);
+  // Long enough, but still no slot passed — nothing new to fetch.
+  assert.strictEqual(shouldAutoRefresh(afternoon, afternoon + 30 * MIN), false);
+  // Exactly 15 minutes is not "more than" 15 minutes.
+  assert.strictEqual(shouldAutoRefresh(afternoon, afternoon + 15 * MIN), false);
+
+  const beforeSlot = Date.parse('2026-08-03T18:10:00Z'); // slot at 18:15
+  // Slot passed but under the 15-minute floor (pull may still be running).
+  assert.strictEqual(shouldAutoRefresh(beforeSlot, beforeSlot + 10 * MIN), false);
+  // Slot passed and past the floor — refresh.
+  assert.strictEqual(shouldAutoRefresh(beforeSlot, beforeSlot + 30 * MIN), true);
+  // Hours later, slots long gone — refresh.
+  assert.strictEqual(shouldAutoRefresh(afternoon, Date.parse('2026-08-04T09:00:00Z')), true);
+}
+
 function testDaysSince() {
   const { daysSince } = RadarPipeline;
   const now = Date.parse('2026-08-03T12:00:00Z');
@@ -2196,6 +2218,7 @@ async function main() {
   testTriageMerge();
   testRestoreTriageRecord();
   testTriageTransfer();
+  testShouldAutoRefresh();
   testDaysSince();
   testVariantInitials();
   testNextPullAt();

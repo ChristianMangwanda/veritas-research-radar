@@ -1039,17 +1039,43 @@ function renderLoadBanner() {
   }
 }
 
+async function reloadData() {
+  state.jobs = await loadJobs();
+  RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
+  populateSources();
+  renderStats();
+  render();
+  lastLoadAt = Date.now();
+}
+
 async function retryLoad() {
   const button = document.querySelector('#retry-pull');
   if (button) {
     button.disabled = true;
     button.textContent = 'Retrying…';
   }
-  state.jobs = await loadJobs();
-  RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
-  populateSources();
-  renderStats();
-  render();
+  await reloadData();
+}
+
+// Quiet re-fetch when the user returns to a long-lived tab after a scheduled
+// pull has landed. Selection survives (render only clears it if the job
+// vanished); the window scrollTop is snapshotted since render() rebuilds rows.
+let lastLoadAt = Date.now();
+let refreshInFlight = false;
+
+async function maybeRefreshOnFocus() {
+  if (document.visibilityState !== 'visible') return;
+  if (refreshInFlight || !RadarPipeline.shouldAutoRefresh(lastLoadAt, Date.now())) return;
+  refreshInFlight = true;
+  const savedScroll = window.scrollY;
+  try {
+    await reloadData();
+    state.report = await loadRefreshReport();
+    renderRefreshStatus(state.report);
+    window.scrollTo(0, savedScroll);
+  } finally {
+    refreshInFlight = false;
+  }
 }
 
 function renderStats() {
@@ -2824,6 +2850,7 @@ function bindEvents() {
   }
 
   document.addEventListener('keydown', handleKeydown);
+  document.addEventListener('visibilitychange', maybeRefreshOnFocus);
   narrowLayout.addEventListener('change', renderDetail);
 
   // Routing mode floats the filters as a drawer — clicking anywhere outside

@@ -120,6 +120,13 @@
     return merged;
   }
 
+  // True when a scheduled pull has likely landed since the page last loaded
+  // data: at least 15 minutes have passed AND the cron slot after lastLoadAt
+  // is behind us. Keeps a long-lived tab from re-fetching on every focus.
+  function shouldAutoRefresh(lastLoadAt, now) {
+    return now - lastLoadAt > 15 * 60 * 1000 && now > nextPullAt(lastLoadAt);
+  }
+
   // Undo restore: put back the exact prior record — verbatim, old updated_at
   // included — or delete the key when there was none. An absent record is NOT
   // {status:'new'}: mergeTriage LWW and sync push both rely on the difference.
@@ -179,6 +186,7 @@
     PIPELINE_SET,
     daysSince,
     nextPullAt,
+    shouldAutoRefresh,
     groupPipeline,
     mergeTriage,
     restoreTriageRecord,
