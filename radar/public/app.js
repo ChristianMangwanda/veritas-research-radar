@@ -168,10 +168,11 @@ let typeFilter = '';
 let showBlocked = false;
 let verdictFilter = '';
 
-// 'radar' = the discovery list; 'pipeline' = jobs you've applied to /
+// 'qualified' = open + in your line of work + no quoted barrier, ranked by
+// fit; 'radar' = every active job; 'pipeline' = jobs you've applied to /
 // contacted, grouped by stage. Pipeline ignores every filter except search —
 // an application must never vanish because a filter tightened.
-let viewMode = 'radar';
+let viewMode = 'qualified';
 
 // Job id whose detail pane shows the "did you apply?" nudge after the user
 // opened its posting. Self-scoped: only ever rendered for the matching job.
@@ -903,7 +904,7 @@ function buildParams() {
   if (verdictFilter) params.set('minVerdict', verdictFilter);
   if (DOM.recency.value) params.set('recency', DOM.recency.value);
   if (showBlocked) params.set('blocked', '1');
-  if (viewMode !== 'radar') params.set('view', viewMode);
+  if (viewMode !== 'qualified') params.set('view', viewMode);
   return params;
 }
 
@@ -930,8 +931,10 @@ function hydrateFromUrl(paramsOverride) {
   if (params.has('minVerdict')) setVerdictFilter(params.get('minVerdict'), { skipRender: true });
   if (params.has('recency')) DOM.recency.value = params.get('recency');
   if (params.has('source')) DOM.source.value = params.get('source');
+  // Legacy bookmarks: ?view=routing (view removed 2026-08-04) falls through
+  // to the Qualified default.
   const view = params.get('view');
-  if (view === 'pipeline' || view === 'routing') setViewMode(view, { skipRender: true });
+  if (view === 'pipeline' || view === 'radar') setViewMode(view, { skipRender: true });
 }
 
 /* ------------------------------------------------------------------------ */
@@ -2496,15 +2499,11 @@ function setVerdictFilter(value, { skipRender = false } = {}) {
 }
 
 function setViewMode(value, { skipRender = false } = {}) {
-  viewMode = value === 'pipeline' || value === 'routing' ? value : 'radar';
+  viewMode = value === 'pipeline' || value === 'radar' ? value : 'qualified';
   for (const button of DOM.viewSeg.querySelectorAll('button')) {
     button.classList.toggle('is-active', button.dataset.value === viewMode);
   }
   document.body.classList.toggle('pipeline-mode', viewMode === 'pipeline');
-  document.body.classList.toggle('routing-mode', viewMode === 'routing');
-  // Routing's detail is an on-demand overlay — a selection carried over from
-  // another view must not pop it open over the table.
-  if (viewMode === 'routing') state.selectedId = null;
   showAllRows = false;
   if (!skipRender) render();
 }
@@ -3083,10 +3082,9 @@ async function init() {
   renderSavedViews();
   bindEvents();
 
-  // Preselect the first job on wide screens so the detail pane is never
-  // empty — except in routing mode, where detail is an on-demand overlay.
+  // Preselect the first job on wide screens so the detail pane is never empty
   render();
-  if (!narrowLayout.matches && viewMode !== 'routing' && state.visible.length && !state.selectedId) {
+  if (!narrowLayout.matches && state.visible.length && !state.selectedId) {
     selectJob(state.visible[0].id);
   }
 }
