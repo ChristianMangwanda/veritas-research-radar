@@ -131,23 +131,6 @@
           <button id="ignored-note" class="feeds-note" type="button" hidden></button>
           <div id="ignored-panel" class="ignored-panel" hidden></div>
 
-        <section class="profile">
-          <h2>Resume profile</h2>
-          <div id="profile-summary" class="profile-summary"></div>
-          <div class="profile-actions">
-            <label class="file-button">
-              Import profile.json
-              <input id="profile-file" type="file" accept=".json,application/json">
-            </label>
-            <label class="file-button">
-              Import route verdicts
-              <input id="route-file" type="file" accept=".json,application/json">
-            </label>
-            <button id="clear-profile" class="ghost-button" type="button">Clear</button>
-          </div>
-          <p class="profile-note">Built locally by <code>npm run radar:profile</code> from your own resumes. Stays in this browser.</p>
-        </section>
-
         <section class="profile triage-transfer">
           <h2>Triage backup</h2>
           <div class="profile-actions">
@@ -172,6 +155,42 @@
           </div>
           <p class="profile-note">Shares triage (status, notes, follow-ups) through Supabase, gated by a secret token. Setup: <code>radar/supabase/triage.sql</code>.</p>
         </section>
+        </details>
+
+        <details id="resumes-section" class="side-section">
+          <summary>Your resumes <span id="resumes-count" class="side-count"></span></summary>
+          <div id="resume-drop" class="resume-drop">
+            <p>Drop a resume here</p>
+            <label class="file-button">
+              Choose a file
+              <input id="resume-upload" type="file" accept=".pdf,.docx,.txt,.md" multiple>
+            </label>
+            <p class="profile-note">PDF, DOCX, TXT or MD. It's read on this machine and never uploaded anywhere.</p>
+          </div>
+          <div id="resume-list" class="resume-list"></div>
+          <div id="profile-summary" class="profile-summary"></div>
+          <div class="profile-actions profile-fallback">
+            <label class="file-button">
+              Import profile.json
+              <input id="profile-file" type="file" accept=".json,application/json">
+            </label>
+            <label class="file-button">
+              Import route verdicts
+              <input id="route-file" type="file" accept=".json,application/json">
+            </label>
+            <button id="clear-profile" class="ghost-button" type="button">Clear</button>
+          </div>
+        </details>
+
+        <details id="wants-section" class="side-section">
+          <summary>What you want <span id="wants-state" class="side-count"></span></summary>
+          <p class="profile-note">Write it however you like — roles, places, pay, what excites you, what you'd refuse. It's read alongside your resumes when judging each job.</p>
+          <textarea id="wants-text" rows="7" placeholder="e.g. Research or ML/data science roles at universities, institutes or hospitals. East Coast or remote. At least $90k. Most drawn to health data and computational biology. On F-1 OPT so sponsorship matters. Not interested in pure front-end work or night-shift clinical labs."></textarea>
+          <div class="profile-actions">
+            <button id="wants-save" class="primary-button" type="button">Save</button>
+            <span id="wants-status" class="profile-note"></span>
+          </div>
+          <div id="wants-structured" class="wants-structured"></div>
         </details>
       </aside>
 
@@ -199,13 +218,12 @@
           </label>
           <button id="triage-export-head" class="ghost-button export-backup" type="button" title="Download statuses, notes, and ignored employers as JSON — the only backup of this browser's tracking">Export backup</button>
           <button id="filters-toggle" class="chip filters-toggle" type="button">Filters <span class="count-slot"></span></button>
-          <span class="kbd-hint" title="Keyboard: j/k move · Enter open details · o open posting · s shortlist · a applied · e emailed · v visa check · i interview · O offer (shift+o) · r rejected · w withdrawn · x ignore · n new · u undo (also ⌘Z)">⌨ j k o s a x</span>
         </div>
         <div id="load-error" class="load-error" role="alert" hidden></div>
         <div id="pipeline-stats" class="pipeline-stats" hidden></div>
         <div id="jobs-header" class="row-grid jobs-header" aria-hidden="true">
           <span class="cell-role">Role</span>
-          <span class="cell-fit">Fit</span>
+          <span class="cell-fit">Match</span>
           <span class="cell-visa">Visa signal</span>
           <span class="cell-send">Send résumé</span>
           <span class="cell-closes">Closes</span>
@@ -238,10 +256,12 @@
           <span class="row-title"></span>
           <span class="row-sub"></span>
           <span class="row-compact-send" hidden></span>
+          <span class="row-match" hidden></span>
           <span class="row-note" hidden></span>
           <span class="row-meta" hidden></span>
         </div>
         <div class="cell cell-fit">
+          <span class="match-verdict" hidden></span>
           <span class="fit-num"></span>
           <span class="fit-bar"><i></i></span>
         </div>

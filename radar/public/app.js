@@ -7,6 +7,9 @@ const state = {
   profileError: null, // validation message when an import is rejected
   profileFreshness: null, // /api/profile-freshness status (local server only)
   profileSyncedAt: null,  // set when the hosted page adopted the local server's profile
+  matches: {},            // jobId -> judged match (local server only)
+  matchPending: 0,        // jobs queued for judging
+  matchAvailable: false,  // false on the hosted dashboard (no local model)
   loadError: null,    // set when the job load partially/fully failed (distinct from "no matches")
   lastVisit: null,
   selectedId: null,
@@ -75,6 +78,17 @@ const DOM = {
   recency: document.querySelector('#recency'),
   ignoredNote: document.querySelector('#ignored-note'),
   ignoredPanel: document.querySelector('#ignored-panel'),
+  resumesSection: document.querySelector('#resumes-section'),
+  resumesCount: document.querySelector('#resumes-count'),
+  resumeDrop: document.querySelector('#resume-drop'),
+  resumeUpload: document.querySelector('#resume-upload'),
+  resumeList: document.querySelector('#resume-list'),
+  wantsSection: document.querySelector('#wants-section'),
+  wantsState: document.querySelector('#wants-state'),
+  wantsText: document.querySelector('#wants-text'),
+  wantsSave: document.querySelector('#wants-save'),
+  wantsStatus: document.querySelector('#wants-status'),
+  wantsStructured: document.querySelector('#wants-structured'),
   undoBar: document.querySelector('#undo-bar'),
   undoMsg: document.querySelector('#undo-msg'),
   undoBtn: document.querySelector('#undo-btn'),
@@ -630,6 +644,262 @@ async function maybeSyncProfileFromLocalRadar() {
 }
 
 /* ------------------------------------------------------------------------ */
+/* Your resumes + what you want: the two inputs the matching runs on. Both    */
+/* are local-server features — the panels hide themselves on the hosted       */
+/* dashboard, which has neither a filesystem nor a model.                     */
+
+async function loadResumePanel() {
+  const data = await getJson('/api/resumes', null);
+  if (!data) {
+    DOM.resumesSection.hidden = true;
+    return;
+  }
+  DOM.resumesSection.hidden = false;
+  renderResumeList(data);
+  // While a rebuild runs, keep the panel honest about it.
+  if (data.building) setTimeout(loadResumePanel, 4000);
+}
+
+function renderResumeList(data) {
+  const variants = data.variants || [];
+  DOM.resumesCount.textContent = variants.length ? `· ${variants.length}` : '';
+  DOM.resumeList.replaceChildren();
+
+  for (const variant of variants) {
+    const row = el('div', 'resume-row');
+    const head = el('div', 'resume-head');
+    const label = el('input', 'resume-label');
+    label.value = variant.label;
+    label.title = variant.file;
+    label.addEventListener('change', () => saveVariant({ id: variant.id, label: label.value }));
+    const remove = el('button', 'link-button resume-remove', '×');
+    remove.type = 'button';
+    remove.title = 'Remove this resume';
+    remove.addEventListener('click', async () => {
+      if (!window.confirm(`Remove "${variant.label}"? This deletes ${variant.file} from radar/data/resumes.`)) return;
+      await postJson('/api/resume-variants', { remove: [variant.id] });
+      loadResumePanel();
+    });
+    head.append(label, remove);
+
+    const intent = el('textarea', 'resume-intent');
+    intent.rows = 2;
+    intent.value = variant.intent || '';
+    intent.placeholder = 'What this version leads with…';
+    intent.addEventListener('change', () => saveVariant({ id: variant.id, intent: intent.value }));
+
+    const meta = el('span', 'resume-meta');
+    if (variant.missing) meta.textContent = 'file missing';
+    else if (variant.pending) meta.textContent = 'reading…';
+    else meta.textContent = `${variant.skill_terms} terms`;
+    if (variant.intent_source === 'auto') {
+      meta.textContent += ' · summary written for you — edit it';
+    }
+
+    row.append(head, intent, meta);
+    DOM.resumeList.append(row);
+  }
+
+  if (data.building) DOM.resumeList.append(el('p', 'profile-note', 'Rebuilding your profile…'));
+}
+
+async function saveVariant(edit) {
+  await postJson('/api/resume-variants', { variants: [edit] });
+  loadResumePanel();
+}
+
+async function uploadResumes(files) {
+  for (const file of files) {
+    DOM.resumeDrop.classList.add('is-busy');
+    try {
+      await fetch('/api/resumes', {
+        method: 'POST',
+        headers: { 'x-resume-filename': encodeURIComponent(file.name) },
+        body: file
+      });
+    } catch (error) {
+      console.warn(`upload failed: ${error.message}`);
+    } finally {
+      DOM.resumeDrop.classList.remove('is-busy');
+    }
+  }
+  loadResumePanel();
+  pollProfileFreshness();
+}
+
+async function postJson(url, body) {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return response.ok ? response.json() : null;
+  } catch {
+    return null;
+  }
+}
+
+async function loadWants() {
+  const preferences = await getJson('/api/preferences', null);
+  if (!preferences) {
+    DOM.wantsSection.hidden = true;
+    return;
+  }
+  DOM.wantsSection.hidden = false;
+  DOM.wantsText.value = preferences.text || '';
+  renderWants(preferences);
+}
+
+function renderWants(preferences) {
+  const structured = preferences?.structured || {};
+  const filled = Boolean((preferences?.text || '').trim());
+  DOM.wantsState.textContent = filled ? '· set' : '· not set yet';
+  DOM.wantsStructured.replaceChildren();
+  if (!filled) return;
+
+  // Show what was understood, so a bad reading is visible and fixable.
+  const rows = [
+    ['Roles', (structured.role_types || []).join(', ')],
+    ['Drawn to', (structured.domains || []).join(', ')],
+    ['Where', (structured.locations || []).join(', ')],
+    ['Remote', structured.remote && structured.remote !== 'open' ? structured.remote.replace(/_/g, ' ') : ''],
+    ['Salary floor', structured.salary_min ? `$${structured.salary_min.toLocaleString()}` : ''],
+    ['Won’t take', (structured.deal_breakers || []).join(', ')]
+  ].filter(([, value]) => value);
+
+  if (!rows.length) return;
+  DOM.wantsStructured.append(el('p', 'profile-note', 'Understood as:'));
+  for (const [label, value] of rows) {
+    const row = el('div', 'wants-row');
+    row.append(el('span', 'wants-key', label), el('span', 'wants-value', value));
+    DOM.wantsStructured.append(row);
+  }
+}
+
+async function saveWants() {
+  DOM.wantsSave.disabled = true;
+  DOM.wantsStatus.textContent = 'Reading what you wrote…';
+  const saved = await postJson('/api/preferences', { text: DOM.wantsText.value });
+  DOM.wantsSave.disabled = false;
+  if (!saved) {
+    DOM.wantsStatus.textContent = 'Could not save — is the local radar running?';
+    return;
+  }
+  DOM.wantsStatus.textContent = 'Saved — re-reading jobs against it.';
+  renderWants(saved);
+  // Preferences are part of the match cache key, so every judgment is stale.
+  state.matches = {};
+  matchRequested.clear();
+  render();
+  setTimeout(() => { DOM.wantsStatus.textContent = ''; }, 4000);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Judged matches: the local model's read of a posting against the resumes    */
+/* and stated preferences. Absent on the hosted dashboard, which has no       */
+/* model — everything below degrades to the deterministic ordering.           */
+
+const MATCH_LABELS = {
+  strong: 'Strong match',
+  possible: 'Worth a look',
+  stretch: 'Stretch',
+  no: 'Not for you'
+};
+
+const MATCH_TAGS = {
+  strong: 'tag-friendly',
+  possible: 'tag-accent',
+  stretch: 'tag-warn',
+  no: 'tag-restricted'
+};
+
+const MATCH_RANK = { strong: 0, possible: 1, stretch: 2, no: 4 };
+// Unjudged sits between "stretch" and "no": promising enough to look at,
+// never ranked above something the model actually endorsed.
+const UNJUDGED_RANK = 3;
+
+function matchRank(job) {
+  const verdict = state.matches[job.id]?.verdict;
+  return verdict ? MATCH_RANK[verdict] : UNJUDGED_RANK;
+}
+
+// One flight at a time; the server queues internally, so piling on requests
+// only wastes round trips.
+let matchInFlight = false;
+let matchPollTimer = null;
+const matchRequested = new Set();
+
+async function requestMatches(jobs, priority) {
+  if (!jobs.length || matchInFlight) return;
+  matchInFlight = true;
+  try {
+    const response = await fetch('/api/match', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ priority, jobs: jobs.map(matchPayload) })
+    });
+    if (!response.ok) throw new Error(String(response.status));
+    const result = await response.json();
+    state.matchAvailable = true;
+    state.matchPending = result.pending || 0;
+    let fresh = 0;
+    for (const [id, judgment] of Object.entries(result.judgments || {})) {
+      if (!state.matches[id]) fresh += 1;
+      state.matches[id] = judgment;
+    }
+    // Re-render only when something actually arrived, so the list doesn't
+    // flicker under the user while they read.
+    if (fresh) render();
+    scheduleMatchPoll(result);
+  } catch {
+    state.matchAvailable = false; // hosted dashboard, or the server went away
+  } finally {
+    matchInFlight = false;
+  }
+}
+
+// Only the fields the judge prompt uses — posting bodies are large and this
+// rides over the wire on every batch.
+function matchPayload(job) {
+  return {
+    id: job.id,
+    title: job.title,
+    employer_name: job.employer_name,
+    department: job.department,
+    location: job.location,
+    remote: job.remote,
+    salary_min: job.salary_min,
+    salary_max: job.salary_max,
+    description_text: job.description_text
+  };
+}
+
+function scheduleMatchPoll(result) {
+  clearTimeout(matchPollTimer);
+  if (!result || (!result.pending && !result.running)) return;
+  // A judgment takes ~19s; poll a little faster so results feel live.
+  matchPollTimer = setTimeout(() => {
+    const waiting = state.visible.filter((job) => !state.matches[job.id]).slice(0, 20);
+    if (waiting.length) requestMatches(waiting, 0);
+  }, 8000);
+}
+
+// What's on screen gets judged first; the next screenful is queued behind it
+// so scrolling rarely waits.
+function pumpMatches() {
+  if (viewMode !== 'qualified' || !state.compiled || !state.visible.length) return;
+  const onScreen = state.visible.slice(0, 12).filter((job) => !state.matches[job.id]);
+  const prefetch = state.visible.slice(12, 40).filter((job) => !state.matches[job.id]);
+  const batch = onScreen.length ? onScreen : prefetch;
+  if (!batch.length) return;
+  const key = batch.map((job) => job.id).join(',');
+  if (matchRequested.has(key)) return;
+  matchRequested.add(key);
+  requestMatches(batch, onScreen.length ? 0 : 1);
+}
+
+/* ------------------------------------------------------------------------ */
 /* Filtering + sorting                                                       */
 
 function isNewSinceLastVisit(job) {
@@ -753,9 +1023,19 @@ function filterPredicates() {
     // sacred, even when a shortlisted job is off-track or blocked.
     qualified: (job) => {
       if (viewMode !== 'qualified') return true;
-      if (RadarScoring.isQualified(job, { includeBlocked: showBlocked })) return true;
-      const status = triageFor(job);
-      return PROTECTED_TRIAGE.has(status) || RadarPipeline.PIPELINE_SET.has(status);
+      if (!RadarScoring.isQualified(job, { includeBlocked: showBlocked })) {
+        const status = triageFor(job);
+        return PROTECTED_TRIAGE.has(status) || RadarPipeline.PIPELINE_SET.has(status);
+      }
+      // The model read it and said it's a different line of work. Same
+      // demote-never-hide contract as blocked jobs: it drops off the list but
+      // the count beside the list says how many and one click brings them
+      // back with the reasoning attached.
+      if (!showBlocked && state.matches[job.id]?.verdict === 'no') {
+        const status = triageFor(job);
+        return PROTECTED_TRIAGE.has(status) || RadarPipeline.PIPELINE_SET.has(status);
+      }
+      return true;
     },
     federal: (job) => !job.citizenship_gated || DOM.includeFederal.checked,
     closed: (job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)),
@@ -779,9 +1059,10 @@ function renderBlockedNote() {
     return;
   }
   if (showBlocked) {
-    const shown = state.visible.filter((job) => job.fit?.eligibility?.verdict === 'blocked').length;
+    const shown = state.visible.filter((job) => job.fit?.eligibility?.verdict === 'blocked'
+      || state.matches[job.id]?.verdict === 'no').length;
     DOM.blockedNote.hidden = shown === 0;
-    DOM.blockedNote.textContent = `Showing ${shown.toLocaleString()} blocked · hide`;
+    DOM.blockedNote.textContent = `Showing ${shown.toLocaleString()} set aside · hide`;
     return;
   }
   // Count what only THIS rule removes, so the number matches what the toggle
@@ -795,17 +1076,31 @@ function renderBlockedNote() {
     && !predicates.eligibility(job)
     && (viewMode !== 'qualified' || RadarScoring.isQualified(job, { includeBlocked: true }))
     && others.every((predicate) => predicate(job))).length;
-  DOM.blockedNote.hidden = hidden === 0;
-  DOM.blockedNote.textContent = viewMode === 'qualified'
-    ? `+${hidden.toLocaleString()} in your field but blocked · show`
-    : `${hidden.toLocaleString()} blocked hidden · show`;
+  // On Qualified, the model's "different line of work" calls are set aside
+  // the same way blocked jobs are — counted, never deleted, one click back.
+  const setAside = viewMode === 'qualified'
+    ? state.jobs.filter((job) => state.matches[job.id]?.verdict === 'no'
+      && RadarScoring.isQualified(job, { includeBlocked: true })).length
+    : 0;
+  const total = hidden + setAside;
+  DOM.blockedNote.hidden = total === 0;
+  if (viewMode !== 'qualified') {
+    DOM.blockedNote.textContent = `${hidden.toLocaleString()} blocked hidden · show`;
+    return;
+  }
+  const parts = [];
+  if (hidden) parts.push(`${hidden.toLocaleString()} blocked`);
+  if (setAside) parts.push(`${setAside.toLocaleString()} not your line of work`);
+  DOM.blockedNote.textContent = `+${total.toLocaleString()} set aside (${parts.join(', ')}) · show`;
 }
 
 function filteredJobs() {
   const predicates = Object.values(filterPredicates());
-  // Qualified is pinned to fit order — ranking is the tab's whole point, and
-  // fit is a sort here, never a filter.
-  const sorter = viewMode === 'qualified' ? SORTERS.fit : (SORTERS[DOM.sort.value] || SORTERS.fit);
+  // Qualified ranks by the model's judgment first, deterministic fit only as
+  // a tie-break inside a tier (and as the order for what gets judged next).
+  const sorter = viewMode === 'qualified'
+    ? (a, b) => (matchRank(a) - matchRank(b)) || SORTERS.fit(a, b)
+    : (SORTERS[DOM.sort.value] || SORTERS.fit);
   return state.jobs
     .filter((job) => predicates.every((test) => test(job)))
     .sort((a, b) => {
@@ -1112,9 +1407,7 @@ function render() {
   const jobs = filteredJobs();
   state.visible = jobs;
   DOM.count.textContent = viewMode === 'qualified'
-    ? (state.compiled
-      ? `${jobs.length.toLocaleString()} qualified · fit ↓`
-      : 'Qualified — needs your resume profile')
+    ? qualifiedCountLine(jobs)
     : `${jobs.length.toLocaleString()} job${jobs.length === 1 ? '' : 's'} · sorted by ${SORT_LABELS[DOM.sort.value] || 'fit'}`;
   renderBlockedNote();
   // A hard load failure (zero rows loaded) is not "no filter matches" — show
@@ -1155,6 +1448,19 @@ function render() {
   }
 
   renderDetail();
+  pumpMatches();
+}
+
+// Says what the list IS, and — while the model is still reading — that more
+// is coming, so a half-judged list never looks like the finished answer.
+function qualifiedCountLine(jobs) {
+  const judged = jobs.filter((job) => state.matches[job.id]).length;
+  const total = jobs.length.toLocaleString();
+  if (!state.matchAvailable) return `${total} qualified · ranked by fit`;
+  if (judged < jobs.length) {
+    return `${total} qualified · ${judged} read so far, still reading…`;
+  }
+  return `${total} qualified · all read`;
 }
 
 // The Qualified first-run prompt. The import flow persists profile.json into
@@ -1449,8 +1755,10 @@ function buildRow(job) {
     }
   }
 
-  // FIT — number + single-hue bar; research relevance stands in (and says so)
-  // when no profile is loaded.
+  // MATCH — the model's verdict where it exists, otherwise the deterministic
+  // score. The number is deliberately demoted to a hint once a real judgment
+  // is in: it is a compressed keyword count, not a percentage, and printing
+  // it large claimed a precision the math never had.
   const fitNum = node.querySelector('.fit-num');
   const fitBarFill = node.querySelector('.fit-bar > i');
   const scoreValue = fit?.fit_score != null ? fit.fit_score : (job.research_relevance_score || 0);
@@ -1459,6 +1767,28 @@ function buildRow(job) {
   if (fit?.fit_score == null) {
     fitNum.classList.add('fit-res');
     node.querySelector('.cell-fit').title = 'Research relevance (no resume profile loaded)';
+  }
+
+  const judgment = state.matches[job.id];
+  if (judgment) {
+    const chip = node.querySelector('.match-verdict');
+    chip.textContent = MATCH_LABELS[judgment.verdict] || judgment.verdict;
+    chip.className = `match-verdict tag ${MATCH_TAGS[judgment.verdict] || ''}`;
+    chip.hidden = false;
+    node.querySelector('.cell-fit').classList.add('has-verdict');
+
+    // The reasoning, on the row: what matched, then what's missing. This is
+    // the whole point of judging — an answer you can check.
+    const line = node.querySelector('.row-match');
+    line.replaceChildren();
+    if (judgment.role_summary && judgment.verdict === 'no') {
+      line.append(el('span', 'match-why', judgment.role_summary));
+    }
+    for (const reason of judgment.reasons || []) line.append(el('span', 'match-why', `+ ${reason}`));
+    for (const gap of judgment.gaps || []) line.append(el('span', 'match-why match-gap', `− ${gap}`));
+    line.hidden = line.childElementCount === 0;
+  } else if (viewMode === 'qualified' && state.matchAvailable) {
+    node.querySelector('.cell-fit').classList.add('is-reading');
   }
 
   // VISA — the tag always renders (the mock's column has no blank cells)
@@ -2506,6 +2836,27 @@ function bindEvents() {
   DOM.markSeen.addEventListener('click', markAllSeen);
   DOM.undoBtn.addEventListener('click', undoLast);
   DOM.triageExportHead.addEventListener('click', exportTriage);
+
+  DOM.resumeUpload.addEventListener('change', () => {
+    const files = [...(DOM.resumeUpload.files || [])];
+    DOM.resumeUpload.value = '';
+    if (files.length) uploadResumes(files);
+  });
+  for (const event of ['dragenter', 'dragover']) {
+    DOM.resumeDrop.addEventListener(event, (dragEvent) => {
+      dragEvent.preventDefault();
+      DOM.resumeDrop.classList.add('is-over');
+    });
+  }
+  for (const event of ['dragleave', 'drop']) {
+    DOM.resumeDrop.addEventListener(event, () => DOM.resumeDrop.classList.remove('is-over'));
+  }
+  DOM.resumeDrop.addEventListener('drop', (dropEvent) => {
+    dropEvent.preventDefault();
+    const files = [...(dropEvent.dataTransfer?.files || [])];
+    if (files.length) uploadResumes(files);
+  });
+  DOM.wantsSave.addEventListener('click', saveWants);
   DOM.blockedNote.addEventListener('click', () => {
     showBlocked = !showBlocked;
     showAllRows = false;
@@ -2708,6 +3059,8 @@ async function init() {
   // the hosted page, pull a fresher profile from the local radar if it's up.
   pollProfileFreshness();
   maybeSyncProfileFromLocalRadar();
+  loadResumePanel();
+  loadWants();
   renderRefreshStatus(report);
   renderDiscovery(discovery);
   // Keep the next-pull countdown honest without touching anything else

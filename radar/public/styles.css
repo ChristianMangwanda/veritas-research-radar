@@ -565,7 +565,108 @@ textarea { resize: vertical; }
 
 .feeds-note.feeds-warn { color: var(--restricted-ink); }
 
-/* The collapsed "More" section: rare toggles + profile/backup/sync utilities */
+/* Your resumes / what you want — the two inputs matching runs on */
+.side-section {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.side-section > summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.side-section > summary::-webkit-details-marker { display: none; }
+.side-section > summary::after { content: '+'; float: right; color: var(--faint); }
+.side-section[open] > summary::after { content: '–'; }
+.side-section[open] > summary { margin-bottom: 10px; }
+.side-count { color: var(--faint); font-weight: 500; }
+
+.resume-drop {
+  border: 1px dashed var(--line-strong);
+  padding: 14px 12px;
+  text-align: center;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  margin-bottom: 10px;
+}
+
+.resume-drop.is-over { border-color: var(--accent); background: var(--accent-soft); }
+.resume-drop.is-busy { opacity: 0.55; pointer-events: none; }
+.resume-drop > p:first-child { font-weight: 600; font-size: 13px; }
+
+.resume-list { display: grid; gap: 12px; margin-bottom: 10px; }
+
+.resume-row {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.resume-head { display: flex; align-items: center; gap: 6px; }
+
+.resume-label {
+  flex: 1;
+  min-width: 0;
+  font-weight: 650;
+  font-size: 13px;
+  border: 1px solid transparent;
+  background: none;
+  padding: 2px 4px;
+}
+
+.resume-label:hover, .resume-label:focus { border-color: var(--line-strong); background: var(--panel); }
+
+.resume-remove { color: var(--faint); font-size: 16px; line-height: 1; }
+.resume-remove:hover { color: var(--restricted-ink); }
+
+.resume-intent {
+  width: 100%;
+  font-size: 12px;
+  padding: 5px 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+}
+
+.resume-meta { font-size: 11px; color: var(--faint); }
+
+.profile-fallback { margin-top: 8px; opacity: 0.75; }
+
+#wants-text {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  padding: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  margin-bottom: 8px;
+}
+
+.wants-structured { margin-top: 10px; display: grid; gap: 3px; }
+
+.wants-row { display: flex; gap: 8px; font-size: 12px; }
+
+.wants-key {
+  flex: 0 0 84px;
+  color: var(--faint);
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+.wants-value { flex: 1; min-width: 0; color: var(--muted); }
+
+/* The collapsed "More" section: rare toggles + backup/sync utilities */
 .more-filters {
   padding-top: 8px;
   border-top: 1px solid var(--line);
@@ -737,13 +838,6 @@ textarea { resize: vertical; }
 }
 
 .blocked-note:hover { color: var(--ink); }
-
-.kbd-hint {
-  color: var(--faint);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  cursor: default;
-}
 
 .view-seg {
   flex: 0 0 auto;
@@ -1190,8 +1284,54 @@ body.pipeline-mode .export-backup { display: inline-flex; }
   gap: 6px;
 }
 
-/* Qualified is pinned to fit order — no sort control to fiddle with */
+/* Qualified ranks by the judged verdict — no sort control to fiddle with */
 body.qualified-mode .sort-inline { display: none; }
+
+/* The judged match: verdict where the model has read the posting, and the
+   deterministic score demoted to a hint once it has. */
+.match-verdict {
+  display: inline-block;
+  font-size: 10.5px;
+  padding: 2px 6px;
+  margin-bottom: 3px;
+  white-space: nowrap;
+}
+
+.cell-fit.has-verdict .fit-num {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--faint);
+}
+
+.cell-fit.has-verdict .fit-bar { display: none; }
+
+/* Still being read: a quiet placeholder, never a spinner per row */
+.cell-fit.is-reading .fit-num { opacity: 0.35; }
+
+.cell-fit.is-reading::after {
+  content: 'reading…';
+  display: block;
+  font-size: 10px;
+  color: var(--faint);
+  font-family: var(--font-heading);
+  letter-spacing: 0.06em;
+}
+
+/* Why it matched, on the row */
+.row-match {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 3px;
+}
+
+.match-why {
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.match-gap { color: var(--restricted-ink); }
 
 /* First-run prompt on Qualified: the one-time profile import */
 .profile-prompt { justify-items: center; gap: 10px; }
@@ -1648,5 +1788,4 @@ mark.m-skill { background: var(--mark-skill); }
 
   .export-backup { font-size: 11px; padding: 4px 8px; }
 
-  .kbd-hint { display: none; }
 }
