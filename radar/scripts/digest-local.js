@@ -117,6 +117,13 @@ async function buildDigest({ hours, minVerdict }) {
   };
 }
 
+// HTTP headers are Latin-1 only; ntfy decodes RFC 2047 words, which lets
+// titles keep their UTF-8 punctuation.
+function headerValue(text) {
+  if (/^[\x20-\x7e]*$/.test(text)) return text;
+  return `=?UTF-8?B?${Buffer.from(text, 'utf8').toString('base64')}?=`;
+}
+
 async function main() {
   const dryRun = process.argv.includes('--dry-run');
   const hours = Number(process.env.DIGEST_HOURS) || 24;
@@ -144,7 +151,7 @@ async function main() {
   const response = await fetch(`https://ntfy.sh/${encodeURIComponent(topic)}`, {
     method: 'POST',
     headers: {
-      Title: digest.title,
+      Title: headerValue(digest.title),
       Tags: 'dart',
       Click: process.env.DASHBOARD_URL || DEFAULT_DASHBOARD
     },
