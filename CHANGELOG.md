@@ -4,6 +4,40 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Session 2026-08-03 (evening) — full dashboard redesign to the design brief
+
+Implements "Veritas Research Radar (standalone).html" (repo root — the
+commissioned design brief, all three takes) across seven commits, each leaving
+the app shippable:
+
+- **System**: light-only steel palette (`#5980a6` on `#faf9f5`) swapped in
+  under the existing token names; self-hosted Barlow / Barlow Condensed;
+  square hairline panels with registration-mark corner ticks; dark mode
+  removed. Fit is always number + single-hue bar.
+- **Radar (take 2a)**: the list is a 5-column cockpit table (Role / Fit /
+  Visa signal + evidence line / Send résumé + winning margin / Closes);
+  stateful sidebar facets with live counts (each facet counted with every
+  other filter applied); 5-stat header with next-pull countdown and an
+  Arm-daily-digest walkthrough; partial-load banner reworded with a working
+  Retry pull.
+- **Detail pane**: triage is a 7-step stepper with Reject/Withdraw/Ignore
+  demoted to links (terminal states show a Reopen line); SEND THIS ONE panel;
+  Copy-résumé-path (profile `source_file`); single-source skeleton.
+- **Pipeline (take 2c)**: instrument strip — next-pull gauge + Pull-now link
+  and seven system tiles with truthful live bits (real per-employer outcome
+  squares on the radar tile; dead-man ALARM on anomalies) — over big-number
+  funnel stage cells.
+- **Routing (take 2b, new third view)**: all résumés heat-scored in-row
+  (intensity = calibrated verdict tiers), best route, per-row Shortlist,
+  removable filter chips, CSV **Export shortlist**
+  (`RadarPipeline.buildShortlistCsv`, unit-tested).
+- **New features**: Save-this-view presets (localStorage), Ignore employer
+  (local-state; never hides jobs you acted on), variant initials
+  (`RadarScoring.variantInitials`, fixes the "APPLIE" abbrevs).
+- Verified: `npm test` green (5 new unit tests) + a 51-assertion headless-
+  Chromium pass. `pages.yml` now `cp -r` (fonts dir); `server.js` persists
+  `ignored_employers`.
+
 ### Session 2026-08-03 — coverage push + fit-engine hardening
 
 Coverage (Tier 3.1 dark-flagship rescues + a candidate-pool ATS scan; registry
