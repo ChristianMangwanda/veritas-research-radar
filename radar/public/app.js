@@ -725,6 +725,16 @@ function filterPredicates() {
       const status = triageFor(job);
       return PROTECTED_TRIAGE.has(status) || RadarPipeline.PIPELINE_SET.has(status);
     },
+    // The Qualified view's whole definition, in the tested scoring module.
+    // Blocked jobs ride the same showBlocked toggle as the eligibility rule.
+    // Acted-on jobs stay visible here like everywhere else — the pipeline is
+    // sacred, even when a shortlisted job is off-track or blocked.
+    qualified: (job) => {
+      if (viewMode !== 'qualified') return true;
+      if (RadarScoring.isQualified(job, { includeBlocked: showBlocked })) return true;
+      const status = triageFor(job);
+      return PROTECTED_TRIAGE.has(status) || RadarPipeline.PIPELINE_SET.has(status);
+    },
     federal: (job) => !job.citizenship_gated || DOM.includeFederal.checked,
     closed: (job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)),
     newOnly: (job) => !DOM.newOnly.checked || isNewSinceLastVisit(job),
@@ -765,19 +775,27 @@ function renderBlockedNote() {
     return;
   }
   // Count what only THIS rule removes, so the number matches what the toggle
-  // would reveal rather than everything every filter dropped.
+  // would reveal rather than everything every filter dropped. On Qualified the
+  // qualified predicate also enforces blocking, so it must be excluded from
+  // "others" and re-checked with the block lifted — otherwise the count is 0.
   const predicates = filterPredicates();
-  const others = Object.entries(predicates).filter(([key]) => key !== 'eligibility').map(([, fn]) => fn);
+  const excluded = new Set(['eligibility', 'qualified']);
+  const others = Object.entries(predicates).filter(([key]) => !excluded.has(key)).map(([, fn]) => fn);
   const hidden = state.jobs.filter((job) => job.fit?.eligibility?.verdict === 'blocked'
     && !predicates.eligibility(job)
+    && (viewMode !== 'qualified' || RadarScoring.isQualified(job, { includeBlocked: true }))
     && others.every((predicate) => predicate(job))).length;
   DOM.blockedNote.hidden = hidden === 0;
-  DOM.blockedNote.textContent = `${hidden.toLocaleString()} blocked hidden · show`;
+  DOM.blockedNote.textContent = viewMode === 'qualified'
+    ? `+${hidden.toLocaleString()} in your field but blocked · show`
+    : `${hidden.toLocaleString()} blocked hidden · show`;
 }
 
 function filteredJobs() {
   const predicates = Object.values(filterPredicates());
-  const sorter = SORTERS[DOM.sort.value] || SORTERS.fit;
+  // Qualified is pinned to fit order — ranking is the tab's whole point, and
+  // fit is a sort here, never a filter.
+  const sorter = viewMode === 'qualified' ? SORTERS.fit : (SORTERS[DOM.sort.value] || SORTERS.fit);
   return state.jobs
     .filter((job) => predicates.every((test) => test(job)))
     .sort((a, b) => {
@@ -1215,8 +1233,11 @@ function render() {
 
   const jobs = filteredJobs();
   state.visible = jobs;
-  DOM.count.textContent =
-    `${jobs.length.toLocaleString()} job${jobs.length === 1 ? '' : 's'} · sorted by ${SORT_LABELS[DOM.sort.value] || 'fit'}`;
+  DOM.count.textContent = viewMode === 'qualified'
+    ? (state.compiled
+      ? `${jobs.length.toLocaleString()} qualified · fit ↓`
+      : 'Qualified — needs your resume profile')
+    : `${jobs.length.toLocaleString()} job${jobs.length === 1 ? '' : 's'} · sorted by ${SORT_LABELS[DOM.sort.value] || 'fit'}`;
   renderBlockedNote();
   // A hard load failure (zero rows loaded) is not "no filter matches" — show
   // the error banner instead of the empty-state hint. A *partial* load still
@@ -1225,6 +1246,17 @@ function render() {
   const hardLoadFailure = state.jobs.length === 0 && Boolean(state.loadError);
   DOM.emptyState.hidden = jobs.length > 0 || hardLoadFailure;
   DOM.jobs.replaceChildren();
+
+  // Qualified is unanswerable without a profile — show the one-time import
+  // prompt, never an unranked fallback list or a lying "0 qualified" hint.
+  // (A dead Supabase load shows the error banner instead, not this.)
+  if (viewMode === 'qualified' && !state.compiled && !hardLoadFailure) {
+    state.visible = [];
+    DOM.emptyState.hidden = true;
+    DOM.jobs.append(buildProfilePrompt());
+    renderDetail();
+    return;
+  }
 
   if (state.selectedId && !jobs.some((job) => job.id === state.selectedId)) {
     state.selectedId = null;
@@ -1245,6 +1277,22 @@ function render() {
   }
 
   renderDetail();
+}
+
+// The Qualified first-run prompt. The import flow persists profile.json into
+// this browser's localStorage — a one-time step per browser, so the prompt
+// only ever appears until the first import.
+function buildProfilePrompt() {
+  const wrap = el('div', 'empty-state profile-prompt');
+  wrap.append(el('h2', undefined, 'Load your resume profile'));
+  wrap.append(el('p', undefined,
+    'Qualified is your shortlist: open jobs in your line of work with no quoted barrier, ranked against your own resumes. That needs your profile — built locally with npm run radar:profile, imported once, kept only in this browser.'));
+  const button = el('button', 'primary-button', 'Import profile.json');
+  button.type = 'button';
+  button.addEventListener('click', () => DOM.profileFile.click());
+  wrap.append(button);
+  wrap.append(el('p', 'profile-prompt-hint', 'All jobs works without one — fit ranking is what needs it.'));
+  return wrap;
 }
 
 // The pipeline list: only jobs the user acted on, only the search box narrows
@@ -2504,6 +2552,7 @@ function setViewMode(value, { skipRender = false } = {}) {
     button.classList.toggle('is-active', button.dataset.value === viewMode);
   }
   document.body.classList.toggle('pipeline-mode', viewMode === 'pipeline');
+  document.body.classList.toggle('qualified-mode', viewMode === 'qualified');
   showAllRows = false;
   if (!skipRender) render();
 }
@@ -3027,6 +3076,9 @@ async function init() {
     state.lastVisit = new Date().toISOString();
     localStorage.setItem(LAST_VISIT_KEY, state.lastVisit);
   }
+  // Normalize the default view's body classes even when no ?view param will
+  // call setViewMode (hydrateFromUrl only calls it for non-default views).
+  setViewMode(viewMode, { skipRender: true });
   hydrateFromUrl();
 
   const [jobs, local, report, discovery, profile, routeCache] = await Promise.all([

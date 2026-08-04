@@ -1343,6 +1343,15 @@ body.pipeline-mode .jobs-header { display: none; }
   gap: 6px;
 }
 
+/* Qualified is pinned to fit order — no sort control to fiddle with */
+body.qualified-mode .sort-inline { display: none; }
+
+/* First-run prompt on Qualified: the one-time profile import */
+.profile-prompt { justify-items: center; gap: 10px; }
+.profile-prompt p { max-width: 46ch; }
+.profile-prompt .primary-button { margin-top: 6px; }
+.profile-prompt-hint { font-size: 12px; color: var(--faint); }
+
 .load-error {
   margin-bottom: 12px;
   padding: 10px 14px;
