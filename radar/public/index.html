@@ -271,7 +271,7 @@
             </select>
           </label>
           <button id="filters-toggle" class="chip filters-toggle" type="button">Filters <span class="count-slot"></span></button>
-          <span class="kbd-hint" title="Keyboard: j/k move · Enter open details · o open posting · s shortlist · a applied · e emailed · v visa check · i interview · O offer (shift+o) · r rejected · w withdrawn · x ignore · n new">⌨ j k o s a x</span>
+          <span class="kbd-hint" title="Keyboard: j/k move · Enter open details · o open posting · s shortlist · a applied · e emailed · v visa check · i interview · O offer (shift+o) · r rejected · w withdrawn · x ignore · n new · u undo (also ⌘Z)">⌨ j k o s a x</span>
         </div>
         <div id="load-error" class="load-error" role="alert" hidden></div>
         <div id="active-filters" class="active-filters" hidden></div>
@@ -328,6 +328,11 @@
         <div class="cell cell-closes"></div>
       </article>
     </template>
+
+    <div id="undo-bar" class="undo-bar" hidden>
+      <span id="undo-msg" aria-live="polite"></span>
+      <button id="undo-btn" type="button">Undo <kbd>u</kbd></button>
+    </div>
 
     <script src="scoring.js"></script>
     <script src="pipeline.js"></script>

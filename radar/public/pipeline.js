@@ -120,6 +120,19 @@
     return merged;
   }
 
+  // Undo restore: put back the exact prior record — verbatim, old updated_at
+  // included — or delete the key when there was none. An absent record is NOT
+  // {status:'new'}: mergeTriage LWW and sync push both rely on the difference.
+  // Verbatim beats fresh-stamping: a new timestamp would reset the follow-up
+  // clock and LWW-clobber genuinely newer edits from a synced device (which
+  // may in turn re-overwrite this undo — accepted).
+  function restoreTriageRecord(triage, jobId, prev) {
+    const next = { ...(triage || {}) };
+    if (prev === undefined) delete next[jobId];
+    else next[jobId] = prev;
+    return next;
+  }
+
   const RadarPipeline = {
     PIPELINE_STAGES,
     PIPELINE_TERMINAL,
@@ -128,6 +141,7 @@
     nextPullAt,
     groupPipeline,
     mergeTriage,
+    restoreTriageRecord,
     buildShortlistCsv
   };
 

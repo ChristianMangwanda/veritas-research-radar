@@ -1700,6 +1700,36 @@ function testTriageMerge() {
   assert.deepStrictEqual(mergeTriage({}, null), {});
 }
 
+function testRestoreTriageRecord() {
+  const { restoreTriageRecord, mergeTriage } = RadarPipeline;
+
+  // No prior record → the key is deleted, never rewritten as {status:'new'}
+  // (absent and 'new' are different things to mergeTriage and sync push).
+  const afterFirstTouch = { j1: { status: 'shortlist', updated_at: '2026-08-03T10:00:00Z' } };
+  let restored = restoreTriageRecord(afterFirstTouch, 'j1', undefined);
+  assert.strictEqual('j1' in restored, false);
+
+  // Prior record restored verbatim, old updated_at included.
+  const prev = { status: 'applied', updated_at: '2026-08-01T00:00:00Z', note: 'asked HR', variant_sent: 'ml-engineer' };
+  restored = restoreTriageRecord(
+    { j1: { status: 'rejected', updated_at: '2026-08-03T10:00:00Z' } },
+    'j1',
+    prev
+  );
+  assert.deepStrictEqual(restored.j1, prev);
+
+  // Input map is not mutated.
+  const input = { j1: { status: 'rejected', updated_at: '2026-08-03T10:00:00Z' } };
+  restoreTriageRecord(input, 'j1', undefined);
+  assert.strictEqual(input.j1.status, 'rejected');
+
+  // Accepted LWW caveat, pinned: a synced device that already pulled the
+  // undone (newer) write re-overwrites the verbatim-restored older record.
+  const remote = { j1: { status: 'rejected', updated_at: '2026-08-03T10:00:00Z' } };
+  const merged = mergeTriage(restoreTriageRecord(remote, 'j1', prev), remote);
+  assert.strictEqual(merged.j1.status, 'rejected');
+}
+
 function testDaysSince() {
   const { daysSince } = RadarPipeline;
   const now = Date.parse('2026-08-03T12:00:00Z');
@@ -2108,6 +2138,7 @@ async function main() {
   testVerdictTiers();
   testVerdictRank();
   testTriageMerge();
+  testRestoreTriageRecord();
   testDaysSince();
   testVariantInitials();
   testNextPullAt();

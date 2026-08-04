@@ -92,6 +92,9 @@ const DOM = {
   ignoredPanel: document.querySelector('#ignored-panel'),
   digestArm: document.querySelector('#digest-arm'),
   digestPopover: document.querySelector('#digest-popover'),
+  undoBar: document.querySelector('#undo-bar'),
+  undoMsg: document.querySelector('#undo-msg'),
+  undoBtn: document.querySelector('#undo-btn'),
   feedsNote: document.querySelector('#feeds-note'),
   todayChip: document.querySelector('#today-chip'),
   viewSeg: document.querySelector('#view-seg'),
@@ -317,6 +320,10 @@ function ignoredEmployers() {
 }
 
 async function ignoreEmployer(job) {
+  pushUndo(
+    { type: 'ignore_employer', employerId: job.employer_id, prevSelectedId: state.selectedId },
+    `Ignored ${job.employer_name || job.employer_id}`
+  );
   const set = ignoredEmployers();
   set.add(job.employer_id);
   state.local.ignored_employers = [...set];
@@ -2225,7 +2232,12 @@ function renderDetailDescription(job) {
 /* Triage                                                                    */
 
 async function setTriage(job, status) {
-  const prev = state.local.triage[job.id] || {};
+  const before = state.local.triage[job.id];
+  pushUndo(
+    { type: 'triage', jobId: job.id, prev: before ? { ...before } : undefined },
+    `${TRIAGE_LABELS[status] || status} — was ${TRIAGE_LABELS[before?.status || 'new']}`
+  );
+  const prev = before || {};
   const now = new Date().toISOString();
   const record = { ...prev, status, updated_at: now };
   // Stamp the first time it becomes "applied" so the funnel remembers when you
@@ -2310,6 +2322,52 @@ function setViewMode(value, { skipRender = false } = {}) {
 /* ------------------------------------------------------------------------ */
 /* Keyboard triage                                                           */
 
+/* Undo: a small stack over triage changes and employer ignores. The bar is
+   transient feedback (6s); the stack outlives it, so u / Cmd+Z can keep
+   walking back after the bar hides. */
+
+const UNDO_MAX = 20;
+const undoStack = [];
+let undoTimer = null;
+
+function pushUndo(entry, message) {
+  undoStack.push(entry);
+  if (undoStack.length > UNDO_MAX) undoStack.shift();
+  showUndoBar(message);
+}
+
+function showUndoBar(message) {
+  if (!DOM.undoBar) return;
+  DOM.undoMsg.textContent = message;
+  DOM.undoBar.hidden = false;
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(hideUndoBar, 6000);
+}
+
+function hideUndoBar() {
+  clearTimeout(undoTimer);
+  if (DOM.undoBar) DOM.undoBar.hidden = true;
+}
+
+async function undoLast() {
+  const entry = undoStack.pop();
+  hideUndoBar();
+  if (!entry) return;
+  if (entry.type === 'triage') {
+    // Direct restore, never through setTriage — no re-entrant undo push, and
+    // restoreTriageRecord keeps absent ≠ {status:'new'} for sync/LWW.
+    state.local.triage = RadarPipeline.restoreTriageRecord(state.local.triage, entry.jobId, entry.prev);
+    await persistTriage();
+    render();
+  } else if (entry.type === 'ignore_employer') {
+    state.local.ignored_employers = (state.local.ignored_employers || [])
+      .filter((id) => id !== entry.employerId);
+    state.selectedId = entry.prevSelectedId;
+    await saveLocalState();
+    render();
+  }
+}
+
 // Uppercase 'O' (shift+o) is deliberate — plain 'o' opens the posting. The
 // modifier bail below ignores shiftKey, so shifted letters land here. Known
 // trade: CapsLock+o reads as 'O' and sets offer; not worth case-folding.
@@ -2333,6 +2391,13 @@ function handleKeydown(event) {
   if (event.key === 'Escape' && viewMode === 'routing' && document.body.classList.contains('show-filters')) {
     document.body.classList.remove('show-filters');
     if (typing) target.blur();
+    return;
+  }
+  // Cmd/Ctrl+Z must beat the modifier bail — but not while typing, where the
+  // note textarea keeps the browser's native text undo.
+  if (event.key === 'z' && (event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey && !typing) {
+    event.preventDefault();
+    undoLast();
     return;
   }
   if (typing || event.metaKey || event.ctrlKey || event.altKey) return;
@@ -2362,6 +2427,8 @@ function handleKeydown(event) {
       event.preventDefault();
       selectJob(job.id, { scroll: true });
     }
+  } else if (event.key === 'u') {
+    undoLast();
   } else if (TRIAGE_KEYS[event.key]) {
     const job = selectedJob();
     if (job) setTriage(job, TRIAGE_KEYS[event.key]);
@@ -2597,6 +2664,7 @@ function bindEvents() {
   DOM.capRadio.addEventListener('change', onFilterChange);
 
   DOM.markSeen.addEventListener('click', markAllSeen);
+  DOM.undoBtn.addEventListener('click', undoLast);
   DOM.todayChip.addEventListener('click', applyTodayPreset);
 
   DOM.viewSeg.addEventListener('click', (event) => {
