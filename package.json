@@ -19,7 +19,9 @@
     "radar:route": "node radar/scripts/route-resumes.js",
     "radar:digest:local": "node radar/scripts/digest-local.js",
     "radar:fit-audit": "node radar/scripts/fit-audit.js",
-    "test": "node tests/radar.test.js"
+    "test": "node tests/radar.test.js",
+    "app": "bash radar/scripts/launch.sh",
+    "app:install": "bash radar/scripts/install-app.sh"
   },
   "engines": {
     "node": ">=18"
