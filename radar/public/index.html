@@ -95,7 +95,7 @@
           <input id="q" type="search" placeholder="Title, skill, employer…  ( / )">
         </label>
 
-        <p class="profile-note pipeline-note">Pipeline shows everything you've applied to or contacted, regardless of filters — only search narrows it.</p>
+        <p class="profile-note pipeline-note">Applied shows everything you've applied to or contacted, regardless of filters — only search narrows it.</p>
 
         <fieldset class="field">
           <legend class="field-label">Visa signal</legend>
@@ -104,65 +104,6 @@
             <button type="button" data-value="FRIENDLY">Friendly</button>
             <button type="button" data-value="RESTRICTED">Restricted</button>
             <button type="button" data-value="NEUTRAL">No info</button>
-          </div>
-        </fieldset>
-
-        <label class="field">
-          <span class="field-label">Source</span>
-          <select id="source">
-            <option value="">Any source</option>
-          </select>
-        </label>
-
-        <fieldset class="field">
-          <legend class="field-label">Employer type</legend>
-          <div id="type-chips" class="chip-group" role="group" aria-label="Employer type">
-            <button type="button" data-value="institution_of_higher_education">University <span class="seg-count"></span></button>
-            <button type="button" data-value="nonprofit_research_org">Institute <span class="seg-count"></span></button>
-            <button type="button" data-value="nonprofit_research_hospital">Hospital <span class="seg-count"></span></button>
-            <button type="button" data-value="federal_government">Federal <span class="seg-count"></span></button>
-          </div>
-        </fieldset>
-
-        <fieldset class="field">
-          <legend class="field-label">Cap-exempt evidence</legend>
-          <div id="cap-radio" class="radio-list">
-            <label><input type="radio" name="cap-evidence" value="" checked><span class="radio-label">Any</span><span class="seg-count"></span></label>
-            <label><input type="radio" name="cap-evidence" value="verified"><span class="radio-label">Strong</span><span class="seg-count"></span></label>
-            <label><input type="radio" name="cap-evidence" value="likely"><span class="radio-label">Likely</span><span class="seg-count"></span></label>
-            <label><input type="radio" name="cap-evidence" value="unknown"><span class="radio-label">Thin</span><span class="seg-count"></span></label>
-          </div>
-        </fieldset>
-
-        <label class="field">
-          <span class="field-label">Triage state</span>
-          <select id="triage-filter">
-            <option value="">Any</option>
-            <option value="new">New</option>
-            <option value="shortlist">Shortlist</option>
-            <option value="emailed_lab">Emailed lab</option>
-            <option value="needs_visa_check">Needs visa check</option>
-            <option value="applied">Applied</option>
-            <option value="interview">Interview</option>
-            <option value="offer">Offer</option>
-            <option value="rejected">Rejected</option>
-            <option value="withdrawn">Withdrawn</option>
-            <option value="ignore">Ignore</option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span class="field-label">Minimum research score <output id="min-research-value">0</output></span>
-          <input id="min-research" type="range" min="0" max="100" value="0">
-        </label>
-
-        <fieldset class="field">
-          <legend class="field-label">Minimum fit verdict</legend>
-          <div id="verdict-seg" class="segmented" role="group" aria-label="Minimum fit verdict">
-            <button type="button" data-value="" class="is-active">Any</button>
-            <button type="button" data-value="moderate">Moderate</button>
-            <button type="button" data-value="good">Good</button>
-            <button type="button" data-value="strong">Strong</button>
           </div>
         </fieldset>
 
@@ -177,45 +118,27 @@
         </label>
 
         <label class="check">
-          <input id="new-only" type="checkbox">
-          <span>New since last visit</span>
-        </label>
-
-        <button id="mark-seen" class="link-button mark-seen" type="button" hidden>Mark all as seen</button>
-
-        <label class="check">
-          <input id="followup-only" type="checkbox">
-          <span>Needs follow-up (applied, no update in 7d)</span>
-        </label>
-
-        <label class="check">
           <input id="remote-only" type="checkbox">
           <span>Remote only</span>
         </label>
 
-        <label class="check">
-          <input id="include-closed" type="checkbox">
-          <span>Include closed postings</span>
-        </label>
+        <button id="mark-seen" class="link-button mark-seen" type="button" hidden>Mark all as seen</button>
 
-        <label class="check">
-          <input id="include-federal" type="checkbox">
-          <span>Include citizen-only federal</span>
-        </label>
+        <details id="more-filters" class="more-filters">
+          <summary>More</summary>
 
-        <div class="save-view-wrap">
-          <button id="save-view" class="ghost-button" type="button">Save this view</button>
-          <div id="save-view-form" class="save-view-form" hidden>
-            <input id="save-view-name" type="text" placeholder="Name this view" maxlength="40">
-            <button id="save-view-confirm" class="ghost-button" type="button">Save</button>
-          </div>
-          <div id="saved-views" class="saved-views"></div>
-        </div>
+          <label class="check">
+            <input id="include-closed" type="checkbox">
+            <span>Include closed postings</span>
+          </label>
 
-        <button id="ignored-note" class="feeds-note" type="button" hidden></button>
-        <div id="ignored-panel" class="ignored-panel" hidden></div>
+          <label class="check">
+            <input id="include-federal" type="checkbox">
+            <span>Include citizen-only federal</span>
+          </label>
 
-        <button id="feeds-note" class="feeds-note" type="button" hidden></button>
+          <button id="ignored-note" class="feeds-note" type="button" hidden></button>
+          <div id="ignored-panel" class="ignored-panel" hidden></div>
 
         <section class="profile">
           <h2>Resume profile</h2>
@@ -258,6 +181,7 @@
           </div>
           <p class="profile-note">Shares triage (status, notes, follow-ups) through Supabase, gated by a secret token. Setup: <code>radar/supabase/triage.sql</code>.</p>
         </section>
+        </details>
       </aside>
 
       <section class="list-pane" aria-label="Job list">
@@ -269,19 +193,17 @@
           </div>
           <strong id="count">0 jobs</strong>
           <button id="blocked-note" class="blocked-note" type="button" hidden title="Jobs whose posting states a requirement you don't meet — shown with the sentence that blocked each one"></button>
-          <button id="today-chip" class="chip today-chip" type="button" title="Fresh good-or-better fits — the same cut the daily digest pushes">☀ Today</button>
           <label class="sort-inline">
             <span class="sort-inline-label">Sort</span>
             <select id="sort">
-              <option value="fit">Fit ↓</option>
-              <option value="evidence">Evidence</option>
-              <option value="research">Research</option>
-              <option value="capexempt">Cap-exempt</option>
               <option value="newest_seen">Newest found</option>
+              <option value="fit">Fit ↓</option>
               <option value="newest_posted">Newest posted</option>
               <option value="salary">Salary</option>
               <option value="closing">Closing soon</option>
-              <option value="followup">Follow-up</option>
+              <option value="evidence">Evidence</option>
+              <option value="research">Research</option>
+              <option value="capexempt">Cap-exempt</option>
             </select>
           </label>
           <button id="filters-toggle" class="chip filters-toggle" type="button">Filters <span class="count-slot"></span></button>

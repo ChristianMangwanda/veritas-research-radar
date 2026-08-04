@@ -487,11 +487,6 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 
 textarea { resize: vertical; }
 
-input[type="range"] {
-  width: 100%;
-  accent-color: var(--accent);
-}
-
 .segmented {
   display: flex;
   flex-wrap: wrap;
@@ -521,72 +516,7 @@ input[type="range"] {
   box-shadow: inset 0 0 0 1px var(--line-strong);
 }
 
-.segmented.is-disabled {
-  opacity: 0.45;
-  pointer-events: none;
-}
-
-.seg-count {
-  color: var(--faint);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Employer-type chip toggles — single-select; the active chip clears on click */
-.chip-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.chip-group button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border: 1px solid var(--line);
-  background: var(--panel);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.chip-group button:hover { border-color: var(--line-strong); }
-
-.chip-group button.is-active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-contrast);
-}
-
-.chip-group button.is-active .seg-count { color: var(--accent-soft); }
-
-/* Cap-exempt evidence radio list with live counts */
-.radio-list {
-  display: grid;
-  gap: 4px;
-}
-
-.radio-list label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  cursor: pointer;
-  padding: 2px 0;
-}
-
-.radio-list input[type="radio"] {
-  accent-color: var(--accent);
-  margin: 0;
-}
-
-.radio-list .radio-label { font-weight: 550; }
-
-.radio-list .seg-count { margin-left: auto; }
-
-/* Sidebar footer: feed health one-liner (opens the errors drawer) */
+/* Sidebar note-button (ignored-employers manage link) */
 .feeds-note {
   border: 0;
   background: none;
@@ -602,38 +532,40 @@ input[type="range"] {
 
 .feeds-note.feeds-warn { color: var(--restricted-ink); }
 
-.save-view-wrap {
-  display: grid;
-  gap: 6px;
+/* The collapsed "More" section: rare toggles + profile/backup/sync utilities */
+.more-filters {
   padding-top: 8px;
   border-top: 1px solid var(--line);
 }
 
-.save-view-wrap .ghost-button { justify-self: start; font-size: 12px; padding: 4px 10px; }
-
-.save-view-form { display: flex; gap: 6px; }
-
-.save-view-form input {
-  flex: 1;
-  min-width: 0;
-  padding: 5px 8px;
-  font-size: 12.5px;
+.more-filters > summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
 }
 
-.saved-views { display: grid; gap: 2px; }
+.more-filters > summary::-webkit-details-marker { display: none; }
 
-.saved-view-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 12.5px;
+.more-filters > summary::after {
+  content: '+';
+  float: right;
+  color: var(--faint);
 }
 
-.saved-view-apply { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.more-filters[open] > summary::after { content: '–'; }
 
-.saved-view-delete { color: var(--faint); }
-.saved-view-delete:hover { color: var(--restricted-ink); }
+.more-filters[open] > summary { margin-bottom: 10px; }
+
+.more-filters > .check,
+.more-filters > .feeds-note,
+.more-filters > .ignored-panel {
+  margin-bottom: 8px;
+}
 
 .ignored-panel {
   display: grid;
@@ -968,11 +900,11 @@ input[type="range"] {
 body.pipeline-mode .pipeline-note { display: block; }
 body.pipeline-mode .filters > .field:not(.search-field),
 body.pipeline-mode .filters > .check,
+body.pipeline-mode .more-filters > .check,
 body.pipeline-mode .filters > .mark-seen {
   opacity: 0.4;
   pointer-events: none;
 }
-body.pipeline-mode .today-chip { display: none; }
 body.pipeline-mode .sort-inline { display: none; }
 
 .alert-info { background: var(--info-soft); color: var(--info-ink); }

@@ -67,28 +67,14 @@ const DOM = {
   discoveryList: document.querySelector('#discovery-list'),
   q: document.querySelector('#q'),
   sort: document.querySelector('#sort'),
-  source: document.querySelector('#source'),
   visaSeg: document.querySelector('#visa-seg'),
-  newOnly: document.querySelector('#new-only'),
-  followupOnly: document.querySelector('#followup-only'),
   remoteOnly: document.querySelector('#remote-only'),
   markSeen: document.querySelector('#mark-seen'),
   includeClosed: document.querySelector('#include-closed'),
   includeFederal: document.querySelector('#include-federal'),
-  typeChips: document.querySelector('#type-chips'),
-  capRadio: document.querySelector('#cap-radio'),
-  triageFilter: document.querySelector('#triage-filter'),
-  minResearch: document.querySelector('#min-research'),
-  minResearchValue: document.querySelector('#min-research-value'),
-  verdictSeg: document.querySelector('#verdict-seg'),
   recency: document.querySelector('#recency'),
   statDiscovered: document.querySelector('#stat-discovered'),
   instrumentStrip: document.querySelector('#instrument-strip'),
-  saveView: document.querySelector('#save-view'),
-  saveViewForm: document.querySelector('#save-view-form'),
-  saveViewName: document.querySelector('#save-view-name'),
-  saveViewConfirm: document.querySelector('#save-view-confirm'),
-  savedViews: document.querySelector('#saved-views'),
   ignoredNote: document.querySelector('#ignored-note'),
   ignoredPanel: document.querySelector('#ignored-panel'),
   digestArm: document.querySelector('#digest-arm'),
@@ -96,8 +82,6 @@ const DOM = {
   undoBar: document.querySelector('#undo-bar'),
   undoMsg: document.querySelector('#undo-msg'),
   undoBtn: document.querySelector('#undo-btn'),
-  feedsNote: document.querySelector('#feeds-note'),
-  todayChip: document.querySelector('#today-chip'),
   blockedNote: document.querySelector('#blocked-note'),
   viewSeg: document.querySelector('#view-seg'),
   pipelineStats: document.querySelector('#pipeline-stats'),
@@ -162,10 +146,8 @@ const LIST_RENDER_CAP = 400;
 let showAllRows = false;
 
 let visaFilter = '';
-let typeFilter = '';
 // The radar opens on what you can apply to; blocked jobs are one click away.
 let showBlocked = false;
-let verdictFilter = '';
 
 // 'qualified' = open + in your line of work + no quoted barrier, ranked by
 // fit; 'radar' = every active job; 'pipeline' = jobs you've applied to /
@@ -518,11 +500,6 @@ function applyProfile(profile, routeCache) {
   state.compiled = profile ? RadarScoring.compileProfile(profile) : null;
   RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
   state.variantInitials = RadarScoring.variantInitials(state.profile?.variants);
-  DOM.verdictSeg.classList.toggle('is-disabled', !state.compiled);
-  DOM.verdictSeg.title = state.compiled ? '' : 'Load a resume profile to filter by fit verdict';
-  for (const button of DOM.verdictSeg.querySelectorAll('button')) {
-    button.disabled = !state.compiled;
-  }
   renderProfileCard();
 }
 
@@ -665,43 +642,14 @@ const SORTERS = {
     const fb = db !== null && db >= 0 ? db : Infinity;
     if (fa !== fb) return fa - fb;
     return SORTERS.fit(a, b);
-  },
-  followup(a, b) {
-    // In-flight applications first, stalest (oldest last-change) on top; other
-    // jobs fall below, ranked by fit.
-    const ageA = followupAgeDays(a);
-    const ageB = followupAgeDays(b);
-    if (ageA === null && ageB === null) return SORTERS.fit(a, b);
-    if (ageA === null) return 1;
-    if (ageB === null) return -1;
-    return ageB - ageA;
   }
 };
 
-// The cap-exempt evidence radios: DOM is the state, like every other filter.
-function capValue() {
-  return DOM.capRadio.querySelector('input:checked')?.value || '';
-}
-
-function setCapValue(value, { skipRender = false } = {}) {
-  const input = DOM.capRadio.querySelector(`input[value="${CSS.escape(value || '')}"]`)
-    || DOM.capRadio.querySelector('input[value=""]');
-  if (input) input.checked = true;
-  if (!skipRender) render();
-}
-
-// Named predicates so facet counts can apply "every filter except this one" —
-// the standard faceted-count behavior. filteredJobs() applies all of them.
+// Named predicates so the blocked-note can apply "every filter except this
+// one". filteredJobs() applies all of them.
 // job.fit is pre-stamped by applyProfile()/scoreAll() — never computed here.
 function filterPredicates() {
   const query = DOM.q.value.trim().toLowerCase();
-  const cap = capValue();
-  const triage = DOM.triageFilter.value;
-  const minResearch = Number(DOM.minResearch.value);
-  const source = DOM.source.value;
-  // Verdict cutoff is inert without a compiled profile (a URL-carried value
-  // must not blank the list for a profile-less browser).
-  const verdictCutoff = state.compiled ? RadarScoring.verdictRank(verdictFilter) : -1;
   const recencyFloor = DOM.recency.value ? Date.now() - Number(DOM.recency.value) * 3600 * 1000 : null;
   const ignored = ignoredEmployers();
 
@@ -736,21 +684,9 @@ function filterPredicates() {
     },
     federal: (job) => !job.citizenship_gated || DOM.includeFederal.checked,
     closed: (job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)),
-    newOnly: (job) => !DOM.newOnly.checked || isNewSinceLastVisit(job),
-    followup: (job) => !DOM.followupOnly.checked || needsFollowup(job),
     remote: (job) => !DOM.remoteOnly.checked || job.remote === true,
-    source: (job) => !source || job.source === source,
     query: (job) => !query || jobText(job).includes(query),
     visa: (job) => !visaFilter || job.veritas_state === visaFilter,
-    type: (job) => !typeFilter || job.employer_type === typeFilter,
-    cap: (job) => !cap || job.cap_exempt_status === cap,
-    triage: (job) => !triage || triageFor(job) === triage,
-    minResearch: (job) => Number(job.research_relevance_score || 0) >= minResearch,
-    verdict: (job) => {
-      if (verdictCutoff === -1) return true;
-      const rank = RadarScoring.verdictRank(job.fit?.verdict);
-      return rank !== -1 && rank <= verdictCutoff;
-    },
     recency: (job) => {
       if (recencyFloor === null) return true;
       const seen = Date.parse(job.first_seen_at || '');
@@ -806,72 +742,27 @@ function filteredJobs() {
 
 // Counts for one facet, computed with every OTHER filter applied — so the
 // numbers answer "what would I get if I picked this option now".
-function facetCounts(excludeKey, valueOf) {
-  const predicates = Object.entries(filterPredicates())
-    .filter(([key]) => key !== excludeKey)
-    .map(([, test]) => test);
-  const counts = new Map();
-  let total = 0;
-  for (const job of state.jobs) {
-    if (!predicates.every((test) => test(job))) continue;
-    total += 1;
-    const value = valueOf(job);
-    if (value != null) counts.set(value, (counts.get(value) || 0) + 1);
-  }
-  return { counts, total };
-}
-
-function renderFacetCounts() {
-  const cap = facetCounts('cap', (job) => job.cap_exempt_status);
-  for (const label of DOM.capRadio.querySelectorAll('label')) {
-    const value = label.querySelector('input').value;
-    const slot = label.querySelector('.seg-count');
-    slot.textContent = (value ? (cap.counts.get(value) || 0) : cap.total).toLocaleString();
-  }
-  const type = facetCounts('type', (job) => job.employer_type);
-  for (const button of DOM.typeChips.querySelectorAll('button')) {
-    button.querySelector('.seg-count').textContent =
-      (type.counts.get(button.dataset.value) || 0).toLocaleString();
-  }
-}
-
 function activeFilterCount() {
   let count = 0;
   if (DOM.q.value.trim()) count += 1;
   if (visaFilter) count += 1;
-  if (DOM.source.value) count += 1;
-  if (typeFilter) count += 1;
-  if (capValue()) count += 1;
-  if (DOM.triageFilter.value) count += 1;
-  if (DOM.newOnly.checked) count += 1;
-  if (DOM.followupOnly.checked) count += 1;
   if (DOM.remoteOnly.checked) count += 1;
   if (DOM.includeClosed.checked) count += 1;
   if (DOM.includeFederal.checked) count += 1;
-  if (DOM.minResearch.value !== '0') count += 1;
-  if (verdictFilter) count += 1;
   if (DOM.recency.value) count += 1;
   // Showing blocked jobs is a departure from the default view, so it counts
-  // as an active filter and gets a removable chip.
+  // as an active filter.
   if (showBlocked) count += 1;
   return count;
 }
 
 function clearAllFilters() {
   DOM.q.value = '';
-  DOM.source.value = '';
-  DOM.triageFilter.value = '';
-  DOM.newOnly.checked = false;
-  DOM.followupOnly.checked = false;
   DOM.remoteOnly.checked = false;
   DOM.includeClosed.checked = false;
   DOM.includeFederal.checked = false;
-  DOM.minResearch.value = '0';
   DOM.recency.value = '';
-  DOM.sort.value = 'fit';
-  setTypeFilter('', { skipRender: true });
-  setCapValue('', { skipRender: true });
-  setVerdictFilter('', { skipRender: true });
+  DOM.sort.value = 'newest_seen';
   setVisaFilter('', { skipRender: true });
   // Reset returns to the default view, which hides blocked jobs.
   showBlocked = false;
@@ -882,43 +773,17 @@ function resetFilters() {
   render();
 }
 
-// One-click digest parity: the same cut digest-local.js pushes (fresh, verdict
-// >= good, nothing closed or citizenship-gated), expressed by setting the
-// visible controls — never by a hidden query — so the user sees exactly what
-// was applied and can loosen any part of it.
-function applyTodayPreset() {
-  DOM.recency.value = '24';
-  setVerdictFilter(state.compiled ? 'good' : '', { skipRender: true });
-  DOM.sort.value = 'fit';
-  DOM.includeClosed.checked = false;
-  DOM.includeFederal.checked = false;
-  // A quiet 24h (weekend, slow feed day) widens to 48h rather than showing an
-  // empty list; the control reflects the fallback.
-  if (!filteredJobs().length) DOM.recency.value = '48';
-  showAllRows = false;
-  render();
-}
-
 /* ------------------------------------------------------------------------ */
 /* URL state                                                                 */
 
-// One serialization for both the URL and saved views.
 function buildParams() {
   const params = new URLSearchParams();
   if (DOM.q.value.trim()) params.set('q', DOM.q.value.trim());
-  if (DOM.sort.value !== 'fit') params.set('sort', DOM.sort.value);
-  if (DOM.source.value) params.set('source', DOM.source.value);
-  if (DOM.newOnly.checked) params.set('newOnly', '1');
-  if (DOM.followupOnly.checked) params.set('followup', '1');
+  if (DOM.sort.value !== 'newest_seen') params.set('sort', DOM.sort.value);
   if (DOM.remoteOnly.checked) params.set('remote', '1');
   if (DOM.includeClosed.checked) params.set('includeClosed', '1');
   if (DOM.includeFederal.checked) params.set('federal', '1');
   if (visaFilter) params.set('visa', visaFilter);
-  if (typeFilter) params.set('type', typeFilter);
-  if (capValue()) params.set('cap', capValue());
-  if (DOM.triageFilter.value) params.set('triage', DOM.triageFilter.value);
-  if (DOM.minResearch.value !== '0') params.set('minResearch', DOM.minResearch.value);
-  if (verdictFilter) params.set('minVerdict', verdictFilter);
   if (DOM.recency.value) params.set('recency', DOM.recency.value);
   if (showBlocked) params.set('blocked', '1');
   if (viewMode !== 'qualified') params.set('view', viewMode);
@@ -930,82 +795,23 @@ function syncUrl() {
   history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
 }
 
+// Params of retired filters (source, type, cap, triage, minResearch,
+// minVerdict, newOnly, followup) are simply ignored here; the first
+// syncUrl() scrubs them from old bookmarks.
 function hydrateFromUrl(paramsOverride) {
   const params = paramsOverride || new URLSearchParams(window.location.search);
   if (params.has('q')) DOM.q.value = params.get('q');
   if (params.has('sort') && SORTERS[params.get('sort')]) DOM.sort.value = params.get('sort');
-  DOM.newOnly.checked = params.get('newOnly') === '1';
-  DOM.followupOnly.checked = params.get('followup') === '1';
   DOM.remoteOnly.checked = params.get('remote') === '1';
   DOM.includeClosed.checked = params.get('includeClosed') === '1';
   DOM.includeFederal.checked = params.get('federal') === '1';
   showBlocked = params.get('blocked') === '1';
   if (params.has('visa')) setVisaFilter(params.get('visa'), { skipRender: true });
-  if (params.has('type')) setTypeFilter(params.get('type'), { skipRender: true });
-  if (params.has('cap')) setCapValue(params.get('cap'), { skipRender: true });
-  if (params.has('triage')) DOM.triageFilter.value = params.get('triage');
-  if (params.has('minResearch')) DOM.minResearch.value = params.get('minResearch');
-  if (params.has('minVerdict')) setVerdictFilter(params.get('minVerdict'), { skipRender: true });
   if (params.has('recency')) DOM.recency.value = params.get('recency');
-  if (params.has('source')) DOM.source.value = params.get('source');
   // Legacy bookmarks: ?view=routing (view removed 2026-08-04) falls through
   // to the Qualified default.
   const view = params.get('view');
   if (view === 'pipeline' || view === 'radar') setViewMode(view, { skipRender: true });
-}
-
-/* ------------------------------------------------------------------------ */
-/* Saved views — named filter presets, local to this browser                 */
-
-const VIEWS_KEY = 'veritas_radar_views';
-
-function loadViews() {
-  try {
-    const views = JSON.parse(localStorage.getItem(VIEWS_KEY));
-    return Array.isArray(views) ? views : [];
-  } catch { return []; }
-}
-
-function persistViews(views) {
-  localStorage.setItem(VIEWS_KEY, JSON.stringify(views));
-}
-
-function renderSavedViews() {
-  const views = loadViews();
-  DOM.savedViews.replaceChildren();
-  for (const view of views) {
-    const row = el('div', 'saved-view-row');
-    const apply = el('button', 'link-button saved-view-apply', view.name);
-    apply.type = 'button';
-    apply.title = 'Apply this view';
-    apply.addEventListener('click', () => applyView(view));
-    const remove = el('button', 'link-button saved-view-delete', '×');
-    remove.type = 'button';
-    remove.title = 'Delete this saved view';
-    remove.addEventListener('click', () => {
-      persistViews(loadViews().filter((entry) => entry.name !== view.name));
-      renderSavedViews();
-    });
-    row.append(apply, remove);
-    DOM.savedViews.append(row);
-  }
-}
-
-function applyView(view) {
-  clearAllFilters();
-  hydrateFromUrl(new URLSearchParams(view.params || ''));
-  showAllRows = false;
-  render();
-}
-
-function saveCurrentView() {
-  const name = (DOM.saveViewName.value || '').trim() || `View ${loadViews().length + 1}`;
-  const views = loadViews().filter((entry) => entry.name !== name);
-  views.push({ name, params: buildParams().toString(), created_at: new Date().toISOString() });
-  persistViews(views);
-  DOM.saveViewName.value = '';
-  DOM.saveViewForm.hidden = true;
-  renderSavedViews();
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1101,8 +907,7 @@ const SORT_LABELS = {
   newest_seen: 'newest found',
   newest_posted: 'newest posted',
   salary: 'salary',
-  closing: 'closing soon',
-  followup: 'follow-up age'
+  closing: 'closing soon'
 };
 
 // Partial-load banner in the mock's wording: what failed, what's shown, and
@@ -1137,7 +942,6 @@ async function reloadData() {
   state.jobs = await loadJobs();
   RadarScoring.applyJobClassifications(state.jobs, state.classifyCache);
   RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
-  populateSources();
   render();
   lastLoadAt = Date.now();
 }
@@ -1196,7 +1000,6 @@ function render() {
   // re-renders without reloading, and the strip must follow (4 linear passes
   // over the dataset, negligible at render frequency).
   renderStats();
-  DOM.minResearchValue.textContent = DOM.minResearch.value;
 
   // "Mark all as seen" only appears when there's actually something new to clear
   const newCount = state.jobs.filter(isNewSinceLastVisit).length;
@@ -1207,7 +1010,6 @@ function render() {
   DOM.resetFilters.hidden = filters === 0;
   DOM.resetFilters.querySelector('.count-slot').textContent = `(${filters})`;
   DOM.filtersToggle.querySelector('.count-slot').textContent = filters ? `(${filters})` : '';
-  renderFacetCounts();
   renderLoadBanner();
   renderIgnoredNote();
 
@@ -2306,22 +2108,6 @@ function setVisaFilter(value, { skipRender = false } = {}) {
   if (!skipRender) render();
 }
 
-function setTypeFilter(value, { skipRender = false } = {}) {
-  typeFilter = value || '';
-  for (const button of DOM.typeChips.querySelectorAll('button')) {
-    button.classList.toggle('is-active', button.dataset.value === typeFilter);
-  }
-  if (!skipRender) render();
-}
-
-function setVerdictFilter(value, { skipRender = false } = {}) {
-  verdictFilter = value || '';
-  for (const button of DOM.verdictSeg.querySelectorAll('button')) {
-    button.classList.toggle('is-active', button.dataset.value === verdictFilter);
-  }
-  if (!skipRender) render();
-}
-
 function setViewMode(value, { skipRender = false } = {}) {
   viewMode = value === 'pipeline' || value === 'radar' ? value : 'qualified';
   for (const button of DOM.viewSeg.querySelectorAll('button')) {
@@ -2474,25 +2260,12 @@ function renderRefreshMetaLine() {
   DOM.refreshMeta.textContent = parts.join(' · ');
 }
 
-function renderFeedsNote() {
-  const report = state.report;
-  if (!report?.employers?.length) return;
-  const systems = new Set(report.employers.map((e) => e.ats_provider).filter(Boolean)).size;
-  const errored = report.employers.filter((employer) => employer.error).length;
-  const alarms = (report.recall_anomalies || []).length;
-  DOM.feedsNote.textContent =
-    `Feeds: ${systems} systems · ${errored} errored last pull · ${alarms} recall alarm${alarms === 1 ? '' : 's'}`;
-  DOM.feedsNote.classList.toggle('feeds-warn', errored > 0 || alarms > 0);
-  DOM.feedsNote.hidden = false;
-}
-
 function renderRefreshStatus(report) {
   if (!report) {
     DOM.refreshMeta.textContent = 'No refresh report yet — run npm run radar:refresh.';
     return;
   }
   renderRefreshMetaLine();
-  renderFeedsNote();
 
   const errored = (report.employers || []).filter((employer) => employer.error);
   if (errored.length) {
@@ -2529,27 +2302,6 @@ function renderDiscovery(discovery) {
       row.append(el('span', 'discovery-titles', candidate.dol_sample_titles.slice(0, 3).join(' · ')));
     }
     DOM.discoveryList.append(row);
-  }
-}
-
-function populateSources() {
-  // Idempotent: retry-pull repopulates, so clear everything but "Any source"
-  // and keep the current selection when it still exists.
-  const current = DOM.source.value;
-  while (DOM.source.options.length > 1) DOM.source.remove(1);
-  const counts = new Map();
-  for (const job of state.jobs) {
-    counts.set(job.source, (counts.get(job.source) || 0) + 1);
-  }
-  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-  for (const [source, count] of sorted) {
-    const option = document.createElement('option');
-    option.value = source;
-    option.textContent = `${source} (${count})`;
-    DOM.source.append(option);
-  }
-  if ([...DOM.source.options].some((option) => option.value === current)) {
-    DOM.source.value = current;
   }
 }
 
@@ -2630,7 +2382,6 @@ function bindDetailEvents() {
 function markAllSeen() {
   state.lastVisit = new Date().toISOString();
   localStorage.setItem(LAST_VISIT_KEY, state.lastVisit);
-  DOM.newOnly.checked = false;
   render();
 }
 
@@ -2646,31 +2397,12 @@ function bindEvents() {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(onFilterChange, 150);
   });
-  for (const input of [DOM.sort, DOM.source, DOM.newOnly, DOM.followupOnly, DOM.remoteOnly, DOM.includeClosed, DOM.includeFederal, DOM.triageFilter, DOM.minResearch, DOM.recency]) {
+  for (const input of [DOM.sort, DOM.remoteOnly, DOM.includeClosed, DOM.includeFederal, DOM.recency]) {
     input.addEventListener('input', onFilterChange);
   }
 
-  DOM.typeChips.addEventListener('click', (event) => {
-    const button = event.target.closest('button[data-value]');
-    if (!button) return;
-    // Clicking the active chip clears the filter (there is no "Any" chip)
-    showAllRows = false;
-    setTypeFilter(button.dataset.value === typeFilter ? '' : button.dataset.value);
-  });
-
-  DOM.verdictSeg.addEventListener('click', (event) => {
-    const button = event.target.closest('button[data-value]');
-    if (button && !button.disabled) {
-      showAllRows = false;
-      setVerdictFilter(button.dataset.value);
-    }
-  });
-
-  DOM.capRadio.addEventListener('change', onFilterChange);
-
   DOM.markSeen.addEventListener('click', markAllSeen);
   DOM.undoBtn.addEventListener('click', undoLast);
-  DOM.todayChip.addEventListener('click', applyTodayPreset);
   DOM.blockedNote.addEventListener('click', () => {
     showBlocked = !showBlocked;
     showAllRows = false;
@@ -2783,16 +2515,6 @@ function bindEvents() {
   DOM.errorsToggle.addEventListener('click', () => toggleDrawer(DOM.errorsPanel));
   DOM.discoveryToggle.addEventListener('click', () => toggleDrawer(DOM.discoveryPanel));
   DOM.digestArm.addEventListener('click', () => toggleDrawer(DOM.digestPopover));
-  DOM.feedsNote.addEventListener('click', () => toggleDrawer(DOM.errorsPanel));
-
-  DOM.saveView.addEventListener('click', () => {
-    DOM.saveViewForm.hidden = !DOM.saveViewForm.hidden;
-    if (!DOM.saveViewForm.hidden) DOM.saveViewName.focus();
-  });
-  DOM.saveViewConfirm.addEventListener('click', saveCurrentView);
-  DOM.saveViewName.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') saveCurrentView();
-  });
 
   DOM.ignoredNote.addEventListener('click', () => {
     DOM.ignoredPanel.hidden = !DOM.ignoredPanel.hidden;
@@ -2824,6 +2546,8 @@ function bindEvents() {
 async function init() {
   // Light-only since the 2026-08-03 redesign — drop any stored dark preference
   try { localStorage.removeItem('veritas_radar_theme'); } catch { /* fine */ }
+  // Saved views retired with the 2026-08-04 three-tab restructure
+  try { localStorage.removeItem('veritas_radar_views'); } catch { /* fine */ }
   // The "NEW" watermark must NOT advance on every load — that made everything
   // stop being NEW the moment you reloaded. Read it and leave it; only an
   // explicit "Mark all as seen" advances it. Seed it once on the very first
@@ -2879,16 +2603,11 @@ async function init() {
   if (diskProblem) state.profileError = `profile.json is not usable: ${diskProblem}`;
   applyProfile(!profile || diskProblem ? loadProfileFromBrowser() : profile,
     routeCache || loadRouteCacheFromBrowser());
-  populateSources();
-  // Source options only exist now, so re-apply the source filter from the URL
-  const sourceParam = new URLSearchParams(window.location.search).get('source');
-  if (sourceParam) DOM.source.value = sourceParam;
   renderRefreshStatus(report);
   renderDiscovery(discovery);
   // Keep the next-pull countdown honest without touching anything else
   setInterval(renderRefreshMetaLine, 60000);
   renderSyncStatus();
-  renderSavedViews();
   bindEvents();
 
   // Preselect the first job on wide screens so the detail pane is never empty
