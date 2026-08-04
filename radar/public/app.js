@@ -104,6 +104,9 @@ const DOM = {
   profileSummary: document.querySelector('#profile-summary'),
   profileFile: document.querySelector('#profile-file'),
   routeFile: document.querySelector('#route-file'),
+  triageExport: document.querySelector('#triage-export'),
+  triageImportFile: document.querySelector('#triage-import-file'),
+  triageTransferNote: document.querySelector('#triage-transfer-note'),
   clearProfile: document.querySelector('#clear-profile'),
   syncToken: document.querySelector('#sync-token'),
   syncSave: document.querySelector('#sync-save'),
@@ -1361,6 +1364,22 @@ function exportShortlist() {
   const link = document.createElement('a');
   link.href = url;
   link.download = `veritas-shortlist-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportTriage() {
+  const doc = {
+    version: 1,
+    exported_at: new Date().toISOString(),
+    triage: state.local.triage,
+    ignored_employers: state.local.ignored_employers || []
+  };
+  const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `veritas-triage-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.json`;
   link.click();
   URL.revokeObjectURL(url);
 }
@@ -2737,6 +2756,34 @@ function bindEvents() {
     state.profileError = null;
     applyProfile(null, null);
     render();
+  });
+
+  DOM.triageExport.addEventListener('click', exportTriage);
+  DOM.triageImportFile.addEventListener('change', async () => {
+    const file = DOM.triageImportFile.files?.[0];
+    if (!file) return;
+    DOM.triageImportFile.value = '';
+    let parsed = null;
+    try {
+      parsed = JSON.parse(await file.text());
+    } catch {
+      DOM.triageTransferNote.textContent = 'That file is not valid JSON.';
+      return;
+    }
+    const problem = RadarPipeline.validateTriageDoc(parsed, new Set(Object.keys(TRIAGE_LABELS)));
+    if (problem) {
+      DOM.triageTransferNote.textContent = `Not a triage export: ${problem}`;
+      return;
+    }
+    const merged = RadarPipeline.mergeLocalState(state.local, parsed);
+    state.local.triage = merged.triage;
+    state.local.ignored_employers = merged.ignored_employers;
+    await persistTriage();
+    render();
+    DOM.triageTransferNote.textContent =
+      `Merged ${merged.mergedCount} record${merged.mergedCount === 1 ? '' : 's'}` +
+      ` · ${merged.addedEmployerCount} employer${merged.addedEmployerCount === 1 ? '' : 's'} newly ignored.` +
+      ' Older local entries were kept.';
   });
 
   DOM.syncSave.addEventListener('click', saveSyncToken);

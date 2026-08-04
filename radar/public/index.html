@@ -232,6 +232,17 @@
           <p class="profile-note">Built locally by <code>npm run radar:profile</code> from your own resumes. Stays in this browser.</p>
         </section>
 
+        <section class="profile triage-transfer">
+          <h2>Triage backup</h2>
+          <div class="profile-actions">
+            <button id="triage-export" class="ghost-button" type="button">Export triage</button>
+            <label class="file-button">Import triage
+              <input id="triage-import-file" type="file" accept=".json,application/json">
+            </label>
+          </div>
+          <p id="triage-transfer-note" class="profile-note">Statuses, notes, and ignored employers as one JSON file — a backup that moves between browsers without sync.</p>
+        </section>
+
         <section class="profile sync">
           <h2>Sync across devices</h2>
           <p id="sync-status" class="profile-note">Off — triage stays on this device only.</p>

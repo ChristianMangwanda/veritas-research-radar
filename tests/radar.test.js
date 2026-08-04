@@ -1730,6 +1730,62 @@ function testRestoreTriageRecord() {
   assert.strictEqual(merged.j1.status, 'rejected');
 }
 
+function testTriageTransfer() {
+  const { validateTriageDoc, mergeLocalState } = RadarPipeline;
+  const statuses = new Set(['new', 'shortlist', 'applied', 'interview', 'offer', 'rejected', 'withdrawn', 'ignore', 'emailed_lab', 'needs_visa_check']);
+
+  // Validator: accept a good doc, with and without ignored_employers.
+  const good = {
+    version: 1,
+    triage: { j1: { status: 'applied', updated_at: '2026-08-01T00:00:00Z', note: 'x' } },
+    ignored_employers: ['emp-1']
+  };
+  assert.strictEqual(validateTriageDoc(good, statuses), null);
+  assert.strictEqual(validateTriageDoc({ triage: {} }, statuses), null);
+
+  // Validator: reject bad shapes with a reason.
+  assert(validateTriageDoc(null, statuses));
+  assert(validateTriageDoc([], statuses));
+  assert(validateTriageDoc({ version: 1 }, statuses));
+  assert(validateTriageDoc({ triage: { j1: 'applied' } }, statuses));
+  assert(/unknown status/.test(validateTriageDoc({ triage: { j1: { status: 'aplied' } } }, statuses)));
+  assert(validateTriageDoc({ triage: { j1: { status: 'applied', note: 7 } } }, statuses));
+  assert(validateTriageDoc({ triage: {}, ignored_employers: 'emp-1' }, statuses));
+  assert(validateTriageDoc({ triage: {}, ignored_employers: [1] }, statuses));
+
+  // Merge: newer import wins and is counted; older loses and is not; equal
+  // timestamps keep local (mergeTriage strict >).
+  const local = {
+    triage: {
+      j1: { status: 'shortlist', updated_at: '2026-08-01T00:00:00Z' },
+      j2: { status: 'offer', updated_at: '2026-08-03T00:00:00Z' },
+      j3: { status: 'applied', updated_at: '2026-08-02T00:00:00Z', note: 'local' }
+    },
+    ignored_employers: ['emp-1']
+  };
+  const imported = {
+    triage: {
+      j1: { status: 'applied', updated_at: '2026-08-02T00:00:00Z' },
+      j2: { status: 'applied', updated_at: '2026-08-01T00:00:00Z' },
+      j3: { status: 'applied', updated_at: '2026-08-02T00:00:00Z' },
+      j4: { status: 'shortlist', updated_at: '2026-08-01T00:00:00Z' }
+    },
+    ignored_employers: ['emp-1', 'emp-2']
+  };
+  const merged = mergeLocalState(local, imported);
+  assert.strictEqual(merged.triage.j1.status, 'applied');
+  assert.strictEqual(merged.triage.j2.status, 'offer');
+  assert.strictEqual(merged.triage.j3.note, 'local');
+  assert.strictEqual(merged.triage.j4.status, 'shortlist');
+  assert.strictEqual(merged.mergedCount, 2); // j1 (newer) + j4 (new key)
+  assert.deepStrictEqual(merged.ignored_employers, ['emp-1', 'emp-2']);
+  assert.strictEqual(merged.addedEmployerCount, 1);
+
+  // Inputs are not mutated.
+  assert.strictEqual(local.triage.j1.status, 'shortlist');
+  assert.deepStrictEqual(local.ignored_employers, ['emp-1']);
+}
+
 function testDaysSince() {
   const { daysSince } = RadarPipeline;
   const now = Date.parse('2026-08-03T12:00:00Z');
@@ -2139,6 +2195,7 @@ async function main() {
   testVerdictRank();
   testTriageMerge();
   testRestoreTriageRecord();
+  testTriageTransfer();
   testDaysSince();
   testVariantInitials();
   testNextPullAt();

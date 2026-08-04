@@ -133,6 +133,46 @@
     return next;
   }
 
+  // Shape check for an exported triage doc. Strict on purpose — silently
+  // merging a typo'd file is worse than an error; the format is ours. The
+  // status vocabulary is injected (app.js owns TRIAGE_LABELS).
+  function validateTriageDoc(doc, knownStatuses) {
+    if (!doc || typeof doc !== 'object' || Array.isArray(doc)) return 'not a JSON object';
+    if (!doc.triage || typeof doc.triage !== 'object' || Array.isArray(doc.triage)) return 'missing triage map';
+    for (const [jobId, record] of Object.entries(doc.triage)) {
+      if (!record || typeof record !== 'object' || Array.isArray(record)) return `record for ${jobId} is not an object`;
+      if (!knownStatuses.has(record.status)) return `unknown status "${record.status}" on ${jobId}`;
+      for (const field of ['updated_at', 'note', 'applied_at', 'variant_sent']) {
+        if (record[field] !== undefined && typeof record[field] !== 'string') return `${field} on ${jobId} is not a string`;
+      }
+    }
+    if (doc.ignored_employers !== undefined) {
+      if (!Array.isArray(doc.ignored_employers) || doc.ignored_employers.some((id) => typeof id !== 'string')) {
+        return 'ignored_employers is not a string array';
+      }
+    }
+    return null;
+  }
+
+  // LWW-merge an imported doc into local state (mergeTriage: ties keep local)
+  // and count what actually landed for the "Merged N" feedback line.
+  function mergeLocalState(local, imported) {
+    const triage = mergeTriage(local?.triage || {}, imported.triage || {});
+    let mergedCount = 0;
+    for (const [jobId, record] of Object.entries(imported.triage || {})) {
+      if (triage[jobId] === record) mergedCount += 1;
+    }
+    const ignored = new Set(local?.ignored_employers || []);
+    let addedEmployerCount = 0;
+    for (const id of imported.ignored_employers || []) {
+      if (!ignored.has(id)) {
+        ignored.add(id);
+        addedEmployerCount += 1;
+      }
+    }
+    return { triage, ignored_employers: [...ignored], mergedCount, addedEmployerCount };
+  }
+
   const RadarPipeline = {
     PIPELINE_STAGES,
     PIPELINE_TERMINAL,
@@ -142,6 +182,8 @@
     groupPipeline,
     mergeTriage,
     restoreTriageRecord,
+    validateTriageDoc,
+    mergeLocalState,
     buildShortlistCsv
   };
 
