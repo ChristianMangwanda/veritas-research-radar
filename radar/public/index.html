@@ -197,6 +197,7 @@
               <option value="capexempt">Cap-exempt</option>
             </select>
           </label>
+          <button id="triage-export-head" class="ghost-button export-backup" type="button" title="Download statuses, notes, and ignored employers as JSON — the only backup of this browser's tracking">Export backup</button>
           <button id="filters-toggle" class="chip filters-toggle" type="button">Filters <span class="count-slot"></span></button>
           <span class="kbd-hint" title="Keyboard: j/k move · Enter open details · o open posting · s shortlist · a applied · e emailed · v visa check · i interview · O offer (shift+o) · r rejected · w withdrawn · x ignore · n new · u undo (also ⌘Z)">⌨ j k o s a x</span>
         </div>
@@ -215,8 +216,10 @@
           <p>Loosen a filter or <button id="empty-reset" class="link-button" type="button">reset all filters</button>.</p>
         </div>
         <div id="pipeline-empty" class="empty-state" hidden>
-          <p><strong>No applications yet.</strong></p>
-          <p>Mark a job Applied (or Emailed lab) and it shows up here with its stage and age.</p>
+          <p><strong>Nothing tracked yet.</strong></p>
+          <p>Hit Apply ↗ on a job (or mark it Applied in its detail pane) and it lands here with
+            its stage, age, and which résumé you sent. Everything you act on is tracked —
+            regardless of filters.</p>
         </div>
       </section>
 

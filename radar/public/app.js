@@ -77,6 +77,7 @@ const DOM = {
   undoMsg: document.querySelector('#undo-msg'),
   undoBtn: document.querySelector('#undo-btn'),
   blockedNote: document.querySelector('#blocked-note'),
+  triageExportHead: document.querySelector('#triage-export-head'),
   viewSeg: document.querySelector('#view-seg'),
   pipelineStats: document.querySelector('#pipeline-stats'),
   pipelineEmpty: document.querySelector('#pipeline-empty'),
@@ -1017,6 +1018,9 @@ function render() {
   renderIgnoredNote();
 
   if (viewMode === 'pipeline') {
+    // The blocked note belongs to the list views; without this it lingers
+    // with a stale count from the last list render.
+    DOM.blockedNote.hidden = true;
     renderPipelineList();
     renderDetail();
     return;
@@ -1420,6 +1424,22 @@ function buildRow(job) {
   }
 
   if (job.id === state.selectedId) node.classList.add('is-selected');
+
+  // Row-level quick action: open the posting and arm the "did you apply?"
+  // nudge without a trip through the detail pane. Only for jobs not yet in
+  // the pipeline — same rule as the nudge itself.
+  if (viewMode !== 'pipeline' && job.url && !isClosed(job) && NUDGE_STATES.has(triageFor(job))) {
+    const apply = el('button', 'row-apply', 'Apply ↗');
+    apply.type = 'button';
+    apply.title = 'Open the posting — then mark it applied';
+    apply.addEventListener('click', (event) => {
+      event.stopPropagation();
+      window.open(job.url, '_blank', 'noreferrer');
+      selectJob(job.id);
+      maybeNudgeApply(job);
+    });
+    node.append(apply);
+  }
 
   node.addEventListener('click', () => selectJob(job.id));
   node.addEventListener('keydown', (event) => {
@@ -2405,6 +2425,7 @@ function bindEvents() {
 
   DOM.markSeen.addEventListener('click', markAllSeen);
   DOM.undoBtn.addEventListener('click', undoLast);
+  DOM.triageExportHead.addEventListener('click', exportTriage);
   DOM.blockedNote.addEventListener('click', () => {
     showBlocked = !showBlocked;
     showAllRows = false;

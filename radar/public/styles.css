@@ -999,6 +999,7 @@ body.pipeline-mode .jobs-header { display: none; }
 .job-row, .group-header { scroll-margin-top: 84px; }
 
 .job-row {
+  position: relative;
   padding: 10px 12px 10px 14px;
   background: var(--panel);
   border-bottom: 1px solid var(--line);
@@ -1007,6 +1008,32 @@ body.pipeline-mode .jobs-header { display: none; }
 }
 
 .job-row:hover { background: var(--neutral-soft); }
+
+/* Hover-reveal quick action — opens the posting and arms the apply nudge.
+   Absolutely positioned so the 5-column grid never changes shape. */
+.row-apply {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--accent);
+  background: var(--panel);
+  color: var(--accent-ink);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+
+.job-row:hover .row-apply,
+.job-row:focus-within .row-apply { opacity: 1; }
+
+.row-apply:hover { background: var(--accent); color: var(--accent-contrast); }
+
+/* Export backup lives in the list head but only matters where the data is */
+.export-backup { display: none; font-size: 12px; padding: 5px 10px; }
+body.pipeline-mode .export-backup { display: inline-flex; }
 
 .job-row.is-selected {
   background: var(--accent-soft);
