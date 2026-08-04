@@ -17,6 +17,8 @@
  *
  * Nothing here writes or edits resume content — extraction only. Results are
  * cached by content hash + model, so re-runs and added variants are cheap.
+ * NOTE: the cache key does NOT include the prompt or the normalization rules,
+ * so changes to either serve stale extractions until you re-run with --force.
  *
  * The dashboard then ranks all jobs deterministically against the variants —
  * no per-job model calls — and recommends which resume to use per job.
@@ -113,9 +115,12 @@ const VARIANT_SCHEMA = {
       description: 'Concrete job titles this variant would fit well, best first.',
       items: { type: 'string' }
     },
+    // Model output for this field is DISCARDED (see CROSS_PROFESSION_SIGNALS).
+    // Kept in the schema so the model has somewhere to put the instinct
+    // instead of smuggling it into skills.
     avoid_signals: {
       type: 'array',
-      description: 'Terms in a posting that indicate a poor fit (e.g. "registered nurse" for a computational person).',
+      description: 'Terms whose presence in a JOB POSTING means it is for a different profession than this person practices (e.g. "registered nurse" for a computational person). Never list anything this person does or has done.',
       items: { type: 'string' }
     },
     notes_for_ranking: { type: 'string', description: 'Anything else a ranking system should know: constraints, preferences, unusual strengths.' }
@@ -212,27 +217,118 @@ function atomicTokenAliases(term) {
 // Terms and aliases are normalized: underscores → spaces (the local model
 // sometimes emits snake_case that would never match spaced job text), and
 // canonical atomic tokens are recovered from compound terms as aliases.
-function normalizeVariantProfile(profile) {
+function normalizeTerm(value) {
+  return String(value || '').replace(/[_/]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
+const MAX_TERM_WORDS = 3;
+const MAX_TERM_CHARS = 32;
+// Trimming must never end on a connective — "data ingestion and" matches
+// nothing, where "data ingestion" matches the posting.
+const TRAILING_STOPWORDS = new Set(['and', 'or', 'of', 'for', 'in', 'with', 'to', 'the', 'a', 'an', 'on', 'at', 'from', 'by', 'as', 'into']);
+
+// The matchable concept ends at the first connective: "cnns for medical
+// imaging" is about cnns, "etl and data validation pipelines" about etl.
+// Cut there first, then cap the length.
+function trimToMatchableHead(term) {
+  const words = term.split(' ');
+  const cut = words.findIndex((word, index) => index > 0 && (TRAILING_STOPWORDS.has(word) || word === '&'));
+  const head = cut > 0 ? words.slice(0, cut) : words;
+  return head.slice(0, MAX_TERM_WORDS).join(' ');
+}
+
+// Split "forecasting models (sarimax prophet)" into a matchable head plus the
+// parenthetical tokens as full-weight aliases — the parenthesis is the resume
+// author naming the concrete tools, which is exactly what postings say.
+function splitParenthetical(raw) {
+  const match = raw.match(/^([^(]+)\(([^)]*)\)\s*$/);
+  if (match) {
+    const head = normalizeTerm(match[1]);
+    const extras = match[2].split(/[,;|]|\s{2,}/).map(normalizeTerm).filter((token) => token.length >= 2);
+    if (head.length >= 2) return { head, extras };
+  }
+  // A comma list is the same shape without the parens: "aws sagemaker, lambda,
+  // ec2" is one head plus concrete tools, not a four-word phrase.
+  if (raw.includes(',')) {
+    const [first, ...rest] = raw.split(',').map(normalizeTerm).filter((token) => token.length >= 2);
+    if (first && rest.length) return { head: first, extras: rest };
+  }
+  return { head: raw, extras: [] };
+}
+
+function normalizeVariantProfile(profile, warn) {
   const seen = new Set();
   const skills = [];
   for (const skill of profile.skills || []) {
-    const term = String(skill.term || '').replace(/[_/]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+    const raw = normalizeTerm(skill.term);
+    if (raw.length < 2) continue;
+    const { head, extras } = splitParenthetical(raw);
+    // A weight-3 slot holding a resume sentence ("llm-backed products") is the
+    // most valuable weight attached to the least matchable string. Keep the
+    // leading words — the head is what postings actually print.
+    let term = head;
+    if (head.split(' ').length > MAX_TERM_WORDS || head.length > MAX_TERM_CHARS) {
+      term = trimToMatchableHead(head);
+      if (warn && term !== raw) warn(`  trimmed unmatchable term: "${raw}" → "${term}"`);
+    }
     if (term.length < 2 || seen.has(term)) continue;
     seen.add(term);
     const weight = Math.min(3, Math.max(1, Number(skill.weight) || 1));
     const aliases = [...new Set([
-      ...(skill.aliases || []).map((alias) => String(alias || '').replace(/[_/]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase()),
-      ...atomicTokenAliases(term)
+      ...(skill.aliases || []).map(normalizeTerm),
+      ...extras
     ].filter((alias) => alias.length >= 2 && alias !== term))];
-    skills.push({ term, weight, aliases });
+    // Recovered atomic tokens are BROAD: a bare "etl" should not earn what
+    // "etl pipeline development" earns. scoring.js credits these at weight 1.
+    const broadAliases = atomicTokenAliases(raw)
+      .filter((alias) => alias !== term && !aliases.includes(alias));
+    skills.push({ term, weight, aliases, broad_aliases: broadAliases });
   }
-  return { ...profile, skills };
+  const normalizeList = (list) => [...new Set((list || []).map(normalizeTerm).filter((item) => item.length >= 2))];
+  const domains = normalizeList(profile.domains);
+  const targetTitles = normalizeList(profile.target_titles);
+  // Self-penalty guard. Asked for "terms that signal a poor fit", models reach
+  // for the resume itself and return the person's own experience — one run
+  // offered "machine learning", which would have docked every ML job. An avoid
+  // signal that overlaps this person's own skills/domains/titles is never
+  // trustworthy, whatever the prompt says.
+  const own = new Set([
+    ...skills.flatMap((skill) => [skill.term, ...skill.aliases, ...skill.broad_aliases]),
+    ...domains,
+    ...targetTitles
+  ]);
+  const avoidSignals = normalizeList(profile.avoid_signals).filter((signal) => {
+    const collides = own.has(signal) || [...own].some((term) => term.length >= 4 && signal.includes(term));
+    if (collides && warn) warn(`  dropped self-referential avoid signal: "${signal}"`);
+    return !collides;
+  });
+  return {
+    ...profile,
+    skills,
+    domains,
+    target_titles: targetTitles,
+    avoid_signals: avoidSignals
+  };
 }
+
+// Postings for a plainly different profession. Deliberately narrow: each term
+// must be one that a computational person's posting would never contain, since
+// a hit costs the job real points. Licence and clearance requirements are the
+// eligibility layer's job — this is only about "wrong profession entirely".
+const CROSS_PROFESSION_SIGNALS = [
+  'registered nurse', 'licensed practical nurse', 'phlebotomy', 'phlebotomist',
+  'sonographer', 'radiologic technologist', 'respiratory therapist',
+  'occupational therapist', 'physical therapist', 'dental hygienist',
+  'cdl license', 'commercial driver', 'food service', 'custodial',
+  'groundskeeper', 'security officer', 'police officer', 'firefighter',
+  'cosmetology', 'hvac technician', 'electrician', 'plumber', 'welder'
+];
+const COMPUTATIONAL_CLASSES = new Set(['data_computational', 'engineering_software']);
 
 // Shared facts across variants: a tailored variant may omit a degree, but the
 // degree gate must know the user's best credential. Union degrees (completed
 // beats in_progress for the same level+field), take the most senior stage and
-// the max years, union avoid signals.
+// the max years.
 function reconcileCore(variantProfiles) {
   const degrees = new Map();
   for (const profile of variantProfiles) {
@@ -252,12 +348,17 @@ function reconcileCore(variantProfiles) {
     .filter((index) => index >= 0);
   const careerStage = stageIndexes.length ? STAGE_ORDER[Math.max(...stageIndexes)] : 'early_career';
 
+  // Model-generated avoid signals are DISCARDED. Asked which posting terms
+  // signal a poor fit, every run returned the person's own history ("research
+  // assistant", "graduate teaching assistant", once even "machine learning") —
+  // penalties on jobs they could plausibly get. Which professions are somebody
+  // else's is fixed knowledge, not something to re-extract per resume, so it
+  // comes from a curated list gated on the person's own title classes.
   const avoid = new Map();
-  for (const profile of variantProfiles) {
-    for (const signal of profile.avoid_signals || []) {
-      const trimmed = String(signal || '').trim();
-      if (trimmed && !avoid.has(trimmed.toLowerCase())) avoid.set(trimmed.toLowerCase(), trimmed);
-    }
+  const computational = variantProfiles.some((profile) => (profile.title_classes || [])
+    .some((cls) => COMPUTATIONAL_CLASSES.has(cls)));
+  if (computational) {
+    for (const signal of CROSS_PROFESSION_SIGNALS) avoid.set(signal, signal);
   }
 
   const notes = [...new Set(variantProfiles
@@ -414,7 +515,7 @@ async function extractVariantOllama(ctx, text, variant) {
     console.error(`Try a larger model (e.g. --model qwen2.5:14b-instruct) or the hosted fallback (--provider anthropic).`);
     process.exit(1);
   }
-  return normalizeVariantProfile(parsed);
+  return normalizeVariantProfile(parsed, (message) => console.log(message));
 }
 
 async function extractVariantAnthropic(ctx, text, variant) {
@@ -449,7 +550,7 @@ async function extractVariantAnthropic(ctx, text, variant) {
   }
 
   const textBlock = response.content.find((block) => block.type === 'text');
-  return normalizeVariantProfile(JSON.parse(textBlock.text));
+  return normalizeVariantProfile(JSON.parse(textBlock.text), (message) => console.log(message));
 }
 
 function parseArgs(argv) {

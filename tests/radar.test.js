@@ -60,6 +60,7 @@ const { jobRow, supabaseEnv } = require('../radar/scripts/lib/supabase.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
 const {
   TITLE_CLASSES,
+  VARIANT_SCHEMA,
   validateManifest,
   variantCacheKey,
   normalizeVariantProfile,
@@ -1046,26 +1047,45 @@ function testPrefilterAnomalies() {
   // A large tenant that excludes almost every title is more likely an
   // incomplete pattern set than a genuinely irrelevant employer -> flagged.
   let anomalies = detectPrefilterAnomalies({
-    employerReports: [{ employer_id: 'big', name: 'Big U', ats_provider: 'workday', fetched_jobs: 1, prefiltered_count: 400 }]
+    employerReports: [{ employer_id: 'big', name: 'Big U', ats_provider: 'workday', fetched_jobs: 1, prefiltered_count: 400, prefilter_survived_count: 1 }]
   });
   assert.strictEqual(anomalies.length, 1);
   assert.strictEqual(anomalies[0].prefiltered_count, 400);
 
   // Healthy ratio -> no alarm even with a lot of exclusions
   anomalies = detectPrefilterAnomalies({
-    employerReports: [{ employer_id: 'ok', name: 'OK U', ats_provider: 'oracle', fetched_jobs: 120, prefiltered_count: 300 }]
+    employerReports: [{ employer_id: 'ok', name: 'OK U', ats_provider: 'oracle', fetched_jobs: 120, prefiltered_count: 300, prefilter_survived_count: 120 }]
   });
   assert.strictEqual(anomalies.length, 0);
 
   // Small feed -> below minExcluded, no alarm even at 100% excluded
   anomalies = detectPrefilterAnomalies({
-    employerReports: [{ employer_id: 'tiny', name: 'Tiny Lab', ats_provider: 'eightfold', fetched_jobs: 0, prefiltered_count: 5 }]
+    employerReports: [{ employer_id: 'tiny', name: 'Tiny Lab', ats_provider: 'eightfold', fetched_jobs: 0, prefiltered_count: 5, prefilter_survived_count: 0 }]
   });
   assert.strictEqual(anomalies.length, 0);
 
   // No prefilter used (successfactors with 0 excluded) -> no alarm
   anomalies = detectPrefilterAnomalies({
-    employerReports: [{ employer_id: 'clean', name: 'Clean U', ats_provider: 'successfactors', fetched_jobs: 50, prefiltered_count: 0 }]
+    employerReports: [{ employer_id: 'clean', name: 'Clean U', ats_provider: 'successfactors', fetched_jobs: 50, prefiltered_count: 0, prefilter_survived_count: 50 }]
+  });
+  assert.strictEqual(anomalies.length, 0);
+
+  // Report predates this field (older committed report, or a non-prefiltering
+  // driver that never stamps it) -> skipped rather than treated as 0
+  anomalies = detectPrefilterAnomalies({
+    employerReports: [{ employer_id: 'legacy', name: 'Legacy U', ats_provider: 'workday', fetched_jobs: 0, prefiltered_count: 400 }]
+  });
+  assert.strictEqual(anomalies.length, 0);
+
+  // The conflation bug this fixes: prefiltered_count vs fetched_jobs (the
+  // FINAL count, after the separate auto-tier relevance-score filter) would
+  // flag this as a broken prefilter. It isn't — the prefilter correctly let 4
+  // titles through; they legitimately scored too low downstream. Using
+  // prefilter_survived_count (the prefilter's own pass-through, healthy at
+  // 4/79) instead of fetched_jobs (0) must NOT flag this.
+  // Confirmed live against Bank Street College of Education.
+  anomalies = detectPrefilterAnomalies({
+    employerReports: [{ employer_id: 'bank-street-college-of-education', name: 'Bank Street College of Education', ats_provider: 'oracle', fetched_jobs: 0, prefiltered_count: 75, prefilter_survived_count: 4 }]
   });
   assert.strictEqual(anomalies.length, 0);
 
@@ -1381,8 +1401,8 @@ function testProfileIngestion() {
     ]
   });
   assert.deepStrictEqual(normalized.skills, [
-    { term: 'pytorch', weight: 3, aliases: ['torch'] },
-    { term: 'sql', weight: 1, aliases: [] }
+    { term: 'pytorch', weight: 3, aliases: ['torch'], broad_aliases: [] },
+    { term: 'sql', weight: 1, aliases: [], broad_aliases: [] }
   ]);
 
   // Matchability normalization: snake_case → spaces, and canonical atomic tokens
@@ -1397,15 +1417,57 @@ function testProfileIngestion() {
       { term: 'aws (lambda, ec2)', weight: 1 }
     ]
   });
+  // Recovered atomic tokens land in broad_aliases (scoring credits them at
+  // weight 1 — a bare "rag" must not earn what "rag pipelines" earns), while
+  // parenthetical tokens are the author naming concrete tools: full-weight
+  // aliases, with the head kept as the term.
   assert.deepStrictEqual(matchable.skills, [
-    { term: 'python programming', weight: 3, aliases: ['python'] },
-    { term: 'rag pipelines', weight: 2, aliases: ['rag'] },
-    { term: 'star schema design', weight: 2, aliases: [] }, // no allowlisted token → no noisy alias
-    { term: 'aws (lambda, ec2)', weight: 1, aliases: ['aws'] }
+    { term: 'python programming', weight: 3, aliases: [], broad_aliases: ['python'] },
+    { term: 'rag pipelines', weight: 2, aliases: [], broad_aliases: ['rag'] },
+    { term: 'star schema design', weight: 2, aliases: [], broad_aliases: [] }, // no allowlisted token → no noisy alias
+    { term: 'aws', weight: 1, aliases: ['lambda', 'ec2'], broad_aliases: [] }
   ]);
 
+  // Unmatchable resume phrases are trimmed to a matchable head, with a warning.
+  const warnings = [];
+  const trimmed = normalizeVariantProfile({
+    skills: [
+      { term: 'automated summarization pipelines for clinical notes', weight: 3 },
+      { term: 'forecasting models (sarimax, prophet)', weight: 3 },
+      // Trimming must not end on a connective, and a comma list is a head
+      // plus concrete tools — not a four-word phrase.
+      { term: 'data ingestion and preparation', weight: 2 },
+      { term: 'aws sagemaker, lambda, ec2', weight: 1 },
+      // Mid-phrase connective: the concept is "cnns", not "cnns for medical".
+      { term: 'cnns for medical imaging', weight: 2 }
+    ],
+    domains: ['machine_learning', 'AI/ML Engineering', 'machine learning'],
+    target_titles: ['machine_learning engineer'],
+    // Self-penalty guard: a model asked for "poor fit" terms reaches for the
+    // resume. "machine learning" here would dock every ML job.
+    avoid_signals: ['registered_nurse', 'machine learning', 'cnns for medical imaging']
+  }, (message) => warnings.push(message));
+  assert.deepStrictEqual(trimmed.skills, [
+    { term: 'automated summarization pipelines', weight: 3, aliases: [], broad_aliases: [] },
+    { term: 'forecasting models', weight: 3, aliases: ['sarimax', 'prophet'], broad_aliases: [] },
+    { term: 'data ingestion', weight: 2, aliases: [], broad_aliases: [] },
+    { term: 'aws sagemaker', weight: 1, aliases: ['lambda', 'ec2'], broad_aliases: ['aws'] },
+    { term: 'cnns', weight: 2, aliases: [], broad_aliases: [] }
+  ]);
+  assert(warnings.some((line) => /trimmed unmatchable term/.test(line)));
+  assert(warnings.some((line) => /dropped self-referential avoid signal/.test(line)));
+  // Domains/titles/avoid signals normalize + dedupe (underscores never matched).
+  assert.deepStrictEqual(trimmed.domains, ['machine learning', 'ai ml engineering']);
+  assert.deepStrictEqual(trimmed.target_titles, ['machine learning engineer']);
+  assert.deepStrictEqual(trimmed.avoid_signals, ['registered nurse'],
+    'own skills/domains must never become self-penalties');
+  // Model output for avoid_signals is discarded (reconcileCore sources the
+  // curated list), so it must not be a required field the model has to fill.
+  assert(!VARIANT_SCHEMA.required.includes('avoid_signals'));
+  assert(VARIANT_SCHEMA.properties.avoid_signals);
+
   // Core reconciliation: degree union (completed beats in_progress), most
-  // senior stage, max years, avoid-signal union
+  // senior stage, max years, curated avoid signals
   const core = reconcileCore([
     {
       summary: 'ML person.',
@@ -1415,7 +1477,10 @@ function testProfileIngestion() {
         { level: 'masters', field: 'Computer Science', status: 'in_progress' },
         { level: 'bachelors', field: 'Math', status: 'completed' }
       ],
-      avoid_signals: ['registered nurse'],
+      title_classes: ['data_computational'],
+      // Model output here is discarded: every real run returned the person's
+      // own history, which would penalize jobs they could plausibly get.
+      avoid_signals: ['research assistant', 'machine learning'],
       notes_for_ranking: 'Prefers computational roles.'
     },
     {
@@ -1423,7 +1488,8 @@ function testProfileIngestion() {
       career_stage: 'mid_career',
       years_experience: 5,
       degrees: [{ level: 'masters', field: 'computer science', status: 'completed' }],
-      avoid_signals: ['Registered Nurse', 'phlebotomy'],
+      title_classes: ['engineering_software'],
+      avoid_signals: ['graduate teaching assistant'],
       notes_for_ranking: 'Prefers computational roles.'
     }
   ]);
@@ -1434,7 +1500,15 @@ function testProfileIngestion() {
     { level: 'masters', field: 'Computer Science', status: 'completed' },
     { level: 'bachelors', field: 'Math', status: 'completed' }
   ]);
-  assert.deepStrictEqual(core.avoid_signals, ['registered nurse', 'phlebotomy']);
+  assert(core.avoid_signals.includes('registered nurse'), 'curated cross-profession signals apply');
+  assert(!core.avoid_signals.includes('research assistant'), 'model-supplied self-penalties are discarded');
+  assert(!core.avoid_signals.includes('machine learning'));
+  // A non-computational profile gets no cross-profession list at all.
+  const clinicalCore = reconcileCore([{
+    summary: 'Nurse.', career_stage: 'early_career', years_experience: 3,
+    degrees: [], title_classes: ['clinical'], avoid_signals: [], notes_for_ranking: ''
+  }]);
+  assert.deepStrictEqual(clinicalCore.avoid_signals, []);
   assert.strictEqual(core.notes_for_ranking, 'Prefers computational roles.');
 
   // Scaffold id slugs
