@@ -45,10 +45,17 @@ jobs:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
       - name: Sync to latest main (this run's outputs win)
+        # if: always() -- same real bug found 2026-08-04 in radar-firehose.yml
+        # (confirmed live: a run cancelled after 2h48m committed nothing at
+        # all, because every step after the one that got cancelled was
+        # skipped by default). This job's own timeout-minutes: 300 makes it
+        # just as exposed as Playwright scouting scales with the registry.
+        #
         # checkout pins github.sha from queue time, so commits that landed while
         # this run was pending/running would make a rebase conflict on
         # refresh-report.json. Runs in the radar-data group are serialized, so
         # this run's outputs are always the freshest — save, reset, restore.
+        if: always()
         run: |
           set -euo pipefail
           tmp=$(mktemp -d)
@@ -57,12 +64,13 @@ jobs:
           git reset --hard origin/main
           cp "$tmp"/* radar/data/
       - name: Commit scouted data
+        if: always()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update scouted employer data"
           file_pattern: "radar/data/scouted-jobs.json radar/data/refresh-report.json"
       - name: Alert on failure
-        if: failure()
+        if: failure() || cancelled()
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: |

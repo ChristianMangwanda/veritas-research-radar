@@ -31,10 +31,20 @@ jobs:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
       - name: Sync to latest main (this run's outputs win)
+        # if: always() -- a real bug found 2026-08-04: this workflow has no
+        # timeout-minutes set (defaults to GitHub's 6h cap), and a run that
+        # hits it gets cancelled with every step after "Refresh public ATS
+        # data" skipped by default -- so a run that legitimately takes long
+        # (registry growth, network slowness) silently commits nothing,
+        # discarding real work rather than just leaving it unresumed.
+        # Confirmed live: a same-day radar-firehose.yml run hit this exact
+        # gap after 2h48m with zero commit.
+        #
         # checkout pins github.sha from queue time, so commits that landed while
         # this run was pending/running would make a rebase conflict on
         # refresh-report.json. Runs in the radar-data group are serialized, so
         # this run's outputs are always the freshest — save, reset, restore.
+        if: always()
         run: |
           set -euo pipefail
           tmp=$(mktemp -d)
@@ -43,12 +53,13 @@ jobs:
           git reset --hard origin/main
           cp "$tmp"/* radar/data/
       - name: Commit refreshed radar data
+        if: always()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update research radar data"
           file_pattern: "radar/data/refresh-report.json"
       - name: Alert on failure
-        if: failure()
+        if: failure() || cancelled()
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: |

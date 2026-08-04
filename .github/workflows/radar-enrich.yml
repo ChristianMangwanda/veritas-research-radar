@@ -25,10 +25,18 @@ jobs:
       - name: Run monthly enrichment (IPEDS + IRS EO BMF + USCIS joins)
         run: npm run radar:enrich -- --force
       - name: Sync to latest main (this run's outputs win)
+        # if: always() -- same real bug found 2026-08-04 in radar-firehose.yml
+        # (confirmed live: a run cancelled after 2h48m committed nothing at
+        # all, because every step after the cancelled one was skipped by
+        # default). This job has no timeout-minutes set (GitHub's 6h default
+        # applies) and downloads/joins large IPEDS/IRS/USCIS datasets, so a
+        # slow month is just as exposed.
+        #
         # checkout pins github.sha from queue time, so commits that landed while
         # this run was pending/running would make a rebase conflict on shared
         # report files. Runs in the radar-data group are serialized, so this
         # run's outputs are always the freshest — save, reset, restore.
+        if: always()
         run: |
           set -euo pipefail
           tmp=$(mktemp -d)
@@ -37,12 +45,13 @@ jobs:
           git reset --hard origin/main
           cp "$tmp"/* radar/data/
       - name: Commit enrichment outputs
+        if: always()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update employer enrichment, discovery, and cap-exempt directory"
           file_pattern: "radar/data/employer-enrichment.json radar/data/discovery-candidates.json radar/data/enrichment-report.json radar/data/cap-exempt-directory.json"
       - name: Alert on failure
-        if: failure()
+        if: failure() || cancelled()
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: |
