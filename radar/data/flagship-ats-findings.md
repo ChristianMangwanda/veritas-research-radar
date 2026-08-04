@@ -337,3 +337,27 @@ host was already registered under a punctuation-different name) found:
   and tokens come from links scraped off the institution's own site, not
   guessed via multi-site probing (what made the Workday case risky); Ashby
   has zero registered employers today, so it's currently theoretical.
+- **The registry can now represent an employer with two ATS feeds.**
+  University of Rochester was registered as `workday` (a staff board) but
+  also runs a completely separate Interfolio faculty board with 355 real
+  open postings — invisible to the dataset until now, because the schema
+  only supported one feed per employer. Root cause in
+  `promote-employers.js`: `buildProposals()` bailed on `existingIds.has(id)`
+  *before* ever looking at other discovered ATS hits for that same
+  institution, so a second feed for an already-registered employer was
+  silently discarded every single run. Added optional
+  `secondary_ats_feeds` to the employer schema; `fetchEmployerJobs` now
+  merges every feed fail-soft (reusing every existing driver unchanged via
+  a per-feed view object); `promote-employers.js` gained a
+  `findSecondaryFeedCandidates` pass reusing the exact same identity-firewall
+  probes. 6 candidates wired after live verification: University of
+  Rochester (355 postings), Georgetown University (44), Baylor University
+  (42), San Diego State University (2), Wake Forest University (8),
+  Hillsdale College (1) — all Interfolio faculty boards alongside an
+  existing Workday/Oracle/PeopleAdmin staff board. **A defensive fallback
+  for a separate known bug (13 employers with `id !== slugify(name)`) was
+  tried and reverted after it live-matched "Nebraska Methodist College of
+  Nursing & Allied Health" to "The University of Texas Health Science
+  Center at San Antonio" — two unrelated institutions sharing only the
+  token HEALTH.** Caught before anything was wired; the id-mismatch gap
+  itself remains open, undersized for a loose name-overlap fix.

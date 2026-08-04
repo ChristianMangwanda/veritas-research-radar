@@ -336,12 +336,18 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
   } catch { /* no holds file */ }
   const existingIds = new Set(employers.map((e) => e.id));
   const employersById = new Map(employers.map((e) => [e.id, e]));
-  // Pre-existing gap, not fixed here: some employers have id !== slugify(name)
-  // (manual short ids like `mit`, plus a few slugify() truncation artifacts),
-  // which would make the id-based lookup below miss them. Defensive fallback,
-  // scoped to only the employers actually affected rather than a full
-  // namesOverlap scan of the whole registry.
-  const manuallyNamedEmployers = employers.filter((e) => e.id !== slugify(e.name));
+  // Known pre-existing gap, not fixed here: ~13 employers have id !==
+  // slugify(name) (manual short ids like `mit`, plus a few slugify()
+  // truncation artifacts), so the id-based lookup below misses them and
+  // their secondary feeds go undetected. A namesOverlap-based fallback was
+  // tried and reverted: it live-matched "Nebraska Methodist College of
+  // Nursing & Allied Health" against "The University of Texas Health
+  // Science Center at San Antonio" on the single shared token HEALTH —
+  // two unrelated institutions in different states. namesOverlap's
+  // generic-token filter isn't strict enough for this looser use (it's
+  // fine for verifying an already-probed feed's own title, where a false
+  // accept just needs ONE more coincidental token; it's too loose for
+  // scanning ~13 candidate names against every discovery record).
 
   // For an ALREADY-registered employer, check every hit type this employer
   // isn't already wired to (primary or secondary) — unlike the main wiring
@@ -446,8 +452,7 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     if (!anyHit && !(includeScoutFallback && record.careers_url)) continue;
 
     const id = slugify(record.name);
-    const existingEmployer = employersById.get(id)
-      || manuallyNamedEmployers.find((e) => namesOverlap(e.name, record.name));
+    const existingEmployer = employersById.get(id);
     if (existingEmployer) {
       const secondaryFeeds = await findSecondaryFeedCandidates(hits, record, existingEmployer);
       for (const feed of secondaryFeeds) {

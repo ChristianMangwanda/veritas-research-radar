@@ -504,7 +504,16 @@
     },
     "careers_url": "https://ejof.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX/",
     "research_areas": [],
-    "notes": "IHE (cap-exempt; USCIS 45 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host ejof.fa.us2.oraclecloud.com, canonical ACTIVE site CX; 74 postings, 11 research-relevant incl. Faculty/staff roles). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only."
+    "notes": "IHE (cap-exempt; USCIS 45 approvals 3y). Discovered via radar:enrich (IPEDS + USCIS H-1B DataHub), confirmed by ATS discovery scan (2026-08-03). Oracle Fusion HCM CandidateExperience feed verified 2026-08-03 (host ejof.fa.us2.oraclecloud.com, canonical ACTIVE site CX; 74 postings, 11 research-relevant incl. Faculty/staff roles). site_number doubles as the apply-URL path token. tier:auto -> commits research-relevant postings only.",
+    "secondary_ats_feeds": [
+      {
+        "ats_provider": "interfolio",
+        "ats_token": "baylor-university",
+        "ats_config": {
+          "tenant_id": 55109
+        }
+      }
+    ]
   },
   {
     "id": "champlain-college",
@@ -1042,7 +1051,16 @@
     },
     "careers_url": "https://www.rochester.edu/human-resources/careers/",
     "research_areas": [],
-    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 1385 live postings. USCIS 205 approvals / DOL 6 research LCAs (3y)."
+    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 1385 live postings. USCIS 205 approvals / DOL 6 research LCAs (3y).",
+    "secondary_ats_feeds": [
+      {
+        "ats_provider": "interfolio",
+        "ats_token": "university-of-rochester",
+        "ats_config": {
+          "tenant_id": 16224
+        }
+      }
+    ]
   },
   {
     "id": "university-of-nevada-reno",
@@ -1086,7 +1104,16 @@
     },
     "careers_url": "https://careers.georgetown.edu/",
     "research_areas": [],
-    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 106 live postings. USCIS 171 approvals / DOL 5 research LCAs (3y)."
+    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 106 live postings. USCIS 171 approvals / DOL 5 research LCAs (3y).",
+    "secondary_ats_feeds": [
+      {
+        "ats_provider": "interfolio",
+        "ats_token": "georgetown-university",
+        "ats_config": {
+          "tenant_id": 11780
+        }
+      }
+    ]
   },
   {
     "id": "medical-college-of-wisconsin",
@@ -1526,7 +1553,16 @@
     },
     "careers_url": "https://www.wfu.careers/",
     "research_areas": [],
-    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 73 live postings. USCIS 34 approvals / DOL 0 research LCAs (3y)."
+    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 73 live postings. USCIS 34 approvals / DOL 0 research LCAs (3y).",
+    "secondary_ats_feeds": [
+      {
+        "ats_provider": "interfolio",
+        "ats_token": "wake-forest-university",
+        "ats_config": {
+          "tenant_id": 16449
+        }
+      }
+    ]
   },
   {
     "id": "montclair-state-university",
@@ -3920,7 +3956,16 @@
     },
     "careers_url": "https://careers.hillsdale.edu/",
     "research_areas": [],
-    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 14 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y)."
+    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 14 live postings. USCIS 3 approvals / DOL 0 research LCAs (3y).",
+    "secondary_ats_feeds": [
+      {
+        "ats_provider": "interfolio",
+        "ats_token": "hillsdale-college",
+        "ats_config": {
+          "tenant_id": 24461
+        }
+      }
+    ]
   },
   {
     "id": "northeast-ohio-medical-university",
@@ -6183,7 +6228,16 @@
     "ats_token": null,
     "careers_url": "https://careers-sdsurf.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 41 live postings. USCIS 37 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 41 live postings. USCIS 37 approvals / DOL 0 research LCAs (3y).",
+    "secondary_ats_feeds": [
+      {
+        "ats_provider": "interfolio",
+        "ats_token": "san-diego-state-university",
+        "ats_config": {
+          "tenant_id": 14858
+        }
+      }
+    ]
   },
   {
     "id": "eastern-virginia-medical-school",
