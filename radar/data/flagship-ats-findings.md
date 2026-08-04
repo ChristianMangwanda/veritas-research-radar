@@ -261,13 +261,29 @@ host was already registered under a punctuation-different name) found:
   Seminary, Keuka College, BAIM Institute for Clinical Research), 2 correctly
   rejected as identity mismatches (Arkansas Northeastern's guid actually
   belongs to a hospital system).
-- **Interfolio: investigated, deferred.** `apply.interfolio.com/<id>` is an
-  AngularJS 1.7 SPA backed by several private REST hosts (`api.interfolio.com`,
-  `secure.interfolio.com`, `logic.interfolio.com`, …) — this needs either a
-  Playwright scout path or real API reverse-engineering, not a plain-fetch
-  driver like the others in this list. 19 hits confirmed in an in-progress
-  re-crawl past the original 1,100 sites; full count still pending. Left for
-  a dedicated session rather than a rushed attempt.
-- **Registry: 253 → 309** across this session (Norfolk State via the stale
+- **Interfolio: real driver shipped (reversed the earlier "deferred" call).**
+  `apply.interfolio.com/<id>` is indeed an AngularJS 1.7 SPA, but
+  network-capturing one real tenant with Playwright (not just reading the
+  static HTML) found the actual XHR it makes:
+  `https://logic.interfolio.com/byc-search/{tenant_id}/public_job_boards`
+  — a plain, unauthenticated, paginated JSON endpoint with the full
+  description/qualifications/instructions HTML already inline (no separate
+  detail fetch needed, unlike Workday/Oracle/SuccessFactors/Eightfold). The
+  `{tenant_id}` is exactly the number in the discovered `apply.interfolio.com/<id>`
+  URL. A second endpoint, `dossier-api/positions/{id}`, looked related but
+  turned out to be an unrelated internal id space (single-position lookups by
+  a different numeric counter) — confirmed by a coincidental cross-tenant
+  collision (id 31694 resolved to a stale Millikin University posting there,
+  while `byc-search/31694/...` correctly returned Case Western Reserve's real
+  130-posting board) — so it's not used. Identity is verified for free: the
+  list response's own `title` field literally names the institution ("Case
+  Western Reserve University Positions"). `fetchInterfolioJobs`/
+  `mapInterfolioJob` added; `probeInterfolio` added to
+  `promote-employers.js`. 74 hits discovered so far (up from 19); the
+  crawler's fallback "interfolio" keyword match (no resolvable id, e.g. Yale,
+  JHU) can't be auto-wired and needs manual careers-page follow-up.
+- **Registry: 253 → 331** across this session (Norfolk State via the stale
   proposal re-run, USF Oracle CE host resolution, the UltiPro/Oracle
-  backlog, the iCIMS bug-fix batch, and the Paylocity batch).
+  backlog, the iCIMS bug-fix batch, the Paylocity batch, an extended
+  1,100→1,500-site discovery crawl, and — in a follow-on pass — the
+  Interfolio driver).
