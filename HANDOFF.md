@@ -62,24 +62,37 @@ resume variants and tells you which one to send.
    (the same model serves both extraction and routing). Extraction is
    structured parsing, not deep reasoning — a local 7-8B model handles it and
    your resume text never leaves the machine.
-1. Drop your resume variants (txt/md/pdf) into `radar/data/resumes/`
-   (gitignored). Run `npm run radar:profile` once — it scaffolds
-   `manifest.json`; fill in each variant's `label` and one-line `intent`
-   ("Leads with production ML, PyTorch, MLOps") and re-run. One local
-   extraction per variant, cached by content hash + model: adding a 6th
-   resume later re-extracts only the new one (`--force` to redo all). If the
-   local profile looks thin, re-run with `-- --provider anthropic`.
-2. Reload the dashboard. Jobs now carry a fit score, a verdict tier, a
-   "use <variant>" chip, and ⚠ flags for hard gates (PhD required,
-   citizens-only). Gates demote — they never hide a job. The detail pane's
-   why panel shows per-variant scores, matched terms, and the posting's own
-   degree-requirement sentence.
-3. Optional: `npm run radar:route` — the same local model re-judges only the
+1. Drop your resume variants (txt/md/pdf/docx) into `radar/data/resumes/`
+   (gitignored). The first `npm run radar:profile` scaffolds `manifest.json`;
+   fill in each variant's `label` and one-line `intent` ("Leads with
+   production ML, PyTorch, MLOps") and re-run. One local extraction per
+   variant, cached by content hash + model: adding a resume later re-extracts
+   only the new one (`--force` to redo all). If the local profile looks thin,
+   re-run with `-- --provider anthropic`.
+2. **After that, editing a resume file is the whole ritual (2026-08-04).**
+   The `npm start` server watches `radar/data/resumes/` and rebuilds
+   `profile.json` automatically (`build-profile.js --if-stale`; mtime-based,
+   an unchanged file costs one cached no-model rebuild); the daily digest run
+   does the same check at 08:00 so the profile stays fresh even without the
+   server. The open dashboard tab polls `/api/profile-freshness`, narrates
+   rebuilds in the profile card, and adopts the result. New FILES still need
+   a manifest.json entry (a label/intent can't be invented) — a failed
+   rebuild shows up in the profile card with the reason.
+3. Jobs carry a fit score, a verdict tier, a "use <variant>" chip, and
+   ⚠ flags for hard gates (PhD required, citizens-only). Gates demote — they
+   never hide a job. The detail pane's why panel shows per-variant scores,
+   matched terms, and the posting's own degree-requirement sentence.
+4. Optional: `npm run radar:route` — the same local model re-judges only the
    jobs where two variants scored within 8 points and caches the verdicts
    (`route-cache.json`, gitignored, invalidated when the profile changes).
-4. Hosted (Pages) dashboard: import `radar/data/profile.json` (and
-   optionally `route-cache.json`) via the sidebar profile card — they
-   persist in that browser's localStorage only.
+5. Hosted (Pages) dashboard: whenever the local radar is running, the hosted
+   page pulls the compiled profile (+ route cache) from
+   `http://localhost:4173` over a CORS bridge scoped to the Pages origin
+   (Chrome-only in practice — Private Network Access preflight is answered)
+   and persists it in that browser's localStorage; newest `generated_at`
+   wins, so it never clobbers a newer manual import. The sidebar import
+   button remains as the fallback. Resumes and profile flow one direction —
+   nothing ever leaves the machine except this pull by your own browser.
 
 ## Notifications + hosted dashboard
 
@@ -103,8 +116,10 @@ resume variants and tells you which one to send.
   dot goes red on feed errors, recall alarms, or a failed page load — its
   drawer holds the next-pull countdown, the 7 system tiles, source errors,
   the discovery queue, and the digest setup steps. On the hosted dashboard,
-  Qualified needs the one-time profile import (persists in that browser's
-  localStorage) and prompts for it until done.
+  Qualified needs your profile in that browser's localStorage — it arrives
+  automatically from the local radar when it's running (see the
+  resume-variant ritual), or via the manual import; the tab prompts until
+  one happens.
 - Daily digest: the **local** fit digest is armed (2026-08-03) — a launchd
   agent (`com.veritas.radar.digest`) runs `run-digest.sh` at 08:00 daily,
   reading `radar/scripts/.digest.env` (gitignored; holds the private ntfy

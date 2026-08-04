@@ -21,4 +21,9 @@ if [[ -f "${ENV_FILE}" ]]; then
   set +a
 fi
 
+# Rebuild the profile first if any resume file changed since the last build —
+# best-effort (needs Ollama for new extractions), so a failure never blocks
+# the digest; it just scores with the previous profile.
+/usr/local/bin/node "${REPO_DIR}/radar/scripts/build-profile.js" --if-stale || true
+
 exec /usr/local/bin/node "${REPO_DIR}/radar/scripts/digest-local.js"

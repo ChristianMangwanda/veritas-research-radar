@@ -5,6 +5,8 @@ const state = {
   compiled: null,     // RadarScoring.compileProfile(profile)
   routeCache: null,   // local Ollama routing verdicts (route-cache.json)
   profileError: null, // validation message when an import is rejected
+  profileFreshness: null, // /api/profile-freshness status (local server only)
+  profileSyncedAt: null,  // set when the hosted page adopted the local server's profile
   loadError: null,    // set when the job load partially/fully failed (distinct from "no matches")
   lastVisit: null,
   selectedId: null,
@@ -511,9 +513,23 @@ function renderProfileCard() {
     DOM.profileSummary.append(el('p', 'profile-error', state.profileError));
   }
 
+  // Freshness line (local server only): the profile follows the resume FILES,
+  // so say so when they've drifted apart or a rebuild is underway.
+  const freshness = state.profileFreshness;
+  if (freshness?.building) {
+    DOM.profileSummary.append(el('p', 'profile-routing', 'Resumes changed — rebuilding your profile…'));
+  } else if (freshness?.stale && freshness.last_result && freshness.last_result.code !== 0) {
+    DOM.profileSummary.append(el('p', 'profile-error',
+      `Resumes changed but the rebuild failed — run npm run radar:profile. (${freshness.last_result.message || 'no detail'})`));
+  } else if (freshness?.stale) {
+    DOM.profileSummary.append(el('p', 'profile-routing', 'Resumes changed — profile rebuild pending.'));
+  } else if (state.profileSyncedAt) {
+    DOM.profileSummary.append(el('p', 'profile-routing', 'Auto-synced from your local radar.'));
+  }
+
   if (!state.profile) {
     DOM.profileSummary.append(el('p', 'profile-empty',
-      'No profile loaded. Build one locally from your resumes with npm run radar:profile — the local dashboard picks it up on reload; on the hosted dashboard, import profile.json here.'));
+      'No profile loaded. It builds from the resume files in radar/data/resumes/ — run npm start (or npm run radar:profile) and it appears here; the hosted dashboard syncs it over whenever the local radar is running.'));
     return;
   }
 
@@ -547,6 +563,70 @@ function renderProfileCard() {
     DOM.profileSummary.append(el('p', 'profile-routing',
       `${count} routing verdict${count === 1 ? '' : 's'} from ${state.routeCache.model || 'local model'}`));
   }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Profile freshness: the profile follows the resume FILES.                  */
+/* Locally the server watches radar/data/resumes and rebuilds; this poller   */
+/* narrates that and adopts the result. On the hosted dashboard, the page    */
+/* pulls the compiled profile FROM the local server when it happens to be    */
+/* running (CORS-opened, one direction only — resumes never leave the Mac).  */
+
+const LOCAL_RADAR_ORIGIN = 'http://localhost:4173';
+
+let freshnessWasBuilding = false;
+let freshnessTimer = null;
+
+async function pollProfileFreshness() {
+  clearTimeout(freshnessTimer);
+  const status = await getJson('/api/profile-freshness', null);
+  if (!status) return; // hosted dashboard — no local API here
+  state.profileFreshness = status;
+  if (status.building) {
+    freshnessWasBuilding = true;
+    renderProfileCard();
+    freshnessTimer = setTimeout(pollProfileFreshness, 4000);
+    return;
+  }
+  if (freshnessWasBuilding) {
+    freshnessWasBuilding = false;
+    const fresh = await getJson('/api/profile', null);
+    if (fresh && !RadarScoring.validateProfile(fresh)
+      && fresh.generated_at !== state.profile?.generated_at) {
+      applyProfile(fresh, state.routeCache);
+      render();
+    }
+  }
+  renderProfileCard();
+  // A quiet once-a-minute check keeps a long-lived tab honest about edits
+  // made while it sat open.
+  freshnessTimer = setTimeout(pollProfileFreshness, 60000);
+}
+
+async function maybeSyncProfileFromLocalRadar() {
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') return; // served BY the local radar
+  let fresh = null;
+  try {
+    const response = await fetch(`${LOCAL_RADAR_ORIGIN}/api/profile`, { signal: AbortSignal.timeout(2500) });
+    if (!response.ok) return;
+    fresh = await response.json();
+  } catch { return; } // local radar not running — the stored profile stands
+  if (!fresh || RadarScoring.validateProfile(fresh)) return;
+  // Newest build wins; never clobber a newer manual import with an older file.
+  if (state.profile?.generated_at && fresh.generated_at
+    && fresh.generated_at <= state.profile.generated_at) return;
+  let routeCache = state.routeCache;
+  try {
+    const response = await fetch(`${LOCAL_RADAR_ORIGIN}/api/route-cache`, { signal: AbortSignal.timeout(2500) });
+    if (response.ok) routeCache = (await response.json()) || routeCache;
+  } catch { /* keep whatever we had */ }
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(fresh));
+  if (routeCache) localStorage.setItem(ROUTE_CACHE_KEY, JSON.stringify(routeCache));
+  state.profileSyncedAt = new Date().toISOString();
+  state.profileError = null;
+  applyProfile(fresh, routeCache);
+  render();
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1084,8 +1164,8 @@ function buildProfilePrompt() {
   const wrap = el('div', 'empty-state profile-prompt');
   wrap.append(el('h2', undefined, 'Load your resume profile'));
   wrap.append(el('p', undefined,
-    'Qualified is your shortlist: open jobs in your line of work with no quoted barrier, ranked against your own resumes. That needs your profile — built locally with npm run radar:profile, imported once, kept only in this browser.'));
-  const button = el('button', 'primary-button', 'Import profile.json');
+    'Qualified is your shortlist: open jobs in your line of work with no quoted barrier, ranked against your own resumes. The profile builds itself from the files in radar/data/resumes/ — start the local radar (npm start) and this page picks it up automatically; it then lives in this browser.'));
+  const button = el('button', 'primary-button', 'Import profile.json instead');
   button.type = 'button';
   button.addEventListener('click', () => DOM.profileFile.click());
   wrap.append(button);
@@ -2624,6 +2704,10 @@ async function init() {
   if (diskProblem) state.profileError = `profile.json is not usable: ${diskProblem}`;
   applyProfile(!profile || diskProblem ? loadProfileFromBrowser() : profile,
     routeCache || loadRouteCacheFromBrowser());
+  // Fire-and-forget: locally, narrate/adopt the server's auto-rebuilds; on
+  // the hosted page, pull a fresher profile from the local radar if it's up.
+  pollProfileFreshness();
+  maybeSyncProfileFromLocalRadar();
   renderRefreshStatus(report);
   renderDiscovery(discovery);
   // Keep the next-pull countdown honest without touching anything else

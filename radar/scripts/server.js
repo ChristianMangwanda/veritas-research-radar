@@ -1,18 +1,32 @@
 #!/usr/bin/env node
 
 const fs = require('fs/promises');
+const fsSync = require('fs');
 const http = require('http');
 const path = require('path');
 const { URL } = require('url');
+const { spawn } = require('child_process');
+const { profileFreshness } = require('./lib/profile-freshness.js');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RADAR_DIR = path.join(ROOT, 'radar');
 const DATA_DIR = path.join(RADAR_DIR, 'data');
 const PUBLIC_DIR = path.join(RADAR_DIR, 'public');
 const LOCAL_STATE_PATH = path.join(DATA_DIR, 'local-state.json');
+const RESUMES_DIR = path.join(DATA_DIR, 'resumes');
+const PROFILE_PATH = path.join(DATA_DIR, 'profile.json');
+const BUILD_PROFILE = path.join(__dirname, 'build-profile.js');
 
 const PORT = Number(process.env.PORT || 4173);
 const HOST = process.env.HOST || '127.0.0.1';
+
+// The hosted dashboard may pull the compiled profile from this local server
+// (never the other way around — resumes and profile stay on this machine).
+const BRIDGE_ORIGINS = new Set([
+  'https://christianmangwanda.github.io'
+]);
+if (process.env.RADAR_BRIDGE_ORIGIN) BRIDGE_ORIGINS.add(process.env.RADAR_BRIDGE_ORIGIN);
+const BRIDGE_PATHS = new Set(['/api/profile', '/api/route-cache', '/api/profile-freshness']);
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -43,10 +57,11 @@ async function readBody(request) {
   return Buffer.concat(chunks).toString('utf8');
 }
 
-function send(response, status, body, contentType = 'application/json; charset=utf-8') {
+function send(response, status, body, contentType = 'application/json; charset=utf-8', extraHeaders = null) {
   response.writeHead(status, {
     'content-type': contentType,
-    'cache-control': 'no-store'
+    'cache-control': 'no-store',
+    ...(extraHeaders || {})
   });
   response.end(body);
 }
@@ -79,8 +94,92 @@ function defaultLocalState() {
   };
 }
 
+/* ------------------------------------------------------------------------ */
+/* Profile auto-rebuild: edit a resume, the dashboard adapts.                */
+/* Serialized (one build at a time, trailing changes queue one more run) and */
+/* always --if-stale, so spurious triggers are cheap no-ops. An unchanged    */
+/* resume set hits the extraction cache — no model call needed.              */
+
+const rebuild = { running: false, queued: false, last: null };
+
+function runProfileRebuild(trigger) {
+  if (rebuild.running) {
+    rebuild.queued = true;
+    return;
+  }
+  rebuild.running = true;
+  const startedAt = new Date().toISOString();
+  console.log(`[profile] rebuild check (${trigger})…`);
+  const child = spawn(process.execPath, [BUILD_PROFILE, '--if-stale'], {
+    cwd: ROOT,
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+  let output = '';
+  child.stdout.on('data', (chunk) => { output += chunk; });
+  child.stderr.on('data', (chunk) => { output += chunk; });
+  child.on('close', (code) => {
+    rebuild.running = false;
+    const tail = output.trim().split('\n').slice(-3).join(' · ');
+    rebuild.last = { at: startedAt, code, message: tail };
+    if (code === 0) console.log(`[profile] ${tail || 'ok'}`);
+    else console.error(`[profile] rebuild failed (exit ${code}): ${tail}`);
+    if (rebuild.queued) {
+      rebuild.queued = false;
+      runProfileRebuild('queued change');
+    }
+  });
+}
+
+function watchResumes() {
+  if (!fsSync.existsSync(RESUMES_DIR)) return;
+  let timer = null;
+  try {
+    fsSync.watch(RESUMES_DIR, (event, filename) => {
+      if (filename && filename.startsWith('.')) return; // .extract-cache.json, .DS_Store
+      clearTimeout(timer);
+      // Debounced: editors and Finder fire bursts of events per save.
+      timer = setTimeout(() => runProfileRebuild(`resumes changed: ${filename || 'unknown'}`), 2000);
+    });
+    console.log('[profile] watching radar/data/resumes — edits rebuild the profile automatically');
+  } catch (error) {
+    console.error(`[profile] could not watch resumes dir: ${error.message}`);
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+
+// CORS for the hosted-dashboard bridge. Chrome's Private Network Access sends
+// a preflight for public->localhost requests; answer it or the bridge fails.
+function bridgeHeaders(request) {
+  const origin = request.headers.origin;
+  if (!origin || !BRIDGE_ORIGINS.has(origin)) return null;
+  return {
+    'access-control-allow-origin': origin,
+    'access-control-allow-methods': 'GET',
+    'access-control-allow-private-network': 'true',
+    'vary': 'origin'
+  };
+}
+
 async function route(request, response) {
   const url = new URL(request.url, `http://${request.headers.host}`);
+  const cors = BRIDGE_PATHS.has(url.pathname) ? bridgeHeaders(request) : null;
+
+  if (request.method === 'OPTIONS' && BRIDGE_PATHS.has(url.pathname)) {
+    response.writeHead(cors ? 204 : 403, cors || {});
+    response.end();
+    return;
+  }
+
+  if (request.method === 'GET' && url.pathname === '/api/profile-freshness') {
+    const freshness = profileFreshness(RESUMES_DIR, PROFILE_PATH);
+    send(response, 200, JSON.stringify({
+      ...freshness,
+      building: rebuild.running,
+      last_result: rebuild.last
+    }), undefined, cors);
+    return;
+  }
 
   if (request.method === 'GET' && url.pathname === '/api/jobs') {
     send(response, 200, JSON.stringify(await readJson(path.join(DATA_DIR, 'jobs.json'), [])));
@@ -109,13 +208,14 @@ async function route(request, response) {
 
   // Both files are script-owned (radar:profile / radar:route) and gitignored;
   // read-only here so the dashboard picks them up without any import step.
+  // CORS-opened to the hosted dashboard so IT can pick them up too.
   if (request.method === 'GET' && url.pathname === '/api/profile') {
-    send(response, 200, JSON.stringify(await readJson(path.join(DATA_DIR, 'profile.json'), null)));
+    send(response, 200, JSON.stringify(await readJson(PROFILE_PATH, null)), undefined, cors);
     return;
   }
 
   if (request.method === 'GET' && url.pathname === '/api/route-cache') {
-    send(response, 200, JSON.stringify(await readJson(path.join(DATA_DIR, 'route-cache.json'), null)));
+    send(response, 200, JSON.stringify(await readJson(path.join(DATA_DIR, 'route-cache.json'), null)), undefined, cors);
     return;
   }
 
@@ -160,4 +260,6 @@ server.on('error', (error) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`Veritas Research Radar running at http://${HOST}:${PORT}`);
+  runProfileRebuild('boot');
+  watchResumes();
 });

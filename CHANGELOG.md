@@ -4,6 +4,22 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Session 2026-08-04 (later still) — the profile follows the resume files
+
+profile.json stops being a thing the user manages and becomes a cache the
+system keeps fresh. New `build-profile.js --if-stale` (mtime check via
+`lib/profile-freshness.js`; a touched-but-unchanged file costs one cached,
+no-model rebuild). The `npm start` server runs the check at boot, watches
+`radar/data/resumes/` (debounced, serialized, dotfiles ignored), and exposes
+`/api/profile-freshness`; the dashboard polls it, narrates rebuilds in the
+profile card, and adopts the result live. The daily digest run does the same
+check at 08:00. The hosted dashboard pulls the compiled profile from
+`http://localhost:4173` when the local radar is up — CORS scoped to the
+Pages origin with the Private Network Access preflight answered, newest
+generated_at wins, manual import kept as fallback. Resumes still never leave
+the machine; the only new movement is the user's own browser pulling the
+compiled profile from their own localhost.
+
 ### Session 2026-08-04 (later) — dashboard restructure: three tabs, one status corner
 
 The funnel redesign gave the data honest layers; this session gave the UI the

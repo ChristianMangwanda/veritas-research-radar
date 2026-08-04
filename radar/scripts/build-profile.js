@@ -557,10 +557,11 @@ async function extractVariantAnthropic(ctx, text, variant) {
 }
 
 function parseArgs(argv) {
-  const opts = { force: false, provider: 'ollama', model: null, positional: [] };
+  const opts = { force: false, ifStale: false, provider: 'ollama', model: null, positional: [] };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--force') opts.force = true;
+    else if (arg === '--if-stale') opts.ifStale = true;
     else if (arg === '--provider') opts.provider = argv[++i];
     else if (arg === '--anthropic') opts.provider = 'anthropic';
     else if (arg === '--ollama') opts.provider = 'ollama';
@@ -576,6 +577,18 @@ function parseArgs(argv) {
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
   const { force } = opts;
+
+  // --if-stale: the automation entrypoint (server watcher, digest run). A
+  // fresh profile makes this a silent no-op so callers can fire it blindly.
+  if (opts.ifStale && opts.positional.length === 0) {
+    const { profileFreshness } = require('./lib/profile-freshness.js');
+    const freshness = profileFreshness(RESUMES_DIR, OUT_PATH);
+    if (!freshness.stale) {
+      console.log(`Profile is up to date with the resumes (${freshness.reason}) — nothing to do.`);
+      return;
+    }
+    console.log(`Profile is stale (${freshness.reason}) — rebuilding…`);
+  }
 
   if (opts.provider !== 'ollama' && opts.provider !== 'anthropic') {
     console.error(`Unknown --provider "${opts.provider}". Use ollama (default) or anthropic.`);

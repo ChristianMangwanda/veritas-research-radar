@@ -1984,6 +1984,47 @@ function testQualifiedPredicate() {
   assert.strictEqual(isQualified(scored), false);
 }
 
+function testProfileFreshness() {
+  const { profileFreshness } = require('../radar/scripts/lib/profile-freshness.js');
+  const os = require('os');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'radar-freshness-'));
+  const resumesDir = path.join(root, 'resumes');
+  const profilePath = path.join(root, 'profile.json');
+  const at = (seconds) => new Date(2026, 0, 1, 0, 0, seconds);
+
+  // No resumes dir at all -> nothing to be stale against.
+  assert.deepStrictEqual(profileFreshness(resumesDir, profilePath), { stale: false, reason: 'no_resumes' });
+
+  // Resumes exist but no profile yet -> stale.
+  fs.mkdirSync(resumesDir);
+  fs.writeFileSync(path.join(resumesDir, 'cv.pdf'), 'x');
+  fs.utimesSync(path.join(resumesDir, 'cv.pdf'), at(10), at(10));
+  assert.deepStrictEqual(profileFreshness(resumesDir, profilePath), { stale: true, reason: 'no_profile' });
+
+  // Profile built after the newest resume -> fresh.
+  fs.writeFileSync(profilePath, '{}');
+  fs.utimesSync(profilePath, at(20), at(20));
+  assert.strictEqual(profileFreshness(resumesDir, profilePath).stale, false);
+
+  // A resume (or the manifest) edited after the build -> stale.
+  fs.writeFileSync(path.join(resumesDir, 'manifest.json'), '{}');
+  fs.utimesSync(path.join(resumesDir, 'manifest.json'), at(30), at(30));
+  assert.deepStrictEqual(profileFreshness(resumesDir, profilePath), { stale: true, reason: 'resumes_changed' });
+
+  // Dotfiles never count: .extract-cache.json is written mid-build and
+  // .DS_Store churns on every Finder visit.
+  fs.utimesSync(path.join(resumesDir, 'manifest.json'), at(10), at(10));
+  fs.writeFileSync(path.join(resumesDir, '.extract-cache.json'), '{}');
+  fs.utimesSync(path.join(resumesDir, '.extract-cache.json'), at(40), at(40));
+  assert.strictEqual(profileFreshness(resumesDir, profilePath).stale, false);
+
+  // --if-stale is wired into the profile builder's arg parser.
+  assert.strictEqual(parseArgs(['--if-stale']).ifStale, true);
+  assert.strictEqual(parseArgs([]).ifStale, false);
+
+  fs.rmSync(root, { recursive: true, force: true });
+}
+
 function testFitAudit() {
   const { histogram, variantCeilings, sampleBlocked, seededShuffle, parseArgs } = require('../radar/scripts/fit-audit.js');
 
@@ -2625,7 +2666,7 @@ async function testRouterSelection() {
 
 async function testLocalExtraction() {
   // Arg parsing: local Ollama is the default; provider/model/positional split
-  assert.deepStrictEqual(parseArgs([]), { force: false, provider: 'ollama', model: null, positional: [] });
+  assert.deepStrictEqual(parseArgs([]), { force: false, ifStale: false, provider: 'ollama', model: null, positional: [] });
   assert.strictEqual(parseArgs(['--provider', 'anthropic']).provider, 'anthropic');
   assert.strictEqual(parseArgs(['--anthropic']).provider, 'anthropic');
   assert.strictEqual(parseArgs(['--model', 'qwen2.5:14b-instruct']).model, 'qwen2.5:14b-instruct');
@@ -2717,6 +2758,7 @@ async function main() {
   testEligibility();
   testRoleTrack();
   testQualifiedPredicate();
+  testProfileFreshness();
   testFitAudit();
   testReachabilityDemotion();
   testVerdictTiers();
