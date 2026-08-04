@@ -1758,6 +1758,23 @@ function testEligibility() {
   // stays deterministic. Without a quote it cannot block.
   const claimed = assess(LONG, { classified_requirements: { min_years: 12 } });
   assert.strictEqual(claimed.verdict, 'likely');
+
+  /* Regressions from the first live precision review (2026-08-04). Both of
+     these hid a genuinely good job, which is the failure this layer exists to
+     avoid — quoted verbatim from the postings that produced them. */
+
+  // Northeastern "Data Scientist", fit 47: one clause holds both words, and
+  // the stricter credential was claiming the requirement.
+  const optionalPhd = assess(`${LONG} Education & Experience Master’s degree (required) or Ph.D. (optional) in Computer Science, Engineering, or a related field.`);
+  assert.strictEqual(optionalPhd.verdict, 'clear', 'an optional PhD is not a requirement');
+
+  // Six University of Chicago postings, fits 27-44: a range asks for its
+  // floor, and alternative routes mean the lowest bar is the real one.
+  const range = assess(`${LONG} Minimum qualifications include knowledge and skills developed through 5-7 years of work experience in a related job discipline.`);
+  assert.strictEqual(range.verdict, 'likely', '5-7 years asks for 5, not 7');
+  assert.strictEqual(parseYearsRequirement('requires 5-7 years of experience').min_years, 5);
+  const alternatives = assess(`${LONG} Bachelor's degree plus 8 years experience required, Master's degree plus 6 years experience required.`);
+  assert.strictEqual(alternatives.verdict, 'likely', 'the most permissive route is the bar');
 }
 
 function testRoleTrack() {

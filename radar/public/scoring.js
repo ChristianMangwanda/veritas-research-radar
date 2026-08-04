@@ -304,7 +304,10 @@
 
   const SENTENCE_BOUNDARY = /[.;!?\n•·]/;
   const REQUIREMENT_NEARBY = /\b(required|requires?|requirement|must\s+(hold|have|possess)|minimum|necessary|essential)\b/i;
-  const SOFTENER = /\b(preferred|desirable|a\s+plus|or\s+equivalent|equivalent\s+experience|nice\s+to\s+have|not\s+required|ideal(ly)?)\b/i;
+  // "optional" earns its place here: postings like "Master's degree (required)
+  // or Ph.D. (optional)" put both words in one clause, and without it the
+  // stricter credential wins a requirement it was never given.
+  const SOFTENER = /\b(preferred|desirable|optional|a\s+plus|or\s+equivalent|equivalent\s+experience|nice\s+to\s+have|not\s+required|ideal(ly)?)\b/i;
 
   // Ordered highest rank first: the strictest hard requirement wins the gate.
   // Abbreviation forms (MS/MSc/BS/BA) and bare "MD" are ambiguous (states,
@@ -319,6 +322,16 @@
   function clauseAround(text, index, length) {
     const before = text.slice(Math.max(0, index - 80), index);
     const after = text.slice(index + length, index + length + 80);
+    return `${before.split(SENTENCE_BOUNDARY).pop()} ${after.split(SENTENCE_BOUNDARY)[0]}`;
+  }
+
+  // Same window, but tolerant of an abbreviation's own full stop: "Ph.D." ends
+  // the clause at its trailing dot, hiding a qualifier that follows it. Only
+  // softeners read this — a wider view can then only remove a barrier, never
+  // invent one, which is the safe direction to be wrong in.
+  function softenerClauseAround(text, index, length) {
+    const before = text.slice(Math.max(0, index - 80), index);
+    const after = text.slice(index + length, index + length + 80).replace(/^\.(?=\s*[([a-z])/, '');
     return `${before.split(SENTENCE_BOUNDARY).pop()} ${after.split(SENTENCE_BOUNDARY)[0]}`;
   }
 
@@ -352,7 +365,7 @@
         const clause = clauseAround(corpus, match.index, match[0].length);
         if (bank.needsContext === true && !bank.context.test(clause)) continue;
         if (bank.needsContext === 'abbrev' && !bank.full.test(match[0]) && !bank.context.test(clause)) continue;
-        const softened = SOFTENER.test(clause);
+        const softened = SOFTENER.test(softenerClauseAround(corpus, match.index, match[0].length));
         const required = !softened && REQUIREMENT_NEARBY.test(clause);
         const finding = {
           required: bank.level,
@@ -515,8 +528,9 @@
   const CLEARANCE_PATTERN = /\b(security\s+clearance|top\s+secret|ts\/sci|secret\s+clearance|public\s+trust\s+clearance)\b/gi;
   const STUDENT_ONLY_PATTERN = /\b(currently\s+enrolled|must\s+be\s+a\s+(?:current\s+)?student|current\s+student\s+only|work[-\s]study|degree[-\s]seeking\s+student)\b/gi;
   const INTERNAL_ONLY_PATTERN = /\b(internal\s+(?:applicants?|candidates?|employees?)\s+only|current\s+employees\s+only|open\s+to\s+current\s+employees)\b/gi;
-  // "5+ years", "minimum of 7 years", "at least 10 years of experience"
-  const YEARS_PATTERN = /\b(\d{1,2})\s*\+?\s*(?:or\s+more\s+)?years?\b/gi;
+  // "5+ years", "minimum of 7 years", "5-7 years of experience". The leading
+  // figure is the bar: a range asks for its floor, not its ceiling.
+  const YEARS_PATTERN = /\b(\d{1,2})\s*(?:[-–—]\s*\d{1,2}\s*)?\+?\s*(?:or\s+more\s+)?years?\b/gi;
   // How far past the user's experience a demand has to reach before it is a
   // wall rather than a stretch. Postings routinely overstate; 3 years of slack
   // keeps "5+ years" reachable for a 4-year candidate.
@@ -538,6 +552,7 @@
   function parseYearsRequirement(corpus) {
     YEARS_PATTERN.lastIndex = 0;
     let match;
+    // Name reflects the reading, not the arithmetic: the lowest stated bar.
     let strictest = null;
     while ((match = YEARS_PATTERN.exec(corpus)) !== null) {
       const years = Number(match[1]);
@@ -547,7 +562,10 @@
       if (!REQUIREMENT_NEARBY.test(clause)) continue;
       // "years of experience", not "5 years of funding" or "3 year appointment"
       if (!/\b(experience|expertise|background|practice|working)\b/i.test(clause)) continue;
-      if (!strictest || years > strictest.min_years) {
+      // Postings state alternative routes to the same job ("Bachelor's plus 8
+      // years, Master's plus 6"). The lowest bar anywhere is the one that has
+      // to be cleared, so the most permissive reading is also the correct one.
+      if (!strictest || years < strictest.min_years) {
         strictest = { min_years: years, evidence: snippetAround(corpus, match.index, match[0].length) };
       }
     }
