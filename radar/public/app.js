@@ -137,6 +137,23 @@ const DOM = {
   detailDisclaimer: document.querySelector('#detail-disclaimer')
 };
 
+// Tripwire: the cache above has no null guards, so a renamed/removed id in
+// index.html surfaces as a crash deep inside render(). Warn loudly at boot
+// instead. Detail-pane refs are null by design until buildDetailSkeleton()
+// runs and rebindDetailRefs() fills them in.
+{
+  const DETAIL_BOUND_LATER = new Set([
+    'detailScroll', 'detailBack', 'detailTitle', 'detailMeta', 'detailOpen',
+    'copyResumePath', 'triageControls', 'triageStepper', 'triageStateLine',
+    'triageLinks', 'detailNote', 'variantSentWrap', 'variantSent',
+    'detailAlerts', 'detailSignals', 'detailFit', 'detailDescription',
+    'detailDisclaimer'
+  ]);
+  for (const [key, node] of Object.entries(DOM)) {
+    if (node === null && !DETAIL_BOUND_LATER.has(key)) console.warn(`DOM cache miss: ${key}`);
+  }
+}
+
 const narrowLayout = window.matchMedia('(max-width: 1180px)');
 
 // With thousands of jobs (USAJOBS alone returns 2,500) rendering every row on
@@ -1101,7 +1118,6 @@ async function reloadData() {
   RadarScoring.applyJobClassifications(state.jobs, state.classifyCache);
   RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
   populateSources();
-  renderStats();
   render();
   lastLoadAt = Date.now();
 }
@@ -1156,6 +1172,10 @@ function renderStats() {
 
 function render() {
   syncUrl();
+  // Stats live here, not only in reload paths — importing/clearing a profile
+  // re-renders without reloading, and the strip must follow (4 linear passes
+  // over the dataset, negligible at render frequency).
+  renderStats();
   DOM.minResearchValue.textContent = DOM.minResearch.value;
 
   // "Mark all as seen" only appears when there's actually something new to clear
@@ -3010,19 +3030,19 @@ async function init() {
   }
   hydrateFromUrl();
 
-  const [jobs, local, report, discovery, profile, routeCache, classifyCache] = await Promise.all([
+  const [jobs, local, report, discovery, profile, routeCache] = await Promise.all([
     loadJobs(),
     getJson('/api/local-state', null),
     loadRefreshReport(),
     getJson('/api/discovery', { candidates: [] }),
     getJson('/api/profile', null),
-    getJson('/api/route-cache', null),
-    getJson('/api/classify-cache', null)
+    getJson('/api/route-cache', null)
   ]);
   state.jobs = jobs;
   // Job-side classifications describe the posting, not the person, so they
   // apply before scoring and regardless of whether a profile is loaded.
-  state.classifyCache = classifyCache || loadClassifyCacheFromBrowser();
+  // (Browser-only: the server never had a classify-cache route.)
+  state.classifyCache = loadClassifyCacheFromBrowser();
   RadarScoring.applyJobClassifications(state.jobs, state.classifyCache);
   state.report = report || null;
   state.discovery = discovery || null;
@@ -3055,7 +3075,6 @@ async function init() {
   // Source options only exist now, so re-apply the source filter from the URL
   const sourceParam = new URLSearchParams(window.location.search).get('source');
   if (sourceParam) DOM.source.value = sourceParam;
-  renderStats();
   renderRefreshStatus(report);
   renderDiscovery(discovery);
   // Keep the next-pull countdown honest without touching anything else
