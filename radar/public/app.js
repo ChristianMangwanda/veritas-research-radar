@@ -2310,7 +2310,14 @@ function setViewMode(value, { skipRender = false } = {}) {
 /* ------------------------------------------------------------------------ */
 /* Keyboard triage                                                           */
 
-const TRIAGE_KEYS = { s: 'shortlist', a: 'applied', e: 'emailed_lab', v: 'needs_visa_check', x: 'ignore', n: 'new' };
+// Uppercase 'O' (shift+o) is deliberate — plain 'o' opens the posting. The
+// modifier bail below ignores shiftKey, so shifted letters land here. Known
+// trade: CapsLock+o reads as 'O' and sets offer; not worth case-folding.
+const TRIAGE_KEYS = {
+  s: 'shortlist', a: 'applied', e: 'emailed_lab', v: 'needs_visa_check',
+  i: 'interview', O: 'offer', r: 'rejected', w: 'withdrawn',
+  x: 'ignore', n: 'new'
+};
 
 function handleKeydown(event) {
   const target = event.target;
