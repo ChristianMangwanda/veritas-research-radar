@@ -40,8 +40,19 @@
     AVOID_CAP: -16,
     STAGE_MISMATCH: -10,
     AMBIGUITY_MARGIN: 8,
-    AMBIGUITY_FLOOR: 15
+    AMBIGUITY_FLOOR: 15,
+    // Skill/domain matching stops after this many collapsed chars: a 6000-word
+    // boilerplate posting should not out-score a terse well-fitting one just by
+    // listing more technology names. Gates and avoid signals still scan the
+    // full corpus — requirements and red flags often live deep in the text.
+    SKILL_MATCH_WINDOW: 4000,
+    THIN_TEXT_CHARS: 500
   };
+  // Pre-penalty ceiling of one variant's score — the denominator for any UI
+  // that renders variant scores as bars or heat (fit_score is post-penalty
+  // and lives on a different scale).
+  WEIGHTS.VARIANT_SCORE_MAX = WEIGHTS.SKILL_CAP + WEIGHTS.TITLE_CLASS_PRIMARY
+    + WEIGHTS.DOMAIN_CAP + WEIGHTS.TARGET_TITLE;
 
   // Calibrated 2026-08-03 to the discriminated-weight score scale (skill weights
   // now form a real 3/2/1 pyramid, so fits run lower and more honest — top real-
@@ -49,6 +60,11 @@
   // strong ≈ top ~12 jobs, good adds the next ~20, then moderate/weak/stretch.
   // Tunable — each is a single floor.
   const VERDICT_TIERS = [['strong', 50], ['good', 38], ['moderate', 27], ['weak', 16], ['stretch', 0]];
+
+  // Heat bands for PRE-penalty variant scores (0..VARIANT_SCORE_MAX). Distinct
+  // from VERDICT_TIERS, which are calibrated for post-penalty fit_score —
+  // feeding variant scores into those thresholds washed every cell pale.
+  const VARIANT_HEAT_BANDS = [['h4', 45], ['h3', 34], ['h2', 24], ['h1', 13], ['h0', 0]];
 
   const DEGREE_RANK = { other: 0, bachelors: 1, masters: 2, phd: 3, md: 3 };
 
@@ -74,6 +90,31 @@
     return String(value || '').replace(/\s+/g, ' ').trim();
   }
 
+  // Underscores and slashes in profile lists ("machine_learning", "AI/ML")
+  // can never match prose; normalize them to spaces before registration.
+  function normalizePhrase(value) {
+    return collapseWhitespace(String(value || '').replace(/[_/]+/g, ' ')).toLowerCase();
+  }
+
+  // Finite surface-form enumeration instead of fuzzy matching: the scan
+  // resolves match[0] through phraseEntries by exact text, so every matchable
+  // spelling must be its own key. Hyphen and space are interchangeable between
+  // words; a trailing plural on the last word maps both ways ("etl pipelines"
+  // matches "ETL pipeline" and vice versa). Extra keys that never occur in
+  // text are harmless — only wrong matches would hurt, hence length guards.
+  function surfaceForms(phrase) {
+    const forms = new Set([phrase]);
+    if (phrase.includes('-')) forms.add(phrase.replace(/-/g, ' '));
+    if (phrase.includes(' ')) forms.add(phrase.replace(/ /g, '-'));
+    for (const form of [...forms]) {
+      const words = form.split(/[ -]/);
+      const last = words[words.length - 1];
+      if (last.length >= 4 && !last.endsWith('s')) forms.add(`${form}s`);
+      if (last.length >= 5 && last.endsWith('s') && !last.endsWith('ss')) forms.add(form.slice(0, -1));
+    }
+    return [...forms];
+  }
+
   /* ---------------------------------------------------------------------- */
   /* Profile validation + hashing                                            */
 
@@ -94,9 +135,22 @@
       for (const skill of variant.skills) {
         if (!skill || typeof skill.term !== 'string' || skill.term.length < 2) return `${where} has a skill term shorter than 2 characters`;
         if (typeof skill.weight !== 'number') return `${where} has a skill without a numeric weight`;
+        if (skill.broad_aliases !== undefined && !isStringArray(skill.broad_aliases)) {
+          return `${where} has a skill with non-string broad_aliases`;
+        }
+      }
+      for (const listName of ['title_classes', 'domains', 'target_titles']) {
+        const list = variant[listName];
+        if (list === undefined) continue;
+        if (!isStringArray(list)) return `${where}.${listName} must be an array of strings`;
+        if (new Set(list).size !== list.length) return `${where}.${listName} contains duplicates`;
       }
     }
     return null;
+  }
+
+  function isStringArray(value) {
+    return Array.isArray(value) && value.every((item) => typeof item === 'string');
   }
 
   // FNV-1a 32-bit over a canonical serialization — stable across JSON key
@@ -112,9 +166,15 @@
       (variant.domains || []).slice(),
       (variant.target_titles || []).slice()
     ])]);
+    return fnv1a(canonical);
+  }
+
+  // The house content hash: sync, dual-env, no crypto dependency. Also keys
+  // the classify cache (browser sha256 is async-only, unusable at load time).
+  function fnv1a(str) {
     let hash = 0x811c9dc5;
-    for (let i = 0; i < canonical.length; i += 1) {
-      hash ^= canonical.charCodeAt(i);
+    for (let i = 0; i < str.length; i += 1) {
+      hash ^= str.charCodeAt(i);
       hash = Math.imul(hash, 0x01000193);
     }
     return `fnv1a:${(hash >>> 0).toString(16).padStart(8, '0')}`;
@@ -142,26 +202,42 @@
         }
         return entry;
       };
+      const registerSkill = (phrase, term, weight) => {
+        const lower = normalizePhrase(phrase);
+        if (lower.length < 2) return;
+        for (const form of surfaceForms(lower)) {
+          const entry = entryFor(form);
+          if (!entry.skill) entry.skill = { term, weight };
+        }
+      };
       for (const skill of variant.skills) {
         const weight = Math.min(3, Math.max(1, Math.round(skill.weight)));
         for (const phrase of [skill.term, ...(skill.aliases || [])]) {
-          const lower = collapseWhitespace(phrase).toLowerCase();
-          if (lower.length < 2) continue;
-          const entry = entryFor(lower);
-          if (!entry.skill) entry.skill = { term: skill.term, weight };
+          registerSkill(phrase, skill.term, weight);
+        }
+      }
+      // Broad aliases (auto-recovered atomic tokens like bare "etl") credit
+      // the parent term at weight 1: a lone generic word should not earn a
+      // compound skill's full points. Second pass so that ANY skill's
+      // full-weight phrase beats any skill's broad alias for the same text.
+      for (const skill of variant.skills) {
+        for (const phrase of skill.broad_aliases || []) {
+          registerSkill(phrase, skill.term, 1);
         }
       }
       for (const domain of variant.domains || []) {
-        const lower = collapseWhitespace(domain).toLowerCase();
+        const lower = normalizePhrase(domain);
         if (lower.length < 2) continue;
-        const entry = entryFor(lower);
-        if (!entry.domain) entry.domain = lower;
+        for (const form of surfaceForms(lower)) {
+          const entry = entryFor(form);
+          if (!entry.domain) entry.domain = lower;
+        }
       }
       const alternates = [...phraseEntries.keys()]
         .sort((a, b) => b.length - a.length) // longest first: alternation is leftmost-first
         .map(boundaryPattern);
       const targetTitles = (variant.target_titles || [])
-        .map((title) => collapseWhitespace(title).toLowerCase())
+        .map((title) => normalizePhrase(title))
         .filter((title) => title.length >= 2);
       return {
         id: variant.id,
@@ -307,25 +383,36 @@
 
   function scoreVariant(compiledVariant, corpusLower, titleLower, jobTitleClass) {
     const matched = { 3: [], 2: [], 1: [] };
+    const matchedText = new Set();
     const domainHits = [];
     let skillPoints = 0;
     if (compiledVariant.matchRegex) {
       compiledVariant.matchRegex.lastIndex = 0;
-      const seenTerms = new Set();
+      // Max wins per canonical term: a broad alias (weight 1) must not lock a
+      // term out of full credit when its real phrase also appears.
+      const bestWeightByTerm = new Map();
       const seenDomains = new Set();
       let match;
       while ((match = compiledVariant.matchRegex.exec(corpusLower)) !== null) {
         const entry = compiledVariant.phraseEntries.get(match[0]);
         if (!entry) continue;
-        if (entry.skill && !seenTerms.has(entry.skill.term)) {
-          seenTerms.add(entry.skill.term);
-          matched[entry.skill.weight].push(entry.skill.term);
-          skillPoints += WEIGHTS.SKILL_POINTS[entry.skill.weight];
+        if (entry.skill) {
+          matchedText.add(match[0]);
+          const previous = bestWeightByTerm.get(entry.skill.term) || 0;
+          if (entry.skill.weight > previous) bestWeightByTerm.set(entry.skill.term, entry.skill.weight);
         }
-        if (entry.domain && !seenDomains.has(entry.domain)) {
+        // A phrase serving as a skill for this variant never doubles as its
+        // domain — one word, one credit. (A phrase that is domain-only for
+        // this variant still counts as a domain.)
+        if (entry.domain && !entry.skill && !seenDomains.has(entry.domain)) {
           seenDomains.add(entry.domain);
           domainHits.push(entry.domain);
+          matchedText.add(match[0]);
         }
+      }
+      for (const [term, weight] of bestWeightByTerm) {
+        matched[weight].push(term);
+        skillPoints += WEIGHTS.SKILL_POINTS[weight];
       }
     }
     skillPoints = Math.min(skillPoints, WEIGHTS.SKILL_CAP);
@@ -348,6 +435,7 @@
       order: compiledVariant.order,
       score: skillPoints + classPoints + domainPoints + (targetTitleHit ? WEIGHTS.TARGET_TITLE : 0),
       matched,
+      matched_text: [...matchedText],
       title_class_match: titleClassMatch,
       domain_hits: domainHits,
       target_title_hit: targetTitleHit
@@ -388,6 +476,14 @@
     return VERDICT_TIERS[VERDICT_TIERS.length - 1][0];
   }
 
+  // Heat class for a PRE-penalty variant score (0..VARIANT_SCORE_MAX).
+  function variantHeat(score) {
+    for (const [band, floor] of VARIANT_HEAT_BANDS) {
+      if (score >= floor) return band;
+    }
+    return 'h0';
+  }
+
   function evidenceBonus(job) {
     const count = (job.class_evidence && job.class_evidence.certified_count_3y) || 0;
     for (const [threshold, bonus] of WEIGHTS.EVIDENCE_BONUS) {
@@ -400,8 +496,11 @@
     const corpusRaw = collapseWhitespace(`${job.title || ''} ${job.department || ''} ${job.description_text || ''}`);
     const corpusLower = corpusRaw.toLowerCase();
     const titleLower = String(job.title || '').toLowerCase();
+    // Skill/domain matching sees a bounded window (see SKILL_MATCH_WINDOW);
+    // gates and avoid signals below keep the full corpus.
+    const skillCorpus = corpusLower.slice(0, WEIGHTS.SKILL_MATCH_WINDOW);
 
-    const variantScores = compiled.variants.map((variant) => scoreVariant(variant, corpusLower, titleLower, job.title_class));
+    const variantScores = compiled.variants.map((variant) => scoreVariant(variant, skillCorpus, titleLower, job.title_class));
     const best = variantScores.reduce((a, b) => (b.score > a.score ? b : a), variantScores[0]);
     const routing = resolveVariant(variantScores, verdictEntry);
 
@@ -470,6 +569,7 @@
       avoid_hits: avoidHits,
       evidence_bonus: evidence,
       research_bonus: researchBonus,
+      thin_text: String(job.description_text || '').length < WEIGHTS.THIN_TEXT_CHARS,
       fit_summary: `${verdict} fit${recommendedLabel ? ` — use: ${recommendedLabel.label}` : ''}`
     };
   }
@@ -536,7 +636,10 @@
     seniorityFlag,
     resolveVariant,
     verdictFor,
+    variantHeat,
     profileHash,
+    fnv1a,
+    surfaceForms,
     validateProfile,
     emptyFit
   };

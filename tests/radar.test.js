@@ -1596,6 +1596,72 @@ function testVariantScoring() {
   assert.strictEqual(capped.variants[0].score, RadarScoring.WEIGHTS.SKILL_CAP);
 }
 
+function testFitEngineRepairs() {
+  const { compileProfile, scoreJob, validateProfile, variantHeat, fnv1a, surfaceForms, WEIGHTS } = RadarScoring;
+  const mkProfile = (variant) => ({
+    schema_version: 2,
+    core: { career_stage: 'early_career', degrees: [], avoid_signals: [] },
+    variants: [{ id: 'v', label: 'V', skills: [], title_classes: [], domains: [], target_titles: [], ...variant }]
+  });
+  const mkJob = (description) => ({
+    title: 'Role', title_class: 'other', department: '',
+    description_text: description, research_relevance_score: 0
+  });
+  const scoreOf = (variant, description) =>
+    scoreJob(mkJob(description), compileProfile(mkProfile(variant)), null).variants[0];
+
+  // Surface forms: plural and hyphen spellings hit the singular/spaced term.
+  const etl = { skills: [{ term: 'etl pipeline', weight: 3, aliases: [] }] };
+  assert.strictEqual(scoreOf(etl, 'We maintain ETL pipelines daily.').score, 6);
+  assert.strictEqual(scoreOf(etl, 'An etl-pipeline mindset.').score, 6);
+  // matched_text carries the actual surface string for highlighting.
+  assert.deepStrictEqual(scoreOf(etl, 'We maintain ETL pipelines daily.').matched_text, ['etl pipelines']);
+
+  // Underscored domains (live profile shape) now match prose.
+  const dom = { domains: ['machine_learning'] };
+  const domHit = scoreOf(dom, 'A machine learning group.');
+  assert.deepStrictEqual(domHit.domain_hits, ['machine learning']);
+  assert.strictEqual(domHit.score, WEIGHTS.DOMAIN_POINTS);
+
+  // Broad aliases credit the parent term at weight 1, and max wins when the
+  // real phrase also appears.
+  const broad = { skills: [{ term: 'etl pipeline development', weight: 3, aliases: [], broad_aliases: ['etl'] }] };
+  const broadOnly = scoreOf(broad, 'Some ETL work.');
+  assert.strictEqual(broadOnly.score, 1);
+  assert.deepStrictEqual(broadOnly.matched[1], ['etl pipeline development']);
+  assert.strictEqual(scoreOf(broad, 'ETL and etl pipeline development.').score, 6);
+
+  // One word, one credit: a phrase serving as a skill never doubles as domain.
+  const both = { skills: [{ term: 'python', weight: 3, aliases: [] }], domains: ['python'] };
+  assert.strictEqual(scoreOf(both, 'We write python.').score, 6);
+
+  // Skill matching stops at SKILL_MATCH_WINDOW; the degree gate does not.
+  const padding = 'lorem ipsum '.repeat(Math.ceil(WEIGHTS.SKILL_MATCH_WINDOW / 12));
+  const deep = scoreJob(mkJob(`${padding} python required. PhD required.`),
+    compileProfile(mkProfile({ skills: [{ term: 'python', weight: 3, aliases: [] }] })), null);
+  assert.strictEqual(deep.variants[0].score, 0, 'deep skill must not score');
+  assert.strictEqual(deep.gate.degree.required, 'phd', 'deep gate must still fire');
+  assert.strictEqual(deep.thin_text, false);
+  assert.strictEqual(scoreJob(mkJob('short'), compileProfile(mkProfile({ skills: [] })), null).thin_text, true);
+
+  // validateProfile structural checks (W11).
+  assert.strictEqual(validateProfile(mkProfile({ skills: [] })), null);
+  assert(/duplicates/.test(validateProfile(mkProfile({ skills: [], title_classes: ['faculty', 'faculty'] }))));
+  assert(/array of strings/.test(validateProfile(mkProfile({ skills: [], domains: [7] }))));
+  assert(/broad_aliases/.test(validateProfile(mkProfile({ skills: [{ term: 'python', weight: 3, broad_aliases: 'etl' }] }))));
+
+  // variantHeat bands the pre-penalty scale; fnv1a is stable.
+  assert.strictEqual(variantHeat(46), 'h4');
+  assert.strictEqual(variantHeat(0), 'h0');
+  assert.strictEqual(fnv1a('abc'), fnv1a('abc'));
+  assert(/^fnv1a:[0-9a-f]{8}$/.test(fnv1a('abc')));
+  assert.notStrictEqual(fnv1a('abc'), fnv1a('abd'));
+
+  // surfaceForms guards: no de-pluralizing short words.
+  assert(!surfaceForms('aws').includes('aw'));
+  assert(surfaceForms('etl pipelines').includes('etl pipeline'));
+}
+
 function testReachabilityDemotion() {
   const { compileProfile, scoreJob, scoreAll } = RadarScoring;
   const compiled = compileProfile(SCORING_FIXTURE_PROFILE);
@@ -2212,6 +2278,7 @@ async function main() {
   testProfileIngestion();
   testDegreeGateParsing();
   testVariantScoring();
+  testFitEngineRepairs();
   testReachabilityDemotion();
   testVerdictTiers();
   testVerdictRank();
