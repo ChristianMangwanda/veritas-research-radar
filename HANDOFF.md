@@ -21,11 +21,11 @@ EVERY 6 HOURS (GitHub Action)             SCOUT PRODUCER (scout/, Playwright)
    -> Supabase / jobs.json / refresh-report.json
 ```
 
-Registry: **309 cap-exempt employers** (139 Workday, 80 PeopleAdmin, 32
-Oracle, 28 not-yet-wired — mostly scout-routed iCIMS boards plus 10
-remaining dark flagships — the rest across 9 other systems). Dataset ~11.5k
-active jobs pre-dates the 56 employers added 2026-08-03; folds in on the
-next 6-hourly refresh. Full orientation in **`PROJECT-MAP.md`**.
+Registry: **346 cap-exempt employers** (150 Workday, 95 PeopleAdmin, 32
+Oracle, 12 UltiPro, 30 not-yet-wired — mostly scout-routed iCIMS boards plus
+the remaining dark flagships — the rest across the other systems). Dataset
+~11.5k active jobs; new employers fold in on the next 6-hourly refresh. Full
+orientation in **`PROJECT-MAP.md`**.
 
 ## Commands
 
@@ -98,9 +98,15 @@ resume variants and tells you which one to send.
   job Applied records which résumé variant was sent (editable in the detail
   pane; "Copy résumé path" hands you the file). Save-this-view presets and
   Ignore-employer live in the sidebar footer.
-- Daily digest: pick a private topic name, set it as the `NTFY_TOPIC` repo
-  secret, then subscribe to `ntfy.sh/<topic>` in the ntfy app or browser.
-  Until the secret exists the digest workflow just prints.
+- Daily digest: the **local** fit digest is armed (2026-08-03) — a launchd
+  agent (`com.veritas.radar.digest`) runs `run-digest.sh` at 08:00 daily,
+  reading `radar/scripts/.digest.env` (gitignored; holds the private ntfy
+  topic + read-only anon key for live data). Log:
+  `/tmp/veritas-radar-digest.log`; disarm with
+  `launchctl bootout gui/$(id -u)/com.veritas.radar.digest`. The CI digest
+  workflow (repo-secret `NTFY_TOPIC`) is deliberately left unset — the user
+  checks the dashboard daily instead; the ☀ Today chip applies the same cut
+  in-app.
 
 ## Setup the automation needs
 
@@ -146,9 +152,9 @@ only the aggregated per-employer signal is committed.
 
 ## Current data status (2026-08-03)
 
-- **309 employers**, 15 wired ATS systems; ~11.5k active jobs (of ~17.6k
-  tracked) as of the last completed refresh — pre-dates the 56 employers
-  added this session (folds in on the next 6-hourly run). 0 recall anomalies
+- **346 employers**, 15 wired ATS systems; ~11.5k active jobs (of ~17.6k
+  tracked) as of the last completed refresh — recent registry additions fold
+  in on the next 6-hourly run. 0 recall anomalies
   on the last refresh (24 transient feed errors, individual employers — not
   data loss).
 - Fit engine ranks **all 7 résumé variants**; verdict tiers recalibrated
@@ -158,18 +164,18 @@ only the aggregated per-employer signal is committed.
   `prefilter_anomalies` — an employer whose title-matching regex is silently
   excluding almost everything gets caught automatically instead of by luck.
 
-## Pick-up state — what needs YOU (nothing is blocked on code)
+## Pick-up state — steady state, nothing pending (2026-08-03)
 
-1. **Arm the daily fit digest.** `cp radar/scripts/.digest.env.example
-   radar/scripts/.digest.env`, set `NTFY_TOPIC` (a private ntfy.sh topic you
-   subscribe to; optionally `SUPABASE_URL`/`SUPABASE_SERVICE_KEY` for live data),
-   then load the launchd agent — commands are in the header of
-   `radar/scripts/com.veritas.radar.digest.plist`.
-2. **Turn on cross-device triage sync.** Apply `radar/supabase/triage.sql` and
-   set a sync token in the dashboard's Settings → Sync. Needs you to authorize
-   the Supabase connection (couldn't be done from a headless session).
-3. **Set `NTFY_TOPIC` repo secret** if you also want the CI daily digest to push
-   (the local fit digest above is the better one).
+The setup checklist is empty. The daily digest is armed locally (see
+Notifications above). Two former checklist items were **deliberately
+dropped**, not forgotten: cross-device triage sync (`triage.sql` stays
+unapplied — single user, single browser; revisit only if a second device or
+lost triage state comes up; a triage export/import button is the preferred
+lightweight insurance) and the CI-digest `NTFY_TOPIC` repo secret (no push
+notifications wanted).
+
+Next build session (user's call): desktop polish — Enter double-fire fix,
+keyboard keys for interview/offer/rejected, undo, triage export/import.
 
 ## Open follow-ups (nice-to-have, not blocking)
 

@@ -4,6 +4,21 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Session 2026-08-03 (night) — digest armed; steady state
+
+- Redesign deployed and verified on the live Pages site (fonts serving,
+  light-only markup confirmed).
+- Local daily digest **armed**: launchd agent at 08:00 daily, live Supabase
+  reads via the read-only anon key (no service secret on disk), private topic
+  in gitignored `.digest.env`. Verified with a real push.
+- Fixed a real send bug the test caught: `fetch` rejects non-Latin-1 header
+  values, so curly quotes in the digest title crashed the ntfy publish —
+  titles are now RFC 2047-encoded (`headerValue()` in `digest-local.js`).
+- Decisions of record: no phone notifications (single user checks the site
+  daily; ☀ Today is the digest), cross-device triage sync deliberately
+  dropped (`triage.sql` stays unapplied). Next build: desktop polish
+  (Enter double-fire, funnel keyboard keys, undo, triage export/import).
+
 ### Session 2026-08-03 (evening) — full dashboard redesign to the design brief
 
 Implements "Veritas Research Radar (standalone).html" (repo root — the
