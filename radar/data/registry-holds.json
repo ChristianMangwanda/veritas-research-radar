@@ -25,6 +25,11 @@
       "tenant": "concorde",
       "name": "Concorde Career Colleges (chain-wide board)",
       "reason": "one shared iCIMS board across every Concorde campus nationwide, already wired as concorde-career-college-aurora; per-campus name overlap defeats the identity check, so it keeps resurfacing as a false 'new employer' for each other campus"
+    },
+    {
+      "tenant": "colorado",
+      "name": "State of Colorado (governmentjobs.com shared state-wide board)",
+      "reason": "State of Colorado's own general government jobs board (title: 'State of Colorado Job Opportunities'), not any individual institution's board -- caught live matching as a false secondary feed for Colorado School of Mines, Colorado Mesa University, and Colorado State University Pueblo, because the word 'Colorado' in the shared title trivially overlaps the word 'Colorado' in each of their own names. Correctly rejected for other Colorado institutions whose names don't literally contain the word Colorado (e.g. Arapahoe Community College), which is what exposed the pattern."
     }
   ]
 }

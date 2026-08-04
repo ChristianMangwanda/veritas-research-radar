@@ -404,3 +404,28 @@ earlier).
   in-app navigation/API calls) or mining the real deep link off each
   institution's own careers page, same as `mineWorkdayTenant` does for
   vanity Workday portals — real future work, not a quick win.
+- **Three more duplicate/mis-attributed feeds caught before approval,
+  same review pass.** `governmentjobs:colorado` turned out to be the
+  State of Colorado's own general jobs board (title "State of Colorado Job
+  Opportunities"), not any single institution's — it live-matched as a
+  false secondary feed for Colorado School of Mines, Colorado Mesa
+  University, and Colorado State University Pueblo purely because the word
+  "Colorado" trivially overlaps between the shared title and each of their
+  own names (other Colorado institutions without literally "Colorado" in
+  their name were correctly rejected, which is what exposed the pattern).
+  Added to `registry-holds.json`. Separately: 3 Louisiana State University
+  campuses (Alexandria, main/A&M, Eunice) all proposed against the exact
+  same `workday` tenant+site with an identical 296-job count — a shared
+  LSU-system-wide board, kept only the main campus. And "University System
+  of Maryland" had been attributed to Coppin State University's own
+  Workday site (`marylandconnect/CSU_Careers`, identical 7-job count) — the
+  system office is not Coppin State. All three pruned before `--approve`.
+- **Dark flagships (MIT, Harvard, Broad, Allen, Northwestern, UW-Madison,
+  Michigan, Cleveland Clinic, UC Berkeley): confirmed still genuinely dark.**
+  Re-checked the discovery data — all were crawled successfully (no new
+  data since the original scan) with zero ATS signature detected. Their
+  platforms (PeopleFluent, BrassRing, Avature, ClearCompany, Findly,
+  UCPath) aren't in the crawler's pattern list at all, so no amount of
+  re-crawling surfaces a new lead here without adding those patterns first.
+- **Registry: 346 → 401** (55 new: 2 GovernmentJobs, 23 PeopleAdmin, 20
+  Workday, 3 Interfolio, 6 Paylocity, 1 scout-routed iCIMS).
