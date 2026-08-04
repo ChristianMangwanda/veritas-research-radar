@@ -1324,14 +1324,12 @@ const TYPE_FACET_LABELS = {
 
 const CAP_FACET_LABELS = { verified: 'strong', likely: 'likely', unknown: 'thin' };
 
-// Heat intensity follows the CALIBRATED verdict tiers, not the mock's
-// illustrative 40→90 range — on the discriminated score scale a strong fit
-// sits near 50-65, and the matrix must differentiate there.
-const HEAT_BY_VERDICT = { strong: 'h4', good: 'h3', moderate: 'h2', weak: 'h1', stretch: 'h0' };
-
+// Cells carry PRE-penalty variant scores (0..VARIANT_SCORE_MAX), so they band
+// on the variant scale — verdict tiers are calibrated for post-penalty
+// fit_score and washed every cell pale when used here.
 function heatClass(score) {
   if (!Number.isFinite(score)) return 'h0';
-  return HEAT_BY_VERDICT[RadarScoring.verdictFor(score, false)] || 'h0';
+  return RadarScoring.variantHeat(score);
 }
 
 // Every active filter as a removable chip — the routing view hides the
@@ -1556,14 +1554,18 @@ function visaEvidenceLine(job) {
   return CAP_LABELS[job.cap_exempt_status] || '';
 }
 
-// "+7 over ML/comp-bio" — how decisively the recommended variant beats the
-// runner-up. With a single variant there is no runner-up; say the verdict.
+// "+7 over ML/comp-bio" — how decisively the RECOMMENDED variant beats the
+// best other one. When a local-LLM verdict picked a variant the deterministic
+// scores didn't rank first, a "+N over" line would contradict itself; say who
+// made the call instead. Single variant: no runner-up, so say the verdict.
 function sendDelta(fit) {
   const ranked = [...(fit.variants || [])]
     .filter((variant) => variant.score != null)
     .sort((a, b) => b.score - a.score);
   if (ranked.length < 2) return fit.verdict || '';
-  return `+${ranked[0].score - ranked[1].score} over ${ranked[1].label || ranked[1].id}`;
+  const recommended = ranked.find((variant) => variant.id === fit.recommended_variant) || ranked[0];
+  if (recommended !== ranked[0]) return `LLM pick — ${recommended.label || recommended.id}`;
+  return `+${recommended.score - ranked[1].score} over ${ranked[1].label || ranked[1].id}`;
 }
 
 function buildRow(job) {
@@ -2108,9 +2110,13 @@ function renderDetailSignals(job) {
 }
 
 // Terms the recommended variant matched in this posting (for highlighting)
+// Highlighting wants what the posting actually SAYS: matched_text holds the
+// surface forms that hit ("torch", "ETL pipelines"), while matched[] holds the
+// canonical résumé terms the why-panel prints.
 function recommendedMatchedTerms(fit) {
   const variant = (fit?.variants || []).find((entry) => entry.id === fit.recommended_variant);
   if (!variant) return [];
+  if (variant.matched_text?.length) return variant.matched_text;
   return [...variant.matched[3], ...variant.matched[2], ...variant.matched[1]];
 }
 
@@ -2160,7 +2166,10 @@ function renderDetailWhy(job) {
     const row = el('div', `send-row${variant.id === fit.recommended_variant ? ' is-best' : ''}`);
     const bar = el('span', 'send-bar');
     const fill = el('i');
-    fill.style.width = `${Math.max(0, Math.min(100, Number(variant.score) || 0))}%`;
+    // Variant scores top out at VARIANT_SCORE_MAX (80), not 100 — treating
+    // the number as a percentage made every bar look two-thirds empty.
+    const pct = (Number(variant.score) || 0) / RadarScoring.WEIGHTS.VARIANT_SCORE_MAX * 100;
+    fill.style.width = `${Math.max(0, Math.min(100, pct))}%`;
     bar.append(fill);
     row.append(
       el('span', 'send-row-label', variant.label),
