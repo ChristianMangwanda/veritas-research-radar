@@ -1605,7 +1605,11 @@ mark.m-skill { background: var(--mark-skill); }
 
   .detail-back { display: block; }
 
-  .stat-strip { display: none; }
+  /* Three stats fit where seven never could — compact, never hidden */
+  .stat-strip { gap: 2px; }
+  .stat { padding: 2px 10px; }
+  .stat-value { font-size: 15px; }
+  .stat-label { font-size: 10px; letter-spacing: 0.06em; }
 
   /* Narrow: drop the visa + closes columns; role/fit/send carry the decision */
   .row-grid { grid-template-columns: minmax(0, 1fr) 76px 140px; }
@@ -1628,9 +1632,21 @@ mark.m-skill { background: var(--mark-skill); }
 
   .refresh-meta { white-space: normal; }
 
+  /* Stats take their own row under the brand; status button stays reachable */
+  .stat-strip { order: 3; width: 100%; justify-content: space-between; }
+  .stat:first-child { padding-left: 0; }
+
   /* Phone: two columns; the send call collapses into the role cell */
   .row-grid { grid-template-columns: minmax(0, 1fr) 64px; }
   .cell-send { display: none; }
   .row-compact-send { display: block; }
   .sort-inline-label { display: none; }
+
+  /* The row quick-action has no hover on touch — the detail pane's Open
+     posting button covers the same flow, so hide it instead of trapping taps */
+  .row-apply { display: none; }
+
+  .export-backup { font-size: 11px; padding: 4px 8px; }
+
+  .kbd-hint { display: none; }
 }
