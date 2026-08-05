@@ -231,69 +231,84 @@ async function main() {
   console.log(`pool: ${pool.length} · already resolved: ${pool.length - todo.length} · to look up: ${todo.length}`);
   if (!todo.length) return 0;
 
-  // --- stage 1: name -> Wikidata entity -----------------------------------
-  const matched = [];
-  for (const [index, org] of todo.entries()) {
-    const hit = await wikidataSearch(org.name);
-    if (hit) matched.push({ org, hit });
-    if ((index + 1) % 25 === 0 || index === todo.length - 1) {
-      console.log(`  searched ${index + 1}/${todo.length} · ${matched.length} entity matches`);
-    }
-    await sleep(REQUEST_GAP_MS);
-  }
-  console.log(`Wikidata entities matched: ${matched.length} of ${todo.length}`);
-
-  // --- stage 2: entity -> official website --------------------------------
-  const sites = await wikidataWebsites(matched.map((m) => m.hit.id));
-  const candidates = matched.filter((m) => sites.has(m.hit.id));
-  console.log(`of those, carrying an official website (P856): ${candidates.length}`);
-
-  // --- stage 3: prove it ---------------------------------------------------
+  /* Batched, and saved after every batch.
+   *
+   * This ran as three sequential phases — search all 1,900, then fetch all
+   * websites, then verify all of them — and wrote the file once at the very
+   * end. That is a three-hour run with a single point of total loss, which is
+   * the same mistake the ATS crawler had and the same fix: checkpoint often
+   * enough that a crash costs minutes. Interleaving the phases per batch also
+   * means partial progress is genuinely usable rather than a heap of entity
+   * ids with no websites attached.
+   */
+  const BATCH = 25;
   let kept = 0;
   let rejected = 0;
   let blocked = 0;
-  for (const { org, hit } of candidates) {
-    const url = sites.get(hit.id);
-    const check = await verify(url, org.name);
-    if (check.ok) {
-      kept += 1;
-      if (check.blocked) blocked += 1;
-      results[org.key] = {
-        name: org.name, ein: org.ein, tier: org.tier,
-        website: check.final_url || url,
-        source: 'wikidata', wikidata_id: hit.id,
-        verified: true,
-        // The crawl will need an unblocker for these; say so here rather than
-        // letting it rediscover it one timeout at a time.
-        blocked: Boolean(check.blocked),
-        matched_token: check.matched_token || null,
-        verify_note: check.blocked ? check.reason : null,
-        resolved_at: new Date().toISOString()
-      };
-    } else {
-      rejected += 1;
-      results[org.key] = {
-        name: org.name, ein: org.ein, tier: org.tier,
-        website: null, candidate_url: url,
-        source: 'wikidata', wikidata_id: hit.id,
-        verified: false, reason: check.reason,
-        resolved_at: new Date().toISOString()
-      };
+  let searched = 0;
+
+  const save = async () => {
+    await fsp.writeFile(OUT_PATH, `${JSON.stringify({
+      schema_version: 1,
+      generated_at: new Date().toISOString(),
+      resolved: Object.values(results).filter((r) => r.website).length,
+      websites: results
+    }, null, 1)}\n`, 'utf8');
+  };
+
+  for (let offset = 0; offset < todo.length; offset += BATCH) {
+    const batch = todo.slice(offset, offset + BATCH);
+
+    const matched = [];
+    for (const org of batch) {
+      const hit = await wikidataSearch(org.name);
+      if (hit) matched.push({ org, hit });
+      searched += 1;
+      await sleep(REQUEST_GAP_MS);
     }
-    await sleep(REQUEST_GAP_MS);
+
+    const sites = await wikidataWebsites(matched.map((m) => m.hit.id));
+
+    for (const { org, hit } of matched) {
+      const url = sites.get(hit.id);
+      if (!url) continue;
+      const check = await verify(url, org.name);
+      if (check.ok) {
+        kept += 1;
+        if (check.blocked) blocked += 1;
+        results[org.key] = {
+          name: org.name, ein: org.ein, tier: org.tier,
+          website: check.final_url || url,
+          source: 'wikidata', wikidata_id: hit.id,
+          verified: true,
+          blocked: Boolean(check.blocked),
+          matched_token: check.matched_token || null,
+          verify_note: check.blocked ? check.reason : null,
+          resolved_at: new Date().toISOString()
+        };
+      } else {
+        rejected += 1;
+        results[org.key] = {
+          name: org.name, ein: org.ein, tier: org.tier,
+          website: null, candidate_url: url,
+          source: 'wikidata', wikidata_id: hit.id,
+          verified: false, reason: check.reason,
+          resolved_at: new Date().toISOString()
+        };
+      }
+      await sleep(REQUEST_GAP_MS);
+    }
+
+    await save();
+    console.log(`  ${searched}/${todo.length} searched · ${kept} kept (${blocked} blocked) · ${rejected} rejected`);
   }
 
   const unresolved = todo.length - kept - rejected;
-  console.log(`\nverified and kept: ${kept}${blocked ? ` (${blocked} live but bot-blocked — will need an unblocker to crawl)` : ''}`);
+  console.log(`\nverified and kept: ${kept}${blocked ? ` (${blocked} live but bot-blocked — will need an unblocker)` : ''}`);
   console.log(`found but failed verification: ${rejected}`);
   console.log(`no Wikidata answer (-> model lookup): ${unresolved}`);
 
-  await fsp.writeFile(OUT_PATH, `${JSON.stringify({
-    schema_version: 1,
-    generated_at: new Date().toISOString(),
-    resolved: Object.values(results).filter((r) => r.website).length,
-    websites: results
-  }, null, 1)}\n`, 'utf8');
+  await save();
   console.log(`wrote ${path.relative(process.cwd(), OUT_PATH)}`);
   return 0;
 }
