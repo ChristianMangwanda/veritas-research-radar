@@ -52,7 +52,7 @@ const JUDGMENT_SCHEMA = {
   type: 'object',
   additionalProperties: false,
   required: ['role_summary', 'different_profession', 'meets_requirements',
-    'matches_preferences', 'reasons', 'gaps', 'resume_id'],
+    'matches_preferences', 'reasons', 'gaps'],
   properties: {
     role_summary: {
       type: 'string',
@@ -86,11 +86,12 @@ const JUDGMENT_SCHEMA = {
       maxItems: 2,
       description: 'AT MOST 2, EACH UNDER 10 WORDS. Name the missing thing only: "Wants Tableau; candidate has Power BI". "Requires PhD; candidate has masters in progress". Empty array if none.',
       items: { type: 'string' }
-    },
-    resume_id: {
-      type: 'string',
-      description: 'The id of the resume variant to send. Must be one of the ids listed in the candidate brief.'
     }
+    /* There was a `resume_id` here: the model picked which résumé variant to
+     * send. It is gone. Choosing what to send is a decision made once, by a
+     * person who has read the posting — not something worth carrying seven
+     * résumé summaries in every prompt to answer, and not something a model
+     * should get wrong silently. */
   }
 };
 
@@ -120,6 +121,19 @@ Write TERSELY. Every field has a hard word limit and you must respect it. Fragme
 // skill terms rather than the whole profile.
 function candidateBrief(profile, preferencesText) {
   if (!profile) return '';
+
+  /* When the profile came from a document, that document IS the brief. It was
+   * written to be read by this prompt, it says what the person wants in their
+   * own words, and passing it through verbatim means editing the file changes
+   * the judging with nothing in between to reinterpret it.
+   *
+   * The old assembled brief listed seven résumé variants with twelve skills
+   * each — 737 tokens, most of it the same skills repeated, carried on every
+   * posting purely so the model could answer which résumé to send. It no
+   * longer answers that. */
+  if (profile.prose && profile.prose.trim()) return profile.prose.trim();
+
+  // Fallback for a legacy profile.json, so an old checkout still judges.
   const core = profile.core || {};
   const degrees = (core.degrees || [])
     .map((degree) => `${degree.level}${degree.status === 'in_progress' ? ' (in progress)' : ''}`)
@@ -127,24 +141,10 @@ function candidateBrief(profile, preferencesText) {
   const lines = [`CANDIDATE: ${core.summary || 'early-career researcher'}`];
   if (degrees) lines.push(`Degrees: ${degrees}`);
   if (Number.isFinite(core.years_experience)) lines.push(`Experience: ${core.years_experience} years`);
-
-  lines.push('', 'RESUME VARIANTS (pick one id to send):');
-  for (const variant of profile.variants || []) {
-    const skills = (variant.skills || [])
-      .slice()
-      .sort((a, b) => (b.weight || 0) - (a.weight || 0))
-      .slice(0, 12)
-      .map((skill) => skill.term)
-      .join(', ');
-    lines.push(`- id "${variant.id}" — ${variant.label}: ${variant.intent || ''}`);
-    if (skills) lines.push(`  strengths: ${skills}`);
-  }
-
-  if (preferencesText && preferencesText.trim()) {
-    lines.push('', 'WHAT THEY WANT:', preferencesText.trim());
-  } else {
-    lines.push('', 'WHAT THEY WANT: (not stated — judge on the work itself)');
-  }
+  const skills = (profile.variants || [])
+    .flatMap((variant) => (variant.skills || []).map((skill) => skill.term));
+  if (skills.length) lines.push(`Strengths: ${[...new Set(skills)].slice(0, 40).join(', ')}`);
+  if (preferencesText && preferencesText.trim()) lines.push('', 'WHAT THEY WANT:', preferencesText.trim());
   return lines.join('\n');
 }
 
@@ -217,9 +217,9 @@ function matchCacheKey(jobHash, profileHash, preferencesHash) {
   return `${MATCH_SCHEMA_VERSION}:${jobHash}:${profileHash || 'noprofile'}:${preferencesHash || 'noprefs'}`;
 }
 
-// Never trust raw model output: an unknown verdict or a hallucinated resume
-// id must degrade to something displayable rather than corrupt the list.
-function normalizeJudgment(raw, validResumeIds = []) {
+// Never trust raw model output: anything malformed must degrade to something
+// displayable rather than corrupt the list.
+function normalizeJudgment(raw) {
   if (!raw || typeof raw !== 'object') return null;
   // Booleans must be explicit: a missing field means the model didn't answer,
   // and defaulting a silent "meets_requirements" to true would manufacture
@@ -230,7 +230,6 @@ function normalizeJudgment(raw, validResumeIds = []) {
 
   const line = (value) => String(value || '').trim().replace(/\s+/g, ' ').slice(0, 110);
   const list = (value) => (Array.isArray(value) ? value.map(line).filter(Boolean).slice(0, 2) : []);
-  const resumeId = validResumeIds.includes(raw.resume_id) ? raw.resume_id : (validResumeIds[0] || null);
   return {
     verdict: deriveVerdict(raw),
     different_profession: raw.different_profession,
@@ -238,8 +237,7 @@ function normalizeJudgment(raw, validResumeIds = []) {
     matches_preferences: raw.matches_preferences,
     role_summary: line(raw.role_summary),
     reasons: list(raw.reasons),
-    gaps: list(raw.gaps),
-    resume_id: resumeId
+    gaps: list(raw.gaps)
   };
 }
 

@@ -5,17 +5,12 @@ const fsSync = require('fs');
 const http = require('http');
 const path = require('path');
 const { URL } = require('url');
-const { spawn } = require('child_process');
-const { profileFreshness } = require('./lib/profile-freshness.js');
 const { syncManifest, isResumeFile, RESUME_EXTENSIONS } = require('./lib/manifest-sync.js');
-const {
-  emptyPreferences, normalizeStructured, preferencesPrompt, preferencesHash,
-  STRUCTURE_SCHEMA, STRUCTURE_SYSTEM_PROMPT
-} = require('./lib/preferences.js');
 const {
   JUDGMENT_SCHEMA, JUDGE_SYSTEM_PROMPT, judgeUserPrompt, matchCacheKey, normalizeJudgment
 } = require('./lib/match.js');
-const { DEFAULT_BASE_URL, ollamaChat, ollamaAvailable } = require('./lib/ollama.js');
+const { parseProfileDocument } = require('./lib/profile-doc.js');
+const { DEFAULT_MODEL, readKey, judgeOnce, costOf } = require('./lib/openai.js');
 const RadarScoring = require('../public/scoring.js');
 
 const ROOT = path.resolve(__dirname, '../..');
@@ -25,28 +20,23 @@ const PUBLIC_DIR = path.join(RADAR_DIR, 'public');
 const LOCAL_STATE_PATH = path.join(DATA_DIR, 'local-state.json');
 const RESUMES_DIR = path.join(DATA_DIR, 'resumes');
 const MANIFEST_PATH = path.join(RESUMES_DIR, 'manifest.json');
-const PROFILE_PATH = path.join(DATA_DIR, 'profile.json');
-const BUILD_PROFILE = path.join(__dirname, 'build-profile.js');
-
-const PREFERENCES_PATH = path.join(DATA_DIR, 'preferences.json');
+/* The profile is an authored document now, not a model's reading of seven
+ * résumé files. radar/PROFILE-PROMPT.md is how it gets written. Nothing
+ * rewrites it: résumés are for sending to employers, not for deriving a person
+ * from. That is what stopped every cached judgment dying whenever a bullet
+ * point was reworded. */
+const PROFILE_DOC_PATH = path.join(DATA_DIR, 'profile.md');
+const ENV_PATH = path.join(ROOT, '.env');
 const MATCH_CACHE_PATH = path.join(DATA_DIR, 'match-cache.json');
 
 const PORT = Number(process.env.PORT || 4173);
 const HOST = process.env.HOST || '127.0.0.1';
 
-/* 14b stays the default on accuracy, not inertia. Re-judging the same 52
- * postings the 14b had already read, the 7b runs 21.4s -> 11.5s each but
- * agrees on only 21 of 52, and six it drops to "no" outright — among them a
- * Clinical Informatics Analyst at an institute for genomic health, and a
- * Bioinformatics Data Analyst the 14b called a strong match. Those are the
- * target roles, not the noise. Speed bought with recall is the one trade this
- * list cannot make.
- *
- * RADAR_MATCH_MODEL=qwen2.5:7b-instruct takes it anyway if you want it. There
- * is no concurrency setting because there is nothing to configure: Ollama runs
- * llama-server with -np 1, so requests serialize whatever we do. */
-const MATCH_MODEL = process.env.RADAR_MATCH_MODEL || 'qwen2.5:14b-instruct';
-const OLLAMA_URL = process.env.OLLAMA_HOST || DEFAULT_BASE_URL;
+const MATCH_MODEL = DEFAULT_MODEL;
+/* The API judges in parallel, which the local model could not: Ollama runs
+ * llama-server with -np 1 and serialised everything. Six at a time keeps well
+ * inside the rate limits while reading the whole pool in minutes. */
+const MATCH_CONCURRENCY = Number(process.env.RADAR_MATCH_CONCURRENCY || 6);
 
 // The hosted dashboard may pull the compiled profile from this local server
 // (never the other way around — resumes and profile stay on this machine).
@@ -160,49 +150,34 @@ function defaultLocalState() {
 /* always --if-stale, so spurious triggers are cheap no-ops. An unchanged    */
 /* resume set hits the extraction cache — no model call needed.              */
 
-const rebuild = { running: false, queued: false, last: null };
+/* The profile is read, never built. What used to live here — a debounced
+ * fs.watch on the résumés directory that re-ran a local model and rewrote
+ * profile.json — was the reason a reworded bullet point cost five hours of
+ * re-judging. Résumés are now just files you send. */
 
-function runProfileRebuild(trigger) {
-  if (rebuild.running) {
-    rebuild.queued = true;
-    return;
-  }
-  rebuild.running = true;
-  const startedAt = new Date().toISOString();
-  console.log(`[profile] rebuild check (${trigger})…`);
-  const child = spawn(process.execPath, [BUILD_PROFILE, '--if-stale'], {
-    cwd: ROOT,
-    stdio: ['ignore', 'pipe', 'pipe']
-  });
-  let output = '';
-  child.stdout.on('data', (chunk) => { output += chunk; });
-  child.stderr.on('data', (chunk) => { output += chunk; });
-  child.on('close', (code) => {
-    rebuild.running = false;
-    const tail = output.trim().split('\n').slice(-3).join(' · ');
-    rebuild.last = { at: startedAt, code, message: tail };
-    if (code === 0) console.log(`[profile] ${tail || 'ok'}`);
-    else console.error(`[profile] rebuild failed (exit ${code}): ${tail}`);
-    if (rebuild.queued) {
-      rebuild.queued = false;
-      runProfileRebuild('queued change');
-    }
-  });
-}
+let profileCache = { mtimeMs: 0, profile: null, error: null };
 
-function watchResumes() {
-  if (!fsSync.existsSync(RESUMES_DIR)) return;
-  let timer = null;
+/** Reads radar/data/profile.md, parsed, cached on mtime so every judgment
+ *  request does not re-parse it. Returns null when there is no document yet —
+ *  the dashboard then shows its first-run prompt rather than a false zero. */
+function loadProfile() {
+  let stat;
+  try { stat = fsSync.statSync(PROFILE_DOC_PATH); }
+  catch { profileCache = { mtimeMs: 0, profile: null, error: 'no radar/data/profile.md yet' }; return null; }
+  if (profileCache.profile && stat.mtimeMs === profileCache.mtimeMs) return profileCache.profile;
   try {
-    fsSync.watch(RESUMES_DIR, (event, filename) => {
-      if (filename && filename.startsWith('.')) return; // .extract-cache.json, .DS_Store
-      clearTimeout(timer);
-      // Debounced: editors and Finder fire bursts of events per save.
-      timer = setTimeout(() => runProfileRebuild(`resumes changed: ${filename || 'unknown'}`), 2000);
-    });
-    console.log('[profile] watching radar/data/resumes — edits rebuild the profile automatically');
+    const profile = parseProfileDocument(fsSync.readFileSync(PROFILE_DOC_PATH, 'utf8'));
+    const problem = RadarScoring.validateProfile(profile);
+    if (problem) throw new Error(problem);
+    profileCache = { mtimeMs: stat.mtimeMs, profile, error: null };
+    const dropped = profile.dropped_terms || [];
+    console.log(`[profile] loaded profile.md — ${profile.variants[0].skills.length} capabilities`
+      + (dropped.length ? `, ignored ${JSON.stringify(dropped)} (too short to match)` : ''));
+    return profile;
   } catch (error) {
-    console.error(`[profile] could not watch resumes dir: ${error.message}`);
+    profileCache = { mtimeMs: stat.mtimeMs, profile: null, error: error.message };
+    console.error(`[profile] ${PROFILE_DOC_PATH} could not be read: ${error.message}`);
+    return null;
   }
 }
 
@@ -216,10 +191,6 @@ async function listResumes() {
   const manifest = await readJson(MANIFEST_PATH, { schema_version: 1, variants: [] });
   const { manifest: synced, missing } = syncManifest(manifest, files);
   const missingFiles = new Set(missing.map((variant) => variant.file));
-  const profile = await readJson(PROFILE_PATH, null);
-  const skillCounts = new Map(
-    (profile?.variants || []).map((variant) => [variant.id, (variant.skills || []).length])
-  );
   return {
     variants: (synced.variants || []).map((variant) => ({
       id: variant.id,
@@ -227,12 +198,8 @@ async function listResumes() {
       file: variant.file,
       intent: variant.intent,
       intent_source: variant.intent_source || 'user',
-      missing: missingFiles.has(variant.file),
-      pending: !skillCounts.has(variant.id),
-      skill_terms: skillCounts.get(variant.id) ?? null
-    })),
-    building: rebuild.running,
-    last_result: rebuild.last
+      missing: missingFiles.has(variant.file)
+    }))
   };
 }
 
@@ -265,14 +232,11 @@ function scheduleMatchCacheFlush() {
 
 /* A background queue, not a blocking call.
  *
- * One judgment costs ~19s (14b generating at ~11 tok/s on an M4, and the
- * Ollama app runs llama-server with -np 1 so requests serialize no matter
- * how many we fire). Blocking a request on 20 of those would be 6 minutes of
- * staring at a spinner.
- *
- * So: answer instantly with whatever is cached, queue the rest, and let the
- * UI fill in as results land. What the user is looking at right now jumps
- * the queue; everything else drains behind it. */
+ * Even at a second or two per judgment, a page load asks about hundreds of
+ * postings and must not wait for them. So: answer instantly with whatever is
+ * cached, queue the rest, and let the list fill in as results land. What is on
+ * screen jumps the queue; the rest of the backlog drains behind it, and keeps
+ * draining after the browser is closed. */
 
 const judgeQueue = {
   items: [],          // {job, key, priority} — lower priority number first
@@ -280,6 +244,9 @@ const judgeQueue = {
   running: false,
   judgedThisRun: 0,
   lastError: null,
+  // What this run has cost, reported rather than left to a billing surprise.
+  spend: 0,
+  tokens: { input: 0, output: 0 },
   /* Everything judged this run, in order, so the page can collect results
    * without re-posting the postings it wants collected. Polling used to mean
    * shipping back a megabyte of job descriptions every few seconds just to
@@ -319,15 +286,19 @@ function queueJudgments(jobs, context, priority) {
 }
 
 async function judgeOne(job, key, context) {
-  const parsed = await ollamaChat({
-    baseUrl: OLLAMA_URL,
+  const { parsed, usage } = await judgeOnce({
+    key: context.apiKey,
     model: MATCH_MODEL,
     system: JUDGE_SYSTEM_PROMPT,
-    user: judgeUserPrompt(job, context.profile, context.prefsText),
-    format: JUDGMENT_SCHEMA,
-    options: { temperature: 0, num_predict: 300 }
+    user: judgeUserPrompt(job, context.profile, ''),
+    schema: JUDGMENT_SCHEMA
   });
-  const judgment = normalizeJudgment(parsed, context.resumeIds);
+  judgeQueue.spend += costOf(MATCH_MODEL, usage);
+  judgeQueue.tokens.input += usage.input;
+  judgeQueue.tokens.output += usage.output;
+  // A refusal or an unparseable body is NOT a "no" — it is an absent answer,
+  // and treating it as a verdict would hide the job for no stated reason.
+  const judgment = normalizeJudgment(parsed);
   if (!judgment) return null;
   const record = { ...judgment, judged_at: new Date().toISOString(), model: MATCH_MODEL };
   matchCache.entries[key] = record;
@@ -339,7 +310,7 @@ async function judgeOne(job, key, context) {
 async function drainJudgeQueue(context) {
   if (judgeQueue.running) return;
   judgeQueue.running = true;
-  try {
+  const worker = async () => {
     while (judgeQueue.items.length) {
       // Re-read the head each pass: a fresh high-priority batch (what the
       // user just scrolled to) overtakes the background backlog.
@@ -348,34 +319,47 @@ async function drainJudgeQueue(context) {
         await judgeOne(next.job, next.key, context);
         judgeQueue.judgedThisRun += 1;
         judgeQueue.lastError = null;
-        // The backlog is hours of work; a heartbeat in the log is how you
-        // tell "still reading" from "wedged" without opening the browser.
-        if (judgeQueue.judgedThisRun % 25 === 0) {
-          console.log(`[match] ${judgeQueue.judgedThisRun} judged this run, ${judgeQueue.items.length} to go`);
+        if (judgeQueue.judgedThisRun % 50 === 0) {
+          console.log(`[match] ${judgeQueue.judgedThisRun} judged, ${judgeQueue.items.length} to go`
+            + `, $${judgeQueue.spend.toFixed(3)} spent`);
         }
       } catch (error) {
         judgeQueue.lastError = error.message;
         console.error(`[match] ${next.job.id}: ${error.message}`);
-        // A dead model server would spin the whole queue at full tilt —
-        // stop and let the next request restart us.
-        if (/fetch failed|ECONNREFUSED/i.test(error.message)) break;
+        // A bad key or a revoked account would spin the whole backlog into
+        // the same error at full tilt. Stop; the next request restarts us.
+        if (/401|403|invalid_api_key|fetch failed/i.test(error.message)) {
+          judgeQueue.items.length = 0;
+          break;
+        }
       }
     }
+  };
+  try {
+    await Promise.all(Array.from({ length: MATCH_CONCURRENCY }, worker));
   } finally {
     judgeQueue.running = false;
+    if (judgeQueue.judgedThisRun) {
+      console.log(`[match] idle — ${judgeQueue.judgedThisRun} judged this run, $${judgeQueue.spend.toFixed(3)}`);
+    }
   }
 }
 
+/* Everything a judgment depends on. The cache key is built from these, so
+ * what is NOT here matters as much as what is: résumé files are absent, which
+ * is why editing one no longer invalidates anything. `prefsHash` survives as a
+ * key component because "what I want" moved inside the profile document — one
+ * hash now covers both, and old entries fall out on their own. */
 async function matchContext() {
-  const profile = await readJson(PROFILE_PATH, null);
+  const profile = loadProfile();
   if (!profile) return null;
-  const preferences = await readJson(PREFERENCES_PATH, emptyPreferences());
+  const apiKey = readKey(ENV_PATH);
+  if (!apiKey) return null;
   return {
     profile,
+    apiKey,
     profileHash: RadarScoring.profileHash(profile),
-    prefsHash: preferencesHash(preferences),
-    prefsText: preferencesPrompt(preferences),
-    resumeIds: (profile.variants || []).map((variant) => variant.id)
+    prefsHash: 'in-profile'
   };
 }
 
@@ -415,62 +399,24 @@ async function route(request, response) {
   }
 
   if (request.method === 'GET' && url.pathname === '/api/profile-freshness') {
-    const freshness = profileFreshness(RESUMES_DIR, PROFILE_PATH);
+    const profile = loadProfile();
     send(response, 200, JSON.stringify({
-      ...freshness,
-      building: rebuild.running,
-      last_result: rebuild.last
+      // Nothing goes stale any more: the document is the source of truth and
+      // is never regenerated. This reports whether it loaded, and what got
+      // dropped, so a broken edit is visible instead of silently empty.
+      stale: false,
+      reason: profile ? 'authored' : (profileCache.error || 'missing'),
+      loaded: Boolean(profile),
+      error: profileCache.error,
+      capabilities: profile ? profile.variants[0].skills.length : 0,
+      dropped_terms: profile ? (profile.dropped_terms || []) : []
     }), undefined, cors);
     return;
   }
 
-  /* What the user WANTS: free text is the source of truth; the model turns
-     it into fields they can correct. A bad structuring pass is always
-     recoverable because the prose is kept verbatim. */
-
-  if (request.method === 'GET' && url.pathname === '/api/preferences') {
-    send(response, 200, JSON.stringify(await readJson(PREFERENCES_PATH, emptyPreferences())));
-    return;
-  }
-
-  if (request.method === 'POST' && url.pathname === '/api/preferences') {
-    const payload = JSON.parse(await readBody(request) || '{}');
-    const text = String(payload.text || '').slice(0, 4000);
-    const current = await readJson(PREFERENCES_PATH, emptyPreferences());
-    let structured = current.structured;
-
-    // Hand-edited fields win; otherwise re-read the prose.
-    if (payload.structured) {
-      structured = normalizeStructured(payload.structured);
-    } else if (text.trim() && text.trim() !== String(current.text || '').trim()) {
-      structured = emptyPreferences().structured;
-      try {
-        if (await ollamaAvailable(OLLAMA_URL)) {
-          const parsed = await ollamaChat({
-            baseUrl: OLLAMA_URL,
-            model: MATCH_MODEL,
-            system: STRUCTURE_SYSTEM_PROMPT,
-            user: `What they wrote:\n\n${text}`,
-            format: STRUCTURE_SCHEMA,
-            options: { temperature: 0, num_predict: 1024 }
-          });
-          structured = normalizeStructured(parsed);
-        }
-      } catch (error) {
-        console.error(`[preferences] structuring failed, keeping the text: ${error.message}`);
-      }
-    }
-
-    const saved = {
-      schema_version: 1,
-      updated_at: new Date().toISOString(),
-      text,
-      structured
-    };
-    await writeJson(PREFERENCES_PATH, saved);
-    send(response, 200, JSON.stringify(saved));
-    return;
-  }
+  /* There were /api/preferences endpoints here. What the user wants is a
+     section of profile.md now — one document, edited in one place, with no
+     model in between turning prose into fields that then disagree with it. */
 
   // Returns what's judged NOW and queues the rest. The client posts the job
   // payloads it wants read, so the server never loads the 44 MB job mirror.
@@ -504,7 +450,9 @@ async function route(request, response) {
       running: judgeQueue.running,
       judged_total: Object.keys(matchCache.entries).length,
       last_error: judgeQueue.lastError,
-      model: MATCH_MODEL
+      model: MATCH_MODEL,
+      spend: Number(judgeQueue.spend.toFixed(4)),
+      judged_this_run: judgeQueue.judgedThisRun
     }));
     return;
   }
@@ -537,8 +485,6 @@ async function route(request, response) {
     }
     await fs.mkdir(RESUMES_DIR, { recursive: true });
     await fs.writeFile(path.join(RESUMES_DIR, name), body);
-    // build-profile registers it (and writes an intent) on the rebuild.
-    runProfileRebuild(`upload: ${name}`);
     send(response, 200, JSON.stringify({ ok: true, file: name, ...(await listResumes()) }));
     return;
   }
@@ -572,7 +518,6 @@ async function route(request, response) {
     }
 
     await writeJson(MANIFEST_PATH, manifest);
-    runProfileRebuild('variants edited');
     send(response, 200, JSON.stringify({ ok: true, ...(await listResumes()) }));
     return;
   }
@@ -606,7 +551,7 @@ async function route(request, response) {
   // read-only here so the dashboard picks them up without any import step.
   // CORS-opened to the hosted dashboard so IT can pick them up too.
   if (request.method === 'GET' && url.pathname === '/api/profile') {
-    send(response, 200, JSON.stringify(await readJson(PROFILE_PATH, null)), undefined, cors);
+    send(response, 200, JSON.stringify(loadProfile()), undefined, cors);
     return;
   }
 
@@ -656,6 +601,5 @@ server.on('error', (error) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`Veritas Research Radar running at http://${HOST}:${PORT}`);
-  runProfileRebuild('boot');
-  watchResumes();
+  loadProfile();
 });

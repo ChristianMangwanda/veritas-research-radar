@@ -103,43 +103,35 @@ resume variants and tells you which one to send.
    you so a bad reading is visible and fixable. Stored in
    `radar/data/preferences.json` (gitignored). The prose stays the source of
    truth; editing it re-judges every job.
-4. **Matching is two-stage** (2026-08-04). The deterministic pass narrows
-   thousands to hundreds — open, in your tracks, no quoted barrier — and then
-   a local **qwen2.5:14b** READS each survivor against your resumes and
-   preferences (`radar/scripts/lib/match.js`, judged via `/api/match`,
-   cached in `radar/data/match-cache.json`). Each job gets a verdict with
-   its reasons and gaps printed on the row.
-   - The verdict is **derived in code**, not asked for: the model answers
-     three booleans (different profession / meets stated requirements /
-     matches what you want) and `deriveVerdict()` aggregates them. Asking for
-     a 4-way enum returned "strong" for everything, including postings the
-     model itself described as "Not a match" — constrained decoding fills
-     fields in declaration order, so the label was written before any
-     reasoning existed. **Do not reorder JUDGMENT_SCHEMA's properties.**
-   - One judgment is ~21s (measured over 52 postings; 14b at ~8 tok/s on an
-     M4, and the Ollama app runs llama-server with `-np 1`, so requests
-     serialize however many you fire — there is no concurrency knob because
-     there is nothing to turn). `/api/match` answers instantly from cache
-     and drains the rest through a priority queue: what is on screen jumps
-     the backlog.
-   - **The page hands over the whole qualified backlog on load**, then polls
-     with an empty body and a cursor to collect whatever finished. The queue
-     used to hold only the ~20-40 postings the screen had asked about, which
-     was enough to keep the model busy *while you watched* but ran dry within
-     minutes of closing the tab. Now the server keeps reading for as long as
-     it is up — the point of the launcher app — and 989 postings is ~6 hours
-     of work it can do without you. Progress is in the Status drawer
-     ("Postings read"), not above the list.
-   - `RADAR_MATCH_MODEL=qwen2.5:7b-instruct` is 1.9x faster (11.5s vs 21.4s
-     per posting) and is **not** the default: re-judging 52 postings the 14b
-     had already read, it agreed on 21 and dropped six to "no" that the 14b
-     kept — including a Clinical Informatics Analyst at an institute for
-     genomic health and a Bioinformatics Data Analyst the 14b called strong.
-     Speed paid for in recall is the wrong trade for this list.
-   - Cache key = posting content + profile hash + preferences hash, so any
-     of the three changing re-judges.
-   - Jobs judged "not your line of work" are set aside like blocked ones:
-     counted beside the list, one click back, reasoning attached.
+4. **Matching is two-stage** (rebuilt 2026-08-05). Stage one is deterministic
+   and rejects only what is *quotably* impossible — closed, citizens-only, a
+   licence or degree the posting demands, a profession needing credentials you
+   cannot hold. It no longer asks whether a job is "your line of work": that
+   guess (roleTrack) was carrying 616 of 12,440 postings and was the last place
+   a real match could vanish without evidence. The pool is now ~5,100.
+   Stage two: **gpt-5.6-luna reads every survivor** via `radar/scripts/lib/
+   openai.js`, keyed in `radar/data/match-cache.json`.
+   - **No Ollama anywhere.** The local 14b took 20s a posting — 54 hours to
+     read the pool once. The API does it in minutes for a few dollars, and
+     that is what makes a lenient stage one affordable.
+   - Model choice was measured on 789 postings the 14b had already judged:
+     gpt-5-nano agreed 75% and buried **32 strong matches**; gpt-5-mini agreed
+     77% and buried 1; gpt-5.6-luna agreed 63% and buried **0**, while costing
+     less than mini. Agreement % is a decoy — nano and mini score alike and
+     fail in opposite directions. Only "buries a strong match" decides it.
+     luna's known flaw is the opposite one: it is lenient (rejects 52% where
+     the 14b rejected 73%) and inflates the top tier. Sharpen that in the
+     `matches_preferences` prompt, never by picking a stricter model.
+   - `OPENAI_API_KEY` lives in `.env` (gitignored). No key means no judging,
+     the same as the hosted dashboard.
+   - The verdict is **derived in code**, not asked for: the model answers three
+     booleans and `deriveVerdict()` aggregates. Asking for a 4-way enum
+     returned "strong" for everything — constrained decoding fills fields in
+     declaration order, so the label was written before any reasoning existed.
+     **Do not reorder JUDGMENT_SCHEMA's properties.**
+   - Cache key = posting content + profile hash. Résumé files are *not* in it,
+     which is the whole point of the change below.
+
 5. Jobs also carry the deterministic fit score (demoted to a hint once judged
    — it is a compressed keyword count, not a percentage), a "use <variant>"
    chip, and ⚠ flags for hard gates. Gates demote — they never hide a job.

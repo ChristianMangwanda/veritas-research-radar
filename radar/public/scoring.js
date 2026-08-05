@@ -537,10 +537,6 @@
   // "5+ years", "minimum of 7 years", "5-7 years of experience". The leading
   // figure is the bar: a range asks for its floor, not its ceiling.
   const YEARS_PATTERN = /\b(\d{1,2})\s*(?:[-–—]\s*\d{1,2}\s*)?\+?\s*(?:or\s+more\s+)?years?\b/gi;
-  // How far past the user's experience a demand has to reach before it is a
-  // wall rather than a stretch. Postings routinely overstate; 3 years of slack
-  // keeps "5+ years" reachable for a 4-year candidate.
-  const YEARS_SLACK = 3;
 
   function findRequirement(corpus, pattern, { context = null } = {}) {
     pattern.lastIndex = 0;
@@ -666,16 +662,15 @@
       else blockers.push(entry);
     }
 
-    const years = parseYearsRequirement(corpusRaw)
-      || (claimed && Number.isFinite(claimed.min_years) && claimed.min_years > 0
-        ? { min_years: claimed.min_years, evidence: job.classified_quotes?.min_years || null }
-        : null);
-    if (years) {
-      const gap = years.min_years - compiled.yearsExperience;
-      const entry = { type: 'experience', detail: `${years.min_years} years`, evidence: years.evidence, source: 'text' };
-      if (gap >= YEARS_SLACK && years.evidence) blockers.push(entry);
-      else if (gap > 0) cautions.push(entry);
-    }
+    /* A stated years-of-experience requirement is deliberately ignored here.
+     *
+     * Postings routinely overstate it, and turning it into a gate cost real
+     * jobs: at two years of experience it walled off every "5+ years" posting,
+     * including research associate roles that are a stretch rather than an
+     * impossibility. The judge model reads the requirement in the posting text
+     * anyway and can weigh it against everything else, which a subtraction
+     * cannot. parseYearsRequirement stays — it is still useful for reporting —
+     * it just no longer decides whether you get to see the job. */
 
     const license = parseLicenseRequirement(corpusRaw);
     if (license) blockers.push({ type: 'license', detail: license.license, evidence: license.evidence, source: 'text' });
@@ -742,10 +737,7 @@
     else verdict = 'clear';
 
     // Where a local model would add something the regexes can't settle.
-    const needsReview = Boolean(
-      (thinText && !quotable.length)
-      || cautions.some((entry) => entry.type === 'experience')
-    );
+    const needsReview = Boolean(thinText && !quotable.length);
 
     return { verdict, blockers: quotable, cautions, insufficient_text: thinText, needs_review: needsReview };
   }
@@ -792,13 +784,24 @@
   // profile (fit_score null), so callers must treat "no profile" as a prompt
   // to import one, not as zero qualified jobs. includeBlocked exists so the
   // blocked-reveal count can reuse this predicate instead of duplicating it.
+  /* What reaches the judge.
+   *
+   * This used to also require roleTrack to say "reachable" or "adjacent" —
+   * a guess, made from the posting's title class, about whether a job was this
+   * person's line of work. It was the last place a real match could disappear
+   * without leaving evidence, and it was carrying 616 of 12,440 postings.
+   *
+   * It existed to protect a local model that cost twenty seconds a posting.
+   * Judging now costs a fraction of a cent, so the guess is not worth its risk:
+   * the gate keeps only what is quotably impossible — closed, citizens-only, a
+   * licence or degree the posting demands and the profile does not have, a
+   * profession that needs credentials you cannot hold. Everything else gets
+   * read. */
   function isQualified(job, { includeBlocked = false } = {}) {
     const fit = job.fit;
     if (!fit || fit.fit_score === null) return false;
     if (job.status === 'closed') return false;
     if (job.citizenship_gated) return false;
-    const track = fit.track && fit.track.status;
-    if (track !== 'reachable' && track !== 'adjacent') return false;
     if (!includeBlocked && fit.eligibility && fit.eligibility.verdict === 'blocked') return false;
     return true;
   }

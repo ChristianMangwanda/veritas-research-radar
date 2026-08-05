@@ -7,6 +7,7 @@ const state = {
   profileError: null, // validation message when an import is rejected
   profileFreshness: null, // /api/profile-freshness status (local server only)
   profileSyncedAt: null,  // set when the hosted page adopted the local server's profile
+  resumes: [],            // résumé files on disk — what you send, nothing more
   matches: {},            // jobId -> judged match (local server only)
   matchPending: 0,        // jobs queued for judging
   matchAvailable: false,  // false on the hosted dashboard (no local model)
@@ -83,12 +84,9 @@ const DOM = {
   resumeDrop: document.querySelector('#resume-drop'),
   resumeUpload: document.querySelector('#resume-upload'),
   resumeList: document.querySelector('#resume-list'),
-  wantsSection: document.querySelector('#wants-section'),
-  wantsState: document.querySelector('#wants-state'),
-  wantsText: document.querySelector('#wants-text'),
-  wantsSave: document.querySelector('#wants-save'),
-  wantsStatus: document.querySelector('#wants-status'),
-  wantsStructured: document.querySelector('#wants-structured'),
+  profileSection: document.querySelector('#profile-doc-section'),
+  profileState: document.querySelector('#profile-doc-state'),
+  profileBody: document.querySelector('#profile-doc-body'),
   undoBar: document.querySelector('#undo-bar'),
   undoMsg: document.querySelector('#undo-msg'),
   undoBtn: document.querySelector('#undo-btn'),
@@ -653,9 +651,17 @@ async function maybeSyncProfileFromLocalRadar() {
 }
 
 /* ------------------------------------------------------------------------ */
-/* Your resumes + what you want: the two inputs the matching runs on. Both    */
-/* are local-server features — the panels hide themselves on the hosted       */
-/* dashboard, which has neither a filesystem nor a model.                     */
+/* Your resumes and your profile. These used to be one thing: the resumes were
+   read by a model to derive a profile, so editing a bullet point invalidated
+   every judgment. Now the profile is a document you write (radar/data/
+   profile.md, see radar/PROFILE-PROMPT.md) and the resumes are simply files
+   you send once you have decided to apply. Both panels are local-server
+   features and hide themselves on the hosted dashboard. */
+
+// Labels for the résumé files on disk, so a row can name what you sent
+// rather than echoing an id. Populated when the panel loads.
+const resumeLabels = new Map();
+function resumeLabelFor(id) { return resumeLabels.get(id) || null; }
 
 async function loadResumePanel() {
   const data = await getJson('/api/resumes', null);
@@ -665,12 +671,13 @@ async function loadResumePanel() {
   }
   DOM.resumesSection.hidden = false;
   renderResumeList(data);
-  // While a rebuild runs, keep the panel honest about it.
-  if (data.building) setTimeout(loadResumePanel, 4000);
 }
 
 function renderResumeList(data) {
   const variants = data.variants || [];
+  resumeLabels.clear();
+  for (const variant of variants) resumeLabels.set(variant.id, variant.label);
+  state.resumes = variants;
   DOM.resumesCount.textContent = variants.length ? `· ${variants.length}` : '';
   DOM.resumeList.replaceChildren();
 
@@ -698,18 +705,11 @@ function renderResumeList(data) {
     intent.addEventListener('change', () => saveVariant({ id: variant.id, intent: intent.value }));
 
     const meta = el('span', 'resume-meta');
-    if (variant.missing) meta.textContent = 'file missing';
-    else if (variant.pending) meta.textContent = 'reading…';
-    else meta.textContent = `${variant.skill_terms} terms`;
-    if (variant.intent_source === 'auto') {
-      meta.textContent += ' · summary written for you — edit it';
-    }
+    meta.textContent = variant.missing ? 'file missing' : variant.file;
 
     row.append(head, intent, meta);
     DOM.resumeList.append(row);
   }
-
-  if (data.building) DOM.resumeList.append(el('p', 'profile-note', 'Rebuilding your profile…'));
 }
 
 async function saveVariant(edit) {
@@ -749,60 +749,44 @@ async function postJson(url, body) {
   }
 }
 
-async function loadWants() {
-  const preferences = await getJson('/api/preferences', null);
-  if (!preferences) {
-    DOM.wantsSection.hidden = true;
+/* What used to be "What you want" — free text a model turned into fields that
+   could then disagree with it. That is a section of profile.md now. This panel
+   shows what the server actually loaded, so a broken edit is visible rather
+   than silently judging everything against nothing. */
+async function loadProfilePanel() {
+  const state_ = await getJson('/api/profile-freshness', null);
+  if (!state_) {
+    DOM.profileSection.hidden = true;
     return;
   }
-  DOM.wantsSection.hidden = false;
-  DOM.wantsText.value = preferences.text || '';
-  renderWants(preferences);
+  DOM.profileSection.hidden = false;
+  renderProfilePanel(state_);
 }
 
-function renderWants(preferences) {
-  const structured = preferences?.structured || {};
-  const filled = Boolean((preferences?.text || '').trim());
-  DOM.wantsState.textContent = filled ? '· set' : '· not set yet';
-  DOM.wantsStructured.replaceChildren();
-  if (!filled) return;
+function renderProfilePanel(info) {
+  DOM.profileState.textContent = info.loaded ? '· loaded' : '· missing';
+  DOM.profileBody.replaceChildren();
 
-  // Show what was understood, so a bad reading is visible and fixable.
-  const rows = [
-    ['Roles', (structured.role_types || []).join(', ')],
-    ['Drawn to', (structured.domains || []).join(', ')],
-    ['Where', (structured.locations || []).join(', ')],
-    ['Remote', structured.remote && structured.remote !== 'open' ? structured.remote.replace(/_/g, ' ') : ''],
-    ['Salary floor', structured.salary_min ? `$${structured.salary_min.toLocaleString()}` : ''],
-    ['Won’t take', (structured.deal_breakers || []).join(', ')]
-  ].filter(([, value]) => value);
-
-  if (!rows.length) return;
-  DOM.wantsStructured.append(el('p', 'profile-note', 'Understood as:'));
-  for (const [label, value] of rows) {
-    const row = el('div', 'wants-row');
-    row.append(el('span', 'wants-key', label), el('span', 'wants-value', value));
-    DOM.wantsStructured.append(row);
-  }
-}
-
-async function saveWants() {
-  DOM.wantsSave.disabled = true;
-  DOM.wantsStatus.textContent = 'Reading what you wrote…';
-  const saved = await postJson('/api/preferences', { text: DOM.wantsText.value });
-  DOM.wantsSave.disabled = false;
-  if (!saved) {
-    DOM.wantsStatus.textContent = 'Could not save — is the local radar running?';
+  if (!info.loaded) {
+    DOM.profileBody.append(el('p', 'profile-note',
+      info.error === 'no radar/data/profile.md yet'
+        ? 'No profile yet. Write one with radar/PROFILE-PROMPT.md and save it as radar/data/profile.md.'
+        : `profile.md could not be read: ${info.error}`));
     return;
   }
-  DOM.wantsStatus.textContent = 'Saved — re-reading jobs against it.';
-  renderWants(saved);
-  // Preferences are part of the match cache key, so every judgment is stale.
-  state.matches = {};
-  matchRequested.clear();
-  render();
-  setTimeout(() => { DOM.wantsStatus.textContent = ''; }, 4000);
+
+  DOM.profileBody.append(el('p', 'profile-note',
+    `${info.capabilities} capabilities · every job is judged against this document and nothing else.`));
+  // A skill too short to match is reported, never silently lost — that is the
+  // one failure this document exists to prevent.
+  if ((info.dropped_terms || []).length) {
+    DOM.profileBody.append(el('p', 'profile-note',
+      `Not matchable, so ignored: ${info.dropped_terms.join(', ')} — too short to search for safely.`));
+  }
+  DOM.profileBody.append(el('p', 'profile-note',
+    'Edit radar/data/profile.md to change it. Nothing rewrites it for you.'));
 }
+
 
 /* ------------------------------------------------------------------------ */
 /* Judged matches: the local model's read of a posting against the resumes    */
@@ -1774,16 +1758,6 @@ const TRACK_LABELS = {
 // best other one. When a local-LLM verdict picked a variant the deterministic
 // scores didn't rank first, a "+N over" line would contradict itself; say who
 // made the call instead. Single variant: no runner-up, so say the verdict.
-function sendDelta(fit) {
-  const ranked = [...(fit.variants || [])]
-    .filter((variant) => variant.score != null)
-    .sort((a, b) => b.score - a.score);
-  if (ranked.length < 2) return fit.verdict || '';
-  const recommended = ranked.find((variant) => variant.id === fit.recommended_variant) || ranked[0];
-  if (recommended !== ranked[0]) return `LLM pick — ${recommended.label || recommended.id}`;
-  return `+${recommended.score - ranked[1].score} over ${ranked[1].label || ranked[1].id}`;
-}
-
 function buildRow(job) {
   const node = DOM.rowTemplate.content.firstElementChild.cloneNode(true);
   node.dataset.id = job.id;
@@ -1890,29 +1864,30 @@ function buildRow(job) {
   const evidence = visaEvidenceLine(job);
   if (evidence) node.querySelector('.visa-evidence').textContent = evidence;
 
-  // SEND RÉSUMÉ — variant + winning margin; hard gates override the margin
+  /* RÉSUMÉ SENT — which one you chose, not which one a model picked.
+   *
+   * This column used to carry a recommended variant and the margin by which
+   * it beat the runner-up, computed from seven résumés scored separately. The
+   * profile is one document now and choosing what to send is a decision made
+   * once, by someone who has read the posting. So the column reports the
+   * record instead of making the call: blank until you mark it applied. Hard
+   * gates still surface here, because they are the thing worth seeing before
+   * you spend an evening on an application. */
   const sendVariant = node.querySelector('.send-variant');
   const sendDeltaEl = node.querySelector('.send-delta');
-  if (fit?.fit_score != null && fit.recommended_variant) {
-    const recommended = (fit.variants || []).find((variant) => variant.id === fit.recommended_variant);
-    sendVariant.textContent = (recommended?.label || fit.recommended_variant)
-      + (fit.ambiguous && fit.recommended_source === 'deterministic' ? ' ?' : '');
-    const gate = fit.gate;
-    if (gate?.citizenship) {
-      sendDeltaEl.textContent = '⚠ citizens only';
-      sendDeltaEl.classList.add('send-gate');
-    } else if (gate?.degree?.required && !gate.degree.met && !gate.degree.softened) {
-      sendDeltaEl.textContent = `⚠ ${gate.degree.required} required`;
-      sendDeltaEl.classList.add('send-gate');
-    } else {
-      sendDeltaEl.textContent = sendDelta(fit);
-    }
-    const compact = node.querySelector('.row-compact-send');
-    compact.textContent = `send ${variantAbbrev(fit.recommended_variant)}`;
-    compact.hidden = false;
-  } else {
-    sendVariant.textContent = '—';
+  const sent = state.local.triage[job.id]?.variant_sent;
+  sendVariant.textContent = sent ? (resumeLabelFor(sent) || sent) : '—';
+  const gate = fit?.gate;
+  if (gate?.citizenship) {
+    sendDeltaEl.textContent = '⚠ citizens only';
+    sendDeltaEl.classList.add('send-gate');
+  } else if (gate?.degree?.required && !gate.degree.met && !gate.degree.softened) {
+    sendDeltaEl.textContent = `⚠ ${gate.degree.required} required`;
+    sendDeltaEl.classList.add('send-gate');
   }
+  const compact = node.querySelector('.row-compact-send');
+  compact.hidden = !sent;
+  if (sent) compact.textContent = `sent ${resumeLabelFor(sent) || sent}`;
 
   // CLOSES
   const closes = node.querySelector('.cell-closes');
@@ -2066,9 +2041,9 @@ function renderTriageControls(job) {
 // would send). Hidden when the profile predates source_file tracking.
 function renderCopyResumePath(job) {
   if (!DOM.copyResumePath) return;
-  const variantId = state.local.triage[job.id]?.variant_sent || job.fit?.recommended_variant || '';
-  const variant = (state.profile?.variants || []).find((entry) => entry.id === variantId);
-  const file = variant?.source_file;
+  const variantId = state.local.triage[job.id]?.variant_sent || '';
+  const variant = state.resumes.find((entry) => entry.id === variantId);
+  const file = variant?.file;
   DOM.copyResumePath.hidden = !file;
   if (file) {
     DOM.copyResumePath.dataset.path = `radar/data/resumes/${file}`;
@@ -2377,7 +2352,7 @@ function renderDetailSignals(job) {
 // surface forms that hit ("torch", "ETL pipelines"), while matched[] holds the
 // canonical résumé terms the why-panel prints.
 function recommendedMatchedTerms(fit) {
-  const variant = (fit?.variants || []).find((entry) => entry.id === fit.recommended_variant);
+  const variant = (fit?.variants || [])[0];
   if (!variant) return [];
   if (variant.matched_text?.length) return variant.matched_text;
   return [...variant.matched[3], ...variant.matched[2], ...variant.matched[1]];
@@ -2402,57 +2377,31 @@ function renderDetailWhy(job) {
     return;
   }
 
-  const recommended = fit.variants.find((variant) => variant.id === fit.recommended_variant);
+  /* This used to headline a routing call — "Send this one" — computed by
+   * scoring seven résumés against the posting and printing the winner plus the
+   * margin it won by. With one authored profile there is no winner to compute,
+   * and picking what to send is a judgment made by someone who has read the
+   * job. So the panel shows the deterministic fit for context and then gets
+   * out of the way; the chooser below records what you actually sent. */
+  DOM.detailFit.append(el('p', 'send-verdict', `${fit.verdict} fit · ${fit.fit_score} / 100`));
 
-  // "SEND THIS ONE" — the routing call as the panel's headline, per the brief
-  DOM.detailFit.append(el('p', 'send-heading', 'Send this one'));
-  const headline = el('div', 'send-headline');
-  headline.append(
-    el('span', 'send-name', recommended ? recommended.label : `${fit.verdict} fit`),
-    el('span', 'send-score', String(fit.fit_score))
-  );
-  DOM.detailFit.append(headline);
-
-  const verdictLine = el('p', 'send-verdict', `${fit.verdict} fit · ${fit.fit_score} / 100`);
-  if (fit.recommended_source === 'llm') {
-    verdictLine.append(el('span', 'signal-note',
-      `resolved locally by ${state.routeCache?.model || 'local model'}${fit.llm_reason ? `: ${fit.llm_reason}` : ''}`));
-  } else if (fit.ambiguous) {
-    verdictLine.append(el('span', 'signal-note',
-      'close call between variants — npm run radar:route resolves these with a local model'));
+  const chooser = el('div', 'send-variants');
+  chooser.append(el('p', 'send-heading', 'Résumé sent'));
+  const sentId = state.local.triage[job.id]?.variant_sent || '';
+  for (const resume of state.resumes) {
+    const row = el('button', `send-row${resume.id === sentId ? ' is-best' : ''}`);
+    row.type = 'button';
+    row.append(el('span', 'send-row-label', resume.label));
+    row.addEventListener('click', () => {
+      const next = resume.id === sentId ? '' : resume.id;
+      setVariantSent(job, next);
+    });
+    chooser.append(row);
   }
-  DOM.detailFit.append(verdictLine);
-
-  // Per-variant rows: label · hairline bar · number, best first
-  const variantList = el('div', 'send-variants');
-  for (const variant of fit.variants.slice().sort((a, b) => b.score - a.score || a.order - b.order)) {
-    const row = el('div', `send-row${variant.id === fit.recommended_variant ? ' is-best' : ''}`);
-    const bar = el('span', 'send-bar');
-    const fill = el('i');
-    // Variant scores top out at VARIANT_SCORE_MAX (80), not 100 — treating
-    // the number as a percentage made every bar look two-thirds empty.
-    const pct = (Number(variant.score) || 0) / RadarScoring.WEIGHTS.VARIANT_SCORE_MAX * 100;
-    fill.style.width = `${Math.max(0, Math.min(100, pct))}%`;
-    bar.append(fill);
-    row.append(
-      el('span', 'send-row-label', variant.label),
-      bar,
-      el('span', 'send-row-score', String(variant.score))
-    );
-    variantList.append(row);
-
-    const matchedParts = [3, 2, 1]
-      .filter((weight) => variant.matched[weight].length)
-      .map((weight) => `${WEIGHT_LABELS[weight]}: ${variant.matched[weight].join(', ')}`);
-    const notes = [];
-    if (variant.title_class_match) notes.push(`${variant.title_class_match} class match`);
-    if (variant.domain_hits.length) notes.push(`domains: ${variant.domain_hits.join(', ')}`);
-    if (variant.target_title_hit) notes.push('title match');
-    if (matchedParts.length || notes.length) {
-      variantList.append(el('p', 'why-matched', [...matchedParts, ...notes].join(' · ')));
-    }
+  if (!state.resumes.length) {
+    chooser.append(el('p', 'profile-note', 'No résumés on disk yet — add them in the sidebar.'));
   }
-  DOM.detailFit.append(variantList);
+  DOM.detailFit.append(chooser);
 
   // Eligibility first: whether the application can be considered at all
   // outranks how well it scores. Every barrier shows the sentence it came
@@ -2595,15 +2544,11 @@ async function setTriage(job, status) {
   const now = new Date().toISOString();
   const record = { ...prev, status, updated_at: now };
   // Stamp the first time it becomes "applied" so the funnel remembers when you
-  // actually applied, independent of any later interview/offer change. The
-  // recommended variant is captured at the same moment — the best guess at
-  // which resume was sent, editable afterwards in the detail pane.
-  if (status === 'applied' && !record.applied_at) {
-    record.applied_at = now;
-    if (!record.variant_sent && job.fit?.recommended_variant) {
-      record.variant_sent = job.fit.recommended_variant;
-    }
-  }
+  // actually applied, independent of any later interview/offer change.
+  // Which résumé went is NOT guessed: it used to be back-filled from whichever
+  // variant scored highest, which quietly recorded something you never did.
+  // Pick it in the detail pane, or leave it blank.
+  if (status === 'applied' && !record.applied_at) record.applied_at = now;
   state.local.triage[job.id] = record;
   await persistTriage();
   render();
@@ -2959,7 +2904,6 @@ function bindEvents() {
     const files = [...(dropEvent.dataTransfer?.files || [])];
     if (files.length) uploadResumes(files);
   });
-  DOM.wantsSave.addEventListener('click', saveWants);
   DOM.blockedNote.addEventListener('click', () => {
     showBlocked = !showBlocked;
     showAllRows = false;
@@ -3163,7 +3107,7 @@ async function init() {
   pollProfileFreshness();
   maybeSyncProfileFromLocalRadar();
   loadResumePanel();
-  loadWants();
+  loadProfilePanel();
   renderRefreshStatus(report);
   renderDiscovery(discovery);
   // Keep the next-pull countdown honest without touching anything else

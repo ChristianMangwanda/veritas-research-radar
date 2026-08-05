@@ -15,8 +15,6 @@
     "scout:aggregators": "scout/.venv/bin/python scout/scout_aggregators.py",
     "scout:discover": "scout/.venv/bin/python scout/scout_discover.py",
     "radar:websites": "node radar/scripts/fetch-nonprofit-websites.js",
-    "radar:profile": "node radar/scripts/build-profile.js",
-    "radar:route": "node radar/scripts/route-resumes.js",
     "radar:digest:local": "node radar/scripts/digest-local.js",
     "radar:fit-audit": "node radar/scripts/fit-audit.js",
     "test": "node tests/radar.test.js",

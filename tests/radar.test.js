@@ -73,27 +73,9 @@ const { parseDeadline } = require('../radar/scripts/lib/deadline.js');
 const { parsePeopleAdminAtom, mapPeopleAdminEntry } = require('../radar/scripts/refresh.js');
 const { jobRow, supabaseEnv, rehydrateJob } = require('../radar/scripts/lib/supabase.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
-const {
-  TITLE_CLASSES,
-  VARIANT_SCHEMA,
-  validateManifest,
-  variantCacheKey,
-  normalizeVariantProfile,
-  reconcileCore,
-  slugify,
-  variantUserPrompt,
-  parseArgs
-} = require('../radar/scripts/build-profile.js');
 const { CLASS_LABELS } = require('../radar/scripts/lib/title-class.js');
 const RadarScoring = require('../radar/public/scoring.js');
 const RadarPipeline = require('../radar/public/pipeline.js');
-const {
-  selectAmbiguousJobs,
-  validateVerdict,
-  buildRoutePrompt,
-  askOllama
-} = require('../radar/scripts/route-resumes.js');
-const { ollamaChat } = require('../radar/scripts/lib/ollama.js');
 
 function testSharedAnalyzer() {
   assert.strictEqual(analyzeText('Visa sponsorship is available for this role.').state, 'FRIENDLY');
@@ -1543,177 +1525,6 @@ function testEnrichment() {
   assert.deepStrictEqual(enriched.dol_recent_titles, ['Research Scientist']);
 }
 
-function testProfileIngestion() {
-  // Taxonomy stays in lockstep with title-class.js — no hardcoded mirror.
-  assert.deepStrictEqual(TITLE_CLASSES, Object.keys(CLASS_LABELS));
-
-  // Manifest validation
-  const good = {
-    schema_version: 1,
-    variants: [
-      { id: 'ml', label: 'ML Engineer', file: 'ml.pdf', intent: 'Leads with production ML, PyTorch, MLOps' },
-      { id: 'de', label: 'Data Engineer', file: 'de.md', intent: 'Leads with pipelines and warehouse modeling' }
-    ]
-  };
-  assert.strictEqual(validateManifest(good), null);
-  assert.match(validateManifest({ schema_version: 2, variants: good.variants }), /schema_version/);
-  assert.match(validateManifest({ schema_version: 1, variants: [] }), /non-empty/);
-  assert.match(
-    validateManifest({ schema_version: 1, variants: [good.variants[0], { ...good.variants[1], id: 'ml' }] }),
-    /duplicate/
-  );
-  assert.match(
-    validateManifest({ schema_version: 1, variants: [{ ...good.variants[0], intent: 'too short' }] }),
-    /intent/
-  );
-  assert.strictEqual(
-    validateManifest({ schema_version: 1, variants: [{ ...good.variants[0], file: 'resume.docx' }] }),
-    null
-  ); // .docx is a supported resume format (extracted locally via unzip)
-  assert.match(
-    validateManifest({ schema_version: 1, variants: [{ ...good.variants[0], file: 'resume.rtf' }] }),
-    /file/
-  ); // an unsupported extension is still rejected
-  assert.match(
-    validateManifest({ schema_version: 1, variants: [{ ...good.variants[0], id: 'ML Engineer' }] }),
-    /slug/
-  );
-
-  // Cache key: stable for identical inputs, changes on intent edit or new text
-  const variant = good.variants[0];
-  const key = variantCacheKey('resume text body', variant);
-  assert.strictEqual(variantCacheKey('resume text body', variant), key);
-  assert.notStrictEqual(variantCacheKey('resume text body', { ...variant, intent: 'Rewritten intent line here' }), key);
-  assert.notStrictEqual(variantCacheKey('different resume text', variant), key);
-  // Renaming the id must NOT invalidate the cache (id is display/routing only)
-  assert.strictEqual(variantCacheKey('resume text body', { ...variant, id: 'renamed' }), key);
-
-  // Variant profile normalization: short terms dropped, weights clamped,
-  // duplicate terms and self-aliases removed
-  const normalized = normalizeVariantProfile({
-    skills: [
-      { term: 'PyTorch', weight: 5, aliases: ['torch', 'PyTorch', 'x'] },
-      { term: 'r', weight: 3 },
-      { term: 'pytorch', weight: 1 },
-      { term: ' sql ', weight: 0 }
-    ]
-  });
-  assert.deepStrictEqual(normalized.skills, [
-    { term: 'pytorch', weight: 3, aliases: ['torch'], broad_aliases: [] },
-    { term: 'sql', weight: 1, aliases: [], broad_aliases: [] }
-  ]);
-
-  // Matchability normalization: snake_case → spaces, and canonical atomic tokens
-  // recovered from compound terms as aliases so they match plain job text (the
-  // local model otherwise emits "python_programming"/"rag pipelines" that never
-  // hit a posting saying "Python" or "RAG").
-  const matchable = normalizeVariantProfile({
-    skills: [
-      { term: 'python_programming', weight: 3 },
-      { term: 'rag pipelines', weight: 2 },
-      { term: 'star schema design', weight: 2 },
-      { term: 'aws (lambda, ec2)', weight: 1 }
-    ]
-  });
-  // Recovered atomic tokens land in broad_aliases (scoring credits them at
-  // weight 1 — a bare "rag" must not earn what "rag pipelines" earns), while
-  // parenthetical tokens are the author naming concrete tools: full-weight
-  // aliases, with the head kept as the term.
-  assert.deepStrictEqual(matchable.skills, [
-    { term: 'python programming', weight: 3, aliases: [], broad_aliases: ['python'] },
-    { term: 'rag pipelines', weight: 2, aliases: [], broad_aliases: ['rag'] },
-    { term: 'star schema design', weight: 2, aliases: [], broad_aliases: [] }, // no allowlisted token → no noisy alias
-    { term: 'aws', weight: 1, aliases: ['lambda', 'ec2'], broad_aliases: [] }
-  ]);
-
-  // Unmatchable resume phrases are trimmed to a matchable head, with a warning.
-  const warnings = [];
-  const trimmed = normalizeVariantProfile({
-    skills: [
-      { term: 'automated summarization pipelines for clinical notes', weight: 3 },
-      { term: 'forecasting models (sarimax, prophet)', weight: 3 },
-      // Trimming must not end on a connective, and a comma list is a head
-      // plus concrete tools — not a four-word phrase.
-      { term: 'data ingestion and preparation', weight: 2 },
-      { term: 'aws sagemaker, lambda, ec2', weight: 1 },
-      // Mid-phrase connective: the concept is "cnns", not "cnns for medical".
-      { term: 'cnns for medical imaging', weight: 2 }
-    ],
-    domains: ['machine_learning', 'AI/ML Engineering', 'machine learning'],
-    target_titles: ['machine_learning engineer'],
-    // Self-penalty guard: a model asked for "poor fit" terms reaches for the
-    // resume. "machine learning" here would dock every ML job.
-    avoid_signals: ['registered_nurse', 'machine learning', 'cnns for medical imaging']
-  }, (message) => warnings.push(message));
-  assert.deepStrictEqual(trimmed.skills, [
-    { term: 'automated summarization pipelines', weight: 3, aliases: [], broad_aliases: [] },
-    { term: 'forecasting models', weight: 3, aliases: ['sarimax', 'prophet'], broad_aliases: [] },
-    { term: 'data ingestion', weight: 2, aliases: [], broad_aliases: [] },
-    { term: 'aws sagemaker', weight: 1, aliases: ['lambda', 'ec2'], broad_aliases: ['aws'] },
-    { term: 'cnns', weight: 2, aliases: [], broad_aliases: [] }
-  ]);
-  assert(warnings.some((line) => /trimmed unmatchable term/.test(line)));
-  assert(warnings.some((line) => /dropped self-referential avoid signal/.test(line)));
-  // Domains/titles/avoid signals normalize + dedupe (underscores never matched).
-  assert.deepStrictEqual(trimmed.domains, ['machine learning', 'ai ml engineering']);
-  assert.deepStrictEqual(trimmed.target_titles, ['machine learning engineer']);
-  assert.deepStrictEqual(trimmed.avoid_signals, ['registered nurse'],
-    'own skills/domains must never become self-penalties');
-  // Model output for avoid_signals is discarded (reconcileCore sources the
-  // curated list), so it must not be a required field the model has to fill.
-  assert(!VARIANT_SCHEMA.required.includes('avoid_signals'));
-  assert(VARIANT_SCHEMA.properties.avoid_signals);
-
-  // Core reconciliation: degree union (completed beats in_progress), most
-  // senior stage, max years, curated avoid signals
-  const core = reconcileCore([
-    {
-      summary: 'ML person.',
-      career_stage: 'early_career',
-      years_experience: 3,
-      degrees: [
-        { level: 'masters', field: 'Computer Science', status: 'in_progress' },
-        { level: 'bachelors', field: 'Math', status: 'completed' }
-      ],
-      title_classes: ['data_computational'],
-      // Model output here is discarded: every real run returned the person's
-      // own history, which would penalize jobs they could plausibly get.
-      avoid_signals: ['research assistant', 'machine learning'],
-      notes_for_ranking: 'Prefers computational roles.'
-    },
-    {
-      summary: 'Data person.',
-      career_stage: 'mid_career',
-      years_experience: 5,
-      degrees: [{ level: 'masters', field: 'computer science', status: 'completed' }],
-      title_classes: ['engineering_software'],
-      avoid_signals: ['graduate teaching assistant'],
-      notes_for_ranking: 'Prefers computational roles.'
-    }
-  ]);
-  assert.strictEqual(core.career_stage, 'mid_career');
-  assert.strictEqual(core.years_experience, 5);
-  assert.strictEqual(core.summary, 'ML person.');
-  assert.deepStrictEqual(core.degrees, [
-    { level: 'masters', field: 'Computer Science', status: 'completed' },
-    { level: 'bachelors', field: 'Math', status: 'completed' }
-  ]);
-  assert(core.avoid_signals.includes('registered nurse'), 'curated cross-profession signals apply');
-  assert(!core.avoid_signals.includes('research assistant'), 'model-supplied self-penalties are discarded');
-  assert(!core.avoid_signals.includes('machine learning'));
-  // A non-computational profile gets no cross-profession list at all.
-  const clinicalCore = reconcileCore([{
-    summary: 'Nurse.', career_stage: 'early_career', years_experience: 3,
-    degrees: [], title_classes: ['clinical'], avoid_signals: [], notes_for_ranking: ''
-  }]);
-  assert.deepStrictEqual(clinicalCore.avoid_signals, []);
-  assert.strictEqual(core.notes_for_ranking, 'Prefers computational roles.');
-
-  // Scaffold id slugs
-  assert.strictEqual(slugify('ML Engineer Resume.pdf'), 'ml-engineer-resume');
-  assert.strictEqual(slugify('___.pdf'), 'variant');
-}
-
 const SCORING_FIXTURE_PROFILE = {
   schema_version: 2,
   core: {
@@ -1885,13 +1696,14 @@ function testEligibility() {
   assert.deepStrictEqual(clean.blockers, []);
   assert.strictEqual(clean.insufficient_text, false);
 
-  // Years: far beyond reach blocks; near the user's experience only cautions.
+  // Years of experience never gates. Postings overstate it, and walling off
+  // "5+ years" lost research associate roles that were a stretch rather than
+  // an impossibility; the judge model reads the requirement itself.
   const tooSenior = assess(`${LONG} Minimum of 10 years of experience is required.`);
-  assert.strictEqual(tooSenior.verdict, 'blocked');
-  assert.strictEqual(tooSenior.blockers[0].type, 'experience');
-  assert(tooSenior.blockers[0].evidence.includes('10 years'));
-  assert.strictEqual(assess(`${LONG} Requires a minimum of 5 years of experience.`).verdict, 'likely');
-  // "Preferred" is not a wall.
+  assert.strictEqual(tooSenior.verdict, 'clear');
+  assert.deepStrictEqual(tooSenior.blockers, []);
+  assert.deepStrictEqual(tooSenior.cautions, []);
+  assert.strictEqual(assess(`${LONG} Requires a minimum of 5 years of experience.`).verdict, 'clear');
   assert.strictEqual(assess(`${LONG} 10 years of experience preferred.`).verdict, 'clear');
   // Years that aren't about experience must not count.
   assert.strictEqual(assess(`${LONG} The required grant runs for 10 years.`).verdict, 'clear');
@@ -1952,10 +1764,11 @@ function testEligibility() {
     }
   }
 
-  // A cached local-model reading supplies job-side facts only; the comparison
-  // stays deterministic. Without a quote it cannot block.
+  // A cached local-model reading supplies job-side facts only, and a claimed
+  // years requirement is not one the funnel acts on any more — not even as a
+  // caution. It reaches the judge as posting text like everything else.
   const claimed = assess(LONG, { classified_requirements: { min_years: 12 } });
-  assert.strictEqual(claimed.verdict, 'likely');
+  assert.strictEqual(claimed.verdict, 'clear');
 
   /* Regressions from the first live precision review (2026-08-04). Both of
      these hid a genuinely good job, which is the failure this layer exists to
@@ -1968,11 +1781,16 @@ function testEligibility() {
 
   // Six University of Chicago postings, fits 27-44: a range asks for its
   // floor, and alternative routes mean the lowest bar is the real one.
-  const range = assess(`${LONG} Minimum qualifications include knowledge and skills developed through 5-7 years of work experience in a related job discipline.`);
-  assert.strictEqual(range.verdict, 'likely', '5-7 years asks for 5, not 7');
-  assert.strictEqual(parseYearsRequirement('requires 5-7 years of experience').min_years, 5);
-  const alternatives = assess(`${LONG} Bachelor's degree plus 8 years experience required, Master's degree plus 6 years experience required.`);
-  assert.strictEqual(alternatives.verdict, 'likely', 'the most permissive route is the bar');
+  // These no longer change the verdict — years are ignored by the funnel — but
+  // the reading itself still has to be right, since it is reported to the user.
+  assert.strictEqual(parseYearsRequirement('requires 5-7 years of experience').min_years, 5,
+    '5-7 years asks for 5, not 7');
+  assert.strictEqual(
+    parseYearsRequirement("Bachelor's degree plus 8 years experience required, Master's degree plus 6 years experience required.").min_years,
+    6, 'the most permissive route is the bar');
+  assert.strictEqual(
+    assess(`${LONG} Minimum qualifications include knowledge and skills developed through 5-7 years of work experience.`).verdict,
+    'clear', 'and no amount of stated experience hides the job');
 }
 
 function testRoleTrack() {
@@ -2053,18 +1871,24 @@ function testQualifiedPredicate() {
   assert.strictEqual(isQualified(job(fit('reachable', 'clear'), { status: 'closed' })), false);
   assert.strictEqual(isQualified(job(fit('reachable', 'clear'), { citizenship_gated: true })), false);
 
-  // Off-track: unknown stays out of Qualified (it lives in All jobs), none is out.
-  assert.strictEqual(isQualified(job(fit('unknown', 'clear'))), false);
-  assert.strictEqual(isQualified(job(fit('none', 'clear'))), false);
-  assert.strictEqual(isQualified(job(fit(null, 'clear'))), false);
+  // Track no longer gates. It was a guess about whether a job was this
+  // person's line of work, made from its title class, and it was the last
+  // place a real match could vanish without evidence — it existed only to
+  // spare a local model that cost 20s a posting. Judging is cents now, so
+  // every off-track job gets read rather than assumed away.
+  assert.strictEqual(isQualified(job(fit('unknown', 'clear'))), true);
+  assert.strictEqual(isQualified(job(fit('none', 'clear'))), true);
+  assert.strictEqual(isQualified(job(fit(null, 'clear'))), true);
 
   // Blocked is excluded by default but revealable — the same predicate must
   // serve the "+N blocked" count so the two can never disagree.
   const blocked = job(fit('reachable', 'blocked'));
   assert.strictEqual(isQualified(blocked), false);
   assert.strictEqual(isQualified(blocked, { includeBlocked: true }), true);
-  // includeBlocked only lifts the eligibility gate, nothing else.
-  assert.strictEqual(isQualified(job(fit('none', 'blocked')), { includeBlocked: true }), false);
+  // includeBlocked lifts the eligibility gate; closed and citizens-only are
+  // facts about the posting and stay out either way.
+  assert.strictEqual(isQualified(job(fit('none', 'blocked'), { status: 'closed' }), { includeBlocked: true }), false);
+  assert.strictEqual(isQualified(job(fit('none', 'blocked'), { citizenship_gated: true }), { includeBlocked: true }), false);
 
   // Integration: the shapes scoreAll actually stamps satisfy the predicate.
   const scored = {
@@ -2166,6 +1990,73 @@ function testProfessionGate() {
   assert.strictEqual(classifyTitle('Physician - Electrophysiology Cardiologist'), 'clinical');
 }
 
+/* profile.md is now the only thing the system knows about the candidate, so
+ * how it is read decides what gets surfaced. These pin the two places it can
+ * quietly lose something: a capability swallowed by punctuation, and a skill
+ * dropped for being too short to match. */
+function testProfileDocument() {
+  const { parseProfileDocument, parseCapabilities } = require('../radar/scripts/lib/profile-doc.js');
+
+  // Parenthesised detail is where the most matchable terms live — a posting
+  // says "SARIMAX", not "time-series forecasting". Keep the parent AND each
+  // item inside, and never let a comma inside brackets split an entry.
+  const { terms, dropped } = parseCapabilities('Python, time-series forecasting (SARIMAX, Prophet), AWS (SageMaker, Lambda), R');
+  assert.deepStrictEqual(terms, ['Python', 'time-series forecasting', 'SARIMAX', 'Prophet', 'AWS', 'SageMaker', 'Lambda']);
+  // "R" cannot be matched safely — a bare letter hits every posting — but it
+  // is reported rather than vanishing, which is the whole contract here.
+  assert.deepStrictEqual(dropped, ['R']);
+
+  const doc = parseProfileDocument([
+    '---',
+    'years_experience: 2',
+    'career_stage: student',
+    'salary_floor: null',
+    'locations: [East Coast, remote]',
+    'degrees:',
+    '  - level: masters',
+    '    field: Applied Data Science',
+    '    status: in_progress',
+    '  - level: bachelors',
+    '    field: Forensic Science',
+    '    status: completed',
+    'avoid:',
+    '  - registered nurse',
+    '---',
+    '',
+    '## Who I am',
+    'Christian builds ML systems on biological data.',
+    '',
+    '## What I can do',
+    'Python, PyTorch, BLASTp',
+    '',
+    '## What I want',
+    'Computational biology.'
+  ].join('\n'));
+
+  assert.strictEqual(RadarScoring.validateProfile(doc), null, 'must satisfy the scoring engine');
+  assert.strictEqual(doc.core.years_experience, 2);
+  assert.strictEqual(doc.core.career_stage, 'student');
+  assert.strictEqual(doc.core.salary_floor, null, 'a null floor is "none stated", never zero');
+  assert.deepStrictEqual(doc.core.locations, ['East Coast', 'remote']);
+  assert.strictEqual(doc.core.degrees.length, 2);
+  assert.deepStrictEqual(doc.core.degrees[0], { level: 'masters', field: 'Applied Data Science', status: 'in_progress' });
+  assert.deepStrictEqual(doc.core.avoid_signals, ['registered nurse']);
+  assert.deepStrictEqual(doc.variants[0].skills.map((s) => s.term), ['python', 'pytorch', 'blastp']);
+
+  // One profile, one variant — the scoring engine keeps its best-of-N shape
+  // with N=1 rather than being torn up.
+  assert.strictEqual(doc.variants.length, 1);
+  assert.deepStrictEqual(doc.variants[0].title_classes, [],
+    'guessing title classes would invent a constraint the document never stated');
+
+  // The prose is what the judge reads, verbatim.
+  assert(doc.prose.includes('Christian builds ML systems'));
+  assert(doc.prose.includes('Computational biology.'));
+
+  // An empty avoid list is a legitimate answer, not a missing one.
+  assert.deepStrictEqual(parseProfileDocument('---\navoid: []\n---\n\n## Who I am\nx').core.avoid_signals, []);
+}
+
 function testJudgedMatch() {
   const {
     deriveVerdict, normalizeJudgment, matchCacheKey, candidateBrief, jobBrief,
@@ -2186,28 +2077,27 @@ function testJudgedMatch() {
   assert(order.indexOf('different_profession') < order.indexOf('reasons'));
   assert(!('verdict' in JUDGMENT_SCHEMA.properties), 'verdict is derived, never asked for');
 
-  const ids = ['ml-engineer', 'bioinformatics'];
+  assert(!('resume_id' in JUDGMENT_SCHEMA.properties),
+    'picking which résumé to send is the human\'s call, not a field the model fills');
+
   const raw = {
     role_summary: 'Bedside nurse practitioner role, clinical not computational',
     different_profession: true,
     meets_requirements: false,
     matches_preferences: false,
     reasons: [],
-    gaps: ['  Requires   RN licence  '],
-    resume_id: 'ml-engineer'
+    gaps: ['  Requires   RN licence  ']
   };
-  const judged = normalizeJudgment(raw, ids);
+  const judged = normalizeJudgment(raw);
   assert.strictEqual(judged.verdict, 'no');
   assert.strictEqual(judged.gaps[0], 'Requires RN licence', 'whitespace is collapsed for display');
 
   // A missing boolean means the model did not answer — inventing a default
   // would manufacture matches, so the judgment is discarded and retried.
-  assert.strictEqual(normalizeJudgment({ ...raw, meets_requirements: undefined }, ids), null);
-  assert.strictEqual(normalizeJudgment(null, ids), null);
-  // A hallucinated resume id falls back rather than dangling.
-  assert.strictEqual(normalizeJudgment({ ...raw, resume_id: 'not-a-variant' }, ids).resume_id, 'ml-engineer');
+  assert.strictEqual(normalizeJudgment({ ...raw, meets_requirements: undefined }), null);
+  assert.strictEqual(normalizeJudgment(null), null);
   // Long lists and long lines are clamped so one bad judgment can't wreck a row.
-  const wordy = normalizeJudgment({ ...raw, reasons: ['a', 'b', 'c', 'd'], gaps: ['x'.repeat(400)] }, ids);
+  const wordy = normalizeJudgment({ ...raw, reasons: ['a', 'b', 'c', 'd'], gaps: ['x'.repeat(400)] });
   assert.strictEqual(wordy.reasons.length, 2);
   assert(wordy.gaps[0].length <= 110);
 
@@ -2228,14 +2118,19 @@ function testJudgedMatch() {
   assert.deepStrictEqual([...rows].sort(compareJudged).map((row) => row.id), ['c', 'b', 'a']);
   assert(VERDICT_RANK.strong < VERDICT_RANK.no);
 
-  // The brief must actually carry the resume ids the model has to choose from.
-  const brief = candidateBrief({
+  // The authored document IS the brief, passed through verbatim. That is the
+  // point: editing profile.md changes the judging with nothing in between to
+  // reinterpret it, and no seven-variant summary rides on every posting.
+  const prose = '## Who I am\nML person.\n\n## What I want\nHealth data research.';
+  assert.strictEqual(candidateBrief({ core: {}, variants: [], prose }), prose);
+
+  // A legacy profile.json still judges rather than yielding an empty brief.
+  const legacy = candidateBrief({
     core: { summary: 'ML person', degrees: [{ level: 'masters', status: 'in_progress' }], years_experience: 3 },
-    variants: [{ id: 'ml-engineer', label: 'ML Engineer', intent: 'production ML', skills: [{ term: 'pytorch', weight: 3 }] }]
+    variants: [{ id: 'ml-engineer', label: 'ML Engineer', skills: [{ term: 'pytorch', weight: 3 }] }]
   }, 'Wants: health data');
-  assert(brief.includes('id "ml-engineer"'));
-  assert(brief.includes('pytorch'));
-  assert(brief.includes('health data'), 'stated preferences ride in the prompt');
+  assert(legacy.includes('pytorch'));
+  assert(legacy.includes('health data'), 'stated preferences ride in the prompt');
 
   // Postings get truncated so prefill time stays bounded.
   const long = jobBrief({ title: 'T', employer_name: 'E', description_text: 'z'.repeat(20000) });
@@ -2302,45 +2197,89 @@ function testManifestSync() {
   assert.strictEqual(slugify('CM Resume .pdf'), 'cm-resume');
 }
 
-function testProfileFreshness() {
-  const { profileFreshness } = require('../radar/scripts/lib/profile-freshness.js');
-  const os = require('os');
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'radar-freshness-'));
-  const resumesDir = path.join(root, 'resumes');
-  const profilePath = path.join(root, 'profile.json');
-  const at = (seconds) => new Date(2026, 0, 1, 0, 0, seconds);
+// The refresh pool decides the order of a committed artifact and how hard we
+// hit other people's servers, so both properties are pinned here.
+async function testRefreshPool() {
+  // Results come back in INPUT order even when completion order is reversed.
+  const items = [1, 2, 3, 4, 5, 6, 7, 8];
+  const out = await runPooled(items, async (n) => {
+    await new Promise((resolve) => setTimeout(resolve, (9 - n) * 4));
+    return n * 10;
+  }, { concurrency: 4, perProvider: 4 });
+  assert.deepStrictEqual(out, [10, 20, 30, 40, 50, 60, 70, 80], 'pool must preserve input order');
 
-  // No resumes dir at all -> nothing to be stale against.
-  assert.deepStrictEqual(profileFreshness(resumesDir, profilePath), { stale: false, reason: 'no_resumes' });
+  // Global concurrency is never exceeded.
+  let inFlight = 0;
+  let peak = 0;
+  await runPooled(Array.from({ length: 20 }, (_, i) => i), async () => {
+    inFlight += 1;
+    peak = Math.max(peak, inFlight);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    inFlight -= 1;
+  }, { concurrency: 3, perProvider: 3 });
+  assert.strictEqual(peak, 3, `global concurrency cap breached (peak ${peak})`);
 
-  // Resumes exist but no profile yet -> stale.
-  fs.mkdirSync(resumesDir);
-  fs.writeFileSync(path.join(resumesDir, 'cv.pdf'), 'x');
-  fs.utimesSync(path.join(resumesDir, 'cv.pdf'), at(10), at(10));
-  assert.deepStrictEqual(profileFreshness(resumesDir, profilePath), { stale: true, reason: 'no_profile' });
+  // Per-provider cap holds even when the global cap would allow more.
+  const providerItems = Array.from({ length: 12 }, (_, i) => ({ provider: i < 8 ? 'workday' : `p${i}`, id: i }));
+  const load = new Map();
+  let providerPeak = 0;
+  await runPooled(providerItems, async (item) => {
+    load.set(item.provider, (load.get(item.provider) || 0) + 1);
+    providerPeak = Math.max(providerPeak, load.get('workday') || 0);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    load.set(item.provider, load.get(item.provider) - 1);
+  }, { concurrency: 8, perProvider: 2, groupOf: (item) => item.provider });
+  assert(providerPeak <= 2, `per-provider cap breached (peak ${providerPeak})`);
 
-  // Profile built after the newest resume -> fresh.
-  fs.writeFileSync(profilePath, '{}');
-  fs.utimesSync(profilePath, at(20), at(20));
-  assert.strictEqual(profileFreshness(resumesDir, profilePath).stale, false);
+  // Two employers sharing a host lane never overlap.
+  const laneItems = [{ lane: 'a' }, { lane: 'a' }, { lane: 'a' }, { lane: 'b' }];
+  let laneActive = 0;
+  let laneOverlap = false;
+  await runPooled(laneItems, async (item) => {
+    if (item.lane === 'a') {
+      laneActive += 1;
+      if (laneActive > 1) laneOverlap = true;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    if (item.lane === 'a') laneActive -= 1;
+  }, { concurrency: 4, perProvider: 4, laneOf: (item) => item.lane });
+  assert(!laneOverlap, 'same-host employers must not run concurrently');
 
-  // A resume (or the manifest) edited after the build -> stale.
-  fs.writeFileSync(path.join(resumesDir, 'manifest.json'), '{}');
-  fs.utimesSync(path.join(resumesDir, 'manifest.json'), at(30), at(30));
-  assert.deepStrictEqual(profileFreshness(resumesDir, profilePath), { stale: true, reason: 'resumes_changed' });
+  // A worker that throws drains the pool and then surfaces the error, rather
+  // than leaving siblings as unhandled rejections.
+  let finished = 0;
+  let caught = null;
+  try {
+    await runPooled([1, 2, 3, 4], async (n) => {
+      await new Promise((resolve) => setTimeout(resolve, n * 3));
+      if (n === 2) throw new Error('boom');
+      finished += 1;
+    }, { concurrency: 4, perProvider: 4 });
+  } catch (error) {
+    caught = error;
+  }
+  assert(caught && /boom/.test(caught.message), 'pool must rethrow a worker error');
+  assert.strictEqual(finished, 3, 'pool must drain remaining work before rethrowing');
 
-  // Dotfiles never count: .extract-cache.json is written mid-build and
-  // .DS_Store churns on every Finder visit.
-  fs.utimesSync(path.join(resumesDir, 'manifest.json'), at(10), at(10));
-  fs.writeFileSync(path.join(resumesDir, '.extract-cache.json'), '{}');
-  fs.utimesSync(path.join(resumesDir, '.extract-cache.json'), at(40), at(40));
-  assert.strictEqual(profileFreshness(resumesDir, profilePath).stale, false);
+  // hostLane keys on the primary feed; employers with no feed get no lane.
+  assert.strictEqual(hostLane({ ats_provider: 'workday', ats_token: 'cornell' }), 'workday:cornell');
+  assert.strictEqual(hostLane({ ats_provider: null, ats_token: null }), null);
+  assert.strictEqual(
+    hostLane({ ats_provider: null, ats_token: null, secondary_ats_feeds: [{ ats_provider: 'interfolio', ats_token: 'x' }] }),
+    'interfolio:x',
+    'an employer whose only feed is a secondary one still gets that lane'
+  );
 
-  // --if-stale is wired into the profile builder's arg parser.
-  assert.strictEqual(parseArgs(['--if-stale']).ifStale, true);
-  assert.strictEqual(parseArgs([]).ifStale, false);
-
-  fs.rmSync(root, { recursive: true, force: true });
+  // The pacer staggers starts within one provider but never across providers.
+  const pacer = createProviderPacer(30);
+  const started = Date.now();
+  await pacer('workday');
+  await pacer('workday');
+  const sameProviderElapsed = Date.now() - started;
+  assert(sameProviderElapsed >= 25, `same-provider starts must be staggered (was ${sameProviderElapsed}ms)`);
+  const crossStart = Date.now();
+  await pacer('peopleadmin');
+  assert(Date.now() - crossStart < 25, 'a different provider must not wait behind another provider');
 }
 
 function testFitAudit() {
@@ -2903,229 +2842,6 @@ function testProfileV2() {
   assert.strictEqual(typeof emptyFit().fit_summary, 'string');
 }
 
-async function testRouterSelection() {
-  const fitFor = (score, ambiguous) => ({ fit_score: score, ambiguous, variants: [] });
-  const jobs = [
-    { id: 'a', fit: fitFor(60, true) },
-    { id: 'b', fit: fitFor(50, false) },   // clear call — never routed
-    { id: 'c', fit: fitFor(45, true) },
-    { id: 'd', fit: fitFor(30, true) },
-    { id: 'e', fit: fitFor(null, false) }, // no profile
-    { id: 'f', fit: fitFor(70, true) }
-  ];
-
-  // fit-desc order, ambiguous only
-  assert.deepStrictEqual(
-    selectAmbiguousJobs(jobs, {}, {}).map((job) => job.id),
-    ['f', 'a', 'c', 'd']
-  );
-  // --min-fit and --limit respected
-  assert.deepStrictEqual(
-    selectAmbiguousJobs(jobs, {}, { minFit: 40 }).map((job) => job.id),
-    ['f', 'a', 'c']
-  );
-  assert.deepStrictEqual(
-    selectAmbiguousJobs(jobs, {}, { limit: 2 }).map((job) => job.id),
-    ['f', 'a']
-  );
-  // already-verdicted jobs are skipped
-  assert.deepStrictEqual(
-    selectAmbiguousJobs(jobs, { f: { variant_id: 'ml' } }, {}).map((job) => job.id),
-    ['a', 'c', 'd']
-  );
-
-  // verdict validation
-  assert.strictEqual(validateVerdict({ variant_id: 'zz', confidence: 'high', reason: 'x' }, ['ml', 'de']), null);
-  assert.strictEqual(validateVerdict(null, ['ml']), null);
-  const normalized = validateVerdict({ variant_id: 'ml', confidence: 'certain', reason: 'MLOps heavy' }, ['ml', 'de']);
-  assert.deepStrictEqual(normalized, { variant_id: 'ml', confidence: 'low', reason: 'MLOps heavy' });
-
-  // the prompt grounds the model in the user's declared intents and scores
-  const compiled = RadarScoring.compileProfile(SCORING_FIXTURE_PROFILE);
-  const job = {
-    id: 'j1',
-    title: 'Machine Learning Engineer',
-    department: 'Research IT',
-    title_class: 'data_computational',
-    description_text: ML_JOB_DESCRIPTION,
-    research_relevance_score: 0
-  };
-  RadarScoring.scoreAll([job], compiled, null);
-  const prompt = buildRoutePrompt(job, SCORING_FIXTURE_PROFILE, job.fit);
-  assert(prompt.includes('id: ml'));
-  assert(prompt.includes('Leads with production ML'));
-  assert(prompt.includes('deterministic score for this job: 46'));
-  assert(prompt.includes('Machine Learning Engineer (Research IT)'));
-
-  // stubbed Ollama happy path returns a validated verdict
-  const originalFetch = globalThis.fetch;
-  try {
-    let requestBody = null;
-    globalThis.fetch = async (url, init) => {
-      requestBody = JSON.parse(init.body);
-      return {
-        ok: true,
-        json: async () => ({ message: { content: '{"variant_id":"de","confidence":"high","reason":"Pipeline-heavy posting"}' } })
-      };
-    };
-    const verdict = await askOllama(job, SCORING_FIXTURE_PROFILE, job.fit, { model: 'qwen3:8b', baseUrl: 'http://stub' });
-    assert.deepStrictEqual(verdict, { variant_id: 'de', confidence: 'high', reason: 'Pipeline-heavy posting' });
-    assert.strictEqual(requestBody.model, 'qwen3:8b');
-    assert.strictEqual(requestBody.stream, false);
-    assert.deepStrictEqual(requestBody.format.properties.variant_id.enum, ['ml', 'de']);
-
-    // malformed model output is dropped, not thrown
-    globalThis.fetch = async () => ({ ok: true, json: async () => ({ message: { content: 'not json' } }) });
-    assert.strictEqual(await askOllama(job, SCORING_FIXTURE_PROFILE, job.fit, { model: 'm', baseUrl: 'http://stub' }), null);
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
-}
-
-async function testLocalExtraction() {
-  // Arg parsing: local Ollama is the default; provider/model/positional split
-  assert.deepStrictEqual(parseArgs([]), { force: false, ifStale: false, provider: 'ollama', model: null, positional: [] });
-  assert.strictEqual(parseArgs(['--provider', 'anthropic']).provider, 'anthropic');
-  assert.strictEqual(parseArgs(['--anthropic']).provider, 'anthropic');
-  assert.strictEqual(parseArgs(['--model', 'qwen2.5:14b-instruct']).model, 'qwen2.5:14b-instruct');
-  assert.strictEqual(parseArgs(['--force']).force, true);
-  // "--provider anthropic" must not leak its value into positional (single-file) args
-  assert.deepStrictEqual(parseArgs(['--provider', 'anthropic', 'resume.txt']).positional, ['resume.txt']);
-
-  // The extraction prompt carries the variant's declared label + intent
-  const prompt = variantUserPrompt('RESUME BODY', { label: 'ML Engineer', intent: 'Leads with production ML' });
-  assert(prompt.includes('"ML Engineer"'));
-  assert(prompt.includes('Leads with production ML'));
-  assert(prompt.includes('RESUME BODY'));
-
-  // Cache key is model-tag sensitive: a local profile and a hosted profile of
-  // the same resume must not collide
-  const variant = { label: 'ML Engineer', intent: 'Leads with production ML' };
-  const localKey = variantCacheKey('body', variant, 'ollama:qwen2.5:7b-instruct');
-  const hostedKey = variantCacheKey('body', variant, 'claude-opus-4-8');
-  assert.notStrictEqual(localKey, hostedKey);
-  assert.strictEqual(variantCacheKey('body', variant, 'ollama:qwen2.5:7b-instruct'), localKey);
-
-  // Shared Ollama client: structured happy path, parse-fail, and HTTP error
-  const originalFetch = globalThis.fetch;
-  try {
-    let body = null;
-    globalThis.fetch = async (url, init) => {
-      body = JSON.parse(init.body);
-      return { ok: true, json: async () => ({ message: { content: '{"summary":"x","skills":[]}' } }) };
-    };
-    const parsed = await ollamaChat({
-      baseUrl: 'http://stub', model: 'qwen2.5:7b-instruct',
-      system: 'S', user: 'U', format: { type: 'object' }, options: { temperature: 0, num_predict: 8192 }
-    });
-    assert.deepStrictEqual(parsed, { summary: 'x', skills: [] });
-    assert.strictEqual(body.stream, false);
-    assert.strictEqual(body.model, 'qwen2.5:7b-instruct');
-    assert.strictEqual(body.options.num_predict, 8192);
-    assert.deepStrictEqual(body.messages, [{ role: 'system', content: 'S' }, { role: 'user', content: 'U' }]);
-    assert(body.format);
-
-    globalThis.fetch = async () => ({ ok: true, json: async () => ({ message: { content: 'not json' } }) });
-    assert.strictEqual(await ollamaChat({ baseUrl: 'http://stub', model: 'm', user: 'U' }), null);
-
-    globalThis.fetch = async () => ({ ok: false, status: 500, text: async () => 'boom' });
-    let threw = false;
-    try {
-      await ollamaChat({ baseUrl: 'http://stub', model: 'm', user: 'U' });
-    } catch (error) {
-      threw = /ollama 500/.test(error.message);
-    }
-    assert(threw);
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
-}
-
-// The refresh pool decides the order of a committed artifact and how hard we
-// hit other people's servers, so both properties are pinned here.
-async function testRefreshPool() {
-  // Results come back in INPUT order even when completion order is reversed.
-  const items = [1, 2, 3, 4, 5, 6, 7, 8];
-  const out = await runPooled(items, async (n) => {
-    await new Promise((resolve) => setTimeout(resolve, (9 - n) * 4));
-    return n * 10;
-  }, { concurrency: 4, perProvider: 4 });
-  assert.deepStrictEqual(out, [10, 20, 30, 40, 50, 60, 70, 80], 'pool must preserve input order');
-
-  // Global concurrency is never exceeded.
-  let inFlight = 0;
-  let peak = 0;
-  await runPooled(Array.from({ length: 20 }, (_, i) => i), async () => {
-    inFlight += 1;
-    peak = Math.max(peak, inFlight);
-    await new Promise((resolve) => setTimeout(resolve, 5));
-    inFlight -= 1;
-  }, { concurrency: 3, perProvider: 3 });
-  assert.strictEqual(peak, 3, `global concurrency cap breached (peak ${peak})`);
-
-  // Per-provider cap holds even when the global cap would allow more.
-  const providerItems = Array.from({ length: 12 }, (_, i) => ({ provider: i < 8 ? 'workday' : `p${i}`, id: i }));
-  const load = new Map();
-  let providerPeak = 0;
-  await runPooled(providerItems, async (item) => {
-    load.set(item.provider, (load.get(item.provider) || 0) + 1);
-    providerPeak = Math.max(providerPeak, load.get('workday') || 0);
-    await new Promise((resolve) => setTimeout(resolve, 5));
-    load.set(item.provider, load.get(item.provider) - 1);
-  }, { concurrency: 8, perProvider: 2, groupOf: (item) => item.provider });
-  assert(providerPeak <= 2, `per-provider cap breached (peak ${providerPeak})`);
-
-  // Two employers sharing a host lane never overlap.
-  const laneItems = [{ lane: 'a' }, { lane: 'a' }, { lane: 'a' }, { lane: 'b' }];
-  let laneActive = 0;
-  let laneOverlap = false;
-  await runPooled(laneItems, async (item) => {
-    if (item.lane === 'a') {
-      laneActive += 1;
-      if (laneActive > 1) laneOverlap = true;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 5));
-    if (item.lane === 'a') laneActive -= 1;
-  }, { concurrency: 4, perProvider: 4, laneOf: (item) => item.lane });
-  assert(!laneOverlap, 'same-host employers must not run concurrently');
-
-  // A worker that throws drains the pool and then surfaces the error, rather
-  // than leaving siblings as unhandled rejections.
-  let finished = 0;
-  let caught = null;
-  try {
-    await runPooled([1, 2, 3, 4], async (n) => {
-      await new Promise((resolve) => setTimeout(resolve, n * 3));
-      if (n === 2) throw new Error('boom');
-      finished += 1;
-    }, { concurrency: 4, perProvider: 4 });
-  } catch (error) {
-    caught = error;
-  }
-  assert(caught && /boom/.test(caught.message), 'pool must rethrow a worker error');
-  assert.strictEqual(finished, 3, 'pool must drain remaining work before rethrowing');
-
-  // hostLane keys on the primary feed; employers with no feed get no lane.
-  assert.strictEqual(hostLane({ ats_provider: 'workday', ats_token: 'cornell' }), 'workday:cornell');
-  assert.strictEqual(hostLane({ ats_provider: null, ats_token: null }), null);
-  assert.strictEqual(
-    hostLane({ ats_provider: null, ats_token: null, secondary_ats_feeds: [{ ats_provider: 'interfolio', ats_token: 'x' }] }),
-    'interfolio:x',
-    'an employer whose only feed is a secondary one still gets that lane'
-  );
-
-  // The pacer staggers starts within one provider but never across providers.
-  const pacer = createProviderPacer(30);
-  const started = Date.now();
-  await pacer('workday');
-  await pacer('workday');
-  const sameProviderElapsed = Date.now() - started;
-  assert(sameProviderElapsed >= 25, `same-provider starts must be staggered (was ${sameProviderElapsed}ms)`);
-  const crossStart = Date.now();
-  await pacer('peopleadmin');
-  assert(Date.now() - crossStart < 25, 'a different provider must not wait behind another provider');
-}
-
 function testPageUpAdapter() {
   const xml = `<?xml version="1.0"?><urlset>
     <url><loc>https://careers.x.edu/</loc></url>
@@ -3371,7 +3087,6 @@ async function main() {
   testAggregatedImporter();
   testEnrichPipeline();
   testEnrichment();
-  testProfileIngestion();
   testDegreeGateParsing();
   testVariantScoring();
   testFitEngineRepairs();
@@ -3379,9 +3094,9 @@ async function main() {
   testRoleTrack();
   testQualifiedPredicate();
   testProfessionGate();
+  testProfileDocument();
   testJudgedMatch();
   testManifestSync();
-  testProfileFreshness();
   testFitAudit();
   testReachabilityDemotion();
   testVerdictTiers();
@@ -3397,8 +3112,6 @@ async function main() {
   testPipelineGrouping();
   testRoutingAmbiguity();
   testProfileV2();
-  await testRouterSelection();
-  await testLocalExtraction();
   await testRefreshPool();
   testPageUpAdapter();
   testAdpAdapter();

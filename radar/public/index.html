@@ -182,15 +182,9 @@
           </div>
         </details>
 
-        <details id="wants-section" class="side-section">
-          <summary>What you want <span id="wants-state" class="side-count"></span></summary>
-          <p class="profile-note">Write it however you like — roles, places, pay, what excites you, what you'd refuse. It's read alongside your resumes when judging each job.</p>
-          <textarea id="wants-text" rows="7" placeholder="e.g. Research or ML/data science roles at universities, institutes or hospitals. East Coast or remote. At least $90k. Most drawn to health data and computational biology. On F-1 OPT so sponsorship matters. Not interested in pure front-end work or night-shift clinical labs."></textarea>
-          <div class="profile-actions">
-            <button id="wants-save" class="primary-button" type="button">Save</button>
-            <span id="wants-status" class="profile-note"></span>
-          </div>
-          <div id="wants-structured" class="wants-structured"></div>
+        <details id="profile-doc-section" class="side-section">
+          <summary>Your profile <span id="profile-doc-state" class="side-count"></span></summary>
+          <div id="profile-doc-body"></div>
         </details>
       </aside>
 
@@ -225,7 +219,7 @@
           <span class="cell-role">Role</span>
           <span class="cell-fit">Match</span>
           <span class="cell-visa">Visa signal</span>
-          <span class="cell-send">Send résumé</span>
+          <span class="cell-send">Résumé sent</span>
           <span class="cell-closes">Closes</span>
         </div>
         <div id="jobs" class="job-list" role="listbox" aria-label="Jobs"></div>
