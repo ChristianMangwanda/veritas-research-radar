@@ -7,7 +7,6 @@ const state = {
   profileError: null, // validation message when an import is rejected
   profileFreshness: null, // /api/profile-freshness status (local server only)
   profileSyncedAt: null,  // set when the hosted page adopted the local server's profile
-  resumes: [],            // résumé files on disk — what you send, nothing more
   matches: {},            // jobId -> judged match (local server only)
   matchPending: 0,        // jobs queued for judging
   matchAvailable: false,  // false on the hosted dashboard (no local model)
@@ -61,52 +60,31 @@ const DOM = {
   refreshMeta: document.querySelector('#refresh-meta'),
   statActive: document.querySelector('#stat-active'),
   statNew: document.querySelector('#stat-new'),
-  statQualified: document.querySelector('#stat-qualified'),
+  statPossible: document.querySelector('#stat-possible'),
   statusToggle: document.querySelector('#status-toggle'),
   statusPanel: document.querySelector('#status-panel'),
   statusRefresh: document.querySelector('#status-refresh'),
   statusInstruments: document.querySelector('#status-instruments'),
+  statusProfile: document.querySelector('#status-profile'),
   errorsList: document.querySelector('#errors-list'),
   discoverySummary: document.querySelector('#discovery-summary'),
   discoveryList: document.querySelector('#discovery-list'),
   q: document.querySelector('#q'),
   sort: document.querySelector('#sort'),
   visaSeg: document.querySelector('#visa-seg'),
-  remoteOnly: document.querySelector('#remote-only'),
   markSeen: document.querySelector('#mark-seen'),
-  includeClosed: document.querySelector('#include-closed'),
-  includeFederal: document.querySelector('#include-federal'),
   recency: document.querySelector('#recency'),
-  ignoredNote: document.querySelector('#ignored-note'),
+  ignoredSection: document.querySelector('#ignored-section'),
+  ignoredSummary: document.querySelector('#ignored-summary'),
   ignoredPanel: document.querySelector('#ignored-panel'),
-  resumesSection: document.querySelector('#resumes-section'),
-  resumesCount: document.querySelector('#resumes-count'),
-  resumeDrop: document.querySelector('#resume-drop'),
-  resumeUpload: document.querySelector('#resume-upload'),
-  resumeList: document.querySelector('#resume-list'),
-  profileSection: document.querySelector('#profile-doc-section'),
-  profileState: document.querySelector('#profile-doc-state'),
-  profileBody: document.querySelector('#profile-doc-body'),
   undoBar: document.querySelector('#undo-bar'),
   undoMsg: document.querySelector('#undo-msg'),
   undoBtn: document.querySelector('#undo-btn'),
   blockedNote: document.querySelector('#blocked-note'),
-  triageExportHead: document.querySelector('#triage-export-head'),
   viewSeg: document.querySelector('#view-seg'),
   pipelineStats: document.querySelector('#pipeline-stats'),
   pipelineEmpty: document.querySelector('#pipeline-empty'),
   resetFilters: document.querySelector('#reset-filters'),
-  profileSummary: document.querySelector('#profile-summary'),
-  profileFile: document.querySelector('#profile-file'),
-  routeFile: document.querySelector('#route-file'),
-  triageExport: document.querySelector('#triage-export'),
-  triageImportFile: document.querySelector('#triage-import-file'),
-  triageTransferNote: document.querySelector('#triage-transfer-note'),
-  clearProfile: document.querySelector('#clear-profile'),
-  syncToken: document.querySelector('#sync-token'),
-  syncSave: document.querySelector('#sync-save'),
-  syncClear: document.querySelector('#sync-clear'),
-  syncStatus: document.querySelector('#sync-status'),
   rowTemplate: document.querySelector('#job-row-template'),
   detailPane: document.querySelector('#detail-pane'),
   detailScroll: document.querySelector('.detail-scroll'),
@@ -114,14 +92,11 @@ const DOM = {
   detailTitle: document.querySelector('#detail-title'),
   detailMeta: document.querySelector('#detail-meta'),
   detailOpen: document.querySelector('#detail-open'),
-  copyResumePath: null,
   triageControls: null,
   triageStepper: null,
   triageStateLine: null,
   triageLinks: null,
   detailNote: document.querySelector('#detail-note'),
-  variantSentWrap: document.querySelector('#variant-sent-wrap'),
-  variantSent: document.querySelector('#variant-sent'),
   detailAlerts: document.querySelector('#detail-alerts'),
   detailSignals: document.querySelector('#detail-signals'),
   detailFit: document.querySelector('#detail-fit'),
@@ -136,10 +111,9 @@ const DOM = {
 {
   const DETAIL_BOUND_LATER = new Set([
     'detailScroll', 'detailBack', 'detailTitle', 'detailMeta', 'detailOpen',
-    'copyResumePath', 'triageControls', 'triageStepper', 'triageStateLine',
-    'triageLinks', 'detailNote', 'variantSentWrap', 'variantSent',
-    'detailAlerts', 'detailSignals', 'detailFit', 'detailDescription',
-    'detailDisclaimer'
+    'triageControls', 'triageStepper', 'triageStateLine', 'triageLinks',
+    'detailNote', 'detailAlerts', 'detailSignals', 'detailFit',
+    'detailDescription', 'detailDisclaimer'
   ]);
   for (const [key, node] of Object.entries(DOM)) {
     if (node === null && !DETAIL_BOUND_LATER.has(key)) console.warn(`DOM cache miss: ${key}`);
@@ -158,11 +132,17 @@ let visaFilter = '';
 // The radar opens on what you can apply to; blocked jobs are one click away.
 let showBlocked = false;
 
-// 'qualified' = open + in your line of work + no quoted barrier, ranked by
-// fit; 'radar' = every active job; 'pipeline' = jobs you've applied to /
-// contacted, grouped by stage. Pipeline ignores every filter except search —
-// an application must never vanish because a filter tightened.
-let viewMode = 'qualified';
+/* 'possible' = open, not citizens-only, no quoted barrier — grouped by how the
+ * model read each one; 'radar' = every active job; 'pipeline' = jobs you've
+ * applied to / contacted, grouped by stage. Pipeline ignores every filter
+ * except search — an application must never vanish because a filter tightened.
+ *
+ * This tab was called "Qualified". It was the wrong word: the funnel rejects
+ * only what is quotably impossible and the judge is measurably lenient, so
+ * what survives is what you could plausibly apply to — not what you are
+ * qualified for. Claiming the stronger word made the list feel checked when
+ * nothing had checked it. */
+let viewMode = 'possible';
 
 // Job id whose detail pane shows the "did you apply?" nudge after the user
 // opened its posting. Self-scoped: only ever rendered for the matching job.
@@ -364,116 +344,21 @@ async function unignoreEmployer(employerId) {
   render();
 }
 
-/* ------------------------------------------------------------------------ */
-/* Cross-device triage sync (1.2). Optional and off until you paste a sync   */
-/* token (Settings → Sync); absent token = today's local-only behavior.      */
-/* The token gates two SECURITY DEFINER RPCs — radar_get_triage /            */
-/* radar_upsert_triage — so the public anon key alone can neither read nor    */
-/* write your triage. Setup + SQL: radar/supabase/triage.sql.                 */
-
-const SYNC_TOKEN_KEY = 'veritas_radar_sync_token';
-
-const triageSync = {
-  token() {
-    try { return localStorage.getItem(SYNC_TOKEN_KEY) || ''; } catch { return ''; }
-  },
-  enabled() {
-    return Boolean(this.token());
-  },
-  async rpc(fn, args) {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
-      method: 'POST',
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify(args)
-    });
-    if (!response.ok) throw new Error(`sync ${fn}: ${response.status} ${response.statusText}`);
-    return response.json();
-  },
-  async pull() {
-    if (!this.enabled()) return null;
-    const rows = await this.rpc('radar_get_triage', { p_token: this.token() });
-    const triage = {};
-    for (const row of rows || []) {
-      const record = { status: row.status, updated_at: row.updated_at };
-      if (row.note) record.note = row.note;
-      if (row.applied_at) record.applied_at = row.applied_at;
-      if (row.variant_sent) record.variant_sent = row.variant_sent;
-      triage[row.job_id] = record;
-    }
-    return triage;
-  },
-  async push() {
-    if (!this.enabled()) return;
-    const rows = Object.entries(state.local.triage).map(([jobId, record]) => ({
-      job_id: jobId,
-      status: record.status,
-      note: record.note ?? null,
-      applied_at: record.applied_at ?? null,
-      variant_sent: record.variant_sent ?? null,
-      updated_at: record.updated_at || new Date().toISOString()
-    }));
-    await this.rpc('radar_upsert_triage', { p_token: this.token(), p_rows: rows });
-  }
-};
-
-function renderSyncStatus(message) {
-  if (!DOM.syncStatus) return;
-  DOM.syncStatus.textContent = message
-    || (triageSync.enabled() ? 'On — triage syncs across your devices.' : 'Off — triage stays on this device only.');
-  if (DOM.syncToken) DOM.syncToken.value = triageSync.token();
-}
-
-async function saveSyncToken() {
-  const token = (DOM.syncToken.value || '').trim();
-  if (!token) {
-    renderSyncStatus('Enter a token first, or use Turn off.');
-    return;
-  }
-  localStorage.setItem(SYNC_TOKEN_KEY, token);
-  renderSyncStatus('Syncing…');
-  try {
-    const remote = await triageSync.pull(); // validates the token as a side effect
-    if (remote) {
-      state.local.triage = RadarPipeline.mergeTriage(state.local.triage, remote);
-      await saveLocalState();
-    }
-    await triageSync.push();
-    renderSyncStatus('On — synced across your devices.');
-    render();
-  } catch (error) {
-    // Bad token / unreachable: don't leave a broken token enabled.
-    localStorage.removeItem(SYNC_TOKEN_KEY);
-    renderSyncStatus(`Sync failed (${error.message}). Check the token and setup.`);
-  }
-}
-
-function clearSyncToken() {
-  localStorage.removeItem(SYNC_TOKEN_KEY);
-  if (DOM.syncToken) DOM.syncToken.value = '';
-  renderSyncStatus();
-}
-
-// One place every triage mutation persists through: local first (always), then
-// best-effort push to Supabase when sync is on. A failed push never blocks the
-// UI — the local write already succeeded and the next change retries.
+/* One place every triage mutation persists through.
+ *
+ * There used to be a Supabase sync here, gated by a token you pasted into the
+ * sidebar. It was built for a fleet of devices that does not exist: this is one
+ * person on one machine, and saveLocalState() already writes every change
+ * through to radar/data/local-state.json on disk. A token field, a merge, and
+ * two RPCs bought nothing that a file on the machine did not already give. */
 async function persistTriage() {
   await saveLocalState();
-  if (triageSync.enabled()) {
-    try {
-      await triageSync.push();
-    } catch (error) {
-      console.warn(`Triage sync push failed (kept locally): ${error.message}`);
-    }
-  }
 }
 
 /* ------------------------------------------------------------------------ */
-/* Resume-variant profile (all local; built by npm run radar:profile from    */
-/* the user's OWN resumes — nothing here generates resume content)           */
+/* Profile: compiled from radar/data/profile.md by the local server. The     */
+/* browser only ever reads it — there is no import, no editor, and no        */
+/* derived-from-résumés rebuild. Editing the document is how it changes.     */
 
 const PROFILE_KEY = 'veritas_radar_profile';
 const ROUTE_CACHE_KEY = 'veritas_radar_route_cache';
@@ -517,85 +402,66 @@ function applyProfile(profile, routeCache) {
   state.routeCache = routeCache || null;
   state.compiled = profile ? RadarScoring.compileProfile(profile) : null;
   RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
-  state.variantInitials = RadarScoring.variantInitials(state.profile?.variants);
-  renderProfileCard();
+  renderStatusProfile();
 }
 
-// Variant identity is TEXT in the steel system (the brief: fit and routing
-// are drawn in one hue, never a second color per variant).
-function variantAbbrev(variantId) {
-  return state.variantInitials?.[variantId] || String(variantId || '').toUpperCase().slice(0, 3);
-}
-
-function renderProfileCard() {
-  DOM.profileSummary.replaceChildren();
+/* The profile's whole presence in the UI: one block in the status drawer.
+ *
+ * It used to be two sidebar panels — a résumé list with upload and rename, and
+ * a card summarising the profile derived from them. Both are gone, because
+ * neither was editable in any way that mattered: the profile is a document you
+ * open in an editor. What survives is the part you cannot get anywhere else —
+ * whether the server actually loaded it, and what it dropped on the way in.
+ * A profile that failed to parse must be visible, or every job after it is
+ * judged against nothing and the list looks merely disappointing. */
+function renderStatusProfile() {
+  if (!DOM.statusProfile) return;
+  DOM.statusProfile.replaceChildren();
+  DOM.statusProfile.append(el('p', 'instrument-head-label', 'Profile'));
 
   if (state.profileError) {
-    DOM.profileSummary.append(el('p', 'profile-error', state.profileError));
+    DOM.statusProfile.append(el('p', 'profile-error', state.profileError));
   }
 
-  // Freshness line (local server only): the profile follows the resume FILES,
-  // so say so when they've drifted apart or a rebuild is underway.
-  const freshness = state.profileFreshness;
-  if (freshness?.building) {
-    DOM.profileSummary.append(el('p', 'profile-routing', 'Resumes changed — rebuilding your profile…'));
-  } else if (freshness?.stale && freshness.last_result && freshness.last_result.code !== 0) {
-    DOM.profileSummary.append(el('p', 'profile-error',
-      `Resumes changed but the rebuild failed — run npm run radar:profile. (${freshness.last_result.message || 'no detail'})`));
-  } else if (freshness?.stale) {
-    DOM.profileSummary.append(el('p', 'profile-routing', 'Resumes changed — profile rebuild pending.'));
-  } else if (state.profileSyncedAt) {
-    DOM.profileSummary.append(el('p', 'profile-routing', 'Auto-synced from your local radar.'));
-  }
-
-  if (!state.profile) {
-    DOM.profileSummary.append(el('p', 'profile-empty',
-      'No profile loaded. It builds from the resume files in radar/data/resumes/ — run npm start (or npm run radar:profile) and it appears here; the hosted dashboard syncs it over whenever the local radar is running.'));
+  const info = state.profileFreshness;
+  if (info && !info.loaded) {
+    DOM.statusProfile.append(el('p', 'profile-error',
+      info.error === 'no radar/data/profile.md yet'
+        ? 'No profile yet. Write one with radar/PROFILE-PROMPT.md and save it as radar/data/profile.md.'
+        : `profile.md could not be read: ${info.error}`));
     return;
   }
 
-  const core = state.profile.core || {};
-  const degrees = (core.degrees || [])
-    .map((degree) => `${degree.level}${degree.status === 'in_progress' ? '*' : ''}`)
-    .join(', ');
-  DOM.profileSummary.append(el('p', 'profile-core',
-    [degrees || null, (core.career_stage || '').replace(/_/g, ' ') || null,
-      Number.isFinite(core.years_experience) ? `${core.years_experience} yrs` : null]
-      .filter(Boolean).join(' · ')));
-
-  const list = el('ul', 'profile-variants');
-  for (const variant of state.profile.variants) {
-    const item = el('li');
-    item.append(
-      el('span', 'variant-abbrev', variantAbbrev(variant.id)),
-      el('span', 'variant-label', variant.label),
-      el('span', 'variant-terms', `${(variant.skills || []).length} terms`)
-    );
-    item.title = variant.intent || '';
-    list.append(item);
+  if (!state.compiled) {
+    DOM.statusProfile.append(el('p', 'drawer-note',
+      'No profile loaded. Start the local radar (npm start) — it reads radar/data/profile.md from disk.'));
+    return;
   }
-  DOM.profileSummary.append(list);
 
-  if (state.routeCache && state.compiled && state.routeCache.profile_hash !== state.compiled.hash) {
-    DOM.profileSummary.append(el('p', 'profile-error',
-      'Route verdicts were decided against an older profile and are ignored — re-run npm run radar:route.'));
-  } else if (state.routeCache && state.compiled) {
-    const count = Object.keys(state.routeCache.verdicts || {}).length;
-    DOM.profileSummary.append(el('p', 'profile-routing',
-      `${count} routing verdict${count === 1 ? '' : 's'} from ${state.routeCache.model || 'local model'}`));
+  const capabilities = info?.capabilities ?? (state.profile?.variants?.[0]?.skills?.length || 0);
+  DOM.statusProfile.append(el('p', 'drawer-note',
+    `${capabilities} capabilities · every job is judged against radar/data/profile.md and nothing else.`));
+
+  // A skill too short to match is reported, never silently lost — that is the
+  // one failure this document exists to prevent.
+  if ((info?.dropped_terms || []).length) {
+    DOM.statusProfile.append(el('p', 'drawer-note',
+      `Not matchable, so ignored: ${info.dropped_terms.join(', ')} — too short to search for safely.`));
+  }
+  if (state.profileSyncedAt) {
+    DOM.statusProfile.append(el('p', 'drawer-note', 'Auto-synced from your local radar.'));
   }
 }
 
 /* ------------------------------------------------------------------------ */
-/* Profile freshness: the profile follows the resume FILES.                  */
-/* Locally the server watches radar/data/resumes and rebuilds; this poller   */
-/* narrates that and adopts the result. On the hosted dashboard, the page    */
+/* Profile freshness. The server re-reads profile.md whenever its mtime      */
+/* changes, so this poll is how a tab left open all day notices that you     */
+/* edited the document in another window. On the hosted dashboard, the page  */
 /* pulls the compiled profile FROM the local server when it happens to be    */
-/* running (CORS-opened, one direction only — resumes never leave the Mac).  */
+/* running (CORS-opened, one direction only — nothing leaves the Mac).       */
 
 const LOCAL_RADAR_ORIGIN = 'http://localhost:4173';
 
-let freshnessWasBuilding = false;
 let freshnessTimer = null;
 
 async function pollProfileFreshness() {
@@ -603,22 +469,18 @@ async function pollProfileFreshness() {
   const status = await getJson('/api/profile-freshness', null);
   if (!status) return; // hosted dashboard — no local API here
   state.profileFreshness = status;
-  if (status.building) {
-    freshnessWasBuilding = true;
-    renderProfileCard();
-    freshnessTimer = setTimeout(pollProfileFreshness, 4000);
-    return;
-  }
-  if (freshnessWasBuilding) {
-    freshnessWasBuilding = false;
+  // The document may have changed under us. The server reports whether it
+  // loaded, not WHICH version, so identity comes from the compiled hash —
+  // re-score only when it actually differs, never on a timer.
+  if (status.loaded) {
     const fresh = await getJson('/api/profile', null);
     if (fresh && !RadarScoring.validateProfile(fresh)
-      && fresh.generated_at !== state.profile?.generated_at) {
+      && RadarScoring.compileProfile(fresh).hash !== state.compiled?.hash) {
       applyProfile(fresh, state.routeCache);
       render();
     }
   }
-  renderProfileCard();
+  renderStatusProfile();
   // A quiet once-a-minute check keeps a long-lived tab honest about edits
   // made while it sat open.
   freshnessTimer = setTimeout(pollProfileFreshness, 60000);
@@ -651,147 +513,9 @@ async function maybeSyncProfileFromLocalRadar() {
 }
 
 /* ------------------------------------------------------------------------ */
-/* Your resumes and your profile. These used to be one thing: the resumes were
-   read by a model to derive a profile, so editing a bullet point invalidated
-   every judgment. Now the profile is a document you write (radar/data/
-   profile.md, see radar/PROFILE-PROMPT.md) and the resumes are simply files
-   you send once you have decided to apply. Both panels are local-server
-   features and hide themselves on the hosted dashboard. */
-
-// Labels for the résumé files on disk, so a row can name what you sent
-// rather than echoing an id. Populated when the panel loads.
-const resumeLabels = new Map();
-function resumeLabelFor(id) { return resumeLabels.get(id) || null; }
-
-async function loadResumePanel() {
-  const data = await getJson('/api/resumes', null);
-  if (!data) {
-    DOM.resumesSection.hidden = true;
-    return;
-  }
-  DOM.resumesSection.hidden = false;
-  renderResumeList(data);
-}
-
-function renderResumeList(data) {
-  const variants = data.variants || [];
-  resumeLabels.clear();
-  for (const variant of variants) resumeLabels.set(variant.id, variant.label);
-  state.resumes = variants;
-  DOM.resumesCount.textContent = variants.length ? `· ${variants.length}` : '';
-  DOM.resumeList.replaceChildren();
-
-  for (const variant of variants) {
-    const row = el('div', 'resume-row');
-    const head = el('div', 'resume-head');
-    const label = el('input', 'resume-label');
-    label.value = variant.label;
-    label.title = variant.file;
-    label.addEventListener('change', () => saveVariant({ id: variant.id, label: label.value }));
-    const remove = el('button', 'link-button resume-remove', '×');
-    remove.type = 'button';
-    remove.title = 'Remove this resume';
-    remove.addEventListener('click', async () => {
-      if (!window.confirm(`Remove "${variant.label}"? This deletes ${variant.file} from radar/data/resumes.`)) return;
-      await postJson('/api/resume-variants', { remove: [variant.id] });
-      loadResumePanel();
-    });
-    head.append(label, remove);
-
-    const intent = el('textarea', 'resume-intent');
-    intent.rows = 2;
-    intent.value = variant.intent || '';
-    intent.placeholder = 'What this version leads with…';
-    intent.addEventListener('change', () => saveVariant({ id: variant.id, intent: intent.value }));
-
-    const meta = el('span', 'resume-meta');
-    meta.textContent = variant.missing ? 'file missing' : variant.file;
-
-    row.append(head, intent, meta);
-    DOM.resumeList.append(row);
-  }
-}
-
-async function saveVariant(edit) {
-  await postJson('/api/resume-variants', { variants: [edit] });
-  loadResumePanel();
-}
-
-async function uploadResumes(files) {
-  for (const file of files) {
-    DOM.resumeDrop.classList.add('is-busy');
-    try {
-      await fetch('/api/resumes', {
-        method: 'POST',
-        headers: { 'x-resume-filename': encodeURIComponent(file.name) },
-        body: file
-      });
-    } catch (error) {
-      console.warn(`upload failed: ${error.message}`);
-    } finally {
-      DOM.resumeDrop.classList.remove('is-busy');
-    }
-  }
-  loadResumePanel();
-  pollProfileFreshness();
-}
-
-async function postJson(url, body) {
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    return response.ok ? response.json() : null;
-  } catch {
-    return null;
-  }
-}
-
-/* What used to be "What you want" — free text a model turned into fields that
-   could then disagree with it. That is a section of profile.md now. This panel
-   shows what the server actually loaded, so a broken edit is visible rather
-   than silently judging everything against nothing. */
-async function loadProfilePanel() {
-  const state_ = await getJson('/api/profile-freshness', null);
-  if (!state_) {
-    DOM.profileSection.hidden = true;
-    return;
-  }
-  DOM.profileSection.hidden = false;
-  renderProfilePanel(state_);
-}
-
-function renderProfilePanel(info) {
-  DOM.profileState.textContent = info.loaded ? '· loaded' : '· missing';
-  DOM.profileBody.replaceChildren();
-
-  if (!info.loaded) {
-    DOM.profileBody.append(el('p', 'profile-note',
-      info.error === 'no radar/data/profile.md yet'
-        ? 'No profile yet. Write one with radar/PROFILE-PROMPT.md and save it as radar/data/profile.md.'
-        : `profile.md could not be read: ${info.error}`));
-    return;
-  }
-
-  DOM.profileBody.append(el('p', 'profile-note',
-    `${info.capabilities} capabilities · every job is judged against this document and nothing else.`));
-  // A skill too short to match is reported, never silently lost — that is the
-  // one failure this document exists to prevent.
-  if ((info.dropped_terms || []).length) {
-    DOM.profileBody.append(el('p', 'profile-note',
-      `Not matchable, so ignored: ${info.dropped_terms.join(', ')} — too short to search for safely.`));
-  }
-  DOM.profileBody.append(el('p', 'profile-note',
-    'Edit radar/data/profile.md to change it. Nothing rewrites it for you.'));
-}
-
-
-/* ------------------------------------------------------------------------ */
-/* Judged matches: the local model's read of a posting against the resumes    */
-/* and stated preferences. Absent on the hosted dashboard, which has no       */
-/* model — everything below degrades to the deterministic ordering.           */
+/* Judged matches: the model's read of a posting against your profile.        */
+/* Absent on the hosted dashboard, which has no key behind it — everything    */
+/* below degrades to the deterministic ordering.                              */
 
 const MATCH_LABELS = {
   strong: 'Strong match',
@@ -815,6 +539,40 @@ const UNJUDGED_RANK = 3;
 function matchRank(job) {
   const verdict = state.matches[job.id]?.verdict;
   return verdict ? MATCH_RANK[verdict] : UNJUDGED_RANK;
+}
+
+/* The Possible tab is grouped by verdict rather than carrying a Match column.
+ *
+ * A column repeated the same four words down four hundred rows and still left
+ * you counting to find out how many were strong. A section header states the
+ * verdict once and its size for free, which is the question you actually open
+ * this tab with: how much is worth reading tonight. */
+const GROUP_KEYS = ['strong', 'possible', 'stretch', 'unread', 'no'];
+
+const GROUP_LABELS = {
+  strong: 'Strong match',
+  possible: 'Worth a look',
+  stretch: 'Stretch',
+  unread: 'Not yet read',
+  no: 'Not for you'
+};
+
+// Flag colours for the same verdicts, used where a row has no group heading.
+const VERDICT_FLAGS = {
+  strong: 'flag-accent',
+  possible: 'flag-accent',
+  stretch: 'flag-warn',
+  no: 'flag-muted'
+};
+
+const GROUP_NOTES = {
+  stretch: 'Missing something the posting asks for — read before ruling out',
+  unread: 'Queued for the model — ranked by keyword fit meanwhile',
+  no: 'The model reads these as a different line of work'
+};
+
+function groupKeyFor(job) {
+  return state.matches[job.id]?.verdict || 'unread';
 }
 
 /* Requests go out one at a time — the server judges serially, so parallel
@@ -895,7 +653,7 @@ function scheduleMatchPoll(result) {
   matchPollTimer = setTimeout(() => requestMatches([], 2), 6000);
 }
 
-/* Hand the server the whole qualified backlog, once, in fit order.
+/* Hand the server the whole eligible backlog, once, in fit order.
  *
  * The queue used to hold only the ~20-40 postings this page had asked about.
  * That kept the model busy while you were watching, but it ran dry a few
@@ -927,7 +685,7 @@ function sendBacklog() {
 // What's on screen gets judged first; the next screenful is queued behind it
 // so scrolling rarely waits.
 function pumpMatches() {
-  if (viewMode !== 'qualified' || !state.compiled || !state.visible.length) return;
+  if (viewMode !== 'possible' || !state.compiled || !state.visible.length) return;
   const onScreen = state.visible.slice(0, 12).filter((job) => !state.matches[job.id]);
   const prefetch = state.visible.slice(12, 40).filter((job) => !state.matches[job.id]);
   const batch = onScreen.length ? onScreen : prefetch;
@@ -1056,12 +814,12 @@ function filterPredicates() {
       const status = triageFor(job);
       return PROTECTED_TRIAGE.has(status) || RadarPipeline.PIPELINE_SET.has(status);
     },
-    // The Qualified view's whole definition, in the tested scoring module.
+    // The Possible view's whole definition, in the tested scoring module.
     // Blocked jobs ride the same showBlocked toggle as the eligibility rule.
     // Acted-on jobs stay visible here like everywhere else — the pipeline is
-    // sacred, even when a shortlisted job is off-track or blocked.
-    qualified: (job) => {
-      if (viewMode !== 'qualified') return true;
+    // sacred, even when a shortlisted job is blocked.
+    possible: (job) => {
+      if (viewMode !== 'possible') return true;
       if (!RadarScoring.isQualified(job, { includeBlocked: showBlocked })) {
         const status = triageFor(job);
         return PROTECTED_TRIAGE.has(status) || RadarPipeline.PIPELINE_SET.has(status);
@@ -1076,9 +834,13 @@ function filterPredicates() {
       }
       return true;
     },
-    federal: (job) => !job.citizenship_gated || DOM.includeFederal.checked,
-    closed: (job) => !isClosed(job) || DOM.includeClosed.checked || PROTECTED_TRIAGE.has(triageFor(job)),
-    remote: (job) => !DOM.remoteOnly.checked || job.remote === true,
+    /* Two rules that used to be checkboxes. Neither had a second setting worth
+     * offering: a citizens-only posting cannot be applied to on any visa, and a
+     * closed one cannot be applied to at all. A job you already acted on is the
+     * exception in both cases — it stays visible and flagged, because a posting
+     * vanishing from under an application is the thing you need to see. */
+    federal: (job) => !job.citizenship_gated,
+    closed: (job) => !isClosed(job) || PROTECTED_TRIAGE.has(triageFor(job)),
     query: (job) => !query || jobText(job).includes(query),
     visa: (job) => !visaFilter || job.veritas_state === visaFilter,
     recency: (job) => {
@@ -1107,24 +869,24 @@ function renderBlockedNote() {
   }
   // Count what only THIS rule removes, so the number matches what the toggle
   // would reveal rather than everything every filter dropped. On Qualified the
-  // qualified predicate also enforces blocking, so it must be excluded from
+  // possible predicate also enforces blocking, so it must be excluded from
   // "others" and re-checked with the block lifted — otherwise the count is 0.
   const predicates = filterPredicates();
-  const excluded = new Set(['eligibility', 'qualified']);
+  const excluded = new Set(['eligibility', 'possible']);
   const others = Object.entries(predicates).filter(([key]) => !excluded.has(key)).map(([, fn]) => fn);
   const hidden = state.jobs.filter((job) => job.fit?.eligibility?.verdict === 'blocked'
     && !predicates.eligibility(job)
-    && (viewMode !== 'qualified' || RadarScoring.isQualified(job, { includeBlocked: true }))
+    && (viewMode !== 'possible' || RadarScoring.isQualified(job, { includeBlocked: true }))
     && others.every((predicate) => predicate(job))).length;
   // On Qualified, the model's "different line of work" calls are set aside
   // the same way blocked jobs are — counted, never deleted, one click back.
-  const setAside = viewMode === 'qualified'
+  const setAside = viewMode === 'possible'
     ? state.jobs.filter((job) => state.matches[job.id]?.verdict === 'no'
       && RadarScoring.isQualified(job, { includeBlocked: true })).length
     : 0;
   const total = hidden + setAside;
   DOM.blockedNote.hidden = total === 0;
-  if (viewMode !== 'qualified') {
+  if (viewMode !== 'possible') {
     DOM.blockedNote.textContent = `${hidden.toLocaleString()} blocked hidden · show`;
     return;
   }
@@ -1142,7 +904,7 @@ function filteredJobs() {
   const predicates = Object.values(filterPredicates());
   // Qualified ranks by the model's judgment first, deterministic fit only as
   // a tie-break inside a tier (and as the order for what gets judged next).
-  const sorter = viewMode === 'qualified'
+  const sorter = viewMode === 'possible'
     ? (a, b) => (matchRank(a) - matchRank(b)) || SORTERS.fit(a, b)
     : (SORTERS[DOM.sort.value] || SORTERS.fit);
   return state.jobs
@@ -1160,11 +922,8 @@ function activeFilterCount() {
   let count = 0;
   if (DOM.q.value.trim()) count += 1;
   if (visaFilter) count += 1;
-  if (DOM.remoteOnly.checked) count += 1;
-  if (DOM.includeClosed.checked) count += 1;
-  if (DOM.includeFederal.checked) count += 1;
   if (DOM.recency.value) count += 1;
-  // Showing blocked jobs is a departure from the default view, so it counts
+  // Showing set-aside jobs is a departure from the default view, so it counts
   // as an active filter.
   if (showBlocked) count += 1;
   return count;
@@ -1172,13 +931,10 @@ function activeFilterCount() {
 
 function clearAllFilters() {
   DOM.q.value = '';
-  DOM.remoteOnly.checked = false;
-  DOM.includeClosed.checked = false;
-  DOM.includeFederal.checked = false;
   DOM.recency.value = '';
   DOM.sort.value = 'newest_seen';
   setVisaFilter('', { skipRender: true });
-  // Reset returns to the default view, which hides blocked jobs.
+  // Reset returns to the default view, which hides set-aside jobs.
   showBlocked = false;
 }
 
@@ -1194,13 +950,10 @@ function buildParams() {
   const params = new URLSearchParams();
   if (DOM.q.value.trim()) params.set('q', DOM.q.value.trim());
   if (DOM.sort.value !== 'newest_seen') params.set('sort', DOM.sort.value);
-  if (DOM.remoteOnly.checked) params.set('remote', '1');
-  if (DOM.includeClosed.checked) params.set('includeClosed', '1');
-  if (DOM.includeFederal.checked) params.set('federal', '1');
   if (visaFilter) params.set('visa', visaFilter);
   if (DOM.recency.value) params.set('recency', DOM.recency.value);
   if (showBlocked) params.set('blocked', '1');
-  if (viewMode !== 'qualified') params.set('view', viewMode);
+  if (viewMode !== 'possible') params.set('view', viewMode);
   return params;
 }
 
@@ -1210,41 +963,34 @@ function syncUrl() {
 }
 
 // Params of retired filters (source, type, cap, triage, minResearch,
-// minVerdict, newOnly, followup) are simply ignored here; the first
-// syncUrl() scrubs them from old bookmarks.
+// minVerdict, newOnly, followup, remote, includeClosed, federal) are simply
+// ignored here; the first syncUrl() scrubs them from old bookmarks.
 function hydrateFromUrl(paramsOverride) {
   const params = paramsOverride || new URLSearchParams(window.location.search);
   if (params.has('q')) DOM.q.value = params.get('q');
   if (params.has('sort') && SORTERS[params.get('sort')]) DOM.sort.value = params.get('sort');
-  DOM.remoteOnly.checked = params.get('remote') === '1';
-  DOM.includeClosed.checked = params.get('includeClosed') === '1';
-  DOM.includeFederal.checked = params.get('federal') === '1';
   showBlocked = params.get('blocked') === '1';
   if (params.has('visa')) setVisaFilter(params.get('visa'), { skipRender: true });
   if (params.has('recency')) DOM.recency.value = params.get('recency');
-  // Legacy bookmarks: ?view=routing (view removed 2026-08-04) falls through
-  // to the Qualified default.
+  // Legacy bookmarks: ?view=routing (removed 2026-08-04) and ?view=qualified
+  // (renamed 2026-08-05) both fall through to the Possible default.
   const view = params.get('view');
   if (view === 'pipeline' || view === 'radar') setViewMode(view, { skipRender: true });
 }
 
 /* ------------------------------------------------------------------------ */
-/* Ignored employers — sidebar management                                    */
+/* Ignored employers. "Ignore employer" hides every posting from a place, so
+   the way back has to exist somewhere; it lives in the status drawer now
+   rather than the filter sidebar, which is for choosing what to look at, not
+   for undoing decisions. The section hides itself when nothing is hidden. */
 
-function renderIgnoredNote() {
+function renderIgnoredSection() {
   const ignored = state.local.ignored_employers || [];
-  DOM.ignoredNote.hidden = ignored.length === 0;
-  if (!ignored.length) {
-    DOM.ignoredPanel.hidden = true;
-    return;
-  }
-  DOM.ignoredNote.textContent = `${ignored.length} employer${ignored.length === 1 ? '' : 's'} hidden · manage`;
-  if (!DOM.ignoredPanel.hidden) renderIgnoredPanel();
-}
-
-function renderIgnoredPanel() {
+  DOM.ignoredSection.hidden = ignored.length === 0;
+  if (!ignored.length) return;
+  DOM.ignoredSummary.textContent = `Hidden employers · ${ignored.length}`;
   DOM.ignoredPanel.replaceChildren();
-  for (const employerId of state.local.ignored_employers || []) {
+  for (const employerId of ignored) {
     const name = state.jobs.find((job) => job.employer_id === employerId)?.employer_name || employerId;
     const row = el('div', 'ignored-row');
     const unhide = el('button', 'link-button', 'Unhide');
@@ -1396,13 +1142,20 @@ function renderStats() {
   const active = state.jobs.filter((job) => !isClosed(job) && !job.citizenship_gated);
   DOM.statActive.textContent = active.length.toLocaleString();
   DOM.statNew.textContent = active.filter(isNewSinceLastVisit).length.toLocaleString();
-  // Headline number = the Qualified tab's count, from the same predicate, so
-  // the two can never disagree. '–' without a profile: unanswerable, not zero.
-  DOM.statQualified.textContent = state.compiled
-    ? state.jobs.filter((job) => RadarScoring.isQualified(job)).length.toLocaleString()
+  /* Headline number = what the Possible tab actually lists.
+   *
+   * It used to be the eligibility predicate alone, which counted the ~4,000
+   * postings the model had already read and rejected. The header said 5,108
+   * and the list said 1,331, and both were labelled "possible". A headline
+   * that disagrees with the list under it is worse than no headline: you
+   * cannot tell which one is lying. '–' without a profile — unanswerable,
+   * not zero. */
+  DOM.statPossible.textContent = state.compiled
+    ? state.jobs.filter((job) => RadarScoring.isQualified(job)
+      && state.matches[job.id]?.verdict !== 'no').length.toLocaleString()
     : '–';
   renderHealthDot();
-  // Reading the backlog is not the Qualified tab's private business — start it
+  // Reading the backlog is not the Possible tab's private business — start it
   // from any tab, on the first render that has a profile and some jobs.
   sendBacklog();
 }
@@ -1437,7 +1190,7 @@ function render() {
   DOM.resetFilters.querySelector('.count-slot').textContent = `(${filters})`;
   DOM.filtersToggle.querySelector('.count-slot').textContent = filters ? `(${filters})` : '';
   renderLoadBanner();
-  renderIgnoredNote();
+  renderIgnoredSection();
 
   if (viewMode === 'pipeline') {
     // The blocked note belongs to the list views; without this it lingers
@@ -1453,8 +1206,8 @@ function render() {
 
   const jobs = filteredJobs();
   state.visible = jobs;
-  DOM.count.textContent = viewMode === 'qualified'
-    ? qualifiedCountLine(jobs)
+  DOM.count.textContent = viewMode === 'possible'
+    ? possibleCountLine(jobs)
     : `${jobs.length.toLocaleString()} job${jobs.length === 1 ? '' : 's'} · sorted by ${SORT_LABELS[DOM.sort.value] || 'fit'}`;
   renderBlockedNote();
   // A hard load failure (zero rows loaded) is not "no filter matches" — show
@@ -1465,10 +1218,10 @@ function render() {
   DOM.emptyState.hidden = jobs.length > 0 || hardLoadFailure;
   DOM.jobs.replaceChildren();
 
-  // Qualified is unanswerable without a profile — show the one-time import
-  // prompt, never an unranked fallback list or a lying "0 qualified" hint.
-  // (A dead Supabase load shows the error banner instead, not this.)
-  if (viewMode === 'qualified' && !state.compiled && !hardLoadFailure) {
+  // Possible is unanswerable without a profile — say so, never an unranked
+  // fallback list or a lying "0 possible" hint. (A dead Supabase load shows
+  // the error banner instead, not this.)
+  if (viewMode === 'possible' && !state.compiled && !hardLoadFailure) {
     state.visible = [];
     DOM.emptyState.hidden = true;
     DOM.jobs.append(buildProfilePrompt());
@@ -1481,8 +1234,10 @@ function render() {
   }
 
   const toRender = showAllRows ? jobs : jobs.slice(0, LIST_RENDER_CAP);
-  for (const job of toRender) {
-    DOM.jobs.append(buildRow(job));
+  if (viewMode === 'possible') {
+    appendGroupedRows(toRender, jobs);
+  } else {
+    for (const job of toRender) DOM.jobs.append(buildRow(job));
   }
   if (jobs.length > toRender.length) {
     const more = el('button', 'ghost-button show-all', `Show all ${jobs.length} jobs (rendering first ${toRender.length})`);
@@ -1498,12 +1253,42 @@ function render() {
   pumpMatches();
 }
 
-// Deliberately terse. The header stat above already says QUALIFIED and the tab
-// says it a third time, so this line only carries what they cannot: the count
-// after filtering, and whether the model is still working through the list.
-function qualifiedCountLine(jobs) {
-  // Without a profile the list is a prompt, not a result — "0 qualified"
-  // would read as an answer.
+/* Rows under verdict headers. The list arrives already sorted by matchRank
+ * then fit, so each group is contiguous and this is one pass, not a bucketing.
+ *
+ * Counts come from the FULL filtered list while rows come from the capped
+ * slice: a header that says "Strong match · 488" when the render cap stopped
+ * at 400 is telling you the truth about your shortlist, and the "show all"
+ * button below handles the rest. Counting the slice instead would quietly
+ * shrink every number the moment the list got long. */
+function appendGroupedRows(toRender, allJobs) {
+  const counts = new Map();
+  for (const job of allJobs) {
+    const key = groupKeyFor(job);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+
+  let current = null;
+  for (const job of toRender) {
+    const key = groupKeyFor(job);
+    if (key !== current) {
+      current = key;
+      const header = el('div', 'group-header');
+      header.append(el('span', 'group-name', GROUP_LABELS[key] || key));
+      header.append(el('span', 'group-count', String(counts.get(key) || 0)));
+      if (GROUP_NOTES[key]) header.append(el('span', 'group-note', GROUP_NOTES[key]));
+      DOM.jobs.append(header);
+    }
+    DOM.jobs.append(buildRow(job));
+  }
+}
+
+// Deliberately terse: the section headers now carry the breakdown, and the
+// header stat carries the total. All this line adds is whether the model is
+// still working through the list.
+function possibleCountLine(jobs) {
+  // Without a profile the list is a prompt, not a result — "0 jobs" would
+  // read as an answer.
   if (!state.compiled) return '';
   const total = `${jobs.length.toLocaleString()} job${jobs.length === 1 ? '' : 's'}`;
   if (!state.matchAvailable) return total;
@@ -1511,19 +1296,18 @@ function qualifiedCountLine(jobs) {
   return judged < jobs.length ? `${total} · ${judged.toLocaleString()} read…` : total;
 }
 
-// The Qualified first-run prompt. The import flow persists profile.json into
-// this browser's localStorage — a one-time step per browser, so the prompt
-// only ever appears until the first import.
+/* The Possible tab's first-run state. There is no button: the profile is a
+   file the local server reads off disk, and the honest instruction is to go
+   start it — not to hand you an import dialog for a file this build no longer
+   produces. */
 function buildProfilePrompt() {
   const wrap = el('div', 'empty-state profile-prompt');
-  wrap.append(el('h2', undefined, 'Load your resume profile'));
+  wrap.append(el('h2', undefined, 'No profile loaded'));
   wrap.append(el('p', undefined,
-    'Qualified is your shortlist: open jobs in your line of work with no quoted barrier, ranked against your own resumes. The profile builds itself from the files in radar/data/resumes/ — start the local radar (npm start) and this page picks it up automatically; it then lives in this browser.'));
-  const button = el('button', 'primary-button', 'Import profile.json instead');
-  button.type = 'button';
-  button.addEventListener('click', () => DOM.profileFile.click());
-  wrap.append(button);
-  wrap.append(el('p', 'profile-prompt-hint', 'All jobs works without one — fit ranking is what needs it.'));
+    'Possible ranks open postings against radar/data/profile.md — who you are, in one document you write. '
+    + 'Start the local radar with npm start and this page reads it off disk.'));
+  wrap.append(el('p', 'profile-prompt-hint',
+    'All jobs works without one. Writing the document: radar/PROFILE-PROMPT.md.'));
   return wrap;
 }
 
@@ -1680,6 +1464,7 @@ function renderStatusPanel() {
     tiles.append(tile);
   }
   DOM.statusInstruments.append(tiles);
+  renderStatusProfile();
 }
 
 /* How far the model has got through the qualified list. This belongs in the
@@ -1707,24 +1492,6 @@ function renderJudgeProgress() {
   DOM.statusRefresh.append(row);
 }
 
-// Triage backup: localStorage is the only durable store on the hosted
-// dashboard, so this download is the insurance policy.
-function exportTriage() {
-  const doc = {
-    version: 1,
-    exported_at: new Date().toISOString(),
-    triage: state.local.triage,
-    ignored_employers: state.local.ignored_employers || []
-  };
-  const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `veritas-triage-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.json`;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
 // The evidence sub-line under a row's visa tag — strongest behavioral signal
 // first: class-specific certifications, then any LCA history, then the
 // cap-exempt read. One line, so the column never wraps into chip soup.
@@ -1747,13 +1514,6 @@ const BLOCKER_LABELS = {
   internal_only: 'internal only'
 };
 
-const TRACK_LABELS = {
-  reachable: 'in your track',
-  adjacent: 'adjacent to your track',
-  unknown: 'unclassified role',
-  none: 'outside your tracks'
-};
-
 // "+7 over ML/comp-bio" — how decisively the RECOMMENDED variant beats the
 // best other one. When a local-LLM verdict picked a variant the deterministic
 // scores didn't rank first, a "+N over" line would contradict itself; say who
@@ -1769,12 +1529,30 @@ function buildRow(job) {
   const addFlag = (text, kind = '') => flags.append(el('span', `flag ${kind}`, text));
   if (isNewSinceLastVisit(job)) addFlag('NEW', 'flag-accent');
   if (status !== 'new') addFlag(TRIAGE_LABELS[status], 'flag-status');
+  /* The verdict, on the tabs that have no section header to carry it. In
+   * Possible the group heading says it once for a whole run of rows; in All
+   * jobs and Applied there is no heading, and dropping the Match column would
+   * otherwise leave a strong match and a stretch looking identical. */
+  const verdict = state.matches[job.id]?.verdict;
+  if (viewMode !== 'possible' && verdict) {
+    addFlag(GROUP_LABELS[verdict] || verdict, VERDICT_FLAGS[verdict] || '');
+  }
   const eligibility = job.fit?.eligibility;
   if (eligibility?.verdict === 'blocked') {
     addFlag(`BLOCKED — ${BLOCKER_LABELS[eligibility.blockers[0]?.type] || 'requirement'}`, 'flag-red');
   } else if (eligibility?.insufficient_text) {
     // Distinct from a clean read: the posting was too thin to judge.
     addFlag('thin text', 'flag-muted');
+  }
+  /* The degree gate, which used to sit in the Résumé-sent column. It fires
+   * where the eligibility blocker does not: a posting that asks for a doctorate
+   * without a sentence clean enough to quote is not blocked, but it is still
+   * the thing worth knowing before you spend an evening on the application.
+   * Only shown when no BLOCKED flag already said it. */
+  const degreeGate = job.fit?.gate?.degree;
+  if (eligibility?.verdict !== 'blocked'
+    && degreeGate?.required && !degreeGate.met && !degreeGate.softened) {
+    addFlag(`${degreeGate.required} required`, 'flag-warn');
   }
   const age = followupAgeDays(job);
   if (age !== null && age >= FOLLOWUP_STALE_DAYS) addFlag(`${age}d no update`, 'flag-red');
@@ -1812,7 +1590,6 @@ function buildRow(job) {
     } else if (age > 0 && age < FOLLOWUP_STALE_DAYS) {
       metaParts.push(`updated ${age}d ago`);
     }
-    if (record?.variant_sent) metaParts.push(`sent ${variantAbbrev(record.variant_sent)}`);
     if (metaParts.length) {
       const metaEl = node.querySelector('.row-meta');
       metaEl.textContent = metaParts.join(' · ');
@@ -1820,30 +1597,17 @@ function buildRow(job) {
     }
   }
 
-  // MATCH — the model's verdict where it exists, otherwise the deterministic
-  // score. The number is deliberately demoted to a hint once a real judgment
-  // is in: it is a compressed keyword count, not a percentage, and printing
-  // it large claimed a precision the math never had.
-  const fitNum = node.querySelector('.fit-num');
-  const fitBarFill = node.querySelector('.fit-bar > i');
-  const scoreValue = fit?.fit_score != null ? fit.fit_score : (job.research_relevance_score || 0);
-  fitNum.textContent = scoreValue;
-  fitBarFill.style.width = `${Math.max(0, Math.min(100, scoreValue))}%`;
-  if (fit?.fit_score == null) {
-    fitNum.classList.add('fit-res');
-    node.querySelector('.cell-fit').title = 'Research relevance (no resume profile loaded)';
-  }
-
+  /* MATCH — the reasoning only.
+   *
+   * There used to be a Match column here carrying the verdict as a chip plus a
+   * fit number and bar. The verdict is a section heading now (or a flag, on
+   * the ungrouped tabs), and the number was a compressed keyword count that
+   * printing as "53" made look like a percentage — it lives in the detail
+   * pane, where the words around it say what it is. What stays on the row is
+   * what neither a heading nor a score can give you: what the model says
+   * matched, and what it says is missing. */
   const judgment = state.matches[job.id];
   if (judgment) {
-    const chip = node.querySelector('.match-verdict');
-    chip.textContent = MATCH_LABELS[judgment.verdict] || judgment.verdict;
-    chip.className = `match-verdict tag ${MATCH_TAGS[judgment.verdict] || ''}`;
-    chip.hidden = false;
-    node.querySelector('.cell-fit').classList.add('has-verdict');
-
-    // The reasoning, on the row: what matched, then what's missing. This is
-    // the whole point of judging — an answer you can check.
     const line = node.querySelector('.row-match');
     line.replaceChildren();
     if (judgment.role_summary && judgment.verdict === 'no') {
@@ -1852,8 +1616,6 @@ function buildRow(job) {
     for (const reason of judgment.reasons || []) line.append(el('span', 'match-why', `+ ${reason}`));
     for (const gap of judgment.gaps || []) line.append(el('span', 'match-why match-gap', `− ${gap}`));
     line.hidden = line.childElementCount === 0;
-  } else if (viewMode === 'qualified' && state.matchAvailable) {
-    node.querySelector('.cell-fit').classList.add('is-reading');
   }
 
   // VISA — the tag always renders (the mock's column has no blank cells)
@@ -1863,31 +1625,6 @@ function buildRow(job) {
   if (VISA_TAGS[job.veritas_state]) visaTag.classList.add(VISA_TAGS[job.veritas_state]);
   const evidence = visaEvidenceLine(job);
   if (evidence) node.querySelector('.visa-evidence').textContent = evidence;
-
-  /* RÉSUMÉ SENT — which one you chose, not which one a model picked.
-   *
-   * This column used to carry a recommended variant and the margin by which
-   * it beat the runner-up, computed from seven résumés scored separately. The
-   * profile is one document now and choosing what to send is a decision made
-   * once, by someone who has read the posting. So the column reports the
-   * record instead of making the call: blank until you mark it applied. Hard
-   * gates still surface here, because they are the thing worth seeing before
-   * you spend an evening on an application. */
-  const sendVariant = node.querySelector('.send-variant');
-  const sendDeltaEl = node.querySelector('.send-delta');
-  const sent = state.local.triage[job.id]?.variant_sent;
-  sendVariant.textContent = sent ? (resumeLabelFor(sent) || sent) : '—';
-  const gate = fit?.gate;
-  if (gate?.citizenship) {
-    sendDeltaEl.textContent = '⚠ citizens only';
-    sendDeltaEl.classList.add('send-gate');
-  } else if (gate?.degree?.required && !gate.degree.met && !gate.degree.softened) {
-    sendDeltaEl.textContent = `⚠ ${gate.degree.required} required`;
-    sendDeltaEl.classList.add('send-gate');
-  }
-  const compact = node.querySelector('.row-compact-send');
-  compact.hidden = !sent;
-  if (sent) compact.textContent = `sent ${resumeLabelFor(sent) || sent}`;
 
   // CLOSES
   const closes = node.querySelector('.cell-closes');
@@ -1992,13 +1729,11 @@ function renderDetail() {
   DOM.detailOpen.href = job.url;
 
   renderTriageControls(job);
-  renderCopyResumePath(job);
   // Don't clobber what the user is typing if the note field is focused mid-edit
   if (DOM.detailNote && document.activeElement !== DOM.detailNote) {
     DOM.detailNote.value = noteFor(job);
   }
 
-  renderVariantSent(job);
   renderDetailAlerts(job);
   renderDetailSignals(job);
   renderDetailWhy(job);
@@ -2037,50 +1772,6 @@ function renderTriageControls(job) {
   }
 }
 
-// "Copy résumé path" — the repo-relative file of the variant you sent (or
-// would send). Hidden when the profile predates source_file tracking.
-function renderCopyResumePath(job) {
-  if (!DOM.copyResumePath) return;
-  const variantId = state.local.triage[job.id]?.variant_sent || '';
-  const variant = state.resumes.find((entry) => entry.id === variantId);
-  const file = variant?.file;
-  DOM.copyResumePath.hidden = !file;
-  if (file) {
-    DOM.copyResumePath.dataset.path = `radar/data/resumes/${file}`;
-    DOM.copyResumePath.title = `Copy the repo-relative path of your ${variant.label || variantId} résumé`;
-  } else {
-    delete DOM.copyResumePath.dataset.path;
-  }
-}
-
-// "Resume sent" — the variant actually submitted with an application, distinct
-// from the recommendation (which changes with the profile). Shown once the job
-// is anywhere in the application pipeline; records made before this field
-// existed simply show "none recorded".
-function renderVariantSent(job) {
-  if (!DOM.variantSentWrap || !DOM.variantSent) return;
-  const record = state.local.triage[job.id];
-  const status = triageFor(job);
-  const show = Boolean(record?.applied_at) || RadarPipeline.PIPELINE_SET.has(status);
-  DOM.variantSentWrap.hidden = !show;
-  if (!show) return;
-
-  const current = record?.variant_sent || '';
-  const options = [new Option('— none recorded —', '')];
-  const known = new Set();
-  for (const variant of state.profile?.variants || []) {
-    known.add(variant.id);
-    options.push(new Option(variant.label || variant.id, variant.id));
-  }
-  // A recorded variant from an older/other-device profile stays selectable
-  // rather than silently vanishing.
-  if (current && !known.has(current)) {
-    options.push(new Option(`${current} (not in current profile)`, current));
-  }
-  DOM.variantSent.replaceChildren(...options);
-  DOM.variantSent.value = current;
-}
-
 // The stepper shows the forward path of an application; terminal outcomes
 // (rejected/withdrawn/ignore) are demoted to links below it — they are exits,
 // not stages you progress through.
@@ -2113,12 +1804,7 @@ function buildDetailSkeleton() {
   open.target = '_blank';
   open.rel = 'noreferrer';
   open.textContent = 'Open posting ↗';
-  const copy = el('button', 'ghost-button');
-  copy.id = 'copy-resume-path';
-  copy.type = 'button';
-  copy.textContent = 'Copy résumé path';
-  copy.hidden = true;
-  actions.append(open, copy);
+  actions.append(open);
 
   const controls = el('div', 'triage-controls');
   controls.id = 'triage-controls';
@@ -2161,14 +1847,6 @@ function buildDetailSkeleton() {
   notesArea.placeholder = 'e.g. emailed Dr. Lee 7/18 — follow up in a week';
   notes.append(notesLabel, notesArea);
 
-  const variantWrap = el('label', 'field variant-sent-field');
-  variantWrap.id = 'variant-sent-wrap';
-  variantWrap.hidden = true;
-  const variantLabel = el('span', 'field-label', 'Resume sent');
-  const variantSelect = el('select');
-  variantSelect.id = 'variant-sent';
-  variantWrap.append(variantLabel, variantSelect);
-
   const alerts = el('div'); alerts.id = 'detail-alerts';
   const signals = el('dl', 'signal-grid'); signals.id = 'detail-signals';
   const fit = el('div', 'fit-block'); fit.id = 'detail-fit';
@@ -2180,7 +1858,10 @@ function buildDetailSkeleton() {
 
   const disclaimer = el('p', 'disclaimer'); disclaimer.id = 'detail-disclaimer';
 
-  return [back, head, actions, controls, notes, variantWrap, alerts, signals, fit, description, disclaimer];
+  /* `fit` before `signals`: the model's verdict and the eligibility ledger are
+   * what you opened the job to read. The sponsorship and institution signals
+   * are context you check second, once you already believe the role fits. */
+  return [back, head, actions, controls, notes, alerts, fit, signals, description, disclaimer];
 }
 
 function rebindDetailRefs() {
@@ -2188,14 +1869,11 @@ function rebindDetailRefs() {
   DOM.detailTitle = document.querySelector('#detail-title');
   DOM.detailMeta = document.querySelector('#detail-meta');
   DOM.detailOpen = document.querySelector('#detail-open');
-  DOM.copyResumePath = document.querySelector('#copy-resume-path');
   DOM.triageControls = document.querySelector('#triage-controls');
   DOM.triageStepper = document.querySelector('#triage-stepper');
   DOM.triageStateLine = document.querySelector('#triage-state-line');
   DOM.triageLinks = document.querySelector('#triage-links');
   DOM.detailNote = document.querySelector('#detail-note');
-  DOM.variantSentWrap = document.querySelector('#variant-sent-wrap');
-  DOM.variantSent = document.querySelector('#variant-sent');
   DOM.detailAlerts = document.querySelector('#detail-alerts');
   DOM.detailSignals = document.querySelector('#detail-signals');
   DOM.detailFit = document.querySelector('#detail-fit');
@@ -2371,6 +2049,26 @@ function whyLine(label, ...content) {
 
 function renderDetailWhy(job) {
   DOM.detailFit.replaceChildren();
+
+  /* The model's read, at the top of the pane.
+   *
+   * It was never here — the verdict lived only in a row column, so opening a
+   * job to decide whether it was worth an evening showed you every
+   * deterministic signal and none of the actual judgment. Now that the column
+   * is gone, the pane is where the reasoning belongs, in full rather than as
+   * the row's excerpt. */
+  const judgment = state.matches[job.id];
+  if (judgment) {
+    const block = el('div', 'detail-judgment');
+    const head = el('p', 'detail-judgment-head');
+    head.append(tag(MATCH_LABELS[judgment.verdict] || judgment.verdict, MATCH_TAGS[judgment.verdict] || ''));
+    if (judgment.role_summary) head.append(el('span', 'detail-judgment-role', judgment.role_summary));
+    block.append(head);
+    for (const reason of judgment.reasons || []) block.append(el('p', 'match-why', `+ ${reason}`));
+    for (const gap of judgment.gaps || []) block.append(el('p', 'match-why match-gap', `− ${gap}`));
+    DOM.detailFit.append(block);
+  }
+
   const fit = job.fit;
   if (!fit || fit.fit_score === null) {
     DOM.detailFit.append(el('p', 'fit-skills', fit ? fit.fit_summary : ''));
@@ -2379,29 +2077,14 @@ function renderDetailWhy(job) {
 
   /* This used to headline a routing call — "Send this one" — computed by
    * scoring seven résumés against the posting and printing the winner plus the
-   * margin it won by. With one authored profile there is no winner to compute,
-   * and picking what to send is a judgment made by someone who has read the
-   * job. So the panel shows the deterministic fit for context and then gets
-   * out of the way; the chooser below records what you actually sent. */
-  DOM.detailFit.append(el('p', 'send-verdict', `${fit.verdict} fit · ${fit.fit_score} / 100`));
-
-  const chooser = el('div', 'send-variants');
-  chooser.append(el('p', 'send-heading', 'Résumé sent'));
-  const sentId = state.local.triage[job.id]?.variant_sent || '';
-  for (const resume of state.resumes) {
-    const row = el('button', `send-row${resume.id === sentId ? ' is-best' : ''}`);
-    row.type = 'button';
-    row.append(el('span', 'send-row-label', resume.label));
-    row.addEventListener('click', () => {
-      const next = resume.id === sentId ? '' : resume.id;
-      setVariantSent(job, next);
-    });
-    chooser.append(row);
-  }
-  if (!state.resumes.length) {
-    chooser.append(el('p', 'profile-note', 'No résumés on disk yet — add them in the sidebar.'));
-  }
-  DOM.detailFit.append(chooser);
+   * margin it won by, and then a chooser recording which one you actually
+   * sent. Both are gone: the profile is one document, and which résumé to
+   * attach is a decision made offline by someone who has read the posting.
+   * What's left is the deterministic score, kept here and nowhere else —
+   * in a detail pane it reads as the hint it is, and on a row it read as a
+   * percentage the arithmetic never earned. */
+  DOM.detailFit.append(el('p', 'send-verdict',
+    `${fit.verdict} fit · ${fit.fit_score} / 100 keyword overlap`));
 
   // Eligibility first: whether the application can be considered at all
   // outranks how well it scores. Every barrier shows the sentence it came
@@ -2425,11 +2108,12 @@ function renderDetailWhy(job) {
     }
     ledger.append(line);
   }
-  if (fit.track) {
-    const via = fit.track.via.map((id) => fit.variants.find((variant) => variant.id === id)?.label || id);
-    ledger.append(whyLine('Role track', document.createTextNode(
-      `${TRACK_LABELS[fit.track.status] || fit.track.status}${via.length ? ` — via ${via.join(', ')}` : ''}`)));
-  }
+  /* The "Role track" line is gone. It reported whether a posting's title class
+   * appeared in your profile's track list — and profile.md deliberately sets
+   * no track list, because guessing one would invent a constraint you never
+   * stated. So the line printed "outside your tracks" on every job, including
+   * the ones the model had just called a strong match. A field that always
+   * says the same wrong thing is worse than an absent one. */
   const degree = fit.gate?.degree;
   if (degree?.required) {
     const status = degree.met ? 'met'
@@ -2459,7 +2143,11 @@ function renderDetailWhy(job) {
   }
   if (ledger.childElementCount) DOM.detailFit.append(ledger);
 
-  DOM.detailFit.append(el('p', 'send-footnote', 'Scored locally · your résumé text never leaves the machine'));
+  // Was "your résumé text never leaves the machine" — true when a local model
+  // read your résumés, and false since. The posting and profile.md go to the
+  // API; say so rather than leaving a reassurance that stopped being accurate.
+  DOM.detailFit.append(el('p', 'send-footnote',
+    'Keyword score computed here · the verdict above comes from the API reading this posting against profile.md'));
 }
 
 function escapeHtml(text) {
@@ -2566,17 +2254,6 @@ async function setNote(job, note) {
   await persistTriage();
 }
 
-async function setVariantSent(job, variantId) {
-  const prev = state.local.triage[job.id] || { status: 'new' };
-  // Same rule as notes: correcting which resume was sent must NOT bump
-  // updated_at — that would falsely reset the follow-up-aging clock.
-  const record = { ...prev, status: prev.status || 'new', updated_at: prev.updated_at || new Date().toISOString() };
-  if (variantId) record.variant_sent = variantId;
-  else delete record.variant_sent;
-  state.local.triage[job.id] = record;
-  await persistTriage();
-}
-
 /* ------------------------------------------------------------------------ */
 /* Visa segmented control                                                    */
 
@@ -2589,12 +2266,12 @@ function setVisaFilter(value, { skipRender = false } = {}) {
 }
 
 function setViewMode(value, { skipRender = false } = {}) {
-  viewMode = value === 'pipeline' || value === 'radar' ? value : 'qualified';
+  viewMode = value === 'pipeline' || value === 'radar' ? value : 'possible';
   for (const button of DOM.viewSeg.querySelectorAll('button')) {
     button.classList.toggle('is-active', button.dataset.value === viewMode);
   }
   document.body.classList.toggle('pipeline-mode', viewMode === 'pipeline');
-  document.body.classList.toggle('qualified-mode', viewMode === 'qualified');
+  document.body.classList.toggle('possible-mode', viewMode === 'possible');
   showAllRows = false;
   if (!skipRender) render();
 }
@@ -2814,18 +2491,6 @@ function bindDetailEvents() {
     if (job) ignoreEmployer(job);
   });
 
-  DOM.copyResumePath.addEventListener('click', async () => {
-    const path = DOM.copyResumePath.dataset.path;
-    if (!path) return;
-    try {
-      await navigator.clipboard.writeText(path);
-      DOM.copyResumePath.textContent = 'Copied ✓';
-      setTimeout(() => { DOM.copyResumePath.textContent = 'Copy résumé path'; }, 1500);
-    } catch {
-      window.prompt('Copy the résumé path:', path);
-    }
-  });
-
   // Notes: debounce while typing (don't persist every keystroke), flush on blur
   // and re-render so the row's note indicator updates.
   let noteTimer = null;
@@ -2841,13 +2506,6 @@ function bindDetailEvents() {
     if (!job) return;
     clearTimeout(noteTimer);
     await setNote(job, event.target.value);
-    render();
-  });
-
-  DOM.variantSent.addEventListener('change', async (event) => {
-    const job = selectedJob();
-    if (!job) return;
-    await setVariantSent(job, event.target.value);
     render();
   });
 
@@ -2877,33 +2535,13 @@ function bindEvents() {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(onFilterChange, 150);
   });
-  for (const input of [DOM.sort, DOM.remoteOnly, DOM.includeClosed, DOM.includeFederal, DOM.recency]) {
+  for (const input of [DOM.sort, DOM.recency]) {
     input.addEventListener('input', onFilterChange);
   }
 
   DOM.markSeen.addEventListener('click', markAllSeen);
   DOM.undoBtn.addEventListener('click', undoLast);
-  DOM.triageExportHead.addEventListener('click', exportTriage);
 
-  DOM.resumeUpload.addEventListener('change', () => {
-    const files = [...(DOM.resumeUpload.files || [])];
-    DOM.resumeUpload.value = '';
-    if (files.length) uploadResumes(files);
-  });
-  for (const event of ['dragenter', 'dragover']) {
-    DOM.resumeDrop.addEventListener(event, (dragEvent) => {
-      dragEvent.preventDefault();
-      DOM.resumeDrop.classList.add('is-over');
-    });
-  }
-  for (const event of ['dragleave', 'drop']) {
-    DOM.resumeDrop.addEventListener(event, () => DOM.resumeDrop.classList.remove('is-over'));
-  }
-  DOM.resumeDrop.addEventListener('drop', (dropEvent) => {
-    dropEvent.preventDefault();
-    const files = [...(dropEvent.dataTransfer?.files || [])];
-    if (files.length) uploadResumes(files);
-  });
   DOM.blockedNote.addEventListener('click', () => {
     showBlocked = !showBlocked;
     showAllRows = false;
@@ -2924,101 +2562,7 @@ function bindEvents() {
   DOM.emptyReset.addEventListener('click', resetFilters);
   DOM.filtersToggle.addEventListener('click', () => document.body.classList.toggle('show-filters'));
 
-  // Pages-mode import: the local server reads profile.json/route-cache.json
-  // straight off disk; on static hosting the user imports the same files here
-  // and they persist in localStorage only.
-  DOM.profileFile.addEventListener('change', async () => {
-    const file = DOM.profileFile.files?.[0];
-    if (!file) return;
-    DOM.profileFile.value = '';
-    let parsed = null;
-    try {
-      parsed = JSON.parse(await file.text());
-    } catch {
-      state.profileError = 'That file is not valid JSON.';
-      renderProfileCard();
-      return;
-    }
-    const problem = RadarScoring.validateProfile(parsed);
-    if (problem) {
-      state.profileError = `Not a usable profile: ${problem}`;
-      renderProfileCard();
-      return;
-    }
-    state.profileError = null;
-    localStorage.setItem(PROFILE_KEY, JSON.stringify(parsed));
-    applyProfile(parsed, state.routeCache);
-    render();
-  });
-
-  DOM.routeFile.addEventListener('change', async () => {
-    const file = DOM.routeFile.files?.[0];
-    if (!file) return;
-    DOM.routeFile.value = '';
-    let parsed = null;
-    try {
-      parsed = JSON.parse(await file.text());
-    } catch {
-      state.profileError = 'That file is not valid JSON.';
-      renderProfileCard();
-      return;
-    }
-    if (!parsed || typeof parsed.verdicts !== 'object') {
-      state.profileError = 'Not a route-cache file (missing verdicts).';
-      renderProfileCard();
-      return;
-    }
-    state.profileError = null;
-    localStorage.setItem(ROUTE_CACHE_KEY, JSON.stringify(parsed));
-    applyProfile(state.profile, parsed);
-    render();
-  });
-
-  DOM.clearProfile.addEventListener('click', () => {
-    localStorage.removeItem(PROFILE_KEY);
-    localStorage.removeItem(ROUTE_CACHE_KEY);
-    state.profileError = null;
-    applyProfile(null, null);
-    render();
-  });
-
-  DOM.triageExport.addEventListener('click', exportTriage);
-  DOM.triageImportFile.addEventListener('change', async () => {
-    const file = DOM.triageImportFile.files?.[0];
-    if (!file) return;
-    DOM.triageImportFile.value = '';
-    let parsed = null;
-    try {
-      parsed = JSON.parse(await file.text());
-    } catch {
-      DOM.triageTransferNote.textContent = 'That file is not valid JSON.';
-      return;
-    }
-    const problem = RadarPipeline.validateTriageDoc(parsed, new Set(Object.keys(TRIAGE_LABELS)));
-    if (problem) {
-      DOM.triageTransferNote.textContent = `Not a triage export: ${problem}`;
-      return;
-    }
-    const merged = RadarPipeline.mergeLocalState(state.local, parsed);
-    state.local.triage = merged.triage;
-    state.local.ignored_employers = merged.ignored_employers;
-    await persistTriage();
-    render();
-    DOM.triageTransferNote.textContent =
-      `Merged ${merged.mergedCount} record${merged.mergedCount === 1 ? '' : 's'}` +
-      ` · ${merged.addedEmployerCount} employer${merged.addedEmployerCount === 1 ? '' : 's'} newly ignored.` +
-      ' Older local entries were kept.';
-  });
-
-  DOM.syncSave.addEventListener('click', saveSyncToken);
-  DOM.syncClear.addEventListener('click', clearSyncToken);
-
   DOM.statusToggle.addEventListener('click', toggleStatusPanel);
-
-  DOM.ignoredNote.addEventListener('click', () => {
-    DOM.ignoredPanel.hidden = !DOM.ignoredPanel.hidden;
-    if (!DOM.ignoredPanel.hidden) renderIgnoredPanel();
-  });
 
   DOM.statusPanel.addEventListener('click', async (event) => {
     const button = event.target.closest('.copy-cmd');
@@ -3047,6 +2591,10 @@ async function init() {
   try { localStorage.removeItem('veritas_radar_theme'); } catch { /* fine */ }
   // Saved views retired with the 2026-08-04 three-tab restructure
   try { localStorage.removeItem('veritas_radar_views'); } catch { /* fine */ }
+  // Cross-device triage sync retired 2026-08-05 — one person, one machine, and
+  // the server already writes every change to radar/data/local-state.json.
+  // Dropping the stored token so a stale secret doesn't sit in localStorage.
+  try { localStorage.removeItem('veritas_radar_sync_token'); } catch { /* fine */ }
   // The "NEW" watermark must NOT advance on every load — that made everything
   // stop being NEW the moment you reloaded. Read it and leave it; only an
   // explicit "Mark all as seen" advances it. Seed it once on the very first
@@ -3080,23 +2628,8 @@ async function init() {
   // null means no API server (static hosting) -> browser-local triage
   state.local = local || loadTriageFromBrowser();
   if (!Array.isArray(state.local.ignored_employers)) state.local.ignored_employers = [];
-  // Cross-device sync (1.2): pull Supabase triage, merge last-write-wins, and
-  // push the merged set back so remote picks up any local-only edits. Off (and
-  // a clean no-op) until a sync token is set; never blocks load on failure.
-  if (triageSync.enabled()) {
-    try {
-      const remote = await triageSync.pull();
-      if (remote) {
-        state.local.triage = RadarPipeline.mergeTriage(state.local.triage, remote);
-        await saveLocalState();
-        await triageSync.push();
-      }
-    } catch (error) {
-      console.warn(`Triage sync pull failed (using local triage): ${error.message}`);
-    }
-  }
-  // Same split for the resume profile: disk via the local server, otherwise
-  // whatever the user imported into this browser. A profile served from disk
+  // The profile comes off disk via the local server; a stored copy in this
+  // browser is the fallback for the hosted dashboard. One served from disk
   // that fails validation is surfaced, not silently ignored.
   const diskProblem = profile ? RadarScoring.validateProfile(profile) : null;
   if (diskProblem) state.profileError = `profile.json is not usable: ${diskProblem}`;
@@ -3106,13 +2639,10 @@ async function init() {
   // the hosted page, pull a fresher profile from the local radar if it's up.
   pollProfileFreshness();
   maybeSyncProfileFromLocalRadar();
-  loadResumePanel();
-  loadProfilePanel();
   renderRefreshStatus(report);
   renderDiscovery(discovery);
   // Keep the next-pull countdown honest without touching anything else
   setInterval(renderRefreshMetaLine, 60000);
-  renderSyncStatus();
   bindEvents();
 
   // Preselect the first job on wide screens so the detail pane is never empty

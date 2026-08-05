@@ -410,6 +410,16 @@ button { font: inherit; color: inherit; }
   margin-bottom: 14px;
 }
 
+/* The profile's entire footprint in the UI: what loaded, and what it dropped */
+.status-profile {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  margin-bottom: 16px;
+}
+
+.status-profile .drawer-note { margin-bottom: 6px; }
+.status-profile .profile-error { margin-bottom: 6px; }
+
 .errors-list {
   margin: 0;
   padding: 0;
@@ -555,96 +565,8 @@ textarea { resize: vertical; }
 }
 
 /* Sidebar note-button (ignored-employers manage link) */
-.feeds-note {
-  border: 0;
-  background: none;
-  padding: 8px 0 0;
-  border-top: 1px solid var(--line);
-  text-align: left;
-  font-size: 12px;
-  color: var(--muted);
-  cursor: pointer;
-}
-
-.feeds-note:hover { color: var(--ink); }
-
-.feeds-note.feeds-warn { color: var(--restricted-ink); }
 
 /* Your resumes / what you want — the two inputs matching runs on */
-.side-section {
-  padding-top: 8px;
-  border-top: 1px solid var(--line);
-}
-
-.side-section > summary {
-  cursor: pointer;
-  list-style: none;
-  font-family: var(--font-heading);
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
-
-.side-section > summary::-webkit-details-marker { display: none; }
-.side-section > summary::after { content: '+'; float: right; color: var(--faint); }
-.side-section[open] > summary::after { content: '–'; }
-.side-section[open] > summary { margin-bottom: 10px; }
-.side-count { color: var(--faint); font-weight: 500; }
-
-.resume-drop {
-  border: 1px dashed var(--line-strong);
-  padding: 14px 12px;
-  text-align: center;
-  display: grid;
-  gap: 6px;
-  justify-items: center;
-  margin-bottom: 10px;
-}
-
-.resume-drop.is-over { border-color: var(--accent); background: var(--accent-soft); }
-.resume-drop.is-busy { opacity: 0.55; pointer-events: none; }
-.resume-drop > p:first-child { font-weight: 600; font-size: 13px; }
-
-.resume-list { display: grid; gap: 12px; margin-bottom: 10px; }
-
-.resume-row {
-  display: grid;
-  gap: 4px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--line);
-}
-
-.resume-head { display: flex; align-items: center; gap: 6px; }
-
-.resume-label {
-  flex: 1;
-  min-width: 0;
-  font-weight: 650;
-  font-size: 13px;
-  border: 1px solid transparent;
-  background: none;
-  padding: 2px 4px;
-}
-
-.resume-label:hover, .resume-label:focus { border-color: var(--line-strong); background: var(--panel); }
-
-.resume-remove { color: var(--faint); font-size: 16px; line-height: 1; }
-.resume-remove:hover { color: var(--restricted-ink); }
-
-.resume-intent {
-  width: 100%;
-  font-size: 12px;
-  padding: 5px 6px;
-  border: 1px solid var(--line);
-  background: var(--panel);
-  color: var(--muted);
-}
-
-.resume-meta { font-size: 11px; color: var(--faint); }
-
-.profile-fallback { margin-top: 8px; opacity: 0.75; }
 
 #wants-text {
   width: 100%;
@@ -671,40 +593,8 @@ textarea { resize: vertical; }
 
 .wants-value { flex: 1; min-width: 0; color: var(--muted); }
 
-/* The collapsed "More" section: rare toggles + backup/sync utilities */
-.more-filters {
-  padding-top: 8px;
-  border-top: 1px solid var(--line);
-}
-
-.more-filters > summary {
-  cursor: pointer;
-  list-style: none;
-  font-family: var(--font-heading);
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
-
-.more-filters > summary::-webkit-details-marker { display: none; }
-
-.more-filters > summary::after {
-  content: '+';
-  float: right;
-  color: var(--faint);
-}
-
-.more-filters[open] > summary::after { content: '–'; }
-
-.more-filters[open] > summary { margin-bottom: 10px; }
-
-.more-filters > .check,
-.more-filters > .feeds-note,
-.more-filters > .ignored-panel {
-  margin-bottom: 8px;
-}
+/* Hidden employers — in the status drawer now, not the filter sidebar: the
+   sidebar chooses what to look at, it does not undo past decisions. */
 
 .ignored-panel {
   display: grid;
@@ -723,17 +613,6 @@ textarea { resize: vertical; }
 .ignored-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
 
 .ignore-employer { color: var(--faint); }
-
-
-.check {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.check input { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
 
 .link-button {
   border: 0;
@@ -759,25 +638,19 @@ textarea { resize: vertical; }
 .profile-note { font-size: 11.5px; color: var(--faint); }
 .profile-note code { font-size: 11px; }
 
+/* Says what the three filters do NOT cover, so their absence reads as a
+   decision rather than an omission. */
+.filters-footnote {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
 .profile-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-.profile-summary { display: grid; gap: 6px; font-size: 12.5px; }
-.profile-empty { color: var(--muted); }
-.profile-core { font-weight: 650; }
 .profile-error { color: var(--warn-ink); }
-.profile-routing { color: var(--faint); font-size: 11.5px; }
 
-.profile-variants {
-  list-style: none;
-  display: grid;
-  gap: 4px;
-  padding: 0;
-  margin: 0;
-}
-.profile-variants li { display: flex; align-items: center; gap: 6px; }
-.profile-variants .variant-terms { margin-left: auto; color: var(--faint); font-size: 11px; }
-
-.variant-abbrev { font-weight: 700; font-size: 11px; letter-spacing: 0.04em; }
 .variant-label { font-size: 12.5px; }
 
 .file-button {
@@ -995,13 +868,39 @@ textarea { resize: vertical; }
 .sq-more { font-size: 9.5px; color: var(--faint); margin-left: 2px; }
 
 .group-header {
-  padding: 10px 4px 2px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 18px 4px 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2px;
   font-family: var(--font-heading);
   font-size: 12.5px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--faint);
+}
+
+/* The first header sits directly under the list head — no leading gap. */
+.job-list > .group-header:first-child { padding-top: 4px; }
+
+/* The count is the point of the header: it answers "how much is worth reading
+   tonight" without scrolling to the next divider. */
+.group-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+/* Lower-case and un-tracked so it reads as a sentence, not a third label. */
+.group-note {
+  margin-left: auto;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-size: 11.5px;
+  color: var(--muted);
 }
 
 .pipeline-terminal {
@@ -1025,9 +924,8 @@ textarea { resize: vertical; }
 .pipeline-note { display: none; }
 body.pipeline-mode .pipeline-note { display: block; }
 body.pipeline-mode .filters > .field:not(.search-field),
-body.pipeline-mode .filters > .check,
-body.pipeline-mode .more-filters > .check,
-body.pipeline-mode .filters > .mark-seen {
+body.pipeline-mode .filters > .mark-seen,
+body.pipeline-mode .filters-footnote {
   opacity: 0.4;
   pointer-events: none;
 }
@@ -1052,7 +950,7 @@ body.pipeline-mode .sort-inline { display: none; }
    the collapsed terminal <details>, and the show-all button. */
 .row-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 76px 140px 140px 52px;
+  grid-template-columns: minmax(0, 1fr) 140px 52px;
   gap: 0 14px;
   align-items: start;
 }
@@ -1130,10 +1028,6 @@ body.pipeline-mode .jobs-header { display: none; }
 
 .row-apply:hover { background: var(--accent); color: var(--accent-contrast); }
 
-/* Export backup lives in the list head but only matters where the data is */
-.export-backup { display: none; font-size: 12px; padding: 5px 10px; }
-body.pipeline-mode .export-backup { display: inline-flex; }
-
 .job-row.is-selected {
   background: var(--accent-soft);
   box-shadow: inset 2px 0 0 var(--accent);
@@ -1161,6 +1055,9 @@ body.pipeline-mode .export-backup { display: inline-flex; }
 .flag-status { color: var(--accent-ink); }
 .flag-red { color: var(--restricted-ink); }
 .flag-muted { color: var(--faint); }
+/* A stated requirement you don't meet, where the posting's wording wasn't
+   clean enough to quote as a blocker — worth seeing, not worth alarming. */
+.flag-warn { color: var(--warn-ink, var(--restricted-ink)); opacity: 0.85; }
 
 .row-title {
   font-weight: 650;
@@ -1189,37 +1086,6 @@ body.pipeline-mode .export-backup { display: inline-flex; }
   text-overflow: ellipsis;
 }
 
-.row-compact-send {
-  display: none;
-  color: var(--accent-ink);
-  font-size: 11.5px;
-  font-weight: 600;
-}
-
-.cell-fit { display: grid; gap: 3px; justify-items: start; }
-
-.fit-num {
-  font-size: 15px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-}
-
-.fit-num.fit-res { color: var(--muted); }
-
-.fit-bar {
-  width: 64px;
-  height: 3px;
-  background: var(--line);
-  overflow: hidden;
-}
-
-.fit-bar i {
-  display: block;
-  height: 100%;
-  background: var(--accent-400);
-}
-
 .cell-visa { display: grid; gap: 3px; justify-items: start; }
 
 .visa-evidence {
@@ -1227,17 +1093,6 @@ body.pipeline-mode .export-backup { display: inline-flex; }
   font-size: 11px;
   line-height: 1.3;
 }
-
-.cell-send { display: grid; gap: 2px; font-size: 12px; }
-
-.send-variant { font-weight: 650; }
-
-.send-delta {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.send-delta.send-gate { color: var(--restricted-ink); font-weight: 600; }
 
 .cell-closes {
   font-size: 12px;
@@ -1289,38 +1144,8 @@ body.pipeline-mode .export-backup { display: inline-flex; }
   gap: 6px;
 }
 
-/* Qualified ranks by the judged verdict — no sort control to fiddle with */
-body.qualified-mode .sort-inline { display: none; }
-
-/* The judged match: verdict where the model has read the posting, and the
-   deterministic score demoted to a hint once it has. */
-.match-verdict {
-  display: inline-block;
-  font-size: 10.5px;
-  padding: 2px 6px;
-  margin-bottom: 3px;
-  white-space: nowrap;
-}
-
-.cell-fit.has-verdict .fit-num {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--faint);
-}
-
-.cell-fit.has-verdict .fit-bar { display: none; }
-
-/* Still being read: a quiet placeholder, never a spinner per row */
-.cell-fit.is-reading .fit-num { opacity: 0.35; }
-
-.cell-fit.is-reading::after {
-  content: 'reading…';
-  display: block;
-  font-size: 10px;
-  color: var(--faint);
-  font-family: var(--font-heading);
-  letter-spacing: 0.06em;
-}
+/* Possible is grouped by the judged verdict — no sort control to fiddle with */
+body.possible-mode .sort-inline { display: none; }
 
 /* Why it matched, on the row */
 .row-match {
@@ -1361,11 +1186,6 @@ body.qualified-mode .sort-inline { display: none; }
 
 .note-input {
   min-height: 56px;
-}
-
-.variant-sent-field {
-  margin: 4px 0;
-  max-width: 320px;
 }
 
 .mark-seen {
@@ -1570,14 +1390,6 @@ body.qualified-mode .sort-inline { display: none; }
 .fit-skills { color: var(--muted); font-size: 12.5px; }
 
 /* SEND THIS ONE — the routing call as the panel headline */
-.send-heading {
-  font-family: var(--font-heading);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--accent-ink);
-}
 
 .send-headline {
   display: flex;
@@ -1600,49 +1412,28 @@ body.qualified-mode .sort-inline { display: none; }
   font-variant-numeric: tabular-nums;
 }
 
-.send-verdict { color: var(--muted); font-size: 12.5px; }
+/* The model's read, at the top of the detail pane — the reasoning in full,
+   where the row shows only its first line. */
+.detail-judgment {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
 
-.send-variants { display: grid; gap: 5px; }
-
-.send-row {
+.detail-judgment-head {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.send-row-label {
-  flex: 0 0 130px;
-  font-size: 12.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.detail-judgment-role { color: var(--muted); font-size: 12.5px; }
 
-.send-row.is-best .send-row-label { font-weight: 700; }
+.detail-judgment .match-why { font-size: 12.5px; line-height: 1.45; }
 
-.send-bar {
-  flex: 1;
-  height: 4px;
-  background: var(--line);
-  overflow: hidden;
-}
-
-.send-bar i {
-  display: block;
-  height: 100%;
-  background: var(--accent-400);
-}
-
-.send-row.is-best .send-bar i { background: var(--accent); }
-
-.send-row-score {
-  flex: none;
-  font-weight: 700;
-  font-size: 12px;
-  min-width: 3ch;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
+.send-verdict { color: var(--muted); font-size: 12.5px; }
 
 .send-footnote {
   border-top: 1px solid var(--line);
@@ -1757,7 +1548,8 @@ mark.m-skill { background: var(--mark-skill); }
   .stat-label { font-size: 10px; letter-spacing: 0.06em; }
 
   /* Narrow: drop the visa + closes columns; role/fit/send carry the decision */
-  .row-grid { grid-template-columns: minmax(0, 1fr) 76px 140px; }
+  .row-grid { grid-template-columns: minmax(0, 1fr) 140px; }
+  .cell-closes { display: none; }
   .cell-visa, .cell-closes { display: none; }
 }
 
@@ -1781,16 +1573,15 @@ mark.m-skill { background: var(--mark-skill); }
   .stat-strip { order: 3; width: 100%; justify-content: space-between; }
   .stat:first-child { padding-left: 0; }
 
-  /* Phone: two columns; the send call collapses into the role cell */
-  .row-grid { grid-template-columns: minmax(0, 1fr) 64px; }
-  .cell-send { display: none; }
-  .row-compact-send { display: block; }
+  /* Phone: one column — the visa tag moves under the title with the flags */
+  .row-grid { grid-template-columns: minmax(0, 1fr); }
+  .cell-visa { grid-column: 1; flex-direction: row; padding-top: 2px; }
   .sort-inline-label { display: none; }
+
+  /* Group headers keep their count but drop the trailing note */
+  .group-note { display: none; }
 
   /* The row quick-action has no hover on touch — the detail pane's Open
      posting button covers the same flow, so hide it instead of trapping taps */
   .row-apply { display: none; }
-
-  .export-backup { font-size: 11px; padding: 4px 8px; }
-
 }
