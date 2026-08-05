@@ -4,21 +4,36 @@ careers page, and harvest ATS links (Workday tenants, Greenhouse/Lever slugs,
 iCIMS/Taleo/PageUp/PeopleAdmin/... hosts). The census this produces decides
 which employers get wired into the radar and which adapter to build next.
 
-Checkpointed and resumable: results persist to radar/data/ats-discovery.json
-after every employer; reruns skip anything already crawled (--recrawl-days N
-re-does stale entries). Evidence-bearing employers crawl first.
+Checkpointed and resumable: results persist after every batch; reruns skip
+anything already crawled (--recrawl-days N re-does stale entries).
+
+SHARDING is how this finishes. One process crawls one site at a time — the
+work is network-bound, so the machine barely matters and the loop was the
+whole cost: ~15s a site, ~15 hours for the 3,534 institutions still uncrawled,
+which is more than a GitHub job's 6h cap and why the backlog never cleared.
+--shard i/N splits the queue N ways; run the shards as parallel processes
+locally or as a matrix of runners in CI and the wall clock divides by N.
+
+Shards interleave (index % N) rather than taking contiguous blocks. The queue
+is sorted by sponsorship evidence, so contiguous blocks would hand shard 0
+every research university and the last shard every community college — same
+count, wildly different page weights, and the run is only as fast as its
+slowest shard.
 
 Usage:
   python scout/scout_discover.py --limit 50
-  python scout/scout_discover.py --all              # full sweep, resumable
-  python scout/scout_discover.py --min-evidence 1   # only employers with USCIS/DOL history
+  python scout/scout_discover.py --all                        # full sweep, resumable
+  python scout/scout_discover.py --min-evidence 1             # only USCIS/DOL history
+  python scout/scout_discover.py --all --shard 0/8 --out a.json   # one of 8 workers
 """
 from __future__ import annotations
 
 import argparse
 import json
 import re
+import signal
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -34,8 +49,19 @@ DIRECTORY_PATH = RADAR_PATH / "radar" / "data" / "cap-exempt-directory.json"
 OUTPUT_PATH = RADAR_PATH / "radar" / "data" / "ats-discovery.json"
 
 SCHEMA_VERSION = 1
+# Sites between checkpoints. Small enough that a killed run loses minutes,
+# large enough that serializing the result set isn't most of the work.
+SAVE_EVERY = 25
 PAGE_TIMEOUT_MS = 25000
 SETTLE_MS = 1500
+# Careers-page candidates to follow per site. find_careers_links ranks them, so
+# the real one is near the front; the tail is footer links and duplicates that
+# cost a full navigation each to rule out.
+MAX_CAREERS_LINKS = 4
+# Hard wall-clock ceiling per site. Bounds the queue: 3,541 sites can now be
+# costed honestly instead of hostage to whichever homepage links to forty
+# things called "jobs".
+SITE_BUDGET_S = 60
 
 # Provider patterns with tenant/slug extraction. Matched against raw HTML of
 # the careers page (catches hrefs, iframes, and script-injected URLs alike).
@@ -172,11 +198,22 @@ def discover_employer(page, entry: dict) -> dict:
 
     # ATS links sometimes sit on the homepage itself
     ats = extract_ats_links(collect_page_html(page))
-    careers_links = find_careers_links(page)
+    careers_links = find_careers_links(page)[:MAX_CAREERS_LINKS]
 
     signature_fallback = []
+    deadline = time.monotonic() + SITE_BUDGET_S
     for link in careers_links:
         if ats:
+            break
+        # Two independent bounds, because one site must never own a worker.
+        # The link list was unbounded: find_careers_links returns every anchor
+        # matching /careers|jobs|employment|.../, which on a large university
+        # homepage is dozens, and each one costs a 25s navigation plus two
+        # nested hops — measured at 10+ minutes on a single site, against a
+        # 15s average. The slice above caps the count; this caps the clock,
+        # since a handful of very slow pages costs the same as many quick ones.
+        if time.monotonic() > deadline:
+            result["status"] = "budget_exceeded"
             break
         try:
             throttle(link, 2)
@@ -191,6 +228,15 @@ def discover_employer(page, entry: dict) -> dict:
                 for nested in find_careers_links(page)[:2]:
                     if nested == link:
                         continue
+                    # The deadline has to bind HERE too, not just between outer
+                    # iterations. Checked only at the top of the outer loop, a
+                    # budget of 60s still permitted a full nested pass to start
+                    # at 59s and run for another two minutes — so the ceiling
+                    # was really budget + one iteration, and two sites took
+                    # eight minutes with the cap supposedly in force.
+                    if time.monotonic() > deadline:
+                        result["status"] = "budget_exceeded"
+                        break
                     try:
                         throttle(nested, 2)
                         page.goto(nested, wait_until="domcontentloaded", timeout=PAGE_TIMEOUT_MS)
@@ -228,12 +274,41 @@ def main() -> int:
     parser.add_argument("--min-evidence", type=int, default=0,
                         help="minimum (uscis + 2*dol) evidence score to include")
     parser.add_argument("--recrawl-days", type=int, default=90)
+    parser.add_argument("--shard", default=None, metavar="I/N",
+                        help="crawl only shard I of N (0-indexed), interleaved")
+    parser.add_argument("--out", default=None, metavar="PATH",
+                        help="write results here instead of ats-discovery.json "
+                             "(a shard writes ONLY what it crawled; merge with "
+                             "radar/scripts/merge-discovery.js)")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="report what this shard would crawl, then exit — "
+                             "how you size a matrix before spending runner hours")
     args = parser.parse_args()
 
+    shard_index, shard_count = 0, 1
+    if args.shard:
+        try:
+            shard_index, shard_count = (int(part) for part in args.shard.split("/", 1))
+        except ValueError:
+            parser.error("--shard must look like I/N, e.g. 0/8")
+        if not 0 <= shard_index < shard_count:
+            parser.error(f"--shard {args.shard}: need 0 <= I < N")
+
+    out_path = Path(args.out) if args.out else OUTPUT_PATH
+
     directory = json.loads(DIRECTORY_PATH.read_text("utf-8"))["entries"]
-    results = {}
+
+    # Prior results decide what to skip. Always read the shared file for that,
+    # even when writing elsewhere — otherwise a sharded run recrawls the 2,430
+    # sites already done.
+    prior_results = {}
     if OUTPUT_PATH.exists():
-        results = json.loads(OUTPUT_PATH.read_text("utf-8")).get("employers", {})
+        prior_results = json.loads(OUTPUT_PATH.read_text("utf-8")).get("employers", {})
+
+    # What this process will write. A shard writes only its own crawl so the
+    # merge is a union of disjoint sets and two shards can never clobber each
+    # other's work by round-tripping a stale copy of the shared file.
+    results = {} if args.out else prior_results
 
     def evidence(entry):
         return (entry.get("uscis_approvals_3y") or 0) + 2 * (entry.get("dol_certified_3y") or 0)
@@ -245,7 +320,7 @@ def main() -> int:
             continue
         if evidence(entry) < args.min_evidence:
             continue
-        prior = results.get(key)
+        prior = prior_results.get(key)
         if prior:
             try:
                 crawled = datetime.fromisoformat(prior["crawled_at"]).timestamp()
@@ -261,45 +336,122 @@ def main() -> int:
     elif args.limit:
         pending = pending[: args.limit]
 
-    log.info("discovery_start", pending=len(pending), already_crawled=len(results))
+    # Slice AFTER --limit so `--limit 800 --shard 0/8` means "100 sites from the
+    # first 800", not "the first 100 of shard 0" — the cap is on total work.
+    total_pending = len(pending)
+    if shard_count > 1:
+        pending = [pair for index, pair in enumerate(pending) if index % shard_count == shard_index]
+
+    log.info("discovery_start", pending=len(pending), of_queue=total_pending,
+             shard=f"{shard_index}/{shard_count}", already_crawled=len(prior_results),
+             out=out_path.name)
+
+    if args.dry_run:
+        # ~15s a site is the measured average including page timeouts. Printed
+        # as an estimate so a matrix can be sized against the 6h job cap rather
+        # than discovered to be too small five hours in.
+        eta_h = len(pending) * 15 / 3600
+        log.info("dry_run", would_crawl=len(pending), est_hours=round(eta_h, 1),
+                 sample=[entry["name"][:40] for _, entry in pending[:3]])
+        return 0
+
+    # Nothing to do — don't pay 20s of chromium startup to discover that.
+    if not pending:
+        log.info("discovery_done", crawled=0, note="queue empty for this shard")
+        return 0
 
     def save():
-        OUTPUT_PATH.write_text(json.dumps({
+        # Written to a temp file and moved into place: a run cancelled at the
+        # 6h cap used to be able to catch this mid-write and leave truncated
+        # JSON, which reads as "no discovery data" on the next run.
+        payload = json.dumps({
             "schema_version": SCHEMA_VERSION,
             "generated_at": now_iso(),
+            "shard": f"{shard_index}/{shard_count}" if shard_count > 1 else None,
             "employers": results,
-        }, indent=1) + "\n", "utf-8")
+        }, indent=1) + "\n"
+        tmp = out_path.with_suffix(out_path.suffix + ".tmp")
+        tmp.write_text(payload, "utf-8")
+        tmp.replace(out_path)
 
     from playwright.sync_api import sync_playwright
 
+    # A run that hits the CI timeout is cancelled, not finished. Actions sends
+    # SIGTERM, which by default kills the process outright and would take the
+    # since-last-checkpoint work with it; turning it into KeyboardInterrupt
+    # lets the finally below write what we have. This is the same reasoning as
+    # the workflow's `if: always()` on its commit step — hours of crawl are
+    # worth saving however the run ended.
+    def on_terminate(signum, frame):
+        raise KeyboardInterrupt(f"signal {signum}")
+
+    def on_site_timeout(signum, frame):
+        raise TimeoutError(f"site exceeded {SITE_BUDGET_S + 30}s")
+
+    signal.signal(signal.SIGTERM, on_terminate)
+    signal.signal(signal.SIGALRM, on_site_timeout)
+
+    interrupted = None
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True)
         context = browser.new_context(user_agent=UA)
+        # page.content() and eval_on_selector_all carry no explicit timeout, so
+        # they were silently taking playwright's 30s default — longer than the
+        # navigation cap they follow. One ceiling for every operation.
+        context.set_default_timeout(PAGE_TIMEOUT_MS)
         page = context.new_page()
-        for index, (key, entry) in enumerate(pending, 1):
-            # One pathological page must never kill a 900-employer sweep
-            try:
-                result = discover_employer(page, entry)
-            except Exception as error:
-                result = {
-                    "name": entry["name"], "website": entry["website"], "careers_url": None,
-                    "ats": [], "status": f"crawler_error: {type(error).__name__}",
-                    "uscis_approvals_3y": entry.get("uscis_approvals_3y", 0),
-                    "dol_certified_3y": entry.get("dol_certified_3y", 0),
-                    "crawled_at": now_iso(),
-                }
-                page.close()
-                page = context.new_page()
-            results[key] = result
-            providers = ",".join(sorted({a["provider"] for a in result["ats"]})) or "-"
-            log.info("crawled", n=f"{index}/{len(pending)}", name=entry["name"][:40],
-                     status=result["status"], ats=providers)
+        try:
+            for index, (key, entry) in enumerate(pending, 1):
+                # One pathological page must never kill a 900-employer sweep
+                try:
+                    # SIGALRM is the bound that actually holds. Cooperative
+                    # deadline checks only fire between navigations, and
+                    # playwright's own timeouts turned out not to cover
+                    # everything: one homepage (University of New Hampshire)
+                    # sat for 10+ minutes against a 25s navigation cap and a
+                    # 60s site budget, both nominally in force. An alarm
+                    # interrupts wherever the process actually is, so per-site
+                    # cost has a ceiling no single site can argue with.
+                    signal.alarm(SITE_BUDGET_S + 30)
+                    result = discover_employer(page, entry)
+                except Exception as error:
+                    result = {
+                        "name": entry["name"], "website": entry["website"], "careers_url": None,
+                        "ats": [], "status": f"crawler_error: {type(error).__name__}",
+                        "uscis_approvals_3y": entry.get("uscis_approvals_3y", 0),
+                        "dol_certified_3y": entry.get("dol_certified_3y", 0),
+                        "crawled_at": now_iso(),
+                    }
+                    page.close()
+                    page = context.new_page()
+                finally:
+                    signal.alarm(0)  # disarm before the bookkeeping below
+                results[key] = result
+                providers = ",".join(sorted({a["provider"] for a in result["ats"]})) or "-"
+                log.info("crawled", n=f"{index}/{len(pending)}", name=entry["name"][:40],
+                         status=result["status"], ats=providers)
+                # Checkpoint every 25 rather than every site. This used to
+                # re-serialize the whole result set once per crawl — at a few
+                # thousand entries that is megabytes of JSON per 15s of work,
+                # and it only exists so a cancelled run keeps its progress. 25
+                # sites is ~6 minutes of loss in the worst case, against a run
+                # measured in hours.
+                if index % SAVE_EVERY == 0:
+                    save()
+                # A crashed page poisons subsequent navigations; recycle it
+                if index % 50 == 0:
+                    page.close()
+                    page = context.new_page()
+        except KeyboardInterrupt as stop:
+            interrupted = stop
+        finally:
+            # Runs on the timeout kill too — see the SIGTERM handler above.
             save()
-            # A crashed page poisons subsequent navigations; recycle it
-            if index % 50 == 0:
-                page.close()
-                page = context.new_page()
-        browser.close()
+            browser.close()
+
+    if interrupted is not None:
+        log.warning("discovery_interrupted", crawled=len(results), reason=str(interrupted))
+        return 130
 
     hits = sum(1 for r in results.values() if r.get("ats"))
     log.info("discovery_done", crawled=len(results), with_ats=hits)

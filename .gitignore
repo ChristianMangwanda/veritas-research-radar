@@ -68,3 +68,6 @@ radar/data/preferences.json
 .env
 .env.*
 !.env.example
+
+# Sharded crawl output — merged into ats-discovery.json, never committed raw
+scout/.shards/

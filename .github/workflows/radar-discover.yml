@@ -6,36 +6,77 @@ name: Radar Employer Discovery
 # Distinct from the weekly Employer Scout workflow, which scrapes job
 # postings for employers *already* in the registry with no ATS feed.
 #
+# SHARDED. The crawl is one page at a time and ~15s a site, so the 3,541
+# institutions still uncrawled are ~15 hours of work — more than a GitHub job
+# may run, which is why a single-job version of this never cleared its backlog
+# and said so in its own comments. Each shard now takes 1/N of the queue on its
+# own runner (~1.8h at the default 8), and a final job merges the results into
+# one commit. Runners are free on public repos, so N is limited by politeness
+# and the merge, not by budget.
+#
 # Scheduled monthly, a few hours after the monthly enrichment run (which is
 # what actually adds freshly-discovered candidate employers to crawl) —
 # enrichment finishes first, then this run sees the newest candidate list.
-# Also runs on demand via workflow_dispatch. The crawl saves progress after
-# every site and skips anything already crawled within --recrawl-days, so a
-# run that hits the timeout below just resumes cleanly next time.
 on:
   schedule:
     - cron: "30 9 1 * *"
   workflow_dispatch:
     inputs:
+      shards:
+        description: "Parallel workers (each takes 1/N of the queue)"
+        required: false
+        default: "8"
+        type: choice
+        options: ["1", "4", "8", "12", "16"]
       limit:
-        description: "Max sites to crawl this run (blank = no cap, until the timeout)"
+        description: "Cap total sites crawled across all shards (blank = whole queue)"
         required: false
         default: ""
 
 permissions:
   contents: write
 
-# Shares the radar-data group so its commit can never race the other
+# Shares the radar-data group so the merge commit can never race the other
 # refresh/scout/enrich workflows.
 concurrency:
   group: radar-data-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  discover:
+  # A matrix cannot be a plain expression, so the shard list is computed here
+  # and consumed via fromJSON. This is what lets the shard count be a dispatch
+  # input instead of a number baked into the file.
+  plan:
     runs-on: ubuntu-latest
-    # GitHub-hosted runners hard-cap job execution at 6h; stay safely under it.
-    timeout-minutes: 350
+    outputs:
+      shards: ${{ steps.plan.outputs.shards }}
+      count: ${{ steps.plan.outputs.count }}
+    steps:
+      - id: plan
+        env:
+          COUNT: ${{ inputs.shards || '8' }}
+        run: |
+          set -euo pipefail
+          python3 -c "
+          import json, os
+          n = int(os.environ['COUNT'])
+          print('shards=' + json.dumps(list(range(n))))
+          print('count=' + str(n))
+          " >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
+  crawl:
+    needs: plan
+    runs-on: ubuntu-latest
+    # Each shard is ~1/N of ~15h. Stay under the 6h hard cap with room for a
+    # shard that draws an unlucky run of slow sites.
+    timeout-minutes: 330
+    strategy:
+      # One shard hitting a pathological site must not cancel the other seven —
+      # whatever they crawled is real progress and the merge takes what exists.
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -46,30 +87,59 @@ jobs:
           python -m venv scout/.venv
           scout/.venv/bin/pip install -r scout/requirements.txt
           scout/.venv/bin/python -m playwright install --with-deps chromium
-      - name: Crawl for ATS signatures
+      - name: Crawl shard ${{ matrix.shard }}
         run: |
+          set -euo pipefail
+          mkdir -p shards
+          args=(--all --shard "${{ matrix.shard }}/${{ needs.plan.outputs.count }}"
+                --out "shards/shard-${{ matrix.shard }}.json")
           if [ -n "${{ inputs.limit }}" ]; then
-            scout/.venv/bin/python scout/scout_discover.py --all --limit "${{ inputs.limit }}"
-          else
-            scout/.venv/bin/python scout/scout_discover.py --all
+            args+=(--limit "${{ inputs.limit }}")
           fi
+          scout/.venv/bin/python scout/scout_discover.py "${args[@]}"
+      # always(): a shard cancelled at the timeout has still crawled for hours,
+      # and the script checkpoints through SIGTERM specifically so that work
+      # survives. Skipping the upload would throw away exactly what the
+      # checkpointing exists to protect.
+      - name: Upload shard results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: discovery-shard-${{ matrix.shard }}
+          path: shards/shard-${{ matrix.shard }}.json
+          if-no-files-found: warn
+          retention-days: 7
+
+  merge:
+    needs: [plan, crawl]
+    # Runs even when some shards failed or timed out — a partial crawl is
+    # progress, and discarding it would mean the backlog never shrinks.
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download every shard that produced results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: discovery-shard-*
+          path: shards
+          merge-multiple: true
+      - name: Merge shards into the census
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(shards/*.json)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No shard artifacts — nothing to merge."
+            exit 0
+          fi
+          node radar/scripts/merge-discovery.js "${files[@]}"
       - name: Sync to latest main (this run's output wins)
-        # if: always() is the fix for a real bug: the crawl step runs right up
-        # against the 350-minute cap and gets cancelled there on most runs
-        # (a multi-thousand-site backlog won't finish in one window). Without
-        # this, a cancelled step skips every step after it by default, so the
-        # sync+commit below never ran and a full run's worth of crawl
-        # progress (hours of it) was silently discarded, not just left
-        # unresumed. The crawl script itself is safe to cancel mid-run — it
-        # saves to disk after every site — so whatever's on disk here is
-        # real, valid progress worth committing regardless of how this job
-        # ended.
-        #
         # checkout pins github.sha from queue time, so commits that landed
         # while this run was pending/running would make a rebase conflict.
         # Runs in the radar-data group are serialized, so this run's output
         # is always the freshest — save, reset, restore.
-        if: always()
         run: |
           set -euo pipefail
           tmp=$(mktemp -d)
@@ -78,13 +148,12 @@ jobs:
           git reset --hard origin/main
           cp "$tmp"/* radar/data/
       - name: Commit discovery data
-        if: always()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update ATS discovery crawl data"
           file_pattern: "radar/data/ats-discovery.json"
       - name: Alert on failure
-        if: failure() || cancelled()
+        if: failure()
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: |
