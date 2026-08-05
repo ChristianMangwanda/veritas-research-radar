@@ -54,7 +54,20 @@ const {
   adpLocation,
   fetchAdpJobs,
   validateEmployer,
-  ATS_FETCHERS
+  ATS_FETCHERS,
+  mapCsodJob,
+  csodLocation,
+  csodPostedAt,
+  extractCsodToken,
+  fetchCsodJobs,
+  mapIcimsJob,
+  icimsTitleFromUrl,
+  icimsSlugSegments,
+  icimsDetailUrl,
+  icimsCleanPosting,
+  icimsJobPathsFromHtml,
+  icimsPrefilterTitle,
+  fetchIcimsJobs
 } = require('../radar/scripts/refresh.js');
 const {
   parseIpedsCsv,
@@ -3067,6 +3080,227 @@ async function testAdpPagingContract() {
   }
 }
 
+function testCsodAdapter() {
+  const employer = { id: 'university-of-arizona', ats_token: 'arizona', ats_config: { site_id: 4 } };
+  const item = {
+    requisitionId: 26711,
+    displayJobTitle: 'Postdoctoral Research Associate',
+    postingEffectiveDate: '8/5/2026',
+    locations: [{ city: 'Tucson', state: 'AZ', country: 'US' }]
+  };
+  const detail = {
+    displayTitle: 'Postdoctoral Research Associate',
+    externalDescription: '<p>Conduct <b>quantum</b> research.</p>',
+    openDate: '2026-08-04T23:00:56',
+    primaryLocation: { title: 'Tucson Campus', city: 'Tucson', state: 'AZ' }
+  };
+
+  const job = mapCsodJob(item, detail, employer);
+  assert.strictEqual(job.id, 'csod:arizona:26711');
+  assert.strictEqual(job.source, 'csod');
+  assert.strictEqual(job.description_text, 'Conduct quantum research.');
+  assert.strictEqual(job.location, 'Tucson Campus');
+  // The detail's ISO openDate wins over the list's M/D/YYYY, which Date parses
+  // by locale and would otherwise land a day off.
+  assert.strictEqual(job.posted_or_updated_at, '2026-08-04T23:00:56');
+
+  // With no detail the list date is still usable, but only after being
+  // rewritten as an unambiguous ISO day.
+  const listOnly = mapCsodJob(item, null, employer);
+  assert.strictEqual(listOnly.posted_or_updated_at, '2026-08-05');
+  assert.strictEqual(listOnly.location, 'Tucson, AZ');
+  assert.strictEqual(listOnly.description_text, '');
+  assert(listOnly.url.includes('/careersite/4/home/requisition/26711'));
+
+  assert.strictEqual(csodLocation({ locations: [] }, null), 'Unspecified');
+  assert.strictEqual(csodPostedAt({ postingEffectiveDate: 'not a date' }, null), null);
+
+  // The bearer token only exists inside the shell page, so a page shape that
+  // stops carrying it has to fail loudly rather than yield an unauthenticated
+  // fetcher that reports every employer as empty.
+  assert.strictEqual(
+    extractCsodToken('<script>csod.context={"corp":"a","token":"abc"};</script>'),
+    'abc'
+  );
+  assert.throws(() => extractCsodToken('<html>no context here</html>'), /no csod\.context/);
+  assert.throws(() => extractCsodToken('<script>csod.context={"corp":"a"};</script>'), /no token/);
+}
+
+/**
+ * Cornerstone reports its own totalCount, so a short read is detectable — and
+ * has to be treated as a failure, because a list that silently comes back
+ * short is indistinguishable downstream from a batch of jobs that closed.
+ */
+async function testCsodPagingContract() {
+  const originalFetch = globalThis.fetch;
+  const employer = { id: 'short-u', ats_token: 'shortu', ats_config: { site_id: 1 } };
+  const shell = '<script>csod.context={"corp":"shortu","token":"tok"};</script>';
+
+  globalThis.fetch = async (url, options = {}) => {
+    if (String(url).includes('/ux/ats/careersite/')) {
+      return {
+        ok: true,
+        status: 200,
+        text: async () => shell,
+        headers: { getSetCookie: () => ['AWSALB=x; Path=/'] }
+      };
+    }
+    // Declares 40 postings but only ever hands back 5.
+    if (String(url).includes('/career-site/v1/search')) {
+      const page = JSON.parse(options.body).pageNumber;
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          data: {
+            totalCount: 40,
+            requisitions: page === 1
+              ? [1, 2, 3, 4, 5].map((n) => ({ requisitionId: n, displayJobTitle: `Research Scientist ${n}` }))
+              : []
+          }
+        })
+      };
+    }
+    throw new Error(`unexpected url ${url}`);
+  };
+
+  try {
+    let threw = null;
+    try {
+      await fetchCsodJobs(employer);
+    } catch (error) {
+      threw = error;
+    }
+    assert(threw && /incomplete/.test(threw.message), 'a short Cornerstone read must raise, not return a partial list');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
+function testIcimsAdapter() {
+  const employer = { id: 'emory-university', ats_token: 'staff-emory' };
+  const url = 'https://staff-emory.icims.com/jobs/167619/research-administrator%2c-post-award-iii---school-of-medicine/job';
+
+  // The sitemap URL is the only title available before paying for a detail
+  // fetch, so the percent-encoded slug has to decode into something the title
+  // classifier can actually read.
+  assert.strictEqual(icimsTitleFromUrl(url), 'research administrator, post award iii school of medicine');
+  assert.deepStrictEqual(icimsSlugSegments(url), {
+    id: '167619',
+    slug: 'research-administrator%2c-post-award-iii---school-of-medicine'
+  });
+
+  // The plain transform turns "post-doctoral-scholar" into "post doctoral
+  // scholar", which the title classifier rejects while accepting the closed-up
+  // spelling — so the prefilter has to offer both readings or the radar drops
+  // the postdoc listings it exists to surface.
+  const postdocUrl = 'https://careersat-ohsu.icims.com/jobs/35509/post-doctoral-scholar/job';
+  assert.strictEqual(icimsTitleFromUrl(postdocUrl), 'post doctoral scholar');
+  assert.strictEqual(isResearchRelevantTitle('post doctoral scholar', { research_areas: [] }), false);
+  assert(
+    isResearchRelevantTitle(icimsPrefilterTitle(postdocUrl), { research_areas: [] }),
+    'the iCIMS prefilter must keep post-doctoral postings'
+  );
+  // A title with no split prefix is passed through untouched, not doubled.
+  assert.strictEqual(icimsPrefilterTitle('https://x.icims.com/jobs/1/research-scientist/job'), 'research scientist');
+
+  // in_iframe=1 is what turns the wrapper page into the one carrying JSON-LD.
+  assert.strictEqual(icimsDetailUrl('https://x.icims.com/jobs/1/a/job'), 'https://x.icims.com/jobs/1/a/job?in_iframe=1');
+  assert.strictEqual(icimsDetailUrl('https://x.icims.com/jobs/1/a/job?ss=1'), 'https://x.icims.com/jobs/1/a/job?ss=1&in_iframe=1');
+
+  const posting = {
+    title: 'Research Administrator, Post-Award III',
+    description: '<p>Manage <b>grants</b> for research.</p>',
+    datePosted: '2024-08-05T21:58:12.733Z',
+    jobLocation: [{ address: { addressLocality: 'Atlanta', addressRegion: 'GA' } }]
+  };
+  const job = mapIcimsJob(url, posting, employer);
+  assert.strictEqual(job.id, 'icims:staff-emory:167619');
+  assert.strictEqual(job.source, 'icims');
+  assert.strictEqual(job.location, 'Atlanta, GA');
+  assert.strictEqual(job.description_text, 'Manage grants for research.');
+
+  // iCIMS writes the literal "UNAVAILABLE" into address fields it has no value
+  // for, which reached the dashboard as locations like "Remote, UNAVAILABLE".
+  const placeholder = {
+    ...posting,
+    jobLocation: [{ address: { addressLocality: 'Remote', addressRegion: 'UNAVAILABLE', addressCountry: 'US' } }]
+  };
+  assert.strictEqual(mapIcimsJob(url, placeholder, employer).location, 'Remote');
+  assert.deepStrictEqual(
+    icimsCleanPosting(placeholder).jobLocation[0].address,
+    { addressLocality: 'Remote', addressCountry: 'US' }
+  );
+
+  assert.deepStrictEqual(
+    icimsJobPathsFromHtml('<a href="/jobs/35509/post-doctoral-scholar/job">x</a><a href="/jobs/1/b/job">y</a>'),
+    ['/jobs/35509/post-doctoral-scholar/job', '/jobs/1/b/job']
+  );
+}
+
+/**
+ * Some iCIMS tenants answer /sitemap.xml with 403 while serving search fine
+ * (careersat-ohsu does). Falling back matters more than it looks: fetchText
+ * throws on 403, and an employer that throws keeps its existing jobs, but an
+ * employer that returns [] has every live job tombstoned.
+ */
+async function testIcimsSitemapFallback() {
+  const originalFetch = globalThis.fetch;
+  const employer = { id: 'ohsu', ats_token: 'careersat-ohsu' };
+
+  globalThis.fetch = async (url) => {
+    const target = String(url);
+    if (target.includes('/sitemap.xml')) return { ok: false, status: 403, statusText: 'Forbidden' };
+    if (target.includes('/jobs/search')) {
+      const page = Number(new URL(target).searchParams.get('pr'));
+      return {
+        ok: true,
+        status: 200,
+        text: async () => (page === 0 ? '<a href="/jobs/35509/post-doctoral-scholar/job">x</a>' : '')
+      };
+    }
+    if (target.includes('in_iframe=1')) {
+      return {
+        ok: true,
+        status: 200,
+        text: async () => '<script type="application/ld+json">'
+          + JSON.stringify({
+            '@type': 'JobPosting',
+            title: 'Post Doctoral Scholar',
+            description: 'Research role',
+            datePosted: '2026-02-01T00:00:00Z',
+            jobLocation: [{ address: { addressLocality: 'Portland', addressRegion: 'OR' } }]
+          })
+          + '</script>'
+      };
+    }
+    throw new Error(`unexpected url ${target}`);
+  };
+
+  try {
+    const jobs = await fetchIcimsJobs(employer);
+    assert.strictEqual(jobs.length, 1, 'the search fallback must recover the posting the sitemap refused to serve');
+    assert.strictEqual(jobs[0].title, 'Post Doctoral Scholar');
+    assert.strictEqual(jobs[0].location, 'Portland, OR');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  // Both routes down is an unreachable employer, not an empty one.
+  globalThis.fetch = async () => ({ ok: false, status: 503, statusText: 'Service Unavailable' });
+  try {
+    let threw = null;
+    try {
+      await fetchIcimsJobs(employer);
+    } catch (error) {
+      threw = error;
+    }
+    assert(threw && /unreachable/.test(threw.message), 'an unreachable iCIMS listing must raise rather than return []');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
 /**
  * validateEmployer throws, and it throws before a single feed is fetched — so
  * one malformed registry entry doesn't degrade the run, it deletes it. That is
@@ -3214,6 +3448,10 @@ async function main() {
   await testRefreshPool();
   testPageUpAdapter();
   testAdpAdapter();
+  testCsodAdapter();
+  await testCsodPagingContract();
+  testIcimsAdapter();
+  await testIcimsSitemapFallback();
   testRegistryValidates();
   testDeadmanExitContract();
   await testAdpPagingContract();

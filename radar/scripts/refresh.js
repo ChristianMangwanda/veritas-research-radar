@@ -614,6 +614,11 @@ function validateAtsFeedConfig(label, provider, token, config) {
   if (provider === 'governmentjobs' && !config?.agency) {
     throw new Error(`${label} uses governmentjobs but ats_config.agency is missing`);
   }
+  // site_id 0 is not a real Cornerstone site, but check for presence rather
+  // than truthiness anyway so a config bug reads as "missing" only when it is.
+  if (provider === 'csod' && (config?.site_id === undefined || config?.site_id === null || config?.site_id === '')) {
+    throw new Error(`${label} uses csod but ats_config.site_id is missing`);
+  }
 }
 
 function validateEmployer(employer) {
@@ -1953,9 +1958,359 @@ async function fetchAdpJobs(employer) {
   return jobs;
 }
 
+// Cornerstone OnDemand (csod)
+//
+// The career site is a JS shell: every list and detail call is a REST request
+// carrying a short-lived JWT that the shell page itself embeds, so there is no
+// anonymous endpoint to hit directly. Bootstrapping that token out of the HTML
+// is the whole trick — with it, both calls below are ordinary JSON.
+//
+// Two things the token needs that are easy to miss: the request must also carry
+// the AWS load-balancer cookies set alongside it (token without cookies is a
+// flat 401, measured), and the search endpoint rejects GET with a 405 — it is
+// POST-only even though it reads nothing.
+const CSOD_PAGE_SIZE = 100;
+// 60 pages ≈ 6,000 postings; the largest site measured here is ~320.
+const CSOD_MAX_PAGES = 60;
+const CSOD_MAX_DETAIL_FETCHES = 400;
+const CSOD_DETAIL_DELAY_MS = 150;
+
+function csodHost(employer) {
+  return `${employer.ats_token}.csod.com`;
+}
+
+function csodJobUrl(employer, requisitionId) {
+  const siteId = employer.ats_config?.site_id;
+  return `https://${csodHost(employer)}/ux/ats/careersite/${encodeURIComponent(siteId)}`
+    + `/home/requisition/${encodeURIComponent(requisitionId)}?c=${encodeURIComponent(employer.ats_token)}`;
+}
+
+// The shell embeds its context as a JSON literal ending in `};</script>`; the
+// JSON itself never contains that sequence, so a non-greedy match is safe.
+function extractCsodToken(html) {
+  const match = /csod\.context=(\{.*?\});<\/script>/s.exec(html || '');
+  if (!match) throw new Error('csod career site page carried no csod.context — the site id is probably wrong');
+  let context;
+  try {
+    context = JSON.parse(match[1]);
+  } catch (error) {
+    throw new Error(`csod career site context did not parse: ${error.message}`);
+  }
+  if (!context.token) throw new Error('csod career site context carried no token');
+  return context.token;
+}
+
+// Returns the bearer token plus the cookie header the same page handed out.
+// Uses fetch directly rather than fetchText because the Set-Cookie headers are
+// as load-bearing as the body here.
+async function csodBootstrap(employer) {
+  const url = `https://${csodHost(employer)}/ux/ats/careersite/`
+    + `${encodeURIComponent(employer.ats_config?.site_id)}/home?c=${encodeURIComponent(employer.ats_token)}`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      headers: { accept: 'text/html', 'user-agent': USER_AGENT },
+      signal: controller.signal
+    });
+    if (!response.ok) {
+      const error = new Error(`HTTP ${response.status} ${response.statusText}`);
+      error.status = response.status;
+      throw error;
+    }
+    const html = await response.text();
+    const cookie = (response.headers.getSetCookie?.() || [])
+      .map((entry) => entry.split(';')[0])
+      .filter(Boolean)
+      .join('; ');
+    return { token: extractCsodToken(html), cookie };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function csodAuthHeaders({ token, cookie }) {
+  return { authorization: `Bearer ${token}`, ...(cookie ? { cookie } : {}) };
+}
+
+function csodLocation(item, detail) {
+  const primary = detail?.primaryLocation;
+  const display = primary?.locationDisplayTitle || primary?.title;
+  if (display) return display;
+  const parts = (item.locations || [])
+    .map((location) => [location.city, location.state].filter(Boolean).join(', '))
+    .filter(Boolean);
+  const unique = [...new Set(parts)];
+  return unique.slice(0, 3).join('; ') || 'Unspecified';
+}
+
+// The list carries postingEffectiveDate as US-formatted M/D/YYYY, which Date
+// parses inconsistently; the detail's openDate is already ISO, so prefer it and
+// normalise the list value only as a fallback.
+function csodPostedAt(item, detail) {
+  if (detail?.openDate) return detail.openDate;
+  const match = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(item.postingEffectiveDate || '').trim());
+  if (!match) return null;
+  const [, month, day, year] = match;
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+}
+
+function mapCsodJob(item, detail, employer) {
+  return {
+    id: `csod:${employer.ats_token}:${item.requisitionId}`,
+    employer_id: employer.id,
+    title: detail?.displayTitle || item.displayJobTitle || 'Untitled role',
+    department: '',
+    location: csodLocation(item, detail),
+    url: detail?.companyApplyUrl || csodJobUrl(employer, item.requisitionId),
+    description_text: normalizeText(detail?.externalDescription || ''),
+    posted_or_updated_at: csodPostedAt(item, detail),
+    source: 'csod',
+    source_job_id: String(item.requisitionId || '')
+  };
+}
+
+async function fetchCsodJobs(employer) {
+  const siteId = employer.ats_config?.site_id;
+  if (siteId === undefined || siteId === null || siteId === '') {
+    throw new Error('csod requires ats_config.site_id');
+  }
+  const host = csodHost(employer);
+  const auth = await csodBootstrap(employer);
+
+  // pageNumber is 1-based and rejects 0; pageSize is honoured as asked (a 319
+  // posting site returns all 319 for pageSize=500), and totalCount is stable
+  // across pages, so it is the count to trust.
+  const listItems = [];
+  const seen = new Set();
+  let declaredTotal = 0;
+  for (let page = 1; page <= CSOD_MAX_PAGES; page += 1) {
+    const payload = await fetchJson(`https://${host}/services/x/career-site/v1/search?c=${encodeURIComponent(employer.ats_token)}`, {
+      method: 'POST',
+      headers: csodAuthHeaders(auth),
+      body: {
+        cultureName: 'en-US',
+        careerSiteId: Number(siteId),
+        pageNumber: page,
+        pageSize: CSOD_PAGE_SIZE
+      }
+    });
+    const data = payload.data || {};
+    if (page === 1) declaredTotal = Number(data.totalCount || 0) || 0;
+    const batch = data.requisitions || [];
+    if (batch.length === 0) break;
+    for (const item of batch) {
+      if (item.requisitionId === undefined || seen.has(item.requisitionId)) continue;
+      seen.add(item.requisitionId);
+      listItems.push(item);
+    }
+    if (declaredTotal && listItems.length >= declaredTotal) break;
+    await sleep(CSOD_DETAIL_DELAY_MS);
+  }
+
+  // Same reasoning as the ADP adapter: a short read is indistinguishable
+  // downstream from a batch of postings that closed, so refuse to report it as
+  // a successful fetch.
+  if (declaredTotal > 0 && listItems.length < declaredTotal) {
+    throw new Error(
+      `Cornerstone feed incomplete for ${employer.id}: collected ${listItems.length} of ${declaredTotal} declared postings. `
+      + 'Reporting as an error so existing jobs are carried forward rather than tombstoned.'
+    );
+  }
+
+  const { relevant: filtered, excluded } = filterResearchRelevant(listItems, (item) => item.displayJobTitle, employer);
+  const relevant = filtered.slice(0, CSOD_MAX_DETAIL_FETCHES);
+
+  // The list gives title and location only — the description that every
+  // downstream signal reads comes from the per-requisition call.
+  const jobs = [];
+  for (const item of relevant) {
+    let detail = null;
+    try {
+      const payload = await fetchJson(
+        `https://${host}/services/x/job-requisition/v2/requisitions/${encodeURIComponent(item.requisitionId)}`
+        + `/jobDetails?cultureId=1&c=${encodeURIComponent(employer.ats_token)}`,
+        { headers: csodAuthHeaders(auth) }
+      );
+      detail = payload.data || payload || null;
+    } catch (error) {
+      console.warn(`Cornerstone detail fetch failed for ${employer.id} req ${item.requisitionId}: ${error.message}`);
+    }
+    jobs.push(mapCsodJob(item, detail, employer));
+    await sleep(CSOD_DETAIL_DELAY_MS);
+  }
+  jobs.prefiltered_count = excluded;
+  jobs.prefilter_survived_count = filtered.length;
+  return jobs;
+}
+
+// iCIMS
+//
+// The careers pages are an iframe wrapper: fetched plainly they return a ~33KB
+// shell with no jobs and no JSON-LD, which reads as "employer has no postings"
+// rather than as a failure. Adding in_iframe=1 returns the inner document,
+// which does carry a JSON-LD JobPosting. That parameter is the whole adapter.
+//
+// The list comes from /sitemap.xml rather than the paginated search, because
+// the sitemap is one request for the complete set (339 URLs for a tenant whose
+// search pages 20 at a time) and its URLs embed the title, so the research
+// prefilter runs before any detail fetch rather than after 17 list requests.
+const ICIMS_MAX_DETAIL_FETCHES = 400;
+const ICIMS_DETAIL_DELAY_MS = 150;
+// ~20 postings a page, so 80 pages ≈ 1,600 — past any tenant measured here.
+const ICIMS_MAX_SEARCH_PAGES = 80;
+
+function icimsHost(employer) {
+  return employer.ats_config?.host || `${employer.ats_token}.icims.com`;
+}
+
+// .../jobs/167619/research-administrator%2c-post-award-iii---school-of-medicine/job
+// The slug sits second-to-last and is percent-encoded; decoding it first means
+// "%2c" reads as a comma rather than as letters inside a word.
+function icimsSlugSegments(url) {
+  const segments = String(url || '').split('?')[0].split('/').filter(Boolean);
+  const jobIndex = segments.lastIndexOf('job');
+  if (jobIndex < 2) return { id: '', slug: '' };
+  return { id: segments[jobIndex - 2] || '', slug: segments[jobIndex - 1] || '' };
+}
+
+function icimsTitleFromUrl(url) {
+  const { slug } = icimsSlugSegments(url);
+  let decoded = slug;
+  try {
+    decoded = decodeURIComponent(slug);
+  } catch {
+    // A malformed escape is not a reason to drop the posting — fall back to raw.
+  }
+  return decoded.replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// Slugs hyphenate compounds that the title classifier only recognises closed
+// up: "post-doctoral-scholar" becomes "post doctoral scholar", which it
+// rejects, while "postdoctoral scholar" passes — so the plain transform was
+// silently dropping the exact postings this radar exists to find. This string
+// is only ever used to decide whether a posting is worth a detail fetch, so it
+// carries both readings and lets the prefilter match either.
+const ICIMS_SPLIT_PREFIXES = /\b(post|non|pre|co|sub|multi|inter|intra)\s+(?=[a-z])/g;
+
+function icimsPrefilterTitle(url) {
+  const spaced = icimsTitleFromUrl(url);
+  const closed = spaced.replace(ICIMS_SPLIT_PREFIXES, '$1');
+  return closed === spaced ? spaced : `${spaced} ${closed}`;
+}
+
+// in_iframe=1 is what turns the wrapper into the document carrying JSON-LD.
+function icimsDetailUrl(url) {
+  return url.includes('?') ? `${url}&in_iframe=1` : `${url}?in_iframe=1`;
+}
+
+// iCIMS fills unknown address fields with the literal string "UNAVAILABLE"
+// rather than omitting them, which reaches the dashboard as locations like
+// "Remote, UNAVAILABLE". Drop those before the shared formatter sees them.
+function icimsCleanPosting(posting) {
+  const places = [].concat(posting.jobLocation || []).map((place) => {
+    const address = { ...(place?.address || {}) };
+    for (const key of Object.keys(address)) {
+      if (String(address[key]).trim().toUpperCase() === 'UNAVAILABLE') delete address[key];
+    }
+    return { ...place, address };
+  });
+  return { ...posting, jobLocation: places };
+}
+
+function mapIcimsJob(url, posting, employer) {
+  const { id } = icimsSlugSegments(url);
+  return {
+    id: `icims:${employer.ats_token}:${id}`,
+    employer_id: employer.id,
+    title: posting.title || icimsTitleFromUrl(url) || 'Untitled role',
+    department: '',
+    location: jsonLdLocation(icimsCleanPosting(posting)),
+    url,
+    description_text: normalizeText(posting.description || ''),
+    posted_or_updated_at: posting.datePosted || null,
+    source: 'icims',
+    source_job_id: String(id || '')
+  };
+}
+
+function icimsJobPathsFromHtml(html) {
+  return [...new Set(String(html || '').match(/\/jobs\/\d+\/[^"'<>?\s]*?\/job/g) || [])];
+}
+
+// Fallback for tenants that answer /sitemap.xml with 403 while serving search
+// perfectly well (careersat-ohsu does exactly this). Pages are 0-indexed via
+// pr=, run ~15-20 postings each, and go empty past the end rather than
+// erroring, so "a page added nothing new" is the terminator.
+async function icimsSearchJobUrls(host) {
+  const urls = new Set();
+  for (let page = 0; page < ICIMS_MAX_SEARCH_PAGES; page += 1) {
+    const html = await fetchText(`https://${host}/jobs/search?ss=1&in_iframe=1&pr=${page}`, {
+      headers: { accept: 'text/html,application/xhtml+xml' }
+    });
+    const before = urls.size;
+    for (const path of icimsJobPathsFromHtml(html)) urls.add(`https://${host}${path}`);
+    if (urls.size === before) break;
+    await sleep(ICIMS_DETAIL_DELAY_MS);
+  }
+  return [...urls];
+}
+
+async function icimsJobUrls(employer, host) {
+  let sitemapError;
+  try {
+    const xml = await fetchText(`https://${host}/sitemap.xml`, { headers: { accept: 'application/xml, text/xml, */*' } });
+    const fromSitemap = [...new Set(
+      parseSitemapUrls(xml).filter((url) => url.includes('/jobs/') && url.split('?')[0].replace(/\/$/, '').endsWith('/job'))
+    )];
+    if (fromSitemap.length) return fromSitemap;
+  } catch (error) {
+    sitemapError = error;
+  }
+  // Only now pay for paging. If both routes fail, raise the search error rather
+  // than return an empty list — an employer whose feed is unreachable must not
+  // be reported as an employer with no postings.
+  try {
+    return await icimsSearchJobUrls(host);
+  } catch (error) {
+    throw new Error(
+      `iCIMS listing unreachable for ${employer.id}: search paging failed (${error.message})`
+      + (sitemapError ? `; sitemap also failed (${sitemapError.message})` : '')
+    );
+  }
+}
+
+async function fetchIcimsJobs(employer) {
+  const host = icimsHost(employer);
+  const jobUrls = await icimsJobUrls(employer, host);
+
+  const { relevant: filtered, excluded } = filterResearchRelevant(jobUrls, icimsPrefilterTitle, employer);
+  const relevant = filtered.slice(0, ICIMS_MAX_DETAIL_FETCHES);
+
+  const jobs = [];
+  for (const url of relevant) {
+    try {
+      const html = await fetchText(icimsDetailUrl(url), { headers: { accept: 'text/html,application/xhtml+xml' } });
+      const posting = extractJsonLdJobPosting(html);
+      // A sitemap entry with no JSON-LD is a job that has since closed; the
+      // sitemap lags. Skipping it is right — the alternative is a title-only
+      // record that every downstream signal would score as empty.
+      if (posting) jobs.push(mapIcimsJob(url, posting, employer));
+    } catch (error) {
+      console.warn(`iCIMS detail fetch failed for ${employer.id} ${url}: ${error.message}`);
+    }
+    await sleep(ICIMS_DETAIL_DELAY_MS);
+  }
+  jobs.prefiltered_count = excluded;
+  jobs.prefilter_survived_count = filtered.length;
+  return jobs;
+}
+
 const ATS_FETCHERS = {
   greenhouse: fetchGreenhouseJobs,
   pageup: fetchPageUpJobs,
+  csod: fetchCsodJobs,
+  icims: fetchIcimsJobs,
   adp: fetchAdpJobs,
   lever: fetchLeverJobs,
   ashby: fetchAshbyJobs,
@@ -2497,6 +2852,21 @@ module.exports = {
   adpLocation,
   fetchPageUpJobs,
   fetchAdpJobs,
+  mapCsodJob,
+  csodLocation,
+  csodPostedAt,
+  extractCsodToken,
+  csodBootstrap,
+  csodAuthHeaders,
+  fetchCsodJobs,
+  mapIcimsJob,
+  icimsTitleFromUrl,
+  icimsPrefilterTitle,
+  icimsSlugSegments,
+  icimsDetailUrl,
+  icimsCleanPosting,
+  icimsJobPathsFromHtml,
+  fetchIcimsJobs,
   runPooled,
   hostLane,
   providerLane,
