@@ -291,6 +291,12 @@
       inProgressRank,
       completedLevels,
       inProgressLevels,
+      // Whether this person can hold a licensed clinical post at all. The
+      // profile's degree vocabulary tops out at `md`, so that is the only
+      // clinical credential it can currently express — an RN or PharmD
+      // candidate would need the schema widened before the profession gate in
+      // assessEligibility would be right for them.
+      holdsClinicalCredential: completedLevels.has('md') || inProgressLevels.has('md'),
       avoidRegexes: (core.avoid_signals || [])
         .map((signal) => collapseWhitespace(signal).toLowerCase())
         .filter((signal) => signal.length >= 2)
@@ -580,6 +586,12 @@
     return null;
   }
 
+  // Titles that name a research post, whatever clinical words sit beside them.
+  // "Research Fellow, Radiation Oncology" is a lab job; "Clinical Fellow,
+  // Cardiology" is not. Used only to hold the profession gate back, so a false
+  // match here costs a judgment, never a hidden job.
+  const RESEARCH_POST_TITLE = /\b(research|postdoc|post-?doctoral|scientist|bioinformatic\w*|computational|informatics|data)\b/i;
+
   function parseClearanceRequirement(corpus) {
     const found = findRequirement(corpus, CLEARANCE_PATTERN);
     return found ? { evidence: found.evidence } : null;
@@ -667,6 +679,47 @@
 
     const license = parseLicenseRequirement(corpusRaw);
     if (license) blockers.push({ type: 'license', detail: license.license, evidence: license.evidence, source: 'text' });
+
+    /* The profession gate.
+     *
+     * parseLicenseRequirement above only fires on quotable text ("must hold an
+     * RN license"), and a Physician posting never bothers to say so — the
+     * title carries it. So 391 of 989 qualified postings were clinical roles
+     * that nothing stopped, and the judge model spent 40% of a five-hour pass
+     * re-deriving what the title already said. Measured over 414 judged
+     * postings, it called 35 of the 36 clinical-titled ones "no".
+     *
+     * Porous on purpose. It reads the classified TITLE, never the body, so
+     * "Research Associate, Cardiology" is still read by the model; only a
+     * title that names the profession is stopped. The research-post exclusion
+     * is the single measured miss: "Research Fellow, Radiation Oncology" is a
+     * lab post wearing a clinical-sounding title. */
+    if (job.title_class === 'clinical'
+      && !compiled.holdsClinicalCredential
+      && !RESEARCH_POST_TITLE.test(job.title || '')) {
+      blockers.push({
+        type: 'profession',
+        detail: 'clinical',
+        evidence: `Title is a licensed clinical role: "${job.title}"`,
+        source: 'title_class'
+      });
+    }
+
+    /* The professions this person said to stay out of, matched against the
+     * TITLE only. In the body the same list is a score penalty and should
+     * stay one — a data posting that mentions nurses is still a data posting.
+     * In the title it IS the job. This half is theirs to extend: adding to
+     * avoid_signals widens the gate without touching code. */
+    const avoided = compiled.avoidRegexes
+      .find((entry) => entry.regex.test(String(job.title || '').toLowerCase()));
+    if (avoided) {
+      blockers.push({
+        type: 'profession',
+        detail: avoided.signal,
+        evidence: `Title names "${avoided.signal}", which your profile lists as work to avoid`,
+        source: 'avoid_signal'
+      });
+    }
 
     const clearance = parseClearanceRequirement(corpusRaw);
     if (clearance) blockers.push({ type: 'clearance', evidence: clearance.evidence, source: 'text' });

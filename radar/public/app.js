@@ -1757,6 +1757,7 @@ const BLOCKER_LABELS = {
   degree: 'degree',
   experience: 'experience',
   license: 'licence',
+  profession: 'different profession',
   clearance: 'clearance',
   student_only: 'students only',
   internal_only: 'internal only'

@@ -12,7 +12,13 @@
  */
 
 const TITLE_RULES = [
-  ['postdoc', /post-?\s?doc(toral)?\b|\bpostdoc\b/i],
+  // "Research Fellow" is the standard synonym for a postdoc at many
+  // institutions, and it must be settled here: further down, the clinical rule
+  // matches `fellow ... oncology|medicine|cardiology|pediatric`, which swept
+  // "Research Fellow PC - Radiation Oncology - Waddle lab" — a lab post — into
+  // the clinical bucket. "Clinical Research Fellow" still lands here rather
+  // than in clinical, which is the safe direction: it gets read, not hidden.
+  ['postdoc', /post-?\s?doc(toral)?\b|\bpostdoc\b|\bresearch\s+fellow\b/i],
   // "Open Rank"/"Open Level" postings are faculty searches that never spell out
   // "professor" — the single largest miss in the `other` bucket.
   ['faculty', /\b(professor|lecturer|instructor|dean|faculty|chair\b)|open[ -](rank|level)|assistant\/associate\s+professor/i],
