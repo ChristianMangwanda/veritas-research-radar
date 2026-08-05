@@ -179,7 +179,18 @@ function applyEnrichmentOverlay(employers, enrichment) {
 
 const USER_AGENT = 'VeritasResearchRadar/1.0 (+https://github.com/ChristianMangwanda/Veritas)';
 const REQUEST_TIMEOUT_MS = 20000;
+// Pacing is per ATS VENDOR, not global: two different Workday tenants are two
+// different hosts and fetching them at the same time is no less polite than
+// fetching them an hour apart. So employers run concurrently, and the delay
+// that used to sit between every employer now staggers the START of each
+// employer within one provider.
 const EMPLOYER_DELAY_MS = 500;
+// How many employers may be in flight at once, and how many of those may
+// belong to the same ATS vendor. The vendor cap is the real politeness knob —
+// without it, 170 Workday tenants would all be hit at once. Both are env-
+// tunable so a run can be throttled without a code change.
+const REFRESH_CONCURRENCY = Math.max(1, Number(process.env.REFRESH_CONCURRENCY) || 8);
+const REFRESH_PROVIDER_CONCURRENCY = Math.max(1, Number(process.env.REFRESH_PROVIDER_CONCURRENCY) || 4);
 // Auto-wired (tier: "auto") employers only commit research-relevant postings
 const AUTO_TIER_MIN_RESEARCH_SCORE = 25;
 const SMARTRECRUITERS_PAGE_LIMIT = 100;
@@ -1647,8 +1658,306 @@ async function fetchGovernmentJobsJobs(employer) {
   return jobs;
 }
 
+// ---------------------------------------------------------------------------
+// PageUp
+//
+// PageUp's own APIs are private, but every PageUp careers site publishes two
+// public things that together are enough: a sitemap listing every live job
+// URL, and a schema.org JobPosting JSON-LD block on each job page. The JSON-LD
+// is the structured record (title, description, location, posting date), so
+// nothing here depends on scraping page markup.
+//
+// The sitemap slug encodes the title, which lets the research-relevance
+// prefilter run BEFORE spending a request per job — a big campus publishes
+// several hundred postings and only a fraction are research roles.
+const PAGEUP_MAX_DETAIL_FETCHES = 400;
+const PAGEUP_DETAIL_DELAY_MS = 250;
+// Consecutive challenge responses before we stop and report the employer as
+// errored. Small, because once the gate closes it stays closed for a while and
+// every further request just deepens the block.
+const PAGEUP_GATE_ABORT_AFTER = 5;
+// Reading at least this many candidate pages and finding no posting at all is
+// treated as a block rather than as a genuinely empty board.
+const PAGEUP_EMPTY_YIELD_FLOOR = 10;
+
+/**
+ * A bot-challenge response served in place of the page we asked for. PageUp
+ * fronts its sites with AWS WAF, which answers HTTP 202 and a ~2.5KB JS
+ * interstitial — a complete HTML document, so size and well-formedness alone
+ * cannot tell it apart from a real page. Match the challenge itself.
+ *
+ * Distinguishing this from "this page has no job on it" is the whole point:
+ * one is a temporary block to back off from, the other is a fact about the
+ * employer. Treating the first as the second tombstones live jobs.
+ */
+const CHALLENGE_MARKERS = /awsWafCookie|awswaf|challenge-platform|cf-browser-verification|Just a moment\.\.\.|Checking your browser|captcha-delivery|Enable JavaScript and cookies to continue/i;
+
+function isChallengeResponse(html) {
+  const body = String(html || '').trim();
+  if (body.length === 0) return true;
+  if (CHALLENGE_MARKERS.test(body)) return true;
+  // Fallback: a short document carrying neither posting markup nor a real
+  // title is not a job page in any form we can use.
+  return body.length < 3000 && !/application\/ld\+json/i.test(body) && !/<title>[^<]+<\/title>/i.test(body);
+}
+
+function parseSitemapUrls(xml) {
+  const urls = [];
+  const pattern = /<loc>\s*([^<\s]+)\s*<\/loc>/gi;
+  let match;
+  while ((match = pattern.exec(xml)) !== null) urls.push(match[1]);
+  return urls;
+}
+
+/**
+ * "research-assistant-east-lansing-michigan-united-states-c9d8d397-…" is the
+ * only title we have before fetching the page, so the trailing UUID and the
+ * location tail are stripped back off to leave something the title classifier
+ * can read. Imperfect by nature — it is a prefilter, and anything it keeps is
+ * confirmed against the real title from JSON-LD afterwards.
+ */
+function pageUpTitleFromUrl(url) {
+  const slug = String(url || '').split('/').filter(Boolean).pop() || '';
+  return slug
+    .replace(/-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, '')
+    .replace(/-/g, ' ')
+    .trim();
+}
+
+function extractJsonLdJobPosting(html) {
+  const pattern = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let match;
+  while ((match = pattern.exec(html)) !== null) {
+    let parsed;
+    try {
+      parsed = JSON.parse(match[1].trim());
+    } catch {
+      continue; // a malformed block is not a reason to give up on the page
+    }
+    const candidates = Array.isArray(parsed) ? parsed : [parsed, ...(parsed['@graph'] || [])];
+    for (const candidate of candidates) {
+      if (candidate && candidate['@type'] === 'JobPosting') return candidate;
+    }
+  }
+  return null;
+}
+
+function jsonLdLocation(posting) {
+  const places = [].concat(posting.jobLocation || []);
+  const parts = [];
+  for (const place of places) {
+    const address = place?.address || {};
+    const line = [address.addressLocality, address.addressRegion].filter(Boolean).join(', ');
+    if (line && !parts.includes(line)) parts.push(line);
+  }
+  if (!parts.length && posting.jobLocationType === 'TELECOMMUTE') return 'Remote';
+  return parts.slice(0, 3).join('; ') || 'Unspecified';
+}
+
+function mapPageUpJob(url, posting, employer) {
+  return {
+    id: `pageup:${employer.ats_token}:${normalizeId(url)}`,
+    employer_id: employer.id,
+    title: posting.title || pageUpTitleFromUrl(url) || 'Untitled role',
+    department: posting.employmentUnit?.name || posting.department || '',
+    location: jsonLdLocation(posting),
+    url,
+    description_text: normalizeText(posting.description || ''),
+    posted_or_updated_at: posting.datePosted || null,
+    // Date-only, matching the Workday/USAJOBS convention parseDeadline expects.
+    deadline_raw: posting.validThrough ? String(posting.validThrough).slice(0, 10) : null,
+    source: 'pageup',
+    source_job_id: normalizeId(url)
+  };
+}
+
+async function fetchPageUpJobs(employer) {
+  const config = employer.ats_config || {};
+  const host = config.host || employer.ats_token;
+  if (!host) throw new Error('pageup requires ats_config.host (the careers site host)');
+  const sitemapPath = config.sitemap_path || '/sitemap.xml';
+  const jobPathSegment = config.job_path || '/jobs/';
+
+  const xml = await fetchText(`https://${host}${sitemapPath}`, { headers: { accept: 'application/xml, text/xml, */*' } });
+  const jobUrls = [...new Set(parseSitemapUrls(xml).filter((url) => url.includes(jobPathSegment)))];
+
+  const { relevant: filtered, excluded } = filterResearchRelevant(jobUrls, pageUpTitleFromUrl, employer);
+  const relevant = filtered.slice(0, PAGEUP_MAX_DETAIL_FETCHES);
+
+  const jobs = [];
+  let gated = 0;
+  for (const url of relevant) {
+    try {
+      const html = await fetchText(url, { headers: { accept: 'text/html,application/xhtml+xml' } });
+      // PageUp sits behind a bot challenge that answers 202 with an empty body
+      // instead of an error. fetchText treats 2xx as success, so without this
+      // an entire gated employer looks like "fetched fine, found nothing" —
+      // and every one of its live jobs would be tombstoned. Count it as a
+      // block, not as an absence.
+      if (isChallengeResponse(html)) {
+        gated += 1;
+        if (gated >= PAGEUP_GATE_ABORT_AFTER) {
+          throw new Error(
+            `PageUp bot challenge: ${gated} consecutive empty 202-style responses from ${host}. `
+            + 'Aborting so live jobs are carried forward instead of tombstoned.'
+          );
+        }
+        await sleep(PAGEUP_DETAIL_DELAY_MS);
+        continue;
+      }
+      gated = 0;
+      const posting = extractJsonLdJobPosting(html);
+      // No JSON-LD on a real page means a stale sitemap entry (a closed job);
+      // skipping it is correct — a job with no description is dropped anyway.
+      if (posting) jobs.push(mapPageUpJob(url, posting, employer));
+    } catch (error) {
+      if (/bot challenge/.test(error.message)) throw error;
+      console.warn(`PageUp detail fetch failed for ${employer.id} ${url}: ${error.message}`);
+    }
+    await sleep(PAGEUP_DETAIL_DELAY_MS);
+  }
+  // Backstop for a challenge format this code does not recognise yet: reading
+  // a meaningful number of pages and extracting nothing is the signature of a
+  // block, not of an employer with no research jobs. Fail rather than hand
+  // back an empty feed that would tombstone every live posting.
+  if (jobs.length === 0 && relevant.length >= PAGEUP_EMPTY_YIELD_FLOOR) {
+    throw new Error(
+      `PageUp yielded 0 postings from ${relevant.length} candidate pages at ${host} — `
+      + 'treating as blocked rather than empty so live jobs are carried forward.'
+    );
+  }
+  jobs.prefiltered_count = excluded;
+  jobs.prefilter_survived_count = filtered.length;
+  return jobs;
+}
+
+// ---------------------------------------------------------------------------
+// ADP Workforce Now
+//
+// Public career-center REST feed, keyed on the client id (cid) that appears in
+// every ADP careers link. The list call carries titles and locations but an
+// empty description, so the body comes from a per-requisition detail call.
+const ADP_HOST = 'workforcenow.adp.com';
+const ADP_BASE = `https://${ADP_HOST}/mascsr/default/careercenter/public/events/staffing/v1/job-requisitions`;
+// The server caps responses at 20 records regardless of this value; it is sent
+// for correctness, not because it is honoured.
+const ADP_PAGE_LIMIT = 20;
+// One less than the cap, so consecutive windows overlap by a record instead of
+// risking a gap (ADP's $skip=0 returns 19, every later $skip returns 20).
+const ADP_PAGE_STRIDE = 19;
+// 150 windows ≈ 2,850 postings — far beyond any single ADP client here.
+const ADP_MAX_PAGES = 150;
+const ADP_MAX_DETAIL_FETCHES = 400;
+const ADP_DETAIL_DELAY_MS = 200;
+
+function adpLocation(requisition) {
+  const locations = requisition.requisitionLocations || [];
+  const parts = [];
+  for (const location of locations) {
+    const address = location?.address || {};
+    const line = [address.cityName, address.countrySubdivisionLevel1?.codeValue].filter(Boolean).join(', ')
+      || String(location?.nameCode?.shortName || '').trim();
+    if (line && !parts.includes(line)) parts.push(line);
+  }
+  return parts.slice(0, 3).join('; ') || 'Unspecified';
+}
+
+function mapAdpJob(requisition, detail, employer) {
+  const source = detail || requisition;
+  return {
+    id: `adp:${employer.ats_token}:${requisition.itemID}`,
+    employer_id: employer.id,
+    title: requisition.requisitionTitle || 'Untitled role',
+    department: (requisition.organizationalUnits || [])
+      .map((unit) => unit?.nameCode?.shortName)
+      .filter(Boolean)
+      .join(' — '),
+    location: adpLocation(requisition),
+    // The public apply link is keyed on the requisition's own id.
+    url: `https://${ADP_HOST}/mascsr/default/mdf/recruitment/recruitment.html`
+      + `?cid=${encodeURIComponent(employer.ats_config?.cid || employer.ats_token)}`
+      + `&jobId=${encodeURIComponent(requisition.itemID)}&lang=en_US`,
+    description_text: normalizeText(source.requisitionDescription || ''),
+    posted_or_updated_at: requisition.postDate || null,
+    source: 'adp',
+    source_job_id: String(requisition.itemID || '')
+  };
+}
+
+async function fetchAdpJobs(employer) {
+  const config = employer.ats_config || {};
+  const cid = config.cid || employer.ats_token;
+  if (!cid) throw new Error('adp requires ats_config.cid');
+  const query = `cid=${encodeURIComponent(cid)}`;
+
+  // ADP's paging contract, measured against live clients rather than assumed:
+  //   - every response is hard-capped at 20 records, whatever $top says
+  //     ($top=200 still returns 20), so the unpaged call is NOT the whole list
+  //     — a 130-posting client answers it with 20 and no indication of that;
+  //   - $skip is off by one: $skip=0 yields 19 records (indices 0-18), and
+  //     $skip=N>0 yields 20 starting at index N-1;
+  //   - meta.totalNumber is the only trustworthy count, and it is absent when
+  //     $top is small enough to return nothing.
+  //
+  // So: always page, stride by 19 so consecutive windows overlap by one record
+  // rather than risk a gap, and stop on the declared total. Duplicates are
+  // dropped on the way in; a gap would be a silently lost posting.
+  const listItems = [];
+  const seen = new Set();
+  const collect = (batch) => {
+    for (const item of batch || []) {
+      if (!item.itemID || seen.has(item.itemID)) continue;
+      seen.add(item.itemID);
+      listItems.push(item);
+    }
+  };
+
+  let declaredTotal = 0;
+  for (let page = 0; page < ADP_MAX_PAGES; page += 1) {
+    const skip = page * ADP_PAGE_STRIDE;
+    const payload = await fetchJson(`${ADP_BASE}?${query}&%24top=${ADP_PAGE_LIMIT}&%24skip=${skip}`);
+    if (page === 0) declaredTotal = Number(payload.meta?.totalNumber ?? 0) || 0;
+    const batch = payload.jobRequisitions || [];
+    if (batch.length === 0) break;
+    collect(batch);
+    if (declaredTotal && listItems.length >= declaredTotal) break;
+    await sleep(ADP_DETAIL_DELAY_MS);
+  }
+
+  // Coming up short of the client's own declared count means postings were
+  // lost, which downstream would look exactly like postings that closed.
+  if (declaredTotal > 0 && listItems.length < declaredTotal) {
+    throw new Error(
+      `ADP feed incomplete for ${employer.id}: collected ${listItems.length} of ${declaredTotal} declared postings. `
+      + 'Reporting as an error so existing jobs are carried forward rather than tombstoned.'
+    );
+  }
+
+  const unique = listItems;
+
+  const { relevant: filtered, excluded } = filterResearchRelevant(unique, (item) => item.requisitionTitle, employer);
+  const relevant = filtered.slice(0, ADP_MAX_DETAIL_FETCHES);
+
+  const jobs = [];
+  for (const item of relevant) {
+    let detail = null;
+    try {
+      detail = await fetchJson(`${ADP_BASE}/${encodeURIComponent(item.itemID)}?${query}`);
+    } catch (error) {
+      console.warn(`ADP detail fetch failed for ${employer.id} req ${item.itemID}: ${error.message}`);
+    }
+    jobs.push(mapAdpJob(item, detail, employer));
+    await sleep(ADP_DETAIL_DELAY_MS);
+  }
+  jobs.prefiltered_count = excluded;
+  jobs.prefilter_survived_count = filtered.length;
+  return jobs;
+}
+
 const ATS_FETCHERS = {
   greenhouse: fetchGreenhouseJobs,
+  pageup: fetchPageUpJobs,
+  adp: fetchAdpJobs,
   lever: fetchLeverJobs,
   ashby: fetchAshbyJobs,
   smartrecruiters: fetchSmartRecruitersJobs,
@@ -1738,6 +2047,117 @@ async function fetchEmployerJobs(employer, fetchers = ATS_FETCHERS) {
   };
 }
 
+/**
+ * The host an employer's requests actually land on. Two registry entries that
+ * share a tenant (a primary and a secondary feed on the same board, two
+ * campuses on one shared system) must not be fetched at the same time, so they
+ * share a lane and run one after the other. Everything else is a distinct host
+ * and is free to run in parallel.
+ */
+function hostLane(employer) {
+  const feeds = [
+    { ats_provider: employer.ats_provider, ats_token: employer.ats_token },
+    ...(employer.secondary_ats_feeds || [])
+  ].filter((feed) => feed.ats_provider);
+  if (!feeds.length) return null;
+  // The primary feed decides the lane; a secondary feed on a busy host is rare
+  // enough that serializing on the primary is the right trade.
+  return `${feeds[0].ats_provider}:${feeds[0].ats_token ?? ''}`;
+}
+
+function providerLane(employer) {
+  return employer.ats_provider || null;
+}
+
+/**
+ * Runs `worker` over `items` concurrently, subject to two limits: a global
+ * in-flight cap, and a per-provider cap so one ATS vendor is never hit by more
+ * than a handful of tenants at once. Items whose lane or provider is saturated
+ * are skipped over and retried on the next scheduling pass, so a single slow
+ * vendor cannot stall unrelated employers.
+ *
+ * Results come back in INPUT order regardless of completion order — the
+ * refresh report and the job array are committed to git, so a run's output
+ * must not depend on which feed happened to answer first.
+ *
+ * Worker rejections are captured rather than raced: the pool always drains
+ * before the first error is rethrown, so one bad employer can't leave other
+ * in-flight fetches as unhandled rejections.
+ */
+async function runPooled(items, worker, options = {}) {
+  const concurrency = Math.max(1, options.concurrency || REFRESH_CONCURRENCY);
+  const perProvider = Math.max(1, options.perProvider || REFRESH_PROVIDER_CONCURRENCY);
+  const laneOf = options.laneOf || (() => null);
+  const groupOf = options.groupOf || (() => null);
+  const onStart = options.onStart || null;
+
+  const results = new Array(items.length);
+  const pending = items.map((item, index) => ({ item, index }));
+  const running = new Set();
+  const busyLanes = new Set();
+  const groupLoad = new Map();
+  const errors = [];
+
+  const runnable = (entry) => {
+    const lane = laneOf(entry.item);
+    if (lane && busyLanes.has(lane)) return false;
+    const group = groupOf(entry.item);
+    if (group && (groupLoad.get(group) || 0) >= perProvider) return false;
+    return true;
+  };
+
+  while (pending.length || running.size) {
+    for (let index = 0; index < pending.length && running.size < concurrency;) {
+      if (!runnable(pending[index])) {
+        index += 1;
+        continue;
+      }
+      const [entry] = pending.splice(index, 1);
+      const lane = laneOf(entry.item);
+      const group = groupOf(entry.item);
+      if (lane) busyLanes.add(lane);
+      if (group) groupLoad.set(group, (groupLoad.get(group) || 0) + 1);
+      if (onStart) onStart(entry.item, entry.index);
+      const task = Promise.resolve()
+        .then(() => worker(entry.item, entry.index))
+        .then((value) => { results[entry.index] = value; })
+        .catch((error) => { errors.push(error); })
+        .finally(() => {
+          running.delete(task);
+          if (lane) busyLanes.delete(lane);
+          if (group) groupLoad.set(group, (groupLoad.get(group) || 0) - 1);
+        });
+      running.add(task);
+    }
+    if (!running.size) {
+      // Nothing runnable and nothing running would be a deadlock; the lane and
+      // group counters are only decremented by running tasks, so this is
+      // unreachable unless a limit is misconfigured. Fail loudly, don't hang.
+      throw new Error('refresh pool deadlocked: no runnable work and nothing in flight');
+    }
+    await Promise.race(running);
+  }
+
+  if (errors.length) throw errors[0];
+  return results;
+}
+
+/**
+ * Staggers the start of employers that share an ATS vendor, so a provider sees
+ * requests spread out rather than a simultaneous burst from every tenant.
+ */
+function createProviderPacer(delayMs = EMPLOYER_DELAY_MS) {
+  const nextFreeAt = new Map();
+  return async function pace(provider) {
+    if (!provider) return;
+    const now = Date.now();
+    const readyAt = nextFreeAt.get(provider) || 0;
+    const waitMs = Math.max(0, readyAt - now);
+    nextFreeAt.set(provider, Math.max(now, readyAt) + delayMs);
+    if (waitMs > 0) await sleep(waitMs);
+  };
+}
+
 async function runRefresh() {
   const registryEmployers = await readJson(EMPLOYERS_PATH, []);
   const enrichment = await readJson(ENRICHMENT_PATH, null);
@@ -1772,13 +2192,15 @@ async function runRefresh() {
   const employerReports = [];
   const employerOutcomes = new Map();
 
-  let networkHits = 0;
-  for (const employer of employers) {
-    validateEmployer(employer);
-    if (employer.ats_provider && networkHits > 0) {
-      await sleep(EMPLOYER_DELAY_MS);
-    }
-    if (employer.ats_provider) networkHits += 1;
+  // Validate the whole registry BEFORE any fetching: a malformed entry is a
+  // repo bug, and it should abort the run instantly rather than after an hour
+  // of network work.
+  for (const employer of employers) validateEmployer(employer);
+
+  const pace = createProviderPacer();
+  const completed = { count: 0 };
+  const outcomes = await runPooled(employers, async (employer) => {
+    await pace(employer.ats_provider);
     const result = await fetchEmployerJobs(employer);
     let enriched = result.jobs
       .filter((job) => job.url && job.description_text)
@@ -1790,6 +2212,23 @@ async function runRefresh() {
       enriched = enriched.filter((job) =>
         job.research_relevance_score >= AUTO_TIER_MIN_RESEARCH_SCORE || job.class_evidence);
     }
+    completed.count += 1;
+    if (completed.count % 25 === 0 || completed.count === employers.length) {
+      console.log(`  ...${completed.count}/${employers.length} employers fetched`);
+    }
+    return { employer, result, enriched };
+  }, {
+    concurrency: REFRESH_CONCURRENCY,
+    perProvider: REFRESH_PROVIDER_CONCURRENCY,
+    laneOf: hostLane,
+    groupOf: providerLane
+  });
+
+  console.log(`Fetched ${employers.length} employers with concurrency ${REFRESH_CONCURRENCY} (per provider ${REFRESH_PROVIDER_CONCURRENCY})`);
+
+  // Registry order, not completion order — refresh-report.json is committed,
+  // so its row order must stay stable across runs.
+  for (const { employer, result, enriched } of outcomes) {
     fetchedJobs.push(...enriched);
     employerOutcomes.set(employer.id, { attempted: !result.skipped, ok: !result.error });
     employerReports.push({
@@ -2042,6 +2481,19 @@ if (require.main === module) {
 }
 
 module.exports = {
+  parseSitemapUrls,
+  extractJsonLdJobPosting,
+  isChallengeResponse,
+  pageUpTitleFromUrl,
+  mapPageUpJob,
+  mapAdpJob,
+  adpLocation,
+  fetchPageUpJobs,
+  fetchAdpJobs,
+  runPooled,
+  hostLane,
+  providerLane,
+  createProviderPacer,
   parsePeopleAdminAtom,
   mapPeopleAdminEntry,
   fetchPeopleAdminJobs,
