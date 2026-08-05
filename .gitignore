@@ -21,6 +21,8 @@ package-lock.json
 radar/data/jobs.json
 radar/data/local-state.json
 radar/data/profile*.json
+# The authored profile document — this is Christian, in a public repo.
+radar/data/profile*.md
 radar/data/resumes/
 radar/data/route-cache.json
 radar/data/resume*.txt
@@ -61,3 +63,8 @@ radar/data/jobs.json.stale*
 # Judged matches + stated preferences: derived from private resume data
 radar/data/match-cache.json
 radar/data/preferences.json
+
+# API keys — this repo is public. Never let an env file near a commit.
+.env
+.env.*
+!.env.example
