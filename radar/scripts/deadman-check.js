@@ -15,8 +15,17 @@
  *   DEADMAN_MAX_ERRORED     — errored-employer count that trips the alarm, default 10
  *                             (transient single-feed blips are normal and shouldn't page)
  *
- * Exits 0 on a clean check or a delivered alert; exits 1 only when it cannot
- * read the report at all (which the workflow surfaces as a failed run).
+ * Exit codes — the alarm has to end up somewhere a human will look:
+ *   0  clean check, or a problem that was successfully pushed to ntfy
+ *   1  a problem with NOWHERE to deliver it (no NTFY_TOPIC, or the push
+ *      failed), or the report could not be read at all
+ *
+ * That second case is the whole point. With no ntfy topic configured the
+ * alert used to be printed into the log of a run that then reported success,
+ * so a stalled pipeline showed a green tick — observed live on 2026-08-04,
+ * when this correctly detected a 12.7h-stale pipeline and said so only in a
+ * log nobody opens. When there is no push channel, a failed run IS the
+ * notification: it puts a red mark in the Actions list.
  */
 
 const fsp = require('fs/promises');
@@ -24,11 +33,13 @@ const path = require('path');
 
 const REPORT_PATH = path.resolve(__dirname, '../data/refresh-report.json');
 
+// Returns true only when the alert actually reached ntfy. The caller uses that
+// to decide whether the run itself has to carry the signal instead.
 async function pushNtfy(title, body) {
   const topic = process.env.NTFY_TOPIC;
   if (!topic) {
     console.log(`[no NTFY_TOPIC] ${title}\n${body}`);
-    return;
+    return false;
   }
   const response = await fetch(`https://ntfy.sh/${encodeURIComponent(topic)}`, {
     method: 'POST',
@@ -36,6 +47,7 @@ async function pushNtfy(title, body) {
     body
   });
   if (!response.ok) throw new Error(`ntfy publish failed: ${response.status} ${response.statusText}`);
+  return true;
 }
 
 async function main() {
@@ -80,13 +92,38 @@ async function main() {
   const title = 'Radar dead-man alert';
   const body = problems.map((p) => `• ${p}`).join('\n');
   // Log the detail first so it survives even if the push fails, then push
-  // best-effort: a flaky ntfy must not turn a problem-detected run into a
-  // detail-less failed workflow (whose generic failure alert loses this body).
+  // best-effort: a flaky ntfy must not cost us the detail.
   console.warn(`${title}\n${body}`);
+
+  // Put the reason on the run's summary page too, so the red mark in the
+  // Actions list is self-explaining without opening the log.
+  await writeStepSummary(title, problems);
+
+  let delivered = false;
   try {
-    await pushNtfy(title, body);
+    delivered = await pushNtfy(title, body);
   } catch (error) {
     console.warn(`ntfy push failed (detail logged above): ${error.message}`);
+  }
+
+  if (!delivered) {
+    console.error('No delivery channel for this alert — failing the run so it is visible in the Actions list.');
+    process.exitCode = 1;
+  }
+}
+
+/**
+ * GitHub renders this file on the run's summary page. Absent outside Actions,
+ * and a failure to write it must never mask the alert itself.
+ */
+async function writeStepSummary(title, problems) {
+  const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+  if (!summaryPath) return;
+  const lines = [`## ${title}`, '', ...problems.map((p) => `- ${p}`), ''];
+  try {
+    await fsp.appendFile(summaryPath, `${lines.join('\n')}\n`, 'utf8');
+  } catch (error) {
+    console.warn(`could not write step summary: ${error.message}`);
   }
 }
 
