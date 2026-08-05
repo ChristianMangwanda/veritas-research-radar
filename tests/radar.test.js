@@ -2082,6 +2082,90 @@ function testQualifiedPredicate() {
   assert.strictEqual(isQualified(scored), false);
 }
 
+/* The profession gate: the deterministic layer that keeps a licensed clinical
+ * post away from the judge model. It exists because parseLicenseRequirement
+ * needs quotable text and a Physician posting never says "must hold a medical
+ * licence" — the title carries it. Measured on the live data it removes 373 of
+ * 989 qualified postings (5.5h of model time down to 3.4h) and, across 445
+ * judgments, every posting it set aside was one the model also called "no".
+ *
+ * It must stay porous: these tests pin the cases where it has to hold back. */
+function testProfessionGate() {
+  const { compileProfile, scoreAll, isQualified } = RadarScoring;
+  const { classifyTitle } = require('../radar/scripts/lib/title-class.js');
+
+  // The real profile claims `clinical` among its title classes — a
+  // bioinformatics résumé mentioning clinical genomics is enough — which is
+  // precisely why roleTrack waved 391 clinical postings through as in-track
+  // and why this gate has to exist downstream of it. The fixture has to carry
+  // that same claim or it tests a scenario the user does not have.
+  const withClinicalTrack = {
+    ...SCORING_FIXTURE_PROFILE,
+    variants: SCORING_FIXTURE_PROFILE.variants.map((variant, index) => (index === 0
+      ? { ...variant, title_classes: [...variant.title_classes, 'clinical'] }
+      : variant))
+  };
+  const compiled = compileProfile(withClinicalTrack);
+  const clinician = compileProfile({
+    ...withClinicalTrack,
+    core: {
+      ...withClinicalTrack.core,
+      degrees: [{ level: 'md', field: 'Medicine', status: 'completed' }]
+    }
+  });
+
+  const score = (job, profile = compiled) => {
+    const row = {
+      id: 'p1', status: 'active', citizenship_gated: false,
+      description_text: `${ML_JOB_DESCRIPTION} ${'filler '.repeat(80)}`,
+      research_relevance_score: 20, ...job
+    };
+    scoreAll([row], profile, null);
+    return row;
+  };
+  const professionBlockers = (row) =>
+    (row.fit.eligibility.blockers || []).filter((entry) => entry.type === 'profession');
+
+  // A clinical title is a different career, not a stretch.
+  const physician = score({ title: 'Physician - Electrophysiology', title_class: 'clinical' });
+  assert.strictEqual(professionBlockers(physician).length, 1);
+  assert.strictEqual(physician.fit.eligibility.verdict, 'blocked');
+  assert(professionBlockers(physician)[0].evidence.includes('Physician - Electrophysiology'),
+    'the blocker must quote the title — a job is never hidden for an unshowable reason');
+  assert.strictEqual(isQualified(physician), false);
+  assert.strictEqual(isQualified(physician, { includeBlocked: true }), true,
+    'set aside, never deleted: one click brings it back');
+
+  // Someone who holds the credential is not gated out of their own profession.
+  assert.strictEqual(
+    professionBlockers(score({ title: 'Physician - Electrophysiology', title_class: 'clinical' }, clinician)).length,
+    0);
+
+  // The measured miss this guard exists for: a lab post wearing a clinical
+  // title. Held back from the gate, so it reaches the model.
+  const fellow = score({ title: 'Research Fellow PC - Radiation Oncology', title_class: 'clinical' });
+  assert.strictEqual(professionBlockers(fellow).length, 0);
+
+  // Declared avoid-professions gate on the TITLE...
+  const nurse = score({ title: 'Registered Nurse - Sleep Medicine', title_class: 'clinical' });
+  assert(professionBlockers(nurse).some((entry) => entry.source === 'avoid_signal'));
+
+  // ...but not in the body, where they stay a score penalty. A data posting
+  // that mentions nurses is still a data posting.
+  const mentions = score({
+    title: 'Machine Learning Engineer', title_class: 'data_computational',
+    description_text: `${ML_JOB_DESCRIPTION} Collaborates with a registered nurse. ${'filler '.repeat(80)}`
+  });
+  assert.strictEqual(professionBlockers(mentions).length, 0);
+
+  // And the classifier fix underneath it: "Research Fellow" is a postdoc even
+  // when an oncology word sits next to it, or the gate would swallow lab jobs.
+  assert.strictEqual(classifyTitle('Research Fellow PC - Radiation Oncology - Waddle lab'), 'postdoc');
+  assert.strictEqual(classifyTitle('Postdoctoral Fellow'), 'postdoc');
+  assert.strictEqual(classifyTitle('Clinical Fellow, Cardiology'), 'clinical');
+  assert.strictEqual(classifyTitle('Physician - Electrophysiology Cardiologist'), 'clinical');
+}
+
 function testJudgedMatch() {
   const {
     deriveVerdict, normalizeJudgment, matchCacheKey, candidateBrief, jobBrief,
@@ -3294,6 +3378,7 @@ async function main() {
   testEligibility();
   testRoleTrack();
   testQualifiedPredicate();
+  testProfessionGate();
   testJudgedMatch();
   testManifestSync();
   testProfileFreshness();
