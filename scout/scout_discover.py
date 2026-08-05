@@ -270,6 +270,27 @@ def discover_employer(page, entry: dict) -> dict:
     return result
 
 
+def fresh_page(pw, browser, context):
+    """A usable page, relaunching whatever died to get one.
+
+    The recycle path assumed only the PAGE had died. When a site takes the
+    whole browser process with it, context.new_page() raises TargetClosedError
+    too — and that throw landed outside the per-site guard, so a browser crash
+    at site 100 of 104 killed the shard instead of costing it one site.
+    """
+    try:
+        return browser, context, context.new_page()
+    except Exception:
+        try:
+            browser.close()
+        except Exception:
+            pass  # already gone; that is the case we are here for
+        browser = pw.chromium.launch(headless=True)
+        context = browser.new_context(user_agent=UA)
+        context.set_default_timeout(PAGE_TIMEOUT_MS)
+        return browser, context, context.new_page()
+
+
 def main() -> int:
     configure_logging()
     parser = argparse.ArgumentParser(description=__doc__)
@@ -428,8 +449,11 @@ def main() -> int:
                         "dol_certified_3y": entry.get("dol_certified_3y", 0),
                         "crawled_at": now_iso(),
                     }
-                    page.close()
-                    page = context.new_page()
+                    try:
+                        page.close()
+                    except Exception:
+                        pass  # the page may be what just died
+                    browser, context, page = fresh_page(pw, browser, context)
                 finally:
                     signal.alarm(0)  # disarm before the bookkeeping below
                 results[key] = result
@@ -470,14 +494,20 @@ def main() -> int:
                     save()
                 # A crashed page poisons subsequent navigations; recycle it
                 if index % 50 == 0:
-                    page.close()
-                    page = context.new_page()
+                    try:
+                        page.close()
+                    except Exception:
+                        pass
+                    browser, context, page = fresh_page(pw, browser, context)
         except KeyboardInterrupt as stop:
             interrupted = stop
         finally:
             # Runs on the timeout kill too — see the SIGTERM handler above.
             save()
-            browser.close()
+            try:
+                browser.close()
+            except Exception:
+                pass
 
     if interrupted is not None:
         log.warning("discovery_interrupted", crawled=len(results), reason=str(interrupted))
