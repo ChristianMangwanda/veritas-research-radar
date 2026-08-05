@@ -28,11 +28,14 @@
 const fsp = require('fs/promises');
 const path = require('path');
 
+// Shared with resolve-websites-model.js: the rule must not depend on which
+// source proposed the address.
+const { verifyWebsite, tokens, NOISE, UA } = require('./lib/verify-website.js');
+
 const DATA_DIR = path.resolve(__dirname, '../data');
 const RANKING_PATH = path.join(DATA_DIR, 'nonprofit-ranking.json');
 const OUT_PATH = path.join(DATA_DIR, 'nonprofit-websites.json');
 
-const UA = 'veritas-research-radar/1.0 (personal research job search; contact via github.com/ChristianMangwanda/veritas-research-radar)';
 const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';
 
 /* Wikimedia's anonymous rate limit is real and I hit it: a 250ms gap (4/sec)
@@ -43,27 +46,10 @@ const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';
 const REQUEST_GAP_MS = 1100;
 const RATE_LIMIT_BACKOFF_MS = 60000;
 const FETCH_TIMEOUT_MS = 12000;
-const VERIFY_TIMEOUT_MS = 15000;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/* Corporate noise that carries no identifying information. Stripped before
- * comparing a Wikidata label to an IRS legal name, which are rarely written
- * the same way ("JACKSON LABORATORY" vs "Jackson Laboratory"). */
-const NOISE = new Set([
-  'the', 'inc', 'incorporated', 'corp', 'corporation', 'llc', 'ltd', 'co',
-  'company', 'foundation', 'trust', 'fund', 'association', 'society',
-  'organization', 'organisation', 'of', 'for', 'and', 'a', 'an', 'usa', 'us',
-  'america', 'american', 'national', 'international'
-]);
 
-function tokens(name) {
-  return String(name || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter((word) => word && word.length > 2 && !NOISE.has(word));
-}
 
 /**
  * Does this Wikidata hit plausibly denote the organisation we asked about?
@@ -164,51 +150,6 @@ async function wikidataWebsites(ids) {
   return found;
 }
 
-/**
- * Prove the URL belongs to this organisation.
- *
- * Two failure modes to separate: a URL that does not resolve (dead), and one
- * that resolves to somebody else (wrong). The second is the dangerous one,
- * because it looks like success everywhere downstream.
- */
-async function verify(url, name) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), VERIFY_TIMEOUT_MS);
-  try {
-    const response = await fetch(url, {
-      headers: { 'user-agent': UA, accept: 'text/html,*/*' },
-      redirect: 'follow',
-      signal: controller.signal
-    });
-    /* A 403 is not a wrong answer — it is a live server refusing us.
-     *
-     * The first run rejected battelle.org and openai.com on 403. Both are the
-     * correct addresses; both defend themselves against automated clients. A
-     * hallucinated domain fails at DNS or connection, never with a considered
-     * "no" from a real web server, so treating a refusal as a bad URL discards
-     * exactly the large, well-defended research employers most worth having.
-     *
-     * Kept, and flagged: the ATS crawl already has a blocked-site problem to
-     * solve, and this tells it which addresses it will need help reaching
-     * rather than pretending they do not exist. */
-    if (response.status === 403 || response.status === 429 || response.status === 406) {
-      return { ok: true, blocked: true, reason: `http_${response.status}`, final_url: response.url };
-    }
-    if (!response.ok) return { ok: false, reason: `http_${response.status}` };
-    const html = (await response.text()).slice(0, 200000).toLowerCase();
-    const wanted = tokens(name);
-    // One distinctive word is enough — organisations rarely print their full
-    // IRS legal name, and demanding all of them would reject correct answers.
-    const hit = wanted.find((word) => html.includes(word));
-    if (!hit) return { ok: false, reason: 'page_does_not_mention_org', final_url: response.url };
-    return { ok: true, matched_token: hit, final_url: response.url };
-  } catch (error) {
-    return { ok: false, reason: `fetch_failed: ${error.name}` };
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 async function main() {
   const argv = process.argv.slice(2);
   const limitArg = argv.indexOf('--limit');
@@ -272,7 +213,7 @@ async function main() {
     for (const { org, hit } of matched) {
       const url = sites.get(hit.id);
       if (!url) continue;
-      const check = await verify(url, org.name);
+      const check = await verifyWebsite(url, org.name);
       if (check.ok) {
         kept += 1;
         if (check.blocked) blocked += 1;
