@@ -48,6 +48,29 @@ async function request(env, method, pathname, { body, headers = {} } = {}) {
   }
 }
 
+/**
+ * The description is the single biggest field on a job (~59% of the serialized
+ * payload, ~3KB each) and it already has its own column. Storing it a second
+ * time inside `payload` bought nothing and roughly doubled the table.
+ *
+ * It is stripped on write and put back on read (`rehydrateJob`), so every
+ * consumer still sees a whole job. Rows written before this change still carry
+ * the description inside payload; rehydrate prefers the column and falls back
+ * to whatever the payload holds, so both generations read identically.
+ */
+function payloadWithoutDescription(job) {
+  const { description_text: _description, ...rest } = job;
+  return rest;
+}
+
+function rehydrateJob(row) {
+  if (!row || !row.payload) return null;
+  return {
+    ...row.payload,
+    description_text: row.description_text ?? row.payload.description_text ?? null
+  };
+}
+
 function jobRow(job, syncedAt) {
   return {
     id: job.id,
@@ -72,7 +95,7 @@ function jobRow(job, syncedAt) {
     last_seen_at: job.last_seen_at ?? null,
     closed_at: job.closed_at ?? null,
     posted_or_updated_at: job.posted_or_updated_at || null,
-    payload: job,
+    payload: payloadWithoutDescription(job),
     updated_at: syncedAt
   };
 }
@@ -114,9 +137,15 @@ async function syncJobs(jobs, report) {
 }
 
 /**
- * Load the full previous dataset (payload column carries the enriched job
- * verbatim). Returns null when credentials are missing or the table is empty
- * so callers can fall back to the local jobs.json file.
+ * Load the full previous dataset (the payload column carries the enriched job
+ * minus its description, which is rejoined from its own column). Returns null
+ * when credentials are missing or the table is empty so callers can fall back
+ * to the local jobs.json file.
+ *
+ * The description MUST be selected here, not just in the dashboard: refresh.js
+ * uses this as previous state, and jobs carried forward through a failed fetch
+ * are written straight back. Reading without it would blank the description of
+ * every carried-forward job on the next run.
  */
 async function fetchAllJobs() {
   const env = supabaseEnv();
@@ -124,7 +153,7 @@ async function fetchAllJobs() {
   const pageSize = 1000;
   const jobs = [];
   for (let offset = 0; ; offset += pageSize) {
-    const pathname = `/jobs?select=payload&order=id&limit=${pageSize}&offset=${offset}`;
+    const pathname = `/jobs?select=payload,description_text&order=id&limit=${pageSize}&offset=${offset}`;
     let rows = null;
     for (let attempt = 0; ; attempt += 1) {
       try {
@@ -139,10 +168,10 @@ async function fetchAllJobs() {
         await sleep(READ_RETRY_BASE_MS * (attempt + 1));
       }
     }
-    jobs.push(...rows.map((row) => row.payload));
+    jobs.push(...rows.map(rehydrateJob).filter(Boolean));
     if (rows.length < pageSize) break;
   }
   return jobs.length ? jobs : null;
 }
 
-module.exports = { syncJobs, fetchAllJobs, supabaseEnv, jobRow };
+module.exports = { syncJobs, fetchAllJobs, supabaseEnv, jobRow, rehydrateJob, payloadWithoutDescription };
