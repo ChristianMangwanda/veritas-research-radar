@@ -22,7 +22,34 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Run monthly enrichment (IPEDS + IRS EO BMF + USCIS joins)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      # DOL was the missing quarter of the picture. enrich.js reads LCA CSVs
+      # out of radar/data/dol-raw and scout_dol.py has always known how to put
+      # them there, but nothing ever invoked it — so dol_certified_3y was 0 for
+      # all 20,378 directory entries and 0 for every registry employer, while
+      # the dashboard's sponsorship-evidence column read from it as though it
+      # meant something. USCIS says an employer sponsored SOMEBODY; the LCA
+      # file carries job titles, which is what lets the join count sponsorship
+      # for research roles specifically.
+      - name: Fetch DOL LCA disclosure data
+        id: dol
+        continue-on-error: true
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -euo pipefail
+          python -m venv scout/.venv
+          scout/.venv/bin/pip install -r scout/requirements.txt
+          scout/.venv/bin/python -m playwright install --with-deps chromium
+          scout/.venv/bin/python scout/scout_dol.py
+      # continue-on-error above is deliberate: the DOL file sits behind Akamai
+      # and is fetched through a real browser session, which is the least
+      # reliable step in this workflow. A month where it 403s should cost the
+      # DOL column, not the IPEDS/IRS/USCIS joins that make up the rest of the
+      # directory. enrich.js already treats an empty dol-raw as "no DOL data".
+      - name: Run monthly enrichment (IPEDS + IRS EO BMF + USCIS + DOL joins)
         run: npm run radar:enrich -- --force
       - name: Sync to latest main (this run's outputs win)
         # if: always() -- same real bug found 2026-08-04 in radar-firehose.yml
