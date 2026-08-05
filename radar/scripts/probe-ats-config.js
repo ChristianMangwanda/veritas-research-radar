@@ -231,6 +231,53 @@ async function probeCandidate(candidate) {
   return null;
 }
 
+/**
+ * Collapse the results to one row per distinct feed.
+ *
+ * Chains and systems point many "employers" at a single board: 44 Empire Beauty
+ * School locations share one Cornerstone site, 14 Arizona College campuses and
+ * 8 Concorde campuses share one iCIMS tenant, and three University of Tennessee
+ * entries share one Oracle site. Promoted per-row, each of those would ingest
+ * the same postings once per campus.
+ *
+ * Tokens are compared case-insensitively because the crawl records both:
+ * East Stroudsburg arrived as `ESU` and the Pennsylvania State System as `esu`
+ * — one board, two rows, and nothing else to tell them apart.
+ */
+function groupByFeed(results) {
+  const feeds = new Map();
+  for (const entry of results) {
+    const key = [
+      entry.ats_provider,
+      String(entry.ats_token).toLowerCase(),
+      JSON.stringify(entry.ats_config || {})
+    ].join('|');
+    if (!feeds.has(key)) {
+      feeds.set(key, {
+        ats_provider: entry.ats_provider,
+        ats_token: entry.ats_token,
+        ats_config: entry.ats_config || {},
+        jobs_found: entry.jobs_found,
+        route: entry.route,
+        other_sites: entry.other_sites,
+        claimed_by: []
+      });
+    }
+    const feed = feeds.get(key);
+    feed.jobs_found = Math.max(feed.jobs_found, entry.jobs_found);
+    feed.claimed_by.push({ name: entry.name, careers_url: entry.careers_url });
+  }
+  return [...feeds.values()]
+    .map((feed) => ({
+      ...feed,
+      employer_count: feed.claimed_by.length,
+      // More than one claimant is a judgement call, not a fact the probe can
+      // settle: someone has to decide which entity owns the board.
+      needs_owner_decision: feed.claimed_by.length > 1
+    }))
+    .sort((a, b) => b.jobs_found - a.jobs_found);
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const [discovery, registry] = await Promise.all([
@@ -258,8 +305,8 @@ async function main() {
     }
   }, { concurrency: PROBE_CONCURRENCY, groupOf: (candidate) => candidate.provider, perProvider: PROBE_CONCURRENCY });
 
-  results.sort((a, b) => b.jobs_found - a.jobs_found);
-  const byProvider = results.reduce((totals, entry) => {
+  const feeds = groupByFeed(results);
+  const byProvider = feeds.reduce((totals, entry) => {
     totals[entry.ats_provider] = (totals[entry.ats_provider] || 0) + 1;
     return totals;
   }, {});
@@ -268,10 +315,20 @@ async function main() {
     schema_version: 1,
     // Stamped by the caller's clock; this script performs no other time logic.
     probed_at: new Date().toISOString(),
-    resolved: results
+    candidates_probed: candidates.length,
+    employer_rows_resolved: results.length,
+    feeds: feeds
   }, null, 2)}\n`);
 
-  console.log(`\nResolved ${results.length} of ${candidates.length}: ${JSON.stringify(byProvider)}`);
+  const shared = feeds.filter((feed) => feed.needs_owner_decision);
+  console.log(`\nResolved ${results.length} of ${candidates.length} employer rows`);
+  console.log(`Distinct feeds: ${feeds.length} ${JSON.stringify(byProvider)}`);
+  if (shared.length) {
+    console.log(`${shared.length} feed(s) claimed by more than one employer — pick an owner before promoting:`);
+    for (const feed of shared) {
+      console.log(`  ${feed.ats_provider} ${feed.ats_token} — ${feed.employer_count} rows, e.g. ${feed.claimed_by[0].name}`);
+    }
+  }
   console.log(`Wrote ${path.relative(process.cwd(), OUTPUT_PATH)}`);
   console.log('Nothing was added to the registry — review the file, then promote.');
 }
@@ -283,4 +340,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { collectCandidates, probeCsod, probeOracle, probeIcims, normalizeName };
+module.exports = { collectCandidates, probeCsod, probeOracle, probeIcims, normalizeName, groupByFeed };
