@@ -5395,14 +5395,16 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "ipeds:190044"
+      "ipeds:190044",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "careerhub-clarkson",
     "careers_url": "https://careerhub-clarkson.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 30 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 30 approvals / DOL 0 research LCAs (3y). Feed attached 2026-08-05 from the ATS config probe (37 postings live); employer name confirmed against the board's own hiringOrganization.",
+    "ats_config": {}
   },
   {
     "id": "touro-university",
@@ -5412,14 +5414,16 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "ipeds:196592"
+      "ipeds:196592",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "tcnycareers-touro",
     "careers_url": "https://tcnycareers-touro.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 233 live postings. USCIS 1 approvals / DOL 1 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 233 live postings. USCIS 1 approvals / DOL 1 research LCAs (3y). Feed attached 2026-08-05 from the ATS config probe (248 postings live); employer name confirmed against the board's own hiringOrganization.",
+    "ats_config": {}
   },
   {
     "id": "touro-university-nevada",
@@ -9429,5 +9433,653 @@
     "careers_url": "https://rcu.edu/",
     "research_areas": [],
     "notes": "Auto-wired from ATS discovery crawl (2026-08-04); probe saw 5 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y)."
+  },
+  {
+    "id": "university-of-tennessee-system",
+    "name": "University of Tennessee System",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "oracle",
+    "ats_token": "fa-ewlq-saasfaprod1.fa.ocs.oraclecloud.com",
+    "ats_config": {
+      "host": "fa-ewlq-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site_name": "UTCareerSiteGlobal",
+      "site_number": "CX_1"
+    },
+    "careers_url": "https://fa-ewlq-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 505 postings live on the board at probe time. Employer name taken from the board’s own hiringOrganization/SiteName, not from the crawl’s name match. Board is shared by 3 crawled entities (The University of Tennessee Southern; The University of Tennessee-Chattanooga; The University of Tennessee System Office); registered once under the owning institution."
+  },
+  {
+    "id": "university-of-new-mexico",
+    "name": "University of New Mexico",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "unm",
+    "ats_config": {
+      "site_id": 7
+    },
+    "careers_url": "https://unm.csod.com/ux/ats/careersite/7/home?c=unm",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 352 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "university-of-arizona",
+    "name": "University of Arizona",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "arizona",
+    "ats_config": {
+      "site_id": 4
+    },
+    "careers_url": "https://arizona.csod.com/ux/ats/careersite/4/home?c=arizona",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 318 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "san-jacinto-college",
+    "name": "San Jacinto College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "sanjac",
+    "ats_config": {
+      "site_id": 3
+    },
+    "careers_url": "https://sanjac.csod.com/ux/ats/careersite/3/home?c=sanjac",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 252 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "alamo-colleges-district",
+    "name": "Alamo Colleges District",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "alamo",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://alamo.csod.com/ux/ats/careersite/1/home?c=alamo",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 212 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain. Board is shared by 2 crawled entities (Northwest Vista College; St Philip's College); registered once under the owning institution."
+  },
+  {
+    "id": "east-stroudsburg-university-of-pennsylvania",
+    "name": "East Stroudsburg University of Pennsylvania",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "ESU",
+    "ats_config": {
+      "site_id": 6
+    },
+    "careers_url": "https://ESU.csod.com/ux/ats/careersite/6/home?c=ESU",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 164 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain. Board is shared by 2 crawled entities (East Stroudsburg University of Pennsylvania; Pennsylvania State System of Higher Education-Central Office); registered once under the owning institution."
+  },
+  {
+    "id": "wayne-state-university",
+    "name": "Wayne State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "waynetalent",
+    "ats_config": {
+      "site_id": 2
+    },
+    "careers_url": "https://waynetalent.csod.com/ux/ats/careersite/2/home?c=waynetalent",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 147 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "university-of-maine-system",
+    "name": "University of Maine System",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "oracle",
+    "ats_token": "fa-ewca-saasfaprod1.fa.ocs.oraclecloud.com",
+    "ats_config": {
+      "host": "fa-ewca-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site_name": "UMS",
+      "site_number": "CX_1"
+    },
+    "careers_url": "https://fa-ewca-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 138 postings live on the board at probe time. Employer name taken from the board’s own hiringOrganization/SiteName, not from the crawl’s name match."
+  },
+  {
+    "id": "harper-college",
+    "name": "Harper College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "oracle",
+    "ats_token": "fa-eneh-saasfaprod1.fa.ocs.oraclecloud.com",
+    "ats_config": {
+      "host": "fa-eneh-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site_name": "CX",
+      "site_number": "CX"
+    },
+    "careers_url": "https://fa-eneh-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX/",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 130 postings live on the board at probe time. Employer name taken from the board’s own hiringOrganization/SiteName, not from the crawl’s name match."
+  },
+  {
+    "id": "community-college-of-allegheny-county",
+    "name": "Community College of Allegheny County",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "ccac",
+    "ats_config": {
+      "site_id": 3
+    },
+    "careers_url": "https://ccac.csod.com/ux/ats/careersite/3/home?c=ccac",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 129 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "university-of-southern-mississippi",
+    "name": "University of Southern Mississippi",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "usm",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://usm.csod.com/ux/ats/careersite/1/home?c=usm",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 119 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "college-of-dupage",
+    "name": "College of DuPage",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "cod",
+    "ats_config": {
+      "site_id": 4
+    },
+    "careers_url": "https://cod.csod.com/ux/ats/careersite/4/home?c=cod",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 105 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "brookdale-community-college",
+    "name": "Brookdale Community College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "icims",
+    "ats_token": "careers-brookdalecc",
+    "ats_config": {},
+    "careers_url": "https://careers-brookdalecc.icims.com/jobs/search?ss=1",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 104 postings live on the board at probe time. Employer name taken from the board’s own hiringOrganization/SiteName, not from the crawl’s name match."
+  },
+  {
+    "id": "boston-college",
+    "name": "Boston College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "bc",
+    "ats_config": {
+      "site_id": 2
+    },
+    "careers_url": "https://bc.csod.com/ux/ats/careersite/2/home?c=bc",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 84 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "university-of-northern-colorado",
+    "name": "University of Northern Colorado",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "unco",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://unco.csod.com/ux/ats/careersite/1/home?c=unco",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 79 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "concordia-college",
+    "name": "Concordia College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "concordiacollege",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://concordiacollege.csod.com/ux/ats/careersite/1/home?c=concordiacollege",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 79 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "blinn-college-district",
+    "name": "Blinn College District",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "blinn",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://blinn.csod.com/ux/ats/careersite/1/home?c=blinn",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 71 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "los-angeles-community-college-district",
+    "name": "Los Angeles Community College District",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "laccd",
+    "ats_config": {
+      "site_id": 6
+    },
+    "careers_url": "https://laccd.csod.com/ux/ats/careersite/6/home?c=laccd",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 67 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "idaho-state-university",
+    "name": "Idaho State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "isu",
+    "ats_config": {
+      "site_id": 5
+    },
+    "careers_url": "https://isu.csod.com/ux/ats/careersite/5/home?c=isu",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 51 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "massachusetts-bay-community-college",
+    "name": "Massachusetts Bay Community College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "mbcc-mass",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://mbcc-mass.csod.com/ux/ats/careersite/1/home?c=mbcc-mass",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 48 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain. Board is shared by 2 crawled entities (Massachusetts Bay Community College; North Shore Community College); registered once under the owning institution."
+  },
+  {
+    "id": "arizona-western-college",
+    "name": "Arizona Western College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "azwestern",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://azwestern.csod.com/ux/ats/careersite/1/home?c=azwestern",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 47 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "touro-university-california",
+    "name": "Touro University California",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "icims",
+    "ats_token": "tuccareers-touro",
+    "ats_config": {},
+    "careers_url": "https://tuccareers-touro.icims.com/jobs/search?ss=1",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 37 postings live on the board at probe time. Employer name taken from the board’s own hiringOrganization/SiteName, not from the crawl’s name match."
+  },
+  {
+    "id": "university-of-illinois-springfield",
+    "name": "University of Illinois Springfield",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "uis",
+    "ats_config": {
+      "site_id": 5
+    },
+    "careers_url": "https://uis.csod.com/ux/ats/careersite/5/home?c=uis",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 36 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "greenville-technical-college",
+    "name": "Greenville Technical College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "gvltec",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://gvltec.csod.com/ux/ats/careersite/1/home?c=gvltec",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 32 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "benedictine-university",
+    "name": "Benedictine University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "benu",
+    "ats_config": {
+      "site_id": 6
+    },
+    "careers_url": "https://benu.csod.com/ux/ats/careersite/6/home?c=benu",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 25 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "southwestern-oklahoma-state-university",
+    "name": "Southwestern Oklahoma State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "swosu",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://swosu.csod.com/ux/ats/careersite/1/home?c=swosu",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 25 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "mohawk-valley-community-college",
+    "name": "Mohawk Valley Community College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "mvcc",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://mvcc.csod.com/ux/ats/careersite/1/home?c=mvcc",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 24 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "university-of-louisiana-at-lafayette",
+    "name": "University of Louisiana at Lafayette",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "louisiana",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://louisiana.csod.com/ux/ats/careersite/1/home?c=louisiana",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 23 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "northeastern-state-university",
+    "name": "Northeastern State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "nsuok",
+    "ats_config": {
+      "site_id": 4
+    },
+    "careers_url": "https://nsuok.csod.com/ux/ats/careersite/4/home?c=nsuok",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 18 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "graceland-university",
+    "name": "Graceland University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "oracle",
+    "ats_token": "ibqcjb.fa.ocs.oraclecloud.com",
+    "ats_config": {
+      "host": "ibqcjb.fa.ocs.oraclecloud.com",
+      "site_name": "Graceland University Main Careers",
+      "site_number": "CX_1"
+    },
+    "careers_url": "https://ibqcjb.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 17 postings live on the board at probe time. Employer name taken from the board’s own hiringOrganization/SiteName, not from the crawl’s name match."
+  },
+  {
+    "id": "moraine-park-technical-college",
+    "name": "Moraine Park Technical College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "icims",
+    "ats_token": "careers-morainepark",
+    "ats_config": {},
+    "careers_url": "https://careers-morainepark.icims.com/jobs/search?ss=1",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 17 postings live on the board at probe time. Employer name taken from the board’s own hiringOrganization/SiteName, not from the crawl’s name match."
+  },
+  {
+    "id": "southeastern-oklahoma-state-university",
+    "name": "Southeastern Oklahoma State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "seok",
+    "ats_config": {
+      "site_id": 1
+    },
+    "careers_url": "https://seok.csod.com/ux/ats/careersite/1/home?c=seok",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 14 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "rose-hulman-institute-of-technology",
+    "name": "Rose-Hulman Institute of Technology",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "rosehulman",
+    "ats_config": {
+      "site_id": 4
+    },
+    "careers_url": "https://rosehulman.csod.com/ux/ats/careersite/4/home?c=rosehulman",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 13 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "artcenter-college-of-design",
+    "name": "ArtCenter College of Design",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "artcenter",
+    "ats_config": {
+      "site_id": 7
+    },
+    "careers_url": "https://artcenter.csod.com/ux/ats/careersite/7/home?c=artcenter",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 13 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "seton-hill-university",
+    "name": "Seton Hill University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "oracle",
+    "ats_token": "setonhill-ibtwjb.fa.ocs.oraclecloud.com",
+    "ats_config": {
+      "host": "setonhill-ibtwjb.fa.ocs.oraclecloud.com",
+      "site_name": "Seton Hill Careers",
+      "site_number": "CX_2"
+    },
+    "careers_url": "https://setonhill-ibtwjb.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2/",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 11 postings live on the board at probe time. Employer name taken from the board’s own hiringOrganization/SiteName, not from the crawl’s name match."
+  },
+  {
+    "id": "north-iowa-area-community-college",
+    "name": "North Iowa Area Community College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "niacc",
+    "ats_config": {
+      "site_id": 2
+    },
+    "careers_url": "https://niacc.csod.com/ux/ats/careersite/2/home?c=niacc",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 9 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "canisius-university",
+    "name": "Canisius University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "icims",
+    "ats_token": "canisiusuniversity-puzzlehr",
+    "ats_config": {},
+    "careers_url": "https://canisiusuniversity-puzzlehr.icims.com/jobs/search?ss=1",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 4 postings live on the board at probe time. Employer name taken from the board’s own hiringOrganization/SiteName, not from the crawl’s name match."
+  },
+  {
+    "id": "parkland-college",
+    "name": "Parkland College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_discovery_crawl",
+      "ats_feed_verified"
+    ],
+    "ats_provider": "csod",
+    "ats_token": "parkland",
+    "ats_config": {
+      "site_id": 7
+    },
+    "careers_url": "https://parkland.csod.com/ux/ats/careersite/7/home?c=parkland",
+    "notes": "Promoted 2026-08-05 from the ATS config probe; 1 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
   }
 ]
