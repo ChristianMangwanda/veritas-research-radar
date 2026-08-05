@@ -62,6 +62,10 @@ MAX_CAREERS_LINKS = 4
 # costed honestly instead of hostage to whichever homepage links to forty
 # things called "jobs".
 SITE_BUDGET_S = 60
+# Consecutive all-timeout sites before a worker declares its own network dead.
+# A healthy runner times out on 0.5% of sites, so 15 in a row is ~10^-35 by
+# chance; a wedged one hits it in the first 15 sites instead of two hours in.
+CIRCUIT_BREAK_TIMEOUTS = 15
 
 # Provider patterns with tenant/slug extraction. Matched against raw HTML of
 # the careers page (catches hrefs, iframes, and script-injected URLs alike).
@@ -392,6 +396,8 @@ def main() -> int:
     signal.signal(signal.SIGALRM, on_site_timeout)
 
     interrupted = None
+    broke_circuit = False
+    consecutive_timeouts = 0
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True)
         context = browser.new_context(user_agent=UA)
@@ -430,6 +436,30 @@ def main() -> int:
                 providers = ",".join(sorted({a["provider"] for a in result["ats"]})) or "-"
                 log.info("crawled", n=f"{index}/{len(pending)}", name=entry["name"][:40],
                          status=result["status"], ats=providers)
+
+                # Circuit breaker: stop a worker whose machine has no network.
+                #
+                # Two of eight runners in the first full sweep could not reach
+                # anything. Every site on them timed out at exactly the
+                # watchdog ceiling — 90.000s, 96% of sites — while a healthy
+                # runner did the same interleaved sample at 2.0s and a 0.5%
+                # timeout rate. They burned two hours each and one produced no
+                # results at all. Timeouts are the signal precisely because
+                # they separate so cleanly; ordinary dead links surface as
+                # `homepage_error: Error` and are common (46% of sites), so
+                # counting those would abort every healthy run.
+                if "TimeoutError" in result["status"]:
+                    consecutive_timeouts += 1
+                else:
+                    consecutive_timeouts = 0
+                if consecutive_timeouts >= CIRCUIT_BREAK_TIMEOUTS:
+                    log.error("circuit_break", consecutive_timeouts=consecutive_timeouts,
+                              crawled=len(results),
+                              note="every request is timing out — this runner has no usable "
+                                   "network. Stopping so the shard fails fast instead of "
+                                   "burning its budget; the queue is unchanged and resumes.")
+                    broke_circuit = True
+                    break
                 # Checkpoint every 25 rather than every site. This used to
                 # re-serialize the whole result set once per crawl — at a few
                 # thousand entries that is megabytes of JSON per 15s of work,
@@ -452,6 +482,12 @@ def main() -> int:
     if interrupted is not None:
         log.warning("discovery_interrupted", crawled=len(results), reason=str(interrupted))
         return 130
+
+    # Non-zero so the shard shows as failed rather than quietly "succeeding"
+    # with a handful of results. fail-fast is off in the matrix, so the other
+    # shards keep going and the merge still takes whatever this one saved.
+    if broke_circuit:
+        return 75
 
     hits = sum(1 for r in results.values() if r.get("ats"))
     log.info("discovery_done", crawled=len(results), with_ats=hits)

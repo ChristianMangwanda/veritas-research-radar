@@ -88,6 +88,13 @@ jobs:
           scout/.venv/bin/pip install -r scout/requirements.txt
           scout/.venv/bin/python -m playwright install --with-deps chromium
       - name: Crawl shard ${{ matrix.shard }}
+        # Unbuffered, or a stuck shard is undiagnosable. Python buffers stdout
+        # when it isn't a terminal, so shard 0 of the first full sweep ran for
+        # two hours and left ZERO log lines — never enough output to fill one
+        # buffer before it was killed. The logs are the only way to tell a dead
+        # runner from slow websites after the fact.
+        env:
+          PYTHONUNBUFFERED: "1"
         run: |
           set -euo pipefail
           mkdir -p shards
