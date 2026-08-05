@@ -292,6 +292,41 @@ async function probePaylocity(clientGuid, expectedName) {
   return { client_guid: clientGuid, total_jobs: jobs.length };
 }
 
+// ADP Workforce Now. The usable key is the client id (cid) — a UUID — which
+// appears in the careers link the crawl found. scout_discover.py's adp pattern
+// also captures the ccId (a plain number identifying a career centre within
+// the client), so the cid has to be read out of the hit URL rather than taken
+// from the tenant field.
+const ADP_CID_PATTERN = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+
+function adpCidFromHit(hit) {
+  if (hit?.tenant && ADP_CID_PATTERN.test(hit.tenant)) return hit.tenant;
+  const fromUrl = String(hit?.url || '').match(/[?&]cid=([a-f0-9-]{36})/i);
+  return fromUrl && ADP_CID_PATTERN.test(fromUrl[1]) ? fromUrl[1] : null;
+}
+
+/**
+ * The feed carries no organisation name, so there is no title check to make
+ * here. Identity rests on where the cid came from: a UUID scraped off this
+ * employer's own careers page, which no other tenant could collide with — the
+ * same standard the Paylocity probe already relies on.
+ */
+async function probeAdp(cid) {
+  // Deliberately unpaged: ADP answers $top=1 with an empty array and no meta
+  // block, so a paged probe reports every live client as dead.
+  const response = await fetchJsonWithTimeout(
+    'https://workforcenow.adp.com/mascsr/default/careercenter/public/events/staffing/v1/job-requisitions'
+    + `?cid=${encodeURIComponent(cid)}`
+  );
+  await sleep(PROBE_DELAY_MS);
+  if (!response || !Array.isArray(response.jobRequisitions)) return null;
+  const total = Number(response.meta?.totalNumber ?? 0) || response.jobRequisitions.length;
+  // A live client with zero postings is indistinguishable from a dead cid;
+  // wiring it would add an employer that can only ever contribute nothing.
+  if (total === 0) return null;
+  return { cid, total_jobs: total };
+}
+
 // The public_job_boards list's own "title" field literally names the
 // institution ("X Positions" / "X Open Positions") — a clean identity check.
 async function probeInterfolio(tenantId, expectedName) {
@@ -354,6 +389,7 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
   const existingTenants = new Set(employers.flatMap((e) => allConfigs(e).flatMap((c) => [c?.tenant, c?.host, c?.agency])).filter(Boolean));
   const existingGuids = new Set(employers.flatMap((e) => allConfigs(e).map((c) => c?.client_guid)).filter(Boolean));
   const existingInterfolioTenants = new Set(employers.flatMap((e) => allConfigs(e).map((c) => c?.tenant_id)).filter(Boolean).map(String));
+  const existingAdpCids = new Set(employers.flatMap((e) => allConfigs(e).map((c) => c?.cid)).filter(Boolean));
   // Owner-declined tenants stay declined across probe reruns
   let holds = new Set();
   try {
@@ -440,15 +476,23 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     if (governmentJobsHit && !existingTenants.has(governmentJobsHit.tenant)) {
       await consider('governmentjobs', governmentJobsHit.tenant, () => probeGovernmentJobs(governmentJobsHit.tenant, record.name));
     }
+    const adpCid = adpCidFromHit(hits.find((a) => a.provider === 'adp' && adpCidFromHit(a) && !holds.has(a.tenant)));
+    if (adpCid && !existingAdpCids.has(adpCid)) {
+      await consider('adp', adpCid, () => probeAdp(adpCid));
+    }
 
     return candidates.map(({ provider, probe }) => ({
       ats_provider: provider,
-      ats_token: provider === 'paylocity' || provider === 'interfolio' ? employer.id : provider === 'governmentjobs' ? probe.agency : probe.token,
+      ats_token: provider === 'paylocity' || provider === 'interfolio' ? employer.id
+        : provider === 'governmentjobs' ? probe.agency
+        : provider === 'adp' ? probe.cid
+        : probe.token,
       ats_config: provider === 'workday' ? { host: probe.host, tenant: probe.tenant, site: probe.site }
         : provider === 'peopleadmin' ? { tenant: probe.tenant }
         : provider === 'paylocity' ? { client_guid: probe.client_guid }
         : provider === 'interfolio' ? { tenant_id: probe.tenant_id }
         : provider === 'governmentjobs' ? { host: probe.host, agency: probe.agency }
+        : provider === 'adp' ? { cid: probe.cid }
         : undefined,
       total_jobs: probe.total_jobs
     }));
@@ -477,9 +521,10 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
     // has a null tenant — not auto-wirable, needs manual careers-page follow-up.
     const interfolioHit = hits.find((a) => a.provider === 'interfolio' && a.tenant && !holds.has(a.tenant));
     const governmentJobsHit = hits.find((a) => a.provider === 'governmentjobs' && a.tenant && !holds.has(a.tenant));
+    const adpHitCid = adpCidFromHit(hits.find((a) => a.provider === 'adp' && adpCidFromHit(a) && !holds.has(a.tenant)));
     const paSignature = hits.find((a) => a.provider === 'peopleadmin' && !a.tenant);
     const wdSignature = hits.find((a) => a.provider === 'workday' && !a.tenant);
-    const anyHit = workdayHit || peopleAdminHit || smartRecruitersHit || workableHit || paylocityHit || interfolioHit || governmentJobsHit || greenhouseHit || leverHit || ashbyHit || icimsHit || paSignature || wdSignature;
+    const anyHit = workdayHit || peopleAdminHit || smartRecruitersHit || workableHit || paylocityHit || interfolioHit || governmentJobsHit || adpHitCid || greenhouseHit || leverHit || ashbyHit || icimsHit || paSignature || wdSignature;
     if (!anyHit && !(includeScoutFallback && record.careers_url)) continue;
 
     const id = slugify(record.name);
@@ -609,6 +654,13 @@ async function buildProposals({ includeScoutFallback = false, minEvidence = 0 } 
       }
       if (probe) {
         wiring = { ats_provider: 'governmentjobs', ats_token: probe.agency, ats_config: { host: probe.host, agency: probe.agency }, total_jobs: probe.total_jobs };
+      }
+    }
+    if (!wiring && adpHitCid && !existingAdpCids.has(adpHitCid)) {
+      console.log(`probing adp:${adpHitCid} (${record.name})…`);
+      const probe = await probeAdp(adpHitCid);
+      if (probe) {
+        wiring = { ats_provider: 'adp', ats_token: probe.cid, ats_config: { cid: probe.cid }, total_jobs: probe.total_jobs };
       }
     }
     // Vanity-domain PeopleAdmin: the portal host serves the same Atom feed

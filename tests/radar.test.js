@@ -41,7 +41,18 @@ const {
   filterResearchRelevant,
   activeScoutedJobs,
   applyEnrichmentOverlay,
-  fetchEmployerJobs
+  fetchEmployerJobs,
+  runPooled,
+  hostLane,
+  createProviderPacer,
+  parseSitemapUrls,
+  extractJsonLdJobPosting,
+  isChallengeResponse,
+  pageUpTitleFromUrl,
+  mapPageUpJob,
+  mapAdpJob,
+  adpLocation,
+  fetchAdpJobs
 } = require('../radar/scripts/refresh.js');
 const {
   parseIpedsCsv,
@@ -60,7 +71,7 @@ const { classifyTitle, classLabel } = require('../radar/scripts/lib/title-class.
 const { parseSalary } = require('../radar/scripts/lib/salary.js');
 const { parseDeadline } = require('../radar/scripts/lib/deadline.js');
 const { parsePeopleAdminAtom, mapPeopleAdminEntry } = require('../radar/scripts/refresh.js');
-const { jobRow, supabaseEnv } = require('../radar/scripts/lib/supabase.js');
+const { jobRow, supabaseEnv, rehydrateJob } = require('../radar/scripts/lib/supabase.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
 const {
   TITLE_CLASSES,
@@ -338,6 +349,37 @@ function testSupabaseSink() {
   assert.deepStrictEqual(row.class_evidence, { certified_count_3y: 3 });
   assert.strictEqual(row.payload.id, 'lever:ucsf:1');
   assert.strictEqual(row.updated_at, '2026-07-06T00:00:00Z');
+
+  // The description is stored once (its own column), not twice. It is ~59% of
+  // a serialized job, so duplicating it nearly doubled the table.
+  const withDescription = jobRow({
+    id: 'lever:ucsf:2', employer_id: 'ucsf', title: 'Research Scientist',
+    description_text: 'Long posting body about a genomics lab.', status: 'active'
+  }, '2026-07-06T00:00:00Z');
+  assert.strictEqual(withDescription.description_text, 'Long posting body about a genomics lab.');
+  assert.strictEqual('description_text' in withDescription.payload, false, 'payload must not duplicate the description');
+
+  // ...and a row round-trips back to a whole job.
+  const restored = rehydrateJob(withDescription);
+  assert.strictEqual(restored.description_text, 'Long posting body about a genomics lab.');
+  assert.strictEqual(restored.id, 'lever:ucsf:2');
+  assert.strictEqual(restored.title, 'Research Scientist');
+
+  // Rows written before the change keep the description inside payload; those
+  // must still read back correctly (the column is authoritative when present).
+  const legacy = { payload: { id: 'old:1', description_text: 'legacy body' }, description_text: null };
+  assert.strictEqual(rehydrateJob(legacy).description_text, 'legacy body', 'legacy rows must still rehydrate');
+  const both = { payload: { id: 'x', description_text: 'stale' }, description_text: 'fresh' };
+  assert.strictEqual(rehydrateJob(both).description_text, 'fresh', 'the column wins over a stale payload copy');
+
+  // The description must survive the round trip byte-for-byte: the match cache
+  // is keyed on a hash of it, so any drift silently invalidates every judgment.
+  const body = 'PhD required.\n\n  Spaces & "quotes" — em-dash, ünïcode, \ttab.';
+  assert.strictEqual(
+    rehydrateJob(jobRow({ id: 'z', description_text: body }, 'now')).description_text,
+    body,
+    'description must round-trip unchanged'
+  );
 }
 
 function testEntityResolution() {
@@ -2915,6 +2957,308 @@ async function testLocalExtraction() {
   }
 }
 
+// The refresh pool decides the order of a committed artifact and how hard we
+// hit other people's servers, so both properties are pinned here.
+async function testRefreshPool() {
+  // Results come back in INPUT order even when completion order is reversed.
+  const items = [1, 2, 3, 4, 5, 6, 7, 8];
+  const out = await runPooled(items, async (n) => {
+    await new Promise((resolve) => setTimeout(resolve, (9 - n) * 4));
+    return n * 10;
+  }, { concurrency: 4, perProvider: 4 });
+  assert.deepStrictEqual(out, [10, 20, 30, 40, 50, 60, 70, 80], 'pool must preserve input order');
+
+  // Global concurrency is never exceeded.
+  let inFlight = 0;
+  let peak = 0;
+  await runPooled(Array.from({ length: 20 }, (_, i) => i), async () => {
+    inFlight += 1;
+    peak = Math.max(peak, inFlight);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    inFlight -= 1;
+  }, { concurrency: 3, perProvider: 3 });
+  assert.strictEqual(peak, 3, `global concurrency cap breached (peak ${peak})`);
+
+  // Per-provider cap holds even when the global cap would allow more.
+  const providerItems = Array.from({ length: 12 }, (_, i) => ({ provider: i < 8 ? 'workday' : `p${i}`, id: i }));
+  const load = new Map();
+  let providerPeak = 0;
+  await runPooled(providerItems, async (item) => {
+    load.set(item.provider, (load.get(item.provider) || 0) + 1);
+    providerPeak = Math.max(providerPeak, load.get('workday') || 0);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    load.set(item.provider, load.get(item.provider) - 1);
+  }, { concurrency: 8, perProvider: 2, groupOf: (item) => item.provider });
+  assert(providerPeak <= 2, `per-provider cap breached (peak ${providerPeak})`);
+
+  // Two employers sharing a host lane never overlap.
+  const laneItems = [{ lane: 'a' }, { lane: 'a' }, { lane: 'a' }, { lane: 'b' }];
+  let laneActive = 0;
+  let laneOverlap = false;
+  await runPooled(laneItems, async (item) => {
+    if (item.lane === 'a') {
+      laneActive += 1;
+      if (laneActive > 1) laneOverlap = true;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    if (item.lane === 'a') laneActive -= 1;
+  }, { concurrency: 4, perProvider: 4, laneOf: (item) => item.lane });
+  assert(!laneOverlap, 'same-host employers must not run concurrently');
+
+  // A worker that throws drains the pool and then surfaces the error, rather
+  // than leaving siblings as unhandled rejections.
+  let finished = 0;
+  let caught = null;
+  try {
+    await runPooled([1, 2, 3, 4], async (n) => {
+      await new Promise((resolve) => setTimeout(resolve, n * 3));
+      if (n === 2) throw new Error('boom');
+      finished += 1;
+    }, { concurrency: 4, perProvider: 4 });
+  } catch (error) {
+    caught = error;
+  }
+  assert(caught && /boom/.test(caught.message), 'pool must rethrow a worker error');
+  assert.strictEqual(finished, 3, 'pool must drain remaining work before rethrowing');
+
+  // hostLane keys on the primary feed; employers with no feed get no lane.
+  assert.strictEqual(hostLane({ ats_provider: 'workday', ats_token: 'cornell' }), 'workday:cornell');
+  assert.strictEqual(hostLane({ ats_provider: null, ats_token: null }), null);
+  assert.strictEqual(
+    hostLane({ ats_provider: null, ats_token: null, secondary_ats_feeds: [{ ats_provider: 'interfolio', ats_token: 'x' }] }),
+    'interfolio:x',
+    'an employer whose only feed is a secondary one still gets that lane'
+  );
+
+  // The pacer staggers starts within one provider but never across providers.
+  const pacer = createProviderPacer(30);
+  const started = Date.now();
+  await pacer('workday');
+  await pacer('workday');
+  const sameProviderElapsed = Date.now() - started;
+  assert(sameProviderElapsed >= 25, `same-provider starts must be staggered (was ${sameProviderElapsed}ms)`);
+  const crossStart = Date.now();
+  await pacer('peopleadmin');
+  assert(Date.now() - crossStart < 25, 'a different provider must not wait behind another provider');
+}
+
+function testPageUpAdapter() {
+  const xml = `<?xml version="1.0"?><urlset>
+    <url><loc>https://careers.x.edu/</loc></url>
+    <url><loc>https://careers.x.edu/jobs/research-associate-east-lansing-michigan-united-states-c9d8d397-9275-4dad-8188-ec21a4ceab6c</loc></url>
+    <url><loc>  https://careers.x.edu/jobs/lab-manager-boston-massachusetts-united-states  </loc></url>
+  </urlset>`;
+  const urls = parseSitemapUrls(xml);
+  assert.strictEqual(urls.length, 3);
+  assert.strictEqual(urls[2], 'https://careers.x.edu/jobs/lab-manager-boston-massachusetts-united-states', 'whitespace must be trimmed');
+
+  // The slug is the only title available before spending a request, so the
+  // trailing UUID has to come off or every title reads as gibberish.
+  assert.strictEqual(
+    pageUpTitleFromUrl('https://careers.x.edu/jobs/research-associate-east-lansing-michigan-united-states-c9d8d397-9275-4dad-8188-ec21a4ceab6c'),
+    'research associate east lansing michigan united states'
+  );
+
+  const posting = extractJsonLdJobPosting(`<html><head>
+    <script type="application/ld+json">{"@type":"Organization","name":"X"}</script>
+    <script type="application/ld+json">{"@type":"JobPosting","title":"Research Associate","datePosted":"2026-07-01T10:00:00Z","validThrough":"2026-09-01T00:00:00Z","description":"<p>Runs a <b>genomics</b> lab.</p>","jobLocation":[{"address":{"addressLocality":"East Lansing","addressRegion":"Michigan"}}]}</script>
+  </head></html>`);
+  assert(posting, 'must find the JobPosting among several JSON-LD blocks');
+  assert.strictEqual(posting.title, 'Research Associate');
+
+  // A malformed block must not stop us finding a good one after it.
+  assert(extractJsonLdJobPosting('<script type="application/ld+json">{bad json</script>'
+    + '<script type="application/ld+json">{"@type":"JobPosting","title":"OK"}</script>'), 'malformed JSON-LD must not abort the scan');
+  assert.strictEqual(extractJsonLdJobPosting('<html>no structured data</html>'), null);
+
+  const job = mapPageUpJob('https://careers.x.edu/jobs/research-associate-abc', posting, {
+    id: 'x-university', ats_token: 'careers.x.edu'
+  });
+  assert.strictEqual(job.title, 'Research Associate');
+  assert.strictEqual(job.location, 'East Lansing, Michigan');
+  assert.strictEqual(job.source, 'pageup');
+  assert.strictEqual(job.deadline_raw, '2026-09-01', 'deadline must be date-only like the other adapters');
+  assert(!/[<>]/.test(job.description_text), 'description must be plain text');
+  assert(/genomics/.test(job.description_text));
+
+  // Challenge detection: this is the difference between "carry these jobs
+  // forward" and "tombstone every one of them".
+  assert.strictEqual(isChallengeResponse(''), true, 'empty body is a challenge');
+  assert.strictEqual(
+    isChallengeResponse('<!DOCTYPE html><html><head><title></title><script>window.awsWafCookie={}</script></head><body></body></html>'),
+    true,
+    'a complete-looking AWS WAF interstitial must still be detected'
+  );
+  assert.strictEqual(isChallengeResponse('<html><head><title>Just a moment...</title></head></html>'), true);
+  assert.strictEqual(
+    isChallengeResponse(`<html><head><title>Research Associate</title></head><body>${'x'.repeat(4000)}</body></html>`),
+    false,
+    'a real page must not be mistaken for a challenge'
+  );
+}
+
+function testAdpAdapter() {
+  const requisition = {
+    itemID: '9200983323121_1',
+    requisitionTitle: 'Research Assistant (Tropical Wildfires)',
+    postDate: '2026-07-29T15:39:00.000-04:00',
+    organizationalUnits: [{ nameCode: { shortName: 'Science' } }, { nameCode: { shortName: 'Wildfire Lab' } }],
+    requisitionLocations: [
+      { address: { cityName: 'Falmouth', countrySubdivisionLevel1: { codeValue: 'MA' } } },
+      { address: { cityName: '', countrySubdivisionLevel1: { codeValue: '' } }, nameCode: { shortName: ' Remote ' } }
+    ]
+  };
+  const job = mapAdpJob(requisition, { requisitionDescription: '<div><p>Study <b>fire</b> spread.</p></div>' }, {
+    id: 'woodwell', ats_token: 'cid-1', ats_config: { cid: 'cid-1' }
+  });
+  assert.strictEqual(job.title, 'Research Assistant (Tropical Wildfires)');
+  assert.strictEqual(job.location, 'Falmouth, MA; Remote');
+  assert.strictEqual(job.department, 'Science — Wildfire Lab');
+  assert.strictEqual(job.source, 'adp');
+  assert.strictEqual(job.description_text, 'Study fire spread.');
+  assert(job.url.includes('cid=cid-1') && job.url.includes('jobId=9200983323121_1'));
+
+  // An employer with no usable location must not produce an empty string —
+  // the dashboard's location filter treats '' and 'Unspecified' differently.
+  assert.strictEqual(adpLocation({ requisitionLocations: [] }), 'Unspecified');
+  assert.strictEqual(adpLocation({}), 'Unspecified');
+
+  // Detail-fetch failure is fail-soft: the list record still yields a job (it
+  // is dropped later for having no description, rather than crashing the run).
+  const noDetail = mapAdpJob(requisition, null, { id: 'w', ats_token: 't', ats_config: { cid: 't' } });
+  assert.strictEqual(noDetail.description_text, '');
+  assert.strictEqual(noDetail.title, 'Research Assistant (Tropical Wildfires)');
+}
+
+/**
+ * Pins ADP's real (badly behaved) paging contract, measured against live
+ * clients: every response is capped at 20 records however large $top is, and
+ * $skip is off by one. A driver written against the documented behaviour
+ * collected 60 of 130 postings and reported success — the other 70 would have
+ * been tombstoned as closed jobs.
+ */
+async function testAdpPagingContract() {
+  const originalFetch = globalThis.fetch;
+  const TOTAL = 130;
+  const corpus = Array.from({ length: TOTAL }, (_, i) => ({
+    itemID: `req_${i}`,
+    requisitionTitle: `Research Associate ${i}`,
+    requisitionLocations: [{ address: { cityName: 'Frankfort', countrySubdivisionLevel1: { codeValue: 'KY' } } }]
+  }));
+  let listCalls = 0;
+
+  globalThis.fetch = async (url) => {
+    const parsed = new URL(url);
+    const detailMatch = parsed.pathname.match(/job-requisitions\/(.+)$/);
+    if (detailMatch) {
+      return { ok: true, status: 200, json: async () => ({ requisitionDescription: '<p>Body</p>' }) };
+    }
+    listCalls += 1;
+    const skip = Number(parsed.searchParams.get('$skip') ?? 0);
+    // The two quirks, reproduced exactly.
+    const start = skip === 0 ? 0 : skip - 1;
+    const size = skip === 0 ? 19 : 20;
+    const batch = corpus.slice(start, start + size);
+    const body = { jobRequisitions: batch };
+    if (skip === 0) body.meta = { totalNumber: TOTAL };
+    return { ok: true, status: 200, json: async () => body };
+  };
+
+  try {
+    const jobs = await fetchAdpJobs({
+      id: 'kentucky-state', name: 'Kentucky State University', tier: 'auto',
+      ats_provider: 'adp', ats_token: 'cid-1', ats_config: { cid: 'cid-1' }
+    });
+    assert.strictEqual(jobs.length, TOTAL, `every declared posting must be collected, got ${jobs.length} of ${TOTAL}`);
+    assert.strictEqual(new Set(jobs.map((job) => job.id)).size, TOTAL, 'overlapping windows must not produce duplicates');
+    // Windows advance by 19, so 130 records need 7 list calls, not 130.
+    assert(listCalls <= 10, `paging should take a handful of calls, took ${listCalls}`);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  // A feed that comes back short of its own declared total must FAIL rather
+  // than return a partial list that reads as "these jobs closed".
+  globalThis.fetch = async (url) => {
+    const parsed = new URL(url);
+    if (/job-requisitions\/.+$/.test(parsed.pathname)) {
+      return { ok: true, status: 200, json: async () => ({ requisitionDescription: 'x' }) };
+    }
+    const skip = Number(parsed.searchParams.get('$skip') ?? 0);
+    const body = { jobRequisitions: skip === 0 ? corpus.slice(0, 19) : [] };
+    if (skip === 0) body.meta = { totalNumber: TOTAL };
+    return { ok: true, status: 200, json: async () => body };
+  };
+  try {
+    let threw = null;
+    try {
+      await fetchAdpJobs({ id: 'short', name: 'Short Feed U', ats_provider: 'adp', ats_token: 'c', ats_config: { cid: 'c' } });
+    } catch (error) {
+      threw = error;
+    }
+    assert(threw && /incomplete/.test(threw.message), 'a truncated ADP feed must raise, not silently return fewer jobs');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
+/**
+ * The dead-man switch's exit code IS the notification when no push channel is
+ * configured. Run it for real in a sandbox tree, because the thing being
+ * tested is the process exit status, not a return value.
+ */
+function testDeadmanExitContract() {
+  const os = require('os');
+  const { spawnSync } = require('child_process');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'radar-deadman-'));
+  const scriptDir = path.join(root, 'radar', 'scripts');
+  fs.mkdirSync(scriptDir, { recursive: true });
+  fs.mkdirSync(path.join(root, 'radar', 'data'), { recursive: true });
+  fs.copyFileSync(
+    path.resolve(__dirname, '../radar/scripts/deadman-check.js'),
+    path.join(scriptDir, 'deadman-check.js')
+  );
+
+  const reportPath = path.join(root, 'radar', 'data', 'refresh-report.json');
+  const writeReport = (patch) => fs.writeFileSync(reportPath, JSON.stringify({
+    refreshed_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    active_job_count: 100,
+    errored_employers: 0,
+    recall_anomalies: [],
+    ...patch
+  }));
+  const env = { ...process.env };
+  delete env.NTFY_TOPIC;
+  const run = (extraEnv = {}) => spawnSync(process.execPath, [path.join(scriptDir, 'deadman-check.js')], {
+    env: { ...env, ...extraEnv }, encoding: 'utf8'
+  });
+
+  writeReport();
+  assert.strictEqual(run().status, 0, 'a healthy pipeline must exit 0');
+
+  // The live 2026-08-04 case: stale, no ntfy topic, nowhere to send the alert.
+  writeReport({ refreshed_at: new Date(Date.now() - 13 * 60 * 60 * 1000).toISOString() });
+  const stale = run();
+  assert.strictEqual(stale.status, 1, 'a stale pipeline with no delivery channel must FAIL the run');
+  assert(/12\.\d+h ago|1[23]\.\d+h ago/.test(stale.stderr + stale.stdout), 'the reason must be logged');
+
+  // A recall anomaly is equally undeliverable, and equally must not read green.
+  writeReport({ recall_anomalies: [{ name: 'Somewhere University' }] });
+  assert.strictEqual(run().status, 1, 'a recall anomaly with no delivery channel must fail the run');
+
+  // The reason is also written to the Actions summary page when present.
+  const summaryPath = path.join(root, 'summary.md');
+  writeReport({ refreshed_at: new Date(Date.now() - 13 * 60 * 60 * 1000).toISOString() });
+  run({ GITHUB_STEP_SUMMARY: summaryPath });
+  assert(/Radar dead-man alert/.test(fs.readFileSync(summaryPath, 'utf8')), 'step summary must carry the alert');
+
+  // An unreadable report is still a failure, not a silent pass.
+  fs.writeFileSync(reportPath, 'not json');
+  assert.strictEqual(run().status, 1, 'an unreadable report must fail the run');
+
+  fs.rmSync(root, { recursive: true, force: true });
+}
+
 async function main() {
   testSharedAnalyzer();
   testNegationGuard();
@@ -2970,6 +3314,11 @@ async function main() {
   testProfileV2();
   await testRouterSelection();
   await testLocalExtraction();
+  await testRefreshPool();
+  testPageUpAdapter();
+  testAdpAdapter();
+  testDeadmanExitContract();
+  await testAdpPagingContract();
 
   console.log('Radar tests passed');
 }
