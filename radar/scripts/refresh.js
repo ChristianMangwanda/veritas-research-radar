@@ -243,7 +243,6 @@ const GOVERNMENTJOBS_DETAIL_DELAY_MS = 200;
 const USAJOBS_PAGE_SIZE = 500;
 const USAJOBS_MAX_PAGES_PER_QUERY = 5;
 const USAJOBS_PAGE_DELAY_MS = 300;
-const SUPPORTED_ATS_PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workday', 'oracle', 'ultipro', 'recruitee', 'breezy', 'workable', 'usajobs', 'peopleadmin', 'successfactors', 'eightfold', 'paylocity', 'interfolio', 'governmentjobs'];
 
 const SIGNAL_PATTERNS = {
   cap_exempt_language: [
@@ -1975,6 +1974,14 @@ const ATS_FETCHERS = {
   usajobs: fetchUsaJobsJobs,
   peopleadmin: fetchPeopleAdminJobs
 };
+
+// The allowlist IS the dispatch table — a provider is supported exactly when a
+// fetcher exists to serve it. This used to be a second, hand-maintained literal
+// and the two drifted: the adp and pageup adapters shipped wired into
+// ATS_FETCHERS but were never added to the list, so the 46 promoted ADP
+// employers failed validateEmployer and took every refresh down with them for
+// ~9h on 2026-08-05. Deriving it means adding a fetcher is the only step.
+const SUPPORTED_ATS_PROVIDERS = Object.keys(ATS_FETCHERS);
 
 // A few employers genuinely run two separate ATS feeds — most commonly a
 // Workday/PeopleAdmin/Oracle board for staff and a completely separate

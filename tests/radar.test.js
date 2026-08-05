@@ -52,7 +52,9 @@ const {
   mapPageUpJob,
   mapAdpJob,
   adpLocation,
-  fetchAdpJobs
+  fetchAdpJobs,
+  validateEmployer,
+  ATS_FETCHERS
 } = require('../radar/scripts/refresh.js');
 const {
   parseIpedsCsv,
@@ -3066,6 +3068,39 @@ async function testAdpPagingContract() {
 }
 
 /**
+ * validateEmployer throws, and it throws before a single feed is fetched — so
+ * one malformed registry entry doesn't degrade the run, it deletes it. That is
+ * the right behaviour for committed config, but it means the registry file and
+ * the code that reads it have to be checked together, which nothing did: 46 ADP
+ * employers were promoted into employers.json while 'adp' was missing from the
+ * provider allowlist, and every refresh died on the first one for ~9h until the
+ * dead-man switch called it (2026-08-05).
+ *
+ * So run the real validator over the real registry. Any promotion that writes a
+ * provider the fetcher table can't serve now fails here instead of at 03:29 UTC.
+ */
+function testRegistryValidates() {
+  const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'radar', 'employers.json'), 'utf8'));
+  const employers = Array.isArray(registry) ? registry : registry.employers;
+  assert(Array.isArray(employers) && employers.length, 'employers.json must hold a non-empty employer list');
+
+  for (const employer of employers) {
+    assert.doesNotThrow(() => validateEmployer(employer), `committed registry entry ${employer.id} fails validateEmployer`);
+  }
+
+  // The allowlist is derived from ATS_FETCHERS, so a provider that validates is
+  // guaranteed dispatchable. Assert the property directly: a derivation that
+  // regresses to a hand-maintained literal should break this, not production.
+  const used = new Set(employers.flatMap((employer) => [
+    employer.ats_provider,
+    ...(employer.secondary_ats_feeds || []).map((feed) => feed.ats_provider)
+  ]).filter(Boolean));
+  for (const provider of used) {
+    assert(typeof ATS_FETCHERS[provider] === 'function', `registry uses ats_provider "${provider}" with no fetcher in ATS_FETCHERS`);
+  }
+}
+
+/**
  * The dead-man switch's exit code IS the notification when no push channel is
  * configured. Run it for real in a sandbox tree, because the thing being
  * tested is the process exit status, not a return value.
@@ -3179,6 +3214,7 @@ async function main() {
   await testRefreshPool();
   testPageUpAdapter();
   testAdpAdapter();
+  testRegistryValidates();
   testDeadmanExitContract();
   await testAdpPagingContract();
 
