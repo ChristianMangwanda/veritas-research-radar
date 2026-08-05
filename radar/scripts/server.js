@@ -10,6 +10,7 @@ const {
   JUDGMENT_SCHEMA, JUDGE_SYSTEM_PROMPT, judgeUserPrompt, matchCacheKey, normalizeJudgment
 } = require('./lib/match.js');
 const { parseProfileDocument } = require('./lib/profile-doc.js');
+const { createFlushScheduler } = require('./lib/flush-scheduler.js');
 const { DEFAULT_MODEL, readKey, judgeOnce, costOf } = require('./lib/openai.js');
 const RadarScoring = require('../public/scoring.js');
 
@@ -215,19 +216,24 @@ async function loadMatchCache() {
   matchCache.loaded = true;
 }
 
-let matchFlushTimer = null;
+// Debounced, with a ceiling so a fast producer cannot starve the writer —
+// see lib/flush-scheduler.js for what went wrong without one.
+const matchFlusher = createFlushScheduler({
+  flush: () => writeJson(MATCH_CACHE_PATH, { schema_version: 1, entries: matchCache.entries })
+});
+
 function scheduleMatchCacheFlush() {
-  matchCache.dirty = true;
-  clearTimeout(matchFlushTimer);
-  matchFlushTimer = setTimeout(async () => {
-    if (!matchCache.dirty) return;
-    matchCache.dirty = false;
-    try {
-      await writeJson(MATCH_CACHE_PATH, { schema_version: 1, entries: matchCache.entries });
-    } catch (error) {
-      console.error(`[match] could not persist cache: ${error.message}`);
-    }
-  }, 3000);
+  matchFlusher.schedule();
+}
+
+// Last line of defence: judgments cost money, so never let a Ctrl-C or a
+// launchd stop throw away work that has already been paid for.
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, () => {
+    matchFlusher.flushNow()
+      .catch((error) => console.error(`[match] could not persist cache on exit: ${error.message}`))
+      .finally(() => process.exit(0));
+  });
 }
 
 /* A background queue, not a blocking call.

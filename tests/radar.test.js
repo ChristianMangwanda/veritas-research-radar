@@ -1994,6 +1994,69 @@ function testProfessionGate() {
  * how it is read decides what gets surfaced. These pin the two places it can
  * quietly lose something: a capability swallowed by punctuation, and a skill
  * dropped for being too short to match. */
+/* The bug this exists to prevent: a debounce that never fires.
+ *
+ * The judgment cache used a plain debounce, correct while a judgment took 20
+ * seconds. Six API workers land one every few hundred milliseconds, every
+ * write pushed the deadline back, and the file went 42 minutes untouched
+ * holding ~2,900 paid-for judgments. Nothing errored — the writes simply
+ * stopped. A policy about time needs a test about time. */
+async function testFlushScheduler() {
+  const { createFlushScheduler } = require('../radar/scripts/lib/flush-scheduler.js');
+
+  // A hand-cranked clock and timer queue, so this runs in microseconds.
+  let clock = 1000;
+  let queued = null;
+  const setTimer = (fn, ms) => { queued = { fn, at: clock + ms }; return 1; };
+  const clearTimer = () => { queued = null; };
+  const tick = async (ms) => {
+    clock += ms;
+    if (queued && clock >= queued.at) { const { fn } = queued; queued = null; await fn(); }
+  };
+
+  let writes = 0;
+  const s = createFlushScheduler({
+    flush: async () => { writes += 1; },
+    debounceMs: 3000,
+    maxWaitMs: 15000,
+    now: () => clock,
+    setTimer,
+    clearTimer
+  });
+
+  // Quiet period: a burst still coalesces into one write.
+  s.schedule(); s.schedule(); s.schedule();
+  await tick(3000);
+  assert.strictEqual(writes, 1, 'a burst coalesces');
+
+  // Sustained load: a write every 500ms, far faster than the 3s debounce.
+  // The old code wrote NOTHING here. The ceiling must force writes through.
+  for (let i = 0; i < 60; i += 1) { s.schedule(); await tick(500); }
+  assert(writes >= 2, `sustained writes must still reach disk (got ${writes})`);
+  // 30s of continuous load at a 15s ceiling: at least one forced flush.
+  assert(writes <= 12, `but not one write per judgment either (got ${writes})`);
+
+  // Shutdown must not drop work that is already paid for.
+  const before = writes;
+  s.schedule();
+  await s.flushNow();
+  assert.strictEqual(writes, before + 1, 'flushNow persists immediately');
+  assert.strictEqual(s.pending, false);
+
+  // A failed write keeps the work queued rather than silently dropping it.
+  let fail = true;
+  const flaky = createFlushScheduler({
+    flush: async () => { if (fail) throw new Error('disk full'); },
+    debounceMs: 1, now: () => clock, setTimer, clearTimer
+  });
+  flaky.schedule();
+  await assert.rejects(() => flaky.flushNow(), /disk full/);
+  assert.strictEqual(flaky.pending, true, 'a failed write stays dirty');
+  fail = false;
+  await flaky.flushNow();
+  assert.strictEqual(flaky.pending, false);
+}
+
 function testProfileDocument() {
   const { parseProfileDocument, parseCapabilities } = require('../radar/scripts/lib/profile-doc.js');
 
@@ -3094,6 +3157,7 @@ async function main() {
   testRoleTrack();
   testQualifiedPredicate();
   testProfessionGate();
+  await testFlushScheduler();
   testProfileDocument();
   testJudgedMatch();
   testManifestSync();
