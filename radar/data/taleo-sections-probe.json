@@ -1,0 +1,694 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-06T18:08:20.187Z",
+  "hosts_probed": 19,
+  "hosts_readable": 9,
+  "total_requisitions": 2346,
+  "hosts": [
+    {
+      "host": "stgwehealny.taleo.net",
+      "claimed_by": [
+        "ICAHN SCHOOL OF MEDICINE AT MOUNT SINAI"
+      ],
+      "sections": [],
+      "total_requisitions": 0,
+      "status": "no_section_found",
+      "suggested_ats_config": null,
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 5,
+        "proposed_codes": [],
+        "careers_page_url": "https://careers.mountsinai.org/",
+        "confidence": "low",
+        "notes": "Mount Sinai’s published careers page was found, but no career-section URL on the specified staging tenant (stgwehealny.taleo.net) was directly published or verifiable. Search results show the related production host wehealny.taleo.net with sections 2, 3, and 6, but those codes were not inferred for the staging tenant."
+      }
+    },
+    {
+      "host": "uab.taleo.net",
+      "claimed_by": [
+        "UNIVERSITY OF ALABAMA AT BIRMINGHAM"
+      ],
+      "sections": [
+        {
+          "code": "ext",
+          "portal": "8100108034",
+          "total": 300,
+          "sample_titles": [
+            "RESEARCH ENGINEER III",
+            "FINANCIAL OFFICER II",
+            "INSTRUCTOR-PROFESSIONAL STUDIES & LEARNING"
+          ]
+        }
+      ],
+      "total_requisitions": 300,
+      "status": "readable",
+      "suggested_ats_config": {
+        "host": "uab.taleo.net",
+        "sections": [
+          {
+            "code": "ext",
+            "portal": "8100108034"
+          }
+        ]
+      }
+    },
+    {
+      "host": "wvu.taleo.net",
+      "claimed_by": [
+        "WEST VIRGINIA UNIVERSITY"
+      ],
+      "sections": [
+        {
+          "code": "staff",
+          "portal": "8100120139",
+          "total": 134,
+          "sample_titles": [
+            "PRT Guideway Technician - Transportation & Parking",
+            "Pre-Kindergarten Lead Teacher – WVU Early Learning Institute",
+            "Night Operations Desk Manager - Housing & Residence Life"
+          ]
+        },
+        {
+          "code": "faculty",
+          "portal": "26100021550",
+          "total": 102,
+          "sample_titles": [
+            "Surgical Technology Program Director- Potomac State College",
+            "Postdoctoral Fellow - School of Natural Resources and the Environment",
+            "Postdoctoral Research Associate - Department of Biology"
+          ]
+        }
+      ],
+      "total_requisitions": 236,
+      "status": "readable",
+      "suggested_ats_config": {
+        "host": "wvu.taleo.net",
+        "sections": [
+          {
+            "code": "staff",
+            "portal": "8100120139"
+          },
+          {
+            "code": "faculty",
+            "portal": "26100021550"
+          }
+        ]
+      }
+    },
+    {
+      "host": "temple.taleo.net",
+      "claimed_by": [
+        "TEMPLE UNIVERSITY"
+      ],
+      "sections": [
+        {
+          "code": "tu_ex_staff",
+          "portal": "8100123629",
+          "total": 96,
+          "sample_titles": [
+            "Program Coordinator",
+            "Assistant Director Finance - Lewis Katz School of Medicine",
+            "PT School-Based Liaison, TPSN"
+          ]
+        },
+        {
+          "code": "tu_ex_faculty",
+          "portal": "28100025969",
+          "total": 11,
+          "sample_titles": [
+            "Non-Tenure-Track Assistant Professor of Research - Genetic Variation and Evolution (IGEM)",
+            "Non-Tenure Track Assistant Professor of Research – Genomics",
+            "Nursing Instructional Faculty - Multiple Positions"
+          ]
+        },
+        {
+          "code": "tu_ex_adjunct",
+          "portal": "10100123629",
+          "total": 11,
+          "sample_titles": [
+            "Adjunct Instructor - JRN Main",
+            "Adjunct Faculty - COMM inside PA",
+            "Adjunct Faculty - COMM outside PA"
+          ]
+        }
+      ],
+      "total_requisitions": 118,
+      "status": "readable",
+      "suggested_ats_config": {
+        "host": "temple.taleo.net",
+        "sections": [
+          {
+            "code": "tu_ex_staff",
+            "portal": "8100123629"
+          },
+          {
+            "code": "tu_ex_faculty",
+            "portal": "28100025969"
+          },
+          {
+            "code": "tu_ex_adjunct",
+            "portal": "10100123629"
+          }
+        ]
+      },
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 4,
+        "proposed_codes": [
+          "tu_ex_staff",
+          "tu_ex_faculty",
+          "tu_ex_adjunct"
+        ],
+        "careers_page_url": "https://careers.temple.edu/careers-temple/search-and-apply-jobs",
+        "confidence": "high",
+        "notes": "Temple University’s official Search and Apply For Jobs page publishes Taleo links for external staff, full-time faculty, and external adjunct faculty positions."
+      }
+    },
+    {
+      "host": "uth.taleo.net",
+      "claimed_by": [
+        "UNIVERSITY OF TEXAS HEALTH SCIENCE CENTER AT HOUSTON"
+      ],
+      "sections": [],
+      "total_requisitions": 0,
+      "status": "no_section_found",
+      "suggested_ats_config": null,
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 4,
+        "proposed_codes": [
+          "ex"
+        ],
+        "careers_page_url": "https://careers.uth.tmc.edu/us/en/home",
+        "confidence": "high",
+        "notes": "UTHealth Houston’s published applicant link resolves to the Taleo tenant and uses career section code ex. The observed URL is a job-application page within that section."
+      }
+    },
+    {
+      "host": "gsu.taleo.net",
+      "claimed_by": [
+        "GEORGIA STATE UNIVERSITY"
+      ],
+      "sections": [],
+      "total_requisitions": 0,
+      "status": "no_section_found",
+      "suggested_ats_config": null,
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 4,
+        "proposed_codes": [
+          "1",
+          "2",
+          "panthtemps",
+          "22"
+        ],
+        "careers_page_url": "https://hr.gsu.edu/careers/",
+        "confidence": "high",
+        "notes": "Georgia State’s official HR careers page links to the external, internal, and Panther Temps Taleo boards. Section 1 is the internal board, section 2 is the general/external board, and panthtemps is the Panther Temps board. Section 22 was also found as a Georgia State Taleo job-search URL. ([hr.gsu.edu](https://hr.gsu.edu/careers/))"
+      }
+    },
+    {
+      "host": "smu.taleo.net",
+      "claimed_by": [
+        "SOUTHERN METHODIST UNIVERSITY"
+      ],
+      "sections": [
+        {
+          "code": "ex",
+          "portal": "101430233",
+          "total": 49,
+          "sample_titles": [
+            "Senior Event Manager (HR Title: Meeting Event Planner II)",
+            "Graduate Recruiter (HR Title: Student Recruiter II)",
+            "Community Life Chef (HR Title: Lead Food Service Worker)"
+          ]
+        }
+      ],
+      "total_requisitions": 49,
+      "status": "readable",
+      "suggested_ats_config": {
+        "host": "smu.taleo.net",
+        "sections": [
+          {
+            "code": "ex",
+            "portal": "101430233"
+          }
+        ]
+      }
+    },
+    {
+      "host": "umb.taleo.net",
+      "claimed_by": [
+        "UNIVERSITY OF MARYLAND BALTIMORE"
+      ],
+      "sections": [],
+      "total_requisitions": 0,
+      "status": "no_section_found",
+      "suggested_ats_config": null,
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 3,
+        "proposed_codes": [
+          "umb_external_staff",
+          "umb_faculty%2Band%2Bpost%2Bdocs"
+        ],
+        "careers_page_url": "https://www.umaryland.edu/hr/careers-at-umb/",
+        "confidence": "high",
+        "notes": "The University of Maryland, Baltimore careers page publishes separate links for Staff Employment Opportunities and Faculty and Postdoc Positions. Both point to the umb.taleo.net tenant."
+      }
+    },
+    {
+      "host": "tcnj.taleo.net",
+      "claimed_by": [
+        "COLLEGE OF NEW JERSEY"
+      ],
+      "sections": [
+        {
+          "code": "00_ex_faculty",
+          "portal": "16200011148",
+          "total": 5,
+          "sample_titles": [
+            "Assistant Professor-Biology",
+            "Visiting Assistant Professor-Kinesiology & Health Sciences",
+            "Visiting Assistant Professor-Civil Engineering"
+          ]
+        },
+        {
+          "code": "00_adjuncts",
+          "portal": "16300011148",
+          "total": 5,
+          "sample_titles": [
+            "Adjunct Biology - Fall 2026",
+            "Fall 2026 Adjunct Nursing ",
+            "Biology Adjunct - Fall 2026"
+          ]
+        },
+        {
+          "code": "00_ex_staff",
+          "portal": "8100011148",
+          "total": 23,
+          "sample_titles": [
+            "Grounds Worker",
+            "Grounds Worker",
+            "Clinical Coordinator"
+          ]
+        },
+        {
+          "code": "00_student%2Bworkers%2Band%2Bwork%2Bstudy",
+          "portal": "12100011148",
+          "total": 33,
+          "sample_titles": [
+            "CES Student Assistant 2026-27",
+            "AY26-27 Digital Content Producer",
+            "AY26-27 Team Engineering Student Ambassador"
+          ]
+        }
+      ],
+      "total_requisitions": 66,
+      "status": "readable",
+      "suggested_ats_config": {
+        "host": "tcnj.taleo.net",
+        "sections": [
+          {
+            "code": "00_ex_faculty",
+            "portal": "16200011148"
+          },
+          {
+            "code": "00_adjuncts",
+            "portal": "16300011148"
+          },
+          {
+            "code": "00_ex_staff",
+            "portal": "8100011148"
+          },
+          {
+            "code": "00_student%2Bworkers%2Band%2Bwork%2Bstudy",
+            "portal": "12100011148"
+          }
+        ]
+      },
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 3,
+        "proposed_codes": [
+          "00_ex_faculty",
+          "00_adjuncts",
+          "00_ex_staff",
+          "00_internal",
+          "00_student%2Bworkers%2Band%2Bwork%2Bstudy"
+        ],
+        "careers_page_url": "https://careers.tcnj.edu/",
+        "confidence": "high",
+        "notes": "The College of New Jersey careers page publishes Faculty, Adjunct Faculty, Staff/Administrative, Internal Employment, and Student Employment Taleo links."
+      }
+    },
+    {
+      "host": "colum.taleo.net",
+      "claimed_by": [
+        "COLUMBIA COLLEGE CHICAGO"
+      ],
+      "sections": [],
+      "total_requisitions": 0,
+      "status": "no_section_found",
+      "suggested_ats_config": null,
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 3,
+        "proposed_codes": [
+          "ex",
+          "in"
+        ],
+        "careers_page_url": "https://about.colum.edu/human-resources/employment",
+        "confidence": "high",
+        "notes": "Columbia College Chicago’s careers page publishes separate links for external candidates and internal candidates. The external link resolves to the ex section; the internal link targets the in section."
+      }
+    },
+    {
+      "host": "cu.taleo.net",
+      "claimed_by": [
+        "UNIVERSITY OF COLORADO DENVER ANSCHUTZ MEDICAL CAMPUS",
+        "UNIVERSITY OF COLORADO COLORADO SPRINGS",
+        "UNIVERSITY OF COLORADO SYSTEM OFFICE"
+      ],
+      "sections": [],
+      "total_requisitions": 0,
+      "status": "no_section_found",
+      "suggested_ats_config": null,
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 1,
+        "proposed_codes": [
+          "2"
+        ],
+        "careers_page_url": "https://www.cu.edu/cu-careers",
+        "confidence": "high",
+        "notes": "The University of Colorado CU Careers pages publish the Taleo job-search URL using career-section code 2. This board covers CU Denver, CU Anschutz, UCCS, and CU System Administration."
+      }
+    },
+    {
+      "host": "ga.taleo.net",
+      "claimed_by": [
+        "ATLANTA TECHNICAL COLLEGE"
+      ],
+      "sections": [],
+      "total_requisitions": 0,
+      "status": "no_section_found",
+      "suggested_ats_config": null,
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 4,
+        "proposed_codes": [
+          "ga_external"
+        ],
+        "careers_page_url": "https://www.atlantatech.edu/",
+        "confidence": "high",
+        "notes": "Atlanta Technical College’s official website publishes an Employment link to ga.taleo.net. The linked Taleo career section is the Georgia external jobs board. I found no separate Atlanta Technical College-specific Taleo section URL published by ATC."
+      }
+    },
+    {
+      "host": "cccconnect.taleo.net",
+      "claimed_by": [
+        "CITY COLLEGES OF CHICAGO KENNEDY KING COLLEGE",
+        "CITY COLLEGES OF CHICAGO MALCOLM X COLLEGE",
+        "CITY COLLEGES OF CHICAGO OLIVE HARVEY COLLEGE",
+        "CITY COLLEGES OF CHICAGO HARRY S TRUMAN COLLEGE",
+        "CITY COLLEGES OF CHICAGO RICHARD J DALEY COLLEGE",
+        "CITY COLLEGES OF CHICAGO HAROLD WASHINGTON COLLEGE",
+        "CITY COLLEGES OF CHICAGO WILBUR WRIGHT COLLEGE",
+        "CITY COLLEGES OF CHICAGO DISTRICT OFFICE"
+      ],
+      "sections": [],
+      "total_requisitions": 0,
+      "status": "no_section_found",
+      "suggested_ats_config": null,
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 4,
+        "proposed_codes": [
+          "2"
+        ],
+        "careers_page_url": "https://www.ccc.edu/departments/recruiting/",
+        "confidence": "high",
+        "notes": "City Colleges of Chicago’s official Talent Acquisition page links to its employment portal. An indexed portal URL for the same cccconnect.taleo.net tenant shows careersection/2; the official portal login URL also contains careersection/2."
+      }
+    },
+    {
+      "host": "towson.taleo.net",
+      "claimed_by": [
+        "TOWSON UNIVERSITY"
+      ],
+      "sections": [
+        {
+          "code": "fac_ex",
+          "portal": "8100026200",
+          "total": 23,
+          "sample_titles": [
+            "Assistant Professor, Forensic Chemistry",
+            "Assistant Professor of Political Science",
+            "Assistant Professor of Public Relations"
+          ]
+        }
+      ],
+      "total_requisitions": 23,
+      "status": "readable",
+      "suggested_ats_config": {
+        "host": "towson.taleo.net",
+        "sections": [
+          {
+            "code": "fac_ex",
+            "portal": "8100026200"
+          }
+        ]
+      },
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 3,
+        "proposed_codes": [
+          "ex",
+          "in",
+          "fac_ex"
+        ],
+        "careers_page_url": "https://www.towson.edu/hr/employment/",
+        "confidence": "high",
+        "notes": "Towson University's Employment at TU page publishes external staff, internal staff, and faculty employment links. The faculty URL with section code fac_ex is also explicitly documented in a Towson University faculty hiring guide."
+      }
+    },
+    {
+      "host": "upmcjobs.taleo.net",
+      "claimed_by": [
+        "UPMC ST MARGARET SCHOOL OF NURSING",
+        "UPMC JAMESON SCHOOL OF NURSING",
+        "UPMC MERCY SCHOOL OF NURSING",
+        "UPMC SHADYSIDE SCHOOL OF NURSING"
+      ],
+      "sections": [],
+      "total_requisitions": 0,
+      "status": "no_section_found",
+      "suggested_ats_config": null,
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 4,
+        "proposed_codes": [
+          "upmc_external",
+          "upmc_internal"
+        ],
+        "careers_page_url": "https://www.upmc.com/healthcare-professionals/education/schools-of-nursing",
+        "confidence": "high",
+        "notes": "UPMC’s published careers pages resolve to the UPMC Taleo tenant. I found both the external and internal career sections. The URLs actually observed were jobview.ftl endpoints; no jobsearch.ftl endpoint was directly exposed in the sources reviewed."
+      }
+    },
+    {
+      "host": "cfopitt.taleo.net",
+      "claimed_by": [
+        "UNIVERSITY OF PITTSBURGH PITTSBURGH CAMPUS",
+        "UNIVERSITY OF PITTSBURGH BRADFORD",
+        "UNIVERSITY OF PITTSBURGH GREENSBURG"
+      ],
+      "sections": [
+        {
+          "code": "pitt_staff_external",
+          "portal": "14200023232",
+          "total": 208,
+          "sample_titles": [
+            "Senior Director, Growth & Revenue Cycle",
+            "Academic Administrative Coordinator",
+            "Academic Advisor"
+          ]
+        },
+        {
+          "code": "pitt_faculty_external",
+          "portal": "12100023232",
+          "total": 171,
+          "sample_titles": [
+            "ADJUNCT FACULTY PROFESSOR - Litigation Strategy & Planning",
+            "Part-Time Instructor – Introduction to Performance",
+            "Faculty.Professor.Clinical Associate - Part-Time"
+          ]
+        },
+        {
+          "code": "pitt_faculty_external_pd",
+          "portal": "24100023232",
+          "total": 37,
+          "sample_titles": [
+            "Post Doctoral.Post Doctoral.Associate",
+            "Post Doctoral.Post Doctoral.Associate",
+            "Post Doctoral Associate"
+          ]
+        },
+        {
+          "code": "pitt_temp_external",
+          "portal": "16100023232",
+          "total": 36,
+          "sample_titles": [
+            "Donor Relations Coordinator",
+            "Research (Professional)",
+            "Communications Specialist"
+          ]
+        }
+      ],
+      "total_requisitions": 452,
+      "status": "readable",
+      "suggested_ats_config": {
+        "host": "cfopitt.taleo.net",
+        "sections": [
+          {
+            "code": "pitt_staff_external",
+            "portal": "14200023232"
+          },
+          {
+            "code": "pitt_faculty_external",
+            "portal": "12100023232"
+          },
+          {
+            "code": "pitt_faculty_external_pd",
+            "portal": "24100023232"
+          },
+          {
+            "code": "pitt_temp_external",
+            "portal": "16100023232"
+          }
+        ]
+      },
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 5,
+        "proposed_codes": [
+          "pitt_staff_external",
+          "pitt_faculty_external",
+          "pitt_faculty_external_pd",
+          "pitt_temp_external",
+          "pitt_internal",
+          "pitt_faculty_internal",
+          "pitt_student_int"
+        ],
+        "careers_page_url": "https://www.join.pitt.edu/find-positions",
+        "confidence": "high",
+        "notes": "The University of Pittsburgh's current Careers/Talent Center pages publish or resolve to these Taleo career sections. The faculty external and internal URLs were directly followed from Pitt's faculty appointments page; internal and student URLs were directly followed from the Find Positions page. Staff, postdoctoral, and temporary sections were also published in Pitt-related career references. ([join.pitt.edu](https://www.join.pitt.edu/find-positions))"
+      }
+    },
+    {
+      "host": "schneider.taleo.net",
+      "claimed_by": [
+        "ADVANCED CAREER INSTITUTE"
+      ],
+      "sections": [
+        {
+          "code": "1",
+          "portal": "201430233",
+          "total": 428,
+          "sample_titles": [
+            "Dedicated Team truck driver | Top drivers earn up to $106,000 | Up to $20,000 sign-on bonus per team",
+            "Intermodal truck driver | 4 day work schedule - Top drivers earn up to $67,000 | $2,000 sign-on bonus",
+            "Intermodal truck driver | Top drivers earn up to $87,000 | $10,000 sign-on bonus"
+          ]
+        }
+      ],
+      "total_requisitions": 428,
+      "status": "readable",
+      "suggested_ats_config": {
+        "host": "schneider.taleo.net",
+        "sections": [
+          {
+            "code": "1",
+            "portal": "201430233"
+          }
+        ]
+      }
+    },
+    {
+      "host": "utsw.taleo.net",
+      "claimed_by": [
+        "UNIVERSITY OF TEXAS SOUTHWESTERN MEDICAL CENTER"
+      ],
+      "sections": [
+        {
+          "code": "2",
+          "portal": "101430233",
+          "total": 571,
+          "sample_titles": [
+            "Administrative Associate, Pediatric Pulmonology  & Sleep Medicine ",
+            "Coding Specialist III - Inpatient",
+            "Advanced Pharmacy Technician, Infusion Services"
+          ]
+        },
+        {
+          "code": "3",
+          "portal": "8100100309",
+          "total": 23,
+          "sample_titles": [
+            "CLINICAL ASSOCIATE PROFESSOR",
+            "Neuro-Oncology - Clinical Physician ",
+            "Stroke Neurologist- Clinical Physician"
+          ]
+        },
+        {
+          "code": "4",
+          "portal": "8200100309",
+          "total": 80,
+          "sample_titles": [
+            "Student Worker- S. Desai",
+            "Visiting Sr. Researcher, Internal Medicine",
+            "Student Worker- Faz"
+          ]
+        }
+      ],
+      "total_requisitions": 674,
+      "status": "readable",
+      "suggested_ats_config": {
+        "host": "utsw.taleo.net",
+        "sections": [
+          {
+            "code": "2",
+            "portal": "101430233"
+          },
+          {
+            "code": "3",
+            "portal": "8100100309"
+          },
+          {
+            "code": "4",
+            "portal": "8200100309"
+          }
+        ]
+      }
+    },
+    {
+      "host": "cna.taleo.net",
+      "claimed_by": [
+        "VERVE COLLEGE"
+      ],
+      "sections": [],
+      "total_requisitions": 0,
+      "status": "no_section_found",
+      "suggested_ats_config": null,
+      "web_lookup": {
+        "model": "gpt-5.6-luna",
+        "searches": 4,
+        "proposed_codes": [],
+        "careers_page_url": "https://vervecollege.edu/contact-us/employment/",
+        "confidence": "low",
+        "notes": "Verve College’s employment page lists openings and instructs applicants to apply by email/fax; it does not publish a Taleo URL. The only indexed cna.taleo.net URL found is https://cna.taleo.net/careersection/2/jobsearch.ftl, which is associated with CNA Insurance/CNA Health Partners, not Verve College, so it was excluded."
+      }
+    }
+  ]
+}

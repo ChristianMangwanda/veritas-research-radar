@@ -15,6 +15,9 @@ const {
   mapWorkdayJob,
   mapOracleJob,
   mapUltiproJob,
+  mapTaleoJob,
+  parseTaleoDetailPage,
+  parseTaleoLocation,
   parseSuccessFactorsSitemap,
   parseSuccessFactorsJobPage,
   mapSuccessFactorsJob,
@@ -3177,6 +3180,101 @@ async function testCsodPagingContract() {
   }
 }
 
+function testTaleoAdapter() {
+  const employer = {
+    id: 'university-of-alabama-at-birmingham',
+    ats_token: 'uab',
+    ats_config: { host: 'uab.taleo.net', sections: [{ code: 'ext', portal: '8100108034' }] },
+    research_areas: []
+  };
+  const section = { code: 'ext', portal: '8100108034' };
+
+  // The location column arrives as a JSON array string, not a plain value.
+  assert.strictEqual(parseTaleoLocation('["Birmingham, AL"]'), 'Birmingham, AL');
+  assert.strictEqual(parseTaleoLocation('["Birmingham, AL","Huntsville, AL"]'), 'Birmingham, AL; Huntsville, AL');
+  assert.strictEqual(parseTaleoLocation('University'), 'University');
+  assert.strictEqual(parseTaleoLocation('[not json'), '[not json');
+  assert.strictEqual(parseTaleoLocation(''), null);
+
+  const listItem = {
+    jobId: '323877',
+    contestNo: 'T238419',
+    locationsColumns: [1],
+    column: ['RESEARCH ENGINEER III', '["Birmingham, AL"]', 'Aug 6, 2026']
+  };
+  const job = mapTaleoJob(listItem, { description_text: 'Design mechanical systems.' }, employer, section);
+  // The id keys on the requisition number a human sees, not the internal jobId,
+  // because contestNo survives a re-posting and jobId does not.
+  assert.strictEqual(job.id, 'taleo:uab:T238419');
+  assert.strictEqual(job.source, 'taleo');
+  assert.strictEqual(job.source_job_id, 'T238419');
+  assert.strictEqual(job.title, 'RESEARCH ENGINEER III');
+  assert.strictEqual(job.location, 'Birmingham, AL');
+  assert.strictEqual(job.description_text, 'Design mechanical systems.');
+  assert.strictEqual(job.url, 'https://uab.taleo.net/careersection/ext/jobdetail.ftl?job=323877&lang=en');
+
+  // locationsColumns names the location column; it is not always index 1.
+  const shifted = mapTaleoJob({
+    jobId: '9', contestNo: 'T9', locationsColumns: [2],
+    column: ['POSTDOCTORAL FELLOW', 'Research', '["Morgantown, WV"]', 'Aug 1, 2026']
+  }, null, employer, section);
+  assert.strictEqual(shifted.location, 'Morgantown, WV');
+  // A failed detail fetch still yields a usable record rather than dropping it.
+  assert.strictEqual(shifted.description_text, '');
+
+  // The description sits in a hidden initialHistory input, double-encoded,
+  // segments joined by !*! with segment 0 holding metadata.
+  const encoded = encodeURIComponent(encodeURIComponent('<p>Run assays.</p>'));
+  const html = `<input type="hidden" name="initialHistory" value="ftlx0!|!x!|!RESEARCH ENGINEER III!|!T238419!*!${encoded}!*!${encoded}" />`;
+  const parsed = parseTaleoDetailPage(html);
+  assert.strictEqual(parsed.description_text, 'Run assays.');
+  assert.strictEqual(parsed.contest_no, 'T238419');
+
+  // A literal percent in the posting used to make decodeURIComponent throw on
+  // the whole string, silently leaving the description URL-encoded. Decoding
+  // escape-by-escape until it settles is what keeps those postings readable.
+  const withPercent = encodeURIComponent(encodeURIComponent('<p>100% effort required.</p>'));
+  assert.strictEqual(
+    parseTaleoDetailPage(`<input name="initialHistory" value="a!|!b!*!${withPercent}" />`).description_text,
+    '100% effort required.'
+  );
+
+  // Taleo escapes its own delimiters with a backslash.
+  const escaped = encodeURIComponent(encodeURIComponent('Contact\\: hr@uab.edu'));
+  assert.strictEqual(
+    parseTaleoDetailPage(`<input name="initialHistory" value="a!|!b!*!${escaped}" />`).description_text,
+    'Contact: hr@uab.edu'
+  );
+
+  // No initialHistory at all -> empty, never a crash.
+  assert.deepStrictEqual(parseTaleoDetailPage('<html></html>'), { description_text: '', location: null });
+
+  // A tenant may run several career sections holding DIFFERENT jobs (WVU keeps
+  // its postdocs in `faculty`, not `staff`), so config validation must accept a
+  // list and reject a section that lacks the portal the REST call needs.
+  const base = {
+    id: 'wvu', name: 'West Virginia University', type: 'ihe',
+    cap_exempt_status: 'strong', evidence_sources: ['ipeds'],
+    careers_url: 'https://wvu.taleo.net/careersection/staff/jobsearch.ftl',
+    ats_provider: 'taleo', ats_token: 'wvu'
+  };
+  validateEmployer({
+    ...base,
+    ats_config: {
+      host: 'wvu.taleo.net',
+      sections: [{ code: 'staff', portal: '8100120139' }, { code: 'faculty', portal: '26100021550' }]
+    }
+  });
+  assert.throws(
+    () => validateEmployer({ ...base, ats_config: { host: 'wvu.taleo.net', sections: [{ code: 'staff' }] } }),
+    /sections needs \{code, portal\}/
+  );
+  assert.throws(
+    () => validateEmployer({ ...base, ats_config: { sections: [{ code: 'staff', portal: '1' }] } }),
+    /ats_config.host is missing/
+  );
+}
+
 function testIcimsAdapter() {
   const employer = { id: 'emory-university', ats_token: 'staff-emory' };
   const url = 'https://staff-emory.icims.com/jobs/167619/research-administrator%2c-post-award-iii---school-of-medicine/job';
@@ -3450,6 +3548,7 @@ async function main() {
   testAdpAdapter();
   testCsodAdapter();
   await testCsodPagingContract();
+  testTaleoAdapter();
   testIcimsAdapter();
   await testIcimsSitemapFallback();
   testRegistryValidates();

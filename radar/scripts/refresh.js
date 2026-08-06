@@ -214,6 +214,18 @@ const ORACLE_DETAIL_DELAY_MS = 200;
 const ULTIPRO_PAGE_LIMIT = 100;
 const ULTIPRO_MAX_PAGES = 20;
 const ULTIPRO_BOARD_DELAY_MS = 300;
+// Taleo Enterprise. The career section serves no session cookie and no CSRF —
+// what it wants is a `tz` REQUEST HEADER. Without it every REST call answers
+// HTTP 500 "An Error Occurred in TEE", which reads like a block and is not one:
+// this cost an earlier session a day and the wrong conclusion that Taleo needed
+// a headless browser. A browser does not help (Playwright's context.request 500s
+// too); the header does, from plain fetch. Page size is fixed at 25 server-side.
+const TALEO_PAGE_SIZE = 25;
+const TALEO_MAX_PAGES = 60;
+const TALEO_MAX_DETAIL_FETCHES = 400;
+const TALEO_DETAIL_DELAY_MS = 250;
+const TALEO_TZ = 'GMT-05:00';
+const TALEO_TZNAME = 'America/Chicago';
 const SUCCESSFACTORS_MAX_DETAIL_FETCHES = 400;
 const SUCCESSFACTORS_DETAIL_DELAY_MS = 250;
 // Eightfold's PCSX search ignores every page-size param and always returns 10.
@@ -603,6 +615,17 @@ function validateAtsFeedConfig(label, provider, token, config) {
   if (provider === 'oracle') {
     for (const key of ['host', 'site_name', 'site_number']) {
       if (!(config || {})[key]) throw new Error(`${label} uses oracle but ats_config.${key} is missing`);
+    }
+  }
+  // Taleo needs a host plus at least one career section, each with the portal
+  // number the REST call requires — a section code alone answers 200 with
+  // careerSectionUnAvailable, which no HTTP status would reveal.
+  if (provider === 'taleo') {
+    if (!config?.host) throw new Error(`${label} uses taleo but ats_config.host is missing`);
+    const sections = config.sections
+      || [{ code: config.career_section, portal: config.portal }];
+    if (!sections.length || sections.some((section) => !section?.code || !section?.portal)) {
+      throw new Error(`${label} uses taleo but ats_config.sections needs {code, portal} entries`);
     }
   }
   if (provider === 'paylocity' && !config?.client_guid) {
@@ -1027,6 +1050,179 @@ async function fetchOracleJobs(employer) {
   }
   jobs.prefiltered_count = oracleExcluded;
   jobs.prefilter_survived_count = filteredOracle.length;
+  return jobs;
+}
+
+/**
+ * Taleo hides the description in plain sight: the detail page renders empty and
+ * fills itself by ajax, but the same payload is already sitting in a hidden
+ * `initialHistory` input — double-URL-encoded, segments joined by `!*!`, of
+ * which segment 0 is metadata and the rest are description/qualifications
+ * (each duplicated). Parsing that beats replaying the ajax, which wants a CSRF
+ * token and thirty form fields.
+ */
+function parseTaleoDetailPage(html) {
+  const match = /name="initialHistory"[^>]*value="([^"]*)"/.exec(html || '');
+  if (!match) return { description_text: '', location: null };
+  const segments = match[1].split('!*!');
+  // The value is encoded a VARYING number of times, so decode until it settles
+  // rather than a fixed number of passes. And decode escape-by-escape: a job
+  // description containing a literal "100%" makes decodeURIComponent throw on
+  // the whole string, which silently left postings URL-encoded when this took
+  // the all-or-nothing route.
+  const decodeOnce = (text) => text.replace(/(?:%[0-9A-Fa-f]{2})+/g, (sequence) => {
+    try { return decodeURIComponent(sequence); } catch { return sequence; }
+  });
+  const decode = (segment) => {
+    let text = segment;
+    for (let pass = 0; pass < 4; pass += 1) {
+      const next = decodeOnce(text);
+      if (next === text) break;
+      text = next;
+    }
+    return text;
+  };
+
+  const meta = decode(segments[0] || '').split('!|!');
+  // Taleo escapes its own delimiters with a backslash; undo that before use.
+  const clean = (value) => (value || '').replace(/\\([:|])/g, '$1').trim();
+
+  const bodies = [];
+  for (const segment of segments.slice(1)) {
+    const text = normalizeText(clean(decode(segment)));
+    // Description and qualifications each appear twice; keep first occurrences.
+    if (text && !bodies.includes(text)) bodies.push(text);
+  }
+
+  return {
+    description_text: bodies.join('\n\n'),
+    // meta carries [.., title, contestNo] near the end — used only as a fallback.
+    title: clean(meta[meta.length - 2]) || null,
+    contest_no: clean(meta[meta.length - 1]) || null
+  };
+}
+
+/** The location column arrives as a JSON array string: '["Birmingham, AL"]'. */
+function parseTaleoLocation(raw) {
+  if (!raw) return null;
+  const text = String(raw).trim();
+  if (text.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed)) {
+        const joined = parsed.filter(Boolean).map((v) => String(v).trim()).join('; ');
+        return joined || null;
+      }
+    } catch { /* fall through to the raw string */ }
+  }
+  return text || null;
+}
+
+function mapTaleoJob(listItem, detail, employer, section) {
+  const config = employer.ats_config || {};
+  const columns = listItem.column || [];
+  const jobId = String(listItem.jobId);
+  const contestNo = listItem.contestNo || jobId;
+  // locationsColumns names which column holds the location; it is not always [1].
+  const locationIndex = (listItem.locationsColumns || [])[0];
+  const location = parseTaleoLocation(
+    locationIndex != null ? columns[locationIndex] : columns[1]
+  ) || 'Unspecified';
+  const postedRaw = columns[columns.length - 1];
+  const posted = postedRaw && !Number.isNaN(Date.parse(postedRaw))
+    ? new Date(postedRaw).toISOString()
+    : null;
+  return {
+    // contestNo is the requisition number a human sees and is stable across
+    // re-postings; jobId is the internal key the URL needs.
+    id: `taleo:${employer.ats_token}:${contestNo}`,
+    employer_id: employer.id,
+    title: columns[0] || detail?.title || 'Untitled role',
+    department: '',
+    location,
+    url: `https://${config.host}/careersection/${section.code}/jobdetail.ftl`
+      + `?job=${encodeURIComponent(jobId)}&lang=en`,
+    description_text: detail?.description_text || '',
+    posted_or_updated_at: posted,
+    source: 'taleo',
+    source_job_id: String(contestNo)
+  };
+}
+
+/**
+ * A tenant commonly runs SEVERAL career sections holding different jobs — WVU's
+ * `faculty` section carries the postdocs its `staff` section does not, and UTSW
+ * splits 675 postings across three. Reading only the first found section is a
+ * silent recall loss, so `sections` is a list and every one is fetched.
+ */
+async function fetchTaleoJobs(employer) {
+  const config = employer.ats_config || {};
+  const { host } = config;
+  const sections = (config.sections && config.sections.length)
+    ? config.sections
+    : [{ code: config.career_section, portal: config.portal }].filter((s) => s.portal);
+
+  const headers = { tz: TALEO_TZ, tzname: TALEO_TZNAME };
+  const collected = [];
+  const seen = new Set();
+
+  for (const section of sections) {
+    const url = `https://${host}/careersection/rest/jobboard/searchjobs`
+      + `?lang=en&portal=${encodeURIComponent(section.portal)}`;
+    let total = Infinity;
+    for (let page = 1; page <= TALEO_MAX_PAGES && (page - 1) * TALEO_PAGE_SIZE < total; page += 1) {
+      const payload = await fetchJson(url, {
+        method: 'POST',
+        headers,
+        body: {
+          multilineEnabled: false,
+          sortingSelection: { sortBySelectionParam: '3', ascendingSortingOrder: 'false' },
+          fieldData: { fields: { KEYWORD: '', JOB_TITLE: '' }, valid: true },
+          filterSelectionParam: { searchFilterSelections: [] },
+          advancedSearchFiltersSelectionParam: { searchFilterSelections: [] },
+          pageNo: page
+        }
+      });
+      // A wrong portal answers 200 with this flag rather than an error status.
+      if (payload.careerSectionUnAvailable) {
+        console.warn(`Taleo section unavailable for ${employer.id} portal ${section.portal}`);
+        break;
+      }
+      const requisitions = payload.requisitionList || [];
+      if (page === 1) total = Number((payload.pagingData || {}).totalCount || 0);
+      if (requisitions.length === 0) break;
+      for (const item of requisitions) {
+        const key = `${item.jobId}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        collected.push({ item, section });
+      }
+    }
+  }
+
+  const { relevant, excluded } = filterResearchRelevant(
+    collected, (entry) => (entry.item.column || [])[0], employer
+  );
+  const capped = relevant.slice(0, TALEO_MAX_DETAIL_FETCHES);
+
+  const jobs = [];
+  for (const entry of capped) {
+    let detail = null;
+    try {
+      const html = await fetchText(
+        `https://${host}/careersection/${entry.section.code}/jobdetail.ftl`
+        + `?job=${encodeURIComponent(entry.item.jobId)}&lang=en`,
+        { headers: { ...headers, accept: 'text/html' } }
+      );
+      detail = parseTaleoDetailPage(html);
+    } catch (error) {
+      console.warn(`Taleo detail fetch failed for ${employer.id} job ${entry.item.jobId}: ${error.message}`);
+    }
+    jobs.push(mapTaleoJob(entry.item, detail, employer, entry.section));
+    await sleep(TALEO_DETAIL_DELAY_MS);
+  }
+  jobs.prefiltered_count = excluded;
+  jobs.prefilter_survived_count = relevant.length;
   return jobs;
 }
 
@@ -2317,6 +2513,7 @@ const ATS_FETCHERS = {
   smartrecruiters: fetchSmartRecruitersJobs,
   workday: fetchWorkdayJobs,
   oracle: fetchOracleJobs,
+  taleo: fetchTaleoJobs,
   ultipro: fetchUltiproJobs,
   successfactors: fetchSuccessFactorsJobs,
   eightfold: fetchEightfoldJobs,
@@ -2907,6 +3104,11 @@ module.exports = {
   fetchWorkdayJobs,
   fetchOracleJobs,
   mapOracleJob,
+  fetchText,
+  fetchTaleoJobs,
+  mapTaleoJob,
+  parseTaleoDetailPage,
+  parseTaleoLocation,
   fetchUltiproJobs,
   mapUltiproJob,
   fetchSuccessFactorsJobs,
