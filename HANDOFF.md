@@ -3,6 +3,44 @@
 Two products in one repo: the Veritas Chrome extension, and a two-layer
 cap-exempt research jobs instrument.
 
+## Pick up here (2026-08-05, end of day)
+
+Two sessions ran in parallel all day, split by file ownership — one owned
+`radar/employers.json` and the ATS adapters, the other the crawl, the nonprofit
+pipeline and the dashboard. Everything is pushed; tests green.
+
+**Do these first, in order:**
+
+1. **Let the next scheduled refresh run.** Today's new employers have never been
+   fetched — the last refresh still reports `employer_count: 447`. This is the
+   step that turns today's work into actual job listings.
+2. **Run the AI reading pass** (`npm start`, ~$3–4). It must be local:
+   `radar/data/profile.md` is gitignored by design and never enters CI.
+3. **Tune the ADP pacer.** 46 employers, 6 refused with HTTP 429 every run.
+   Under the dead-man threshold so it never alarms — it just quietly
+   under-delivers.
+
+**Known dead ends — do not re-derive:**
+- **Taleo (41 employers)** needs a headless browser. Endpoint, portal id, CSRF
+  and body shape were all verified correct against Taleo's own JS; the career
+  section issues no session cookie at all.
+- **Tenant guessing** (`radar/scripts/probe-tenants.js`) generates the right
+  slugs — 12/12 known tokens — but cannot prove ownership. `uta.peopleadmin.com`
+  matched UT Austin; it belongs to UT Arlington. Needs feed-level verification
+  against IPEDS/IRS city+state before it is worth anything.
+- **The 17 feed-less employers** (Broad, MIT, Harvard, Berkeley, Fred Hutch,
+  Allen, Cleveland Clinic…) built bespoke careers pages. Each needs custom work.
+
+**Built today, both tracks:** Cornerstone + iCIMS adapters (registry 447 → 484,
+Emory alone 0 → 342 jobs); the sharded ATS crawl, which completed the IPEDS
+college census (2,430 → 5,967); the nonprofit pipeline (14,414 → 1,908 ranked,
+612 websites resolved for $0.19); DOL finally invoked in the monthly enrichment;
+and the dashboard restructure (Qualified → Possible, grouped by judged verdict,
+−748 lines).
+
+**The honest scorecard:** no new job listings were gained today. It was
+groundwork, and step 1 above is what pays it out.
+
 ## Architecture
 
 ```
