@@ -3496,7 +3496,22 @@
     },
     "careers_url": "https://www.uab.edu/humanresources/home/careers",
     "research_areas": [],
-    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 372 live postings. USCIS 285 approvals / DOL 10 research LCAs (3y)."
+    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 372 live postings. USCIS 285 approvals / DOL 10 research LCAs (3y).",
+    "secondary_ats_feeds": [
+      {
+        "ats_provider": "taleo",
+        "ats_token": "uab",
+        "ats_config": {
+          "host": "uab.taleo.net",
+          "sections": [
+            {
+              "code": "ext",
+              "portal": "8100108034"
+            }
+          ]
+        }
+      }
+    ]
   },
   {
     "id": "university-of-north-carolina-at-chapel-hill",
@@ -10850,6 +10865,204 @@
     "ats_config": {
       "host": "jobs.xula.edu",
       "tenant": "xula"
+    }
+  },
+  {
+    "id": "west-virginia-university",
+    "name": "West Virginia University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "taleo_section_probe",
+      "ipeds:238032"
+    ],
+    "careers_url": "https://wvu.taleo.net/careersection/staff/jobsearch.ftl",
+    "ats_provider": "taleo",
+    "ats_token": "wvu",
+    "ats_config": {
+      "host": "wvu.taleo.net",
+      "sections": [
+        {
+          "code": "staff",
+          "portal": "8100120139"
+        },
+        {
+          "code": "faculty",
+          "portal": "26100021550"
+        }
+      ]
+    }
+  },
+  {
+    "id": "temple-university",
+    "name": "Temple University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "taleo_section_probe",
+      "ipeds:216339"
+    ],
+    "careers_url": "https://temple.taleo.net/careersection/tu_ex_staff/jobsearch.ftl",
+    "ats_provider": "taleo",
+    "ats_token": "temple",
+    "ats_config": {
+      "host": "temple.taleo.net",
+      "sections": [
+        {
+          "code": "tu_ex_staff",
+          "portal": "8100123629"
+        },
+        {
+          "code": "tu_ex_faculty",
+          "portal": "28100025969"
+        },
+        {
+          "code": "tu_ex_adjunct",
+          "portal": "10100123629"
+        }
+      ]
+    }
+  },
+  {
+    "id": "southern-methodist-university",
+    "name": "Southern Methodist University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "taleo_section_probe",
+      "ipeds:228246"
+    ],
+    "careers_url": "https://smu.taleo.net/careersection/ex/jobsearch.ftl",
+    "ats_provider": "taleo",
+    "ats_token": "smu",
+    "ats_config": {
+      "host": "smu.taleo.net",
+      "sections": [
+        {
+          "code": "ex",
+          "portal": "101430233"
+        }
+      ]
+    }
+  },
+  {
+    "id": "the-college-of-new-jersey",
+    "name": "The College of New Jersey",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "taleo_section_probe",
+      "ipeds:187134"
+    ],
+    "careers_url": "https://tcnj.taleo.net/careersection/00_ex_faculty/jobsearch.ftl",
+    "ats_provider": "taleo",
+    "ats_token": "tcnj",
+    "ats_config": {
+      "host": "tcnj.taleo.net",
+      "sections": [
+        {
+          "code": "00_ex_faculty",
+          "portal": "16200011148"
+        },
+        {
+          "code": "00_adjuncts",
+          "portal": "16300011148"
+        },
+        {
+          "code": "00_ex_staff",
+          "portal": "8100011148"
+        },
+        {
+          "code": "00_student%2Bworkers%2Band%2Bwork%2Bstudy",
+          "portal": "12100011148"
+        }
+      ]
+    }
+  },
+  {
+    "id": "towson-university",
+    "name": "Towson University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "taleo_section_probe",
+      "ipeds:164076"
+    ],
+    "careers_url": "https://towson.taleo.net/careersection/fac_ex/jobsearch.ftl",
+    "ats_provider": "taleo",
+    "ats_token": "towson",
+    "ats_config": {
+      "host": "towson.taleo.net",
+      "sections": [
+        {
+          "code": "fac_ex",
+          "portal": "8100026200"
+        }
+      ]
+    }
+  },
+  {
+    "id": "university-of-pittsburgh-pittsburgh-campus",
+    "name": "University of Pittsburgh-Pittsburgh Campus",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "taleo_section_probe",
+      "ipeds:215293"
+    ],
+    "careers_url": "https://cfopitt.taleo.net/careersection/pitt_staff_external/jobsearch.ftl",
+    "ats_provider": "taleo",
+    "ats_token": "cfopitt",
+    "ats_config": {
+      "host": "cfopitt.taleo.net",
+      "sections": [
+        {
+          "code": "pitt_staff_external",
+          "portal": "14200023232"
+        },
+        {
+          "code": "pitt_faculty_external",
+          "portal": "12100023232"
+        },
+        {
+          "code": "pitt_faculty_external_pd",
+          "portal": "24100023232"
+        },
+        {
+          "code": "pitt_temp_external",
+          "portal": "16100023232"
+        }
+      ]
+    }
+  },
+  {
+    "id": "university-of-texas-southwestern-medical-center",
+    "name": "University of Texas Southwestern Medical Center",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "taleo_section_probe",
+      "ipeds:228635"
+    ],
+    "careers_url": "https://utsw.taleo.net/careersection/2/jobsearch.ftl",
+    "ats_provider": "taleo",
+    "ats_token": "utsw",
+    "ats_config": {
+      "host": "utsw.taleo.net",
+      "sections": [
+        {
+          "code": "2",
+          "portal": "101430233"
+        },
+        {
+          "code": "3",
+          "portal": "8100100309"
+        },
+        {
+          "code": "4",
+          "portal": "8200100309"
+        }
+      ]
     }
   }
 ]
