@@ -8,6 +8,10 @@ const {
   isAbbreviationOf
 } = require('../radar/scripts/lib/feed-ownership.js');
 const {
+  detectAts,
+  registrableDomain
+} = require('../radar/scripts/resolve-employer-ats.js');
+const {
   enrichJob,
   matchSignals,
   normalizeText,
@@ -3185,6 +3189,25 @@ async function testCsodPagingContract() {
   }
 }
 
+function testAtsResolverDetection() {
+  // Detection must yield a URL a config can be parsed out of, not just a
+  // vendor name — the fragment alone names Workday, the URL names the tenant.
+  const page = '<a href="https://wd1.myworkdaysite.com/recruiting/upenn/careers-at-penn">Staff jobs</a>';
+  const found = detectAts(page, 'https://www.hr.upenn.edu/PennHR/careers-at-penn');
+  assert.strictEqual(found.provider, 'workday');
+  assert.strictEqual(found.evidence_url, 'https://wd1.myworkdaysite.com/recruiting/upenn/careers-at-penn');
+
+  // Quotes and angle brackets terminate the URL, or the config parse inherits
+  // the rest of the markup.
+  const quoted = detectAts('<a href="https://uab.taleo.net/careersection/ext/jobsearch.ftl">x</a>', 'https://x.edu');
+  assert.strictEqual(quoted.evidence_url, 'https://uab.taleo.net/careersection/ext/jobsearch.ftl');
+
+  // Provenance: a board hosted on the employer's own domain proves itself.
+  assert.strictEqual(registrableDomain('https://jobs.hr.upenn.edu/postings/search'), 'upenn.edu');
+  assert.strictEqual(registrableDomain('https://www.upenn.edu/'), 'upenn.edu');
+  assert.strictEqual(registrableDomain('https://wd1.myworkdaysite.com/x'), 'myworkdaysite.com');
+}
+
 function testFeedOwnershipGate() {
   const job = (title, location, description) => ({ title, location, description_text: description });
 
@@ -3656,6 +3679,7 @@ async function main() {
   testAdpAdapter();
   testCsodAdapter();
   await testCsodPagingContract();
+  testAtsResolverDetection();
   testFeedOwnershipGate();
   testTaleoAdapter();
   testIcimsAdapter();
