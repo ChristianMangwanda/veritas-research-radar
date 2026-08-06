@@ -3,43 +3,90 @@
 Two products in one repo: the Veritas Chrome extension, and a two-layer
 cap-exempt research jobs instrument.
 
-## Pick up here (2026-08-05, end of day)
+## Pick up here (2026-08-06, end of day)
 
-Two sessions ran in parallel all day, split by file ownership — one owned
-`radar/employers.json` and the ATS adapters, the other the crawl, the nonprofit
-pipeline and the dashboard. Everything is pushed; tests green.
+**Registry 484 → 535. Five commits, NONE PUSHED.** Total API spend for the
+day: **~$5.05**. `npm test` green, all 535 validate, no duplicate ids.
 
-**Do these first, in order:**
+```
+be5abd4  Taleo driver + section probe + code resolver
+1a2e67e  feed-ownership gate
+2fcac5c  layered ATS resolver (free probe → paid web search → config → provenance)
+080c809  44 resolved employers promoted
+3dfcce6  8 verified Taleo feeds promoted
+```
 
-1. **Let the next scheduled refresh run.** Today's new employers have never been
-   fetched — the last refresh still reports `employer_count: 447`. This is the
-   step that turns today's work into actual job listings.
-2. **Run the AI reading pass** (`npm start`, ~$3–4). It must be local:
-   `radar/data/profile.md` is gitignored by design and never enters CI.
-3. **Tune the ADP pacer.** 46 employers, 6 refused with HTTP 429 every run.
-   Under the dead-man threshold so it never alarms — it just quietly
-   under-delivers.
+**Pushing is the outstanding decision.** It activates 51 new feeds in the
+6-hourly refresh and starts writing them into live Supabase. Nothing else is
+blocked on anything.
 
-**Known dead ends — do not re-derive:**
-- **Taleo (41 employers)** needs a headless browser. Endpoint, portal id, CSRF
-  and body shape were all verified correct against Taleo's own JS; the career
-  section issues no session cookie at all.
-- **Tenant guessing** (`radar/scripts/probe-tenants.js`) generates the right
-  slugs — 12/12 known tokens — but cannot prove ownership. `uta.peopleadmin.com`
-  matched UT Austin; it belongs to UT Arlington. Needs feed-level verification
-  against IPEDS/IRS city+state before it is worth anything.
-- **The 17 feed-less employers** (Broad, MIT, Harvard, Berkeley, Fred Hutch,
-  Allen, Cleveland Clinic…) built bespoke careers pages. Each needs custom work.
+### What went in
 
-**Built today, both tracks:** Cornerstone + iCIMS adapters (registry 447 → 484,
-Emory alone 0 → 342 jobs); the sharded ATS crawl, which completed the IPEDS
-college census (2,430 → 5,967); the nonprofit pipeline (14,414 → 1,908 ranked,
-612 websites resolved for $0.19); DOL finally invoked in the monthly enrichment;
-and the dashboard restructure (Qualified → Possible, grouped by judged verdict,
-−748 lines).
+51 feeds carrying roughly 2,900 research-relevant postings from employers that
+were entirely invisible before: Penn, UT Austin, Villanova (366), Syracuse
+(309), Chapman (228), Pitt (216, including a postdoc-only board), UT
+Southwestern, Fordham, Oberlin, UNC Wilmington, WVU (including a faculty board
+its staff board never showed). UAB's Taleo board went in as a
+`secondary_ats_feed` on its existing PeopleAdmin entry — 82 relevant jobs its
+current feed misses.
 
-**The honest scorecard:** no new job listings were gained today. It was
-groundwork, and step 1 above is what pays it out.
+### The rule that keeps earning its keep
+
+**A probe proves the BOARD has postings. Only running the real adapter proves
+THIS CONFIG can read them.** Nine candidates died on exactly that gap — six
+PageUp employers whose sitemaps list jobs while every detail page answers an
+AWS WAF challenge, and three returning nothing. Without that check all nine
+would have entered the registry and reported "no openings" forever, which is
+the failure mode that produces no error and no complaint.
+
+### New tools
+
+| script | what it does |
+|---|---|
+| `probe-taleo-sections.js` | enumerates a Taleo tenant's career sections — a tenant runs several and they hold DIFFERENT jobs |
+| `resolve-taleo-codes.js` | web-searches the unguessable section codes, then verifies each against the live board |
+| `resolve-employer-ats.js` | the layered resolver: free probe, then paid search only on failure, then config derivation, then provenance |
+| `verify-feed-ownership.js` + `lib/feed-ownership.js` | confirmed / rejected / inconclusive, with quotable evidence |
+
+`resolve-employer-ats.js` caches every model answer permanently and re-runs the
+free stages from it, so **iterating on that code costs $0** — proposals went
+35 → 53 on one such re-run. Only new employers cost money (~4¢ each).
+
+### Next, in value order
+
+1. **PeopleSoft driver — the one clear win left.** 11 employers, 689 H-1B
+   approvals, and only 4 instances to support: the UC system, UT System,
+   University System of Georgia, and Central Washington. Partially cracked
+   already: it needs a **cookie jar** (without one every URL redirects to
+   `cmd=login&errorPg=ckreq`, which looks like a block and is not), the
+   component is `HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL`, and the listing arrives via
+   an `ICAction` postback rather than JSON. **Open question:** the job rows in
+   that 308KB response do not use the `JobOpeningId=` pattern — find the row
+   markup first. Guessing component URLs is a dead end; three variants returned
+   17KB shells.
+2. **ADP pacer** — 46 employers, 6 refused with HTTP 429 every run, under the
+   dead-man threshold so it never alarms.
+3. **5 pre-existing duplicate feeds** double-count jobs today.
+   `hhmi`/`howard-hughes-medical-institute` and the two
+   `memorial-sloan-kettering` entries are the same employer twice; three more
+   are distinct schools sharing one system feed.
+4. **The 17 feed-less marquee institutions** (Broad, MIT, Harvard, Berkeley,
+   Fred Hutch, Allen, Cleveland Clinic) — bespoke pages, custom work each.
+
+### Dead ends — do not re-derive
+
+- **PageUp.** It was the largest remaining target by sponsorship (18 orgs,
+  1,062 approvals) and 6 of 6 promotion attempts were WAF-blocked at the
+  adapter. Retired on evidence, not suspicion. Only revisit with a headless
+  browser in CI.
+- **A generic schema.org JSON-LD driver.** Sampled 250 of the 4,832
+  "no ATS detected" organisations: **zero** publish JobPosting markup. That
+  pool is also 4,785 colleges to 47 nonprofits, so the "research nonprofits
+  with no supported ATS" population barely exists.
+- **Writing more ATS drivers generally.** Of 5,568 discovered organisations not
+  in the registry, ~700 are on platforms that already have drivers and only
+  need resolving; the genuinely unsupported tail is ~30, and PeopleSoft is 11
+  of them.
 
 ## Architecture
 
@@ -59,11 +106,12 @@ EVERY 6 HOURS (GitHub Action)             SCOUT PRODUCER (scout/, Playwright)
    -> Supabase / jobs.json / refresh-report.json
 ```
 
-Registry: **346 cap-exempt employers** (150 Workday, 95 PeopleAdmin, 32
-Oracle, 12 UltiPro, 30 not-yet-wired — mostly scout-routed iCIMS boards plus
-the remaining dark flagships — the rest across the other systems). Dataset
-~11.5k active jobs; new employers fold in on the next 6-hourly refresh. Full
-orientation in **`PROJECT-MAP.md`**.
+Registry: **535 cap-exempt employers** across 16 wired ATS systems
+(peopleadmin, workday, oracle, csod, governmentjobs, icims, taleo, adp,
+ultipro, paylocity, interfolio, greenhouse, lever, successfactors, eightfold,
+usajobs, plus USAJOBS and the aggregator firehose). Dataset ~15k active jobs;
+new employers fold in on the next 6-hourly refresh. Full orientation in
+**`PROJECT-MAP.md`**.
 
 ## Commands
 

@@ -4,6 +4,62 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Session 2026-08-06 — the platforms that looked shut, and the one rule that kept paying
+
+**Taleo was never browser-only.** The HTTP 500 "An Error Occurred in TEE" that
+put it on the impossible list is a missing `tz` REQUEST HEADER — no cookie, no
+session, no CSRF. A browser does not fix it (Playwright's `context.request`
+500s beside the page that works), which is how the earlier session reached the
+wrong conclusion: it replayed the call instead of adding the header. Ships as a
+plain-fetch driver alongside the other fifteen, plus `probe-taleo-sections.js`
+(a tenant runs SEVERAL career sections holding DIFFERENT jobs — WVU keeps its
+postdocs in `faculty`, Pitt splits 452 postings across four boards, one of them
+postdoc-only) and `resolve-taleo-codes.js` for the codes no guess list reaches:
+`pitt_faculty_external_pd`, `tu_ex_staff`,
+`00_student%2Bworkers%2Band%2Bwork%2Bstudy`. 14 hosts cost $0.58; 9 of 13
+high-confidence model proposals returned no postings and were dropped.
+
+**A gate feeds must pass before the registry.** `lib/feed-ownership.js` scores
+a sample of real postings against where the employer actually is (IPEDS, IRS EO
+BMF) and returns confirmed / rejected / inconclusive with quotable evidence.
+Three outcomes on purpose: `inconclusive` is the honest majority answer for
+small feeds and must never auto-promote. Signals are independent because none
+survives alone — UAB's location column says only "University", so `uab.edu` in
+the posting body carries it; SMU's postings rarely name the employer but are
+all in Dallas. Rejection counts postings rather than proportioning them
+(Schneider names itself in 2 of 20), an employer's own acronym must not read as
+a rival's ("utsw" appears in every UT Southwestern posting), and
+`stateOf('West Virginia University')` returned VA until state names were
+matched longest-first.
+
+**The layered resolver.** `resolve-employer-ats.js` finds the board behind an
+employer the crawl failed: free re-fetch and link-following first (scored by
+anchor TEXT as well as URL — UT Austin's board hides behind
+`hr.utexas.edu/prospective` under a link reading "staff jobs"), paid web search
+only on failure, then config derivation, then provenance requiring the
+employer's own domain to link or host the board. 153 organisations, 54
+proposals, **$4.11 total** — and every model answer is cached so the free
+stages re-run from it forever. The model proposes; the live page decides: for
+Penn the model reported PeopleAdmin, true years ago, and re-fetching the page
+it named gave Workday, 447 jobs.
+
+**51 feeds promoted, registry 484 → 535**, carrying ~2,900 research-relevant
+postings — Penn, UT Austin, Villanova, Syracuse, Chapman, Pitt, UT
+Southwestern, WVU, Temple, Fordham, Oberlin. UAB's Taleo board entered as a
+`secondary_ats_feed` on its existing PeopleAdmin entry, adding 82 jobs that
+feed never showed.
+
+**The rule that earned its keep: a probe proves the BOARD has postings; only
+running the real adapter proves THIS CONFIG can read them.** Nine candidates
+died on that gap — six PageUp employers whose sitemaps list jobs while every
+detail page answers an AWS WAF challenge, and three returning nothing. All nine
+would otherwise have sat in the registry reporting "no openings" forever.
+
+**Retired on evidence:** PageUp (18 orgs, 1,062 H-1B approvals behind it, 6 of
+6 attempts blocked) and the generic schema.org JSON-LD driver idea (0 of 250
+sampled organisations publish JobPosting markup). The remaining unsupported
+tail is ~30 organisations, of which PeopleSoft is 11 — the one clear win left.
+
 ### Session 2026-08-04 (late) — the reading continues when you stop watching
 
 **The app wears the logo.** `logo.png` is composed into a proper macOS icon by
