@@ -834,15 +834,29 @@ async function main() {
       result.feed_also_claimed_by = group.filter((other) => other !== result).map((other) => other.name);
     }
   }
-  // A feed already serving a registered employer is the same collision.
-  const registeredFeeds = new Set(registry
-    .filter((employer) => employer.ats_provider)
-    .map((employer) => `${employer.ats_provider}:${employer.ats_token}`));
+  /* A feed already serving a registered employer is the same collision — but
+   * compare the WHOLE config, not the token. The Texas A&M System runs one
+   * Workday tenant with a separate site per campus (TAMUK_External,
+   * TARLETON_External…), so eight registered employers legitimately share the
+   * token `tamus`. Matching on token alone called West Texas A&M a duplicate
+   * when its site (wtamu_external) is its own feed. Case is normalised because
+   * a site read off a URL arrives lowercased. */
+  const feedKey = (provider, token, config) => {
+    const site = config?.site || config?.site_number || config?.agency
+      || config?.tenant || config?.host || '';
+    return `${provider}:${String(token).toLowerCase()}:${String(site).toLowerCase()}`;
+  };
+  const registeredFeeds = new Map();
+  for (const employer of registry.filter((e) => e.ats_provider)) {
+    registeredFeeds.set(feedKey(employer.ats_provider, employer.ats_token, employer.ats_config), employer.id);
+  }
   for (const result of results) {
     const entry = result.suggested_registry_entry;
-    if (entry && registeredFeeds.has(`${entry.ats_provider}:${entry.ats_token}`)) {
+    if (!entry) continue;
+    const owner = registeredFeeds.get(feedKey(entry.ats_provider, entry.ats_token, entry.ats_config));
+    if (owner) {
       result.needs_owner_decision = true;
-      result.feed_already_in_registry = true;
+      result.feed_already_in_registry = owner;
     }
   }
 
@@ -862,7 +876,7 @@ async function main() {
     console.log(`${contested.length} proposal(s) share a feed — pick an owner before promoting:`);
     for (const result of contested) {
       const why = result.feed_already_in_registry
-        ? 'feed already serves a registered employer'
+        ? `feed already serves ${result.feed_already_in_registry}`
         : `also claimed by ${(result.feed_also_claimed_by || []).join(', ')}`;
       console.log(`  ${result.name} — ${why}`);
     }

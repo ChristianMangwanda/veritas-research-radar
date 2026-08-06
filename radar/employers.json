@@ -10100,5 +10100,756 @@
     },
     "careers_url": "https://parkland.csod.com/ux/ats/careersite/7/home?c=parkland",
     "notes": "Promoted 2026-08-05 from the ATS config probe; 1 postings live on the board at probe time. Cornerstone publishes no organisation name, so the employer identity rests on the tenant subdomain."
+  },
+  {
+    "id": "alabama-a-and-m-university",
+    "name": "Alabama A and M University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:100654"
+    ],
+    "careers_url": "https://www.aamu.edu/about/administrative-offices/human-resources/title-ix.html",
+    "ats_provider": "governmentjobs",
+    "ats_token": "aamu",
+    "ats_config": {
+      "host": "www.schooljobs.com",
+      "agency": "aamu"
+    }
+  },
+  {
+    "id": "alabama-state-university",
+    "name": "Alabama State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:100724"
+    ],
+    "careers_url": "https://www.alasu.edu/administration/business-and-finance/human-resources/index.php",
+    "ats_provider": "governmentjobs",
+    "ats_token": "alasu",
+    "ats_config": {
+      "host": "www.schooljobs.com",
+      "agency": "alasu"
+    }
+  },
+  {
+    "id": "appalachian-state-university",
+    "name": "Appalachian State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:197869"
+    ],
+    "careers_url": "https://www.appstate.edu/employment/",
+    "ats_provider": "peopleadmin",
+    "ats_token": "appstate",
+    "ats_config": {
+      "tenant": "appstate"
+    }
+  },
+  {
+    "id": "austin-peay-state-university",
+    "name": "Austin Peay State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:219602"
+    ],
+    "careers_url": "https://www.apsu.edu/",
+    "ats_provider": "oracle",
+    "ats_token": "ibqzjb.fa.ocs.oraclecloud.com",
+    "ats_config": {
+      "host": "ibqzjb.fa.ocs.oraclecloud.com",
+      "site_name": "APSU_CAR_SIT (copy_2)",
+      "site_number": "CX_1"
+    }
+  },
+  {
+    "id": "babson-college",
+    "name": "Babson College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:164580"
+    ],
+    "careers_url": "https://www.babson.edu/careers-at-babson/",
+    "ats_provider": "workday",
+    "ats_token": "babson",
+    "ats_config": {
+      "host": "babson.wd1.myworkdayjobs.com",
+      "tenant": "babson",
+      "site": "faculty"
+    }
+  },
+  {
+    "id": "brandeis-university",
+    "name": "Brandeis University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:165015"
+    ],
+    "careers_url": "https://www.brandeis.edu/human-resources/careers/staff-positions.html",
+    "ats_provider": "workday",
+    "ats_token": "brandeis",
+    "ats_config": {
+      "host": "brandeis.wd5.myworkdayjobs.com",
+      "tenant": "brandeis",
+      "site": "jobs"
+    }
+  },
+  {
+    "id": "central-state-university",
+    "name": "Central State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:201690"
+    ],
+    "careers_url": "https://careers.centralstate.edu/",
+    "ats_provider": "peopleadmin",
+    "ats_token": "centralstate",
+    "ats_config": {
+      "host": "careers.centralstate.edu",
+      "tenant": "centralstate"
+    }
+  },
+  {
+    "id": "chapman-university",
+    "name": "Chapman University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:111948"
+    ],
+    "careers_url": "https://www.chapman.edu/faculty-staff/human-resources/jobs/index.aspx",
+    "ats_provider": "peopleadmin",
+    "ats_token": "chapman",
+    "ats_config": {
+      "tenant": "chapman"
+    }
+  },
+  {
+    "id": "cold-spring-harbor-laboratory",
+    "name": "Cold Spring Harbor Laboratory",
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:112013303"
+    ],
+    "careers_url": "https://www.cshl.edu/about-us/careers/",
+    "ats_provider": "governmentjobs",
+    "ats_token": "cshl",
+    "ats_config": {
+      "host": "www.schooljobs.com",
+      "agency": "cshl"
+    }
+  },
+  {
+    "id": "colgate-university",
+    "name": "Colgate University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:190099"
+    ],
+    "careers_url": "https://www.colgate.edu/jobs-colgate",
+    "ats_provider": "peopleadmin",
+    "ats_token": "colgate",
+    "ats_config": {
+      "host": "careers.colgate.edu",
+      "tenant": "colgate"
+    }
+  },
+  {
+    "id": "college-of-charleston",
+    "name": "College of Charleston",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:217819"
+    ],
+    "careers_url": "https://charleston.edu/hr/careers-page/index.php",
+    "ats_provider": "peopleadmin",
+    "ats_token": "cofc",
+    "ats_config": {
+      "host": "jobs.cofc.edu",
+      "tenant": "cofc"
+    }
+  },
+  {
+    "id": "college-of-holy-cross",
+    "name": "College of Holy Cross",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:166124"
+    ],
+    "careers_url": "https://www.holycross.edu/",
+    "ats_provider": "workday",
+    "ats_token": "holycross",
+    "ats_config": {
+      "host": "holycross.wd12.myworkdayjobs.com",
+      "tenant": "holycross",
+      "site": "careers"
+    }
+  },
+  {
+    "id": "fordham-university",
+    "name": "Fordham University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:191241"
+    ],
+    "careers_url": "https://www.fordham.edu/human-resources/career-opportunities/",
+    "ats_provider": "peopleadmin",
+    "ats_token": "fordham",
+    "ats_config": {
+      "host": "careers.fordham.edu",
+      "tenant": "fordham"
+    }
+  },
+  {
+    "id": "fort-hays-state-university",
+    "name": "Fort Hays State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:155061"
+    ],
+    "careers_url": "https://www.fhsu.edu/",
+    "ats_provider": "workday",
+    "ats_token": "fhsu",
+    "ats_config": {
+      "host": "fhsu.wd503.myworkdayjobs.com",
+      "tenant": "fhsu",
+      "site": "careers"
+    }
+  },
+  {
+    "id": "governors-state-university",
+    "name": "Governors State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:145336"
+    ],
+    "careers_url": "https://www.govst.edu/campus-life-student-support/student-support/employment-opportunities",
+    "ats_provider": "governmentjobs",
+    "ats_token": "govst",
+    "ats_config": {
+      "host": "www.schooljobs.com",
+      "agency": "govst"
+    }
+  },
+  {
+    "id": "jackson-state-university",
+    "name": "Jackson State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:175856"
+    ],
+    "careers_url": "https://www.jsums.edu/",
+    "ats_provider": "governmentjobs",
+    "ats_token": "jsums",
+    "ats_config": {
+      "host": "www.schooljobs.com",
+      "agency": "jsums"
+    }
+  },
+  {
+    "id": "john-carroll-university",
+    "name": "John Carroll University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:203368"
+    ],
+    "careers_url": "https://www.jcu.edu/offices-and-services/human-resources/",
+    "ats_provider": "peopleadmin",
+    "ats_token": "jcu",
+    "ats_config": {
+      "tenant": "jcu"
+    }
+  },
+  {
+    "id": "louisiana-tech-university",
+    "name": "Louisiana Tech University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:159647"
+    ],
+    "careers_url": "https://www.latech.edu/administration/finance/human-resources/",
+    "ats_provider": "workday",
+    "ats_token": "ulsltu",
+    "ats_config": {
+      "host": "ulsltu.wd503.myworkdayjobs.com",
+      "tenant": "ulsltu",
+      "site": "latechcareers"
+    }
+  },
+  {
+    "id": "loyola-marymount-university",
+    "name": "Loyola Marymount University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:117946"
+    ],
+    "careers_url": "https://admin.lmu.edu/hr/employment/",
+    "ats_provider": "workday",
+    "ats_token": "lmu",
+    "ats_config": {
+      "host": "lmu.wd1.myworkdayjobs.com",
+      "tenant": "lmu",
+      "site": "careers"
+    }
+  },
+  {
+    "id": "mcneese-state-university",
+    "name": "Mcneese State University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:159717"
+    ],
+    "careers_url": "https://www.mcneese.edu/about-us/leadership-team/business-affairs/division-of-business-affairs/employment/",
+    "ats_provider": "governmentjobs",
+    "ats_token": "louisiana",
+    "ats_config": {
+      "host": "www.governmentjobs.com",
+      "agency": "louisiana"
+    }
+  },
+  {
+    "id": "mercer-university",
+    "name": "Mercer University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:140447"
+    ],
+    "careers_url": "http://hr.mercer.edu/",
+    "ats_provider": "workday",
+    "ats_token": "merceruniversity",
+    "ats_config": {
+      "host": "merceruniversity.wd1.myworkdayjobs.com",
+      "tenant": "merceruniversity",
+      "site": "external"
+    }
+  },
+  {
+    "id": "oberlin-college",
+    "name": "Oberlin College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:204501"
+    ],
+    "careers_url": "https://www.oberlin.edu/human-resources/jobs",
+    "ats_provider": "peopleadmin",
+    "ats_token": "oberlin",
+    "ats_config": {
+      "host": "jobs.oberlin.edu",
+      "tenant": "oberlin"
+    }
+  },
+  {
+    "id": "rhode-island-college",
+    "name": "Rhode Island College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:217420"
+    ],
+    "careers_url": "https://www.ric.edu/working-ric",
+    "ats_provider": "peopleadmin",
+    "ats_token": "ric",
+    "ats_config": {
+      "host": "employment.ric.edu",
+      "tenant": "ric"
+    }
+  },
+  {
+    "id": "rider-university",
+    "name": "Rider University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:186283"
+    ],
+    "careers_url": "https://www.rider.edu/",
+    "ats_provider": "governmentjobs",
+    "ats_token": "rideru",
+    "ats_config": {
+      "host": "www.schooljobs.com",
+      "agency": "rideru"
+    }
+  },
+  {
+    "id": "sage-bionetworks",
+    "name": "Sage Bionetworks",
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:264489946"
+    ],
+    "careers_url": "https://sagebionetworks.org/careers",
+    "ats_provider": "greenhouse",
+    "ats_token": "sagebionetworks",
+    "ats_config": {}
+  },
+  {
+    "id": "saint-louis-university",
+    "name": "Saint Louis University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:179159"
+    ],
+    "careers_url": "https://www.slu.edu/",
+    "ats_provider": "workday",
+    "ats_token": "slu",
+    "ats_config": {
+      "host": "slu.wd5.myworkdayjobs.com",
+      "tenant": "slu",
+      "site": "careers"
+    }
+  },
+  {
+    "id": "southern-utah-university",
+    "name": "Southern Utah University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:230603"
+    ],
+    "careers_url": "https://www.suu.edu/",
+    "ats_provider": "governmentjobs",
+    "ats_token": "suu",
+    "ats_config": {
+      "host": "www.schooljobs.com",
+      "agency": "suu"
+    }
+  },
+  {
+    "id": "suffolk-university",
+    "name": "Suffolk University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:168005"
+    ],
+    "careers_url": "https://www.suffolk.edu/about/directory/human-resources-office",
+    "ats_provider": "workday",
+    "ats_token": "suffolk",
+    "ats_config": {
+      "host": "suffolk.wd1.myworkdayjobs.com",
+      "tenant": "suffolk",
+      "site": "external"
+    }
+  },
+  {
+    "id": "syracuse-university",
+    "name": "Syracuse University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:196413"
+    ],
+    "careers_url": "https://www.syracuse.edu/work-at-syracuse-university/",
+    "ats_provider": "peopleadmin",
+    "ats_token": "sujobopps",
+    "ats_config": {
+      "host": "www.sujobopps.com",
+      "tenant": "sujobopps"
+    }
+  },
+  {
+    "id": "trinity-college",
+    "name": "Trinity College",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:130590"
+    ],
+    "careers_url": "https://www.trincoll.edu/",
+    "ats_provider": "peopleadmin",
+    "ats_token": "trincoll",
+    "ats_config": {
+      "tenant": "trincoll"
+    }
+  },
+  {
+    "id": "university-of-central-missouri",
+    "name": "University of Central Missouri",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:176965"
+    ],
+    "careers_url": "https://www.ucmo.edu/offices/human-resources/employment/index.php",
+    "ats_provider": "governmentjobs",
+    "ats_token": "ucmo",
+    "ats_config": {
+      "host": "www.schooljobs.com",
+      "agency": "ucmo"
+    }
+  },
+  {
+    "id": "university-of-guam",
+    "name": "University of Guam",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:240754"
+    ],
+    "careers_url": "https://www.uog.edu/",
+    "ats_provider": "peopleadmin",
+    "ats_token": "uog",
+    "ats_config": {
+      "tenant": "uog"
+    }
+  },
+  {
+    "id": "university-of-new-orleans",
+    "name": "University of New Orleans",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:159939"
+    ],
+    "careers_url": "https://www.uno.edu/careers",
+    "ats_provider": "workday",
+    "ats_token": "ulsuno",
+    "ats_config": {
+      "host": "ulsuno.wd1.myworkdayjobs.com",
+      "tenant": "ulsuno",
+      "site": "universityofneworleans"
+    }
+  },
+  {
+    "id": "university-of-north-carolina-wilmington",
+    "name": "University of North Carolina Wilmington",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:199218"
+    ],
+    "careers_url": "https://www.uncw.edu/about/university-administration/administrative-units/human-resources/",
+    "ats_provider": "peopleadmin",
+    "ats_token": "uncw",
+    "ats_config": {
+      "host": "jobs.uncw.edu",
+      "tenant": "uncw"
+    }
+  },
+  {
+    "id": "university-of-pennsylvania",
+    "name": "University of Pennsylvania",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:215062"
+    ],
+    "careers_url": "https://www.hr.upenn.edu/PennHR/careers-at-penn",
+    "ats_provider": "workday",
+    "ats_token": "upenn",
+    "ats_config": {
+      "host": "wd1.myworkdaysite.com",
+      "tenant": "upenn",
+      "site": "careers-at-penn"
+    }
+  },
+  {
+    "id": "university-of-scranton",
+    "name": "University of Scranton",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:215929"
+    ],
+    "careers_url": "https://www.scranton.edu/hr/employment/employmentopportunities.shtml",
+    "ats_provider": "peopleadmin",
+    "ats_token": "universityofscrantonjobs",
+    "ats_config": {
+      "host": "universityofscrantonjobs.com",
+      "tenant": "universityofscrantonjobs"
+    }
+  },
+  {
+    "id": "university-of-texas-at-austin",
+    "name": "University of Texas at Austin",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:228778"
+    ],
+    "careers_url": "https://www.utexas.edu/jobs",
+    "ats_provider": "workday",
+    "ats_token": "utaustin",
+    "ats_config": {
+      "host": "utaustin.wd1.myworkdayjobs.com",
+      "tenant": "utaustin",
+      "site": "utstaff"
+    }
+  },
+  {
+    "id": "university-of-utah",
+    "name": "University of Utah",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:230764"
+    ],
+    "careers_url": "https://jobs.utah.edu/staff-jobs/",
+    "ats_provider": "icims",
+    "ats_token": "careers-uuhc",
+    "ats_config": {}
+  },
+  {
+    "id": "utah-valley-university",
+    "name": "Utah Valley University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:230737"
+    ],
+    "careers_url": "https://www.uvu.edu/peopleandculture/jobs/index.html",
+    "ats_provider": "governmentjobs",
+    "ats_token": "uvu",
+    "ats_config": {
+      "host": "www.schooljobs.com",
+      "agency": "uvu"
+    }
+  },
+  {
+    "id": "villanova-university",
+    "name": "Villanova University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:216597"
+    ],
+    "careers_url": "https://www.villanova.edu/university/human-resources/work-at-villanova.html",
+    "ats_provider": "peopleadmin",
+    "ats_token": "villanova",
+    "ats_config": {
+      "host": "jobs.villanova.edu",
+      "tenant": "villanova"
+    }
+  },
+  {
+    "id": "west-texas-a-and-m-university",
+    "name": "West Texas A and M University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:229814"
+    ],
+    "careers_url": "https://www.wtamu.edu/business-finance/human-resources/human-resources-employment.html",
+    "ats_provider": "workday",
+    "ats_token": "tamus",
+    "ats_config": {
+      "host": "tamus.wd1.myworkdayjobs.com",
+      "tenant": "tamus",
+      "site": "wtamu_external"
+    }
+  },
+  {
+    "id": "western-carolina-university",
+    "name": "Western Carolina University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:200004"
+    ],
+    "careers_url": "https://www.wcu.edu/discover/campus-services-and-operations/human-resources-and-payroll/working-at-WCU.aspx",
+    "ats_provider": "peopleadmin",
+    "ats_token": "wcu",
+    "ats_config": {
+      "host": "jobs.wcu.edu",
+      "tenant": "wcu"
+    }
+  },
+  {
+    "id": "western-michigan-university",
+    "name": "Western Michigan University",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:172699"
+    ],
+    "careers_url": "https://wmich.edu/hr/jobs",
+    "ats_provider": "peopleadmin",
+    "ats_token": "wmujobs",
+    "ats_config": {
+      "host": "www.wmujobs.org",
+      "tenant": "wmujobs"
+    }
+  },
+  {
+    "id": "xavier-university-of-louisiana",
+    "name": "Xavier University of Louisiana",
+    "type": "institution_of_higher_education",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "ipeds:160904"
+    ],
+    "careers_url": "https://www.xula.edu/",
+    "ats_provider": "peopleadmin",
+    "ats_token": "xula",
+    "ats_config": {
+      "host": "jobs.xula.edu",
+      "tenant": "xula"
+    }
   }
 ]
