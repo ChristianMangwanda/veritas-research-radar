@@ -3,6 +3,11 @@ const fs = require('fs');
 const path = require('path');
 const { analyzeText } = require('../scripts/keywords.js');
 const {
+  scoreFeedOwnership,
+  stateOf,
+  isAbbreviationOf
+} = require('../radar/scripts/lib/feed-ownership.js');
+const {
   enrichJob,
   matchSignals,
   normalizeText,
@@ -3180,6 +3185,109 @@ async function testCsodPagingContract() {
   }
 }
 
+function testFeedOwnershipGate() {
+  const job = (title, location, description) => ({ title, location, description_text: description });
+
+  // UAB: the location column says "University" and nothing else, so geography
+  // abstains entirely — the feed is confirmed because the postings link uab.edu.
+  const uab = scoreFeedOwnership({
+    employer: {
+      name: 'University of Alabama at Birmingham',
+      city: 'Birmingham', state: 'AL', website: 'https://www.uab.edu/'
+    },
+    feedLabel: 'uab',
+    jobs: [
+      job('RESEARCH ENGINEER III', 'University', 'See https://www.uab.edu/engineering/eitd/ for details.'),
+      job('CLINICAL RESEARCH COORDINATOR I', 'University', 'The University of Alabama at Birmingham seeks a coordinator.'),
+      job('GRANTS ANALYST', 'University', 'Reports to uab.edu administration.')
+    ]
+  });
+  assert.strictEqual(uab.verdict, 'confirmed');
+  assert.strictEqual(uab.reason, 'postings_name_employer');
+  assert.strictEqual(uab.signals.usable_location_fraction, 0);
+  assert(uab.evidence.length > 0, 'a confirmed feed must carry quotable evidence');
+
+  // SMU: postings rarely name the employer, but every one of them is in Dallas.
+  const smu = scoreFeedOwnership({
+    employer: { name: 'Southern Methodist University', city: 'Dallas', state: 'TX', website: 'https://www.smu.edu/' },
+    feedLabel: 'smu',
+    jobs: [
+      job('Senior Event Manager', 'TX-Dallas', 'Plan events.'),
+      job('Graduate Recruiter', 'TX-Dallas', 'Recruit students.'),
+      job('Clinic Coordinator', 'TX-Dallas', 'Coordinate the clinic.')
+    ]
+  });
+  assert.strictEqual(smu.verdict, 'confirmed');
+  assert.strictEqual(smu.reason, 'postings_in_employer_city');
+
+  // schneider.taleo.net is filed under Advanced Career Institute, a California
+  // college, and serves truck-driver jobs. The claimed employer is named in no
+  // posting while another organisation is named in two — the one shape that
+  // earns a rejection rather than a shrug.
+  const schneider = scoreFeedOwnership({
+    employer: { name: 'Advanced Career Institute', city: 'Visalia', state: 'CA', website: 'https://advanced.edu/' },
+    feedLabel: 'schneider',
+    jobs: [
+      job('Intermodal truck driver', 'Intermodal', 'HazMat endorsement required. Schneider pays weekly.'),
+      job('Dedicated Reefer truck driver', 'Dedicated', 'Join Schneider and drive for Costco.'),
+      job('Tanker truck driver', 'Tanker', 'Top drivers earn up to $87,000.')
+    ]
+  });
+  assert.strictEqual(schneider.verdict, 'rejected');
+  assert.strictEqual(schneider.reason, 'postings_name_another_org');
+  assert.strictEqual(schneider.signals.name_count, 0);
+  assert(schneider.evidence.some((item) => item.signal === 'other_org'));
+
+  // An employer's OWN acronym must never read as a rival's name. Were "utsw"
+  // treated as foreign, a feed whose postings use only the short form would be
+  // rejected — losing a real employer, the one error this gate cannot make.
+  const acronym = scoreFeedOwnership({
+    employer: {
+      name: 'University of Texas Southwestern Medical Center',
+      city: 'Dallas', state: 'TX', website: 'https://www.utsouthwestern.edu/'
+    },
+    feedLabel: 'utsw',
+    jobs: [
+      job('Coding Specialist III', 'Other', 'Apply through utsw careers.'),
+      job('Patient Care Technician', 'Other', 'utsw offers benefits.'),
+      job('Emergency Room Tech', 'Other', 'Work at utsw.')
+    ]
+  });
+  assert.notStrictEqual(acronym.verdict, 'rejected');
+  assert.strictEqual(acronym.signals.other_org_count, 0);
+  assert.strictEqual(isAbbreviationOf('utsw', 'University of Texas Southwestern Medical Center'), true);
+  assert.strictEqual(isAbbreviationOf('schneider', 'Advanced Career Institute'), false);
+
+  // Pitt's branch campuses share the main campus feed. Their own names never
+  // appear in it, so neither may claim ownership — but absence of evidence is
+  // not evidence of absence, and a silent reject would lose them for good.
+  const branch = scoreFeedOwnership({
+    employer: { name: 'University of Pittsburgh Bradford', city: 'Bradford', state: 'PA', website: 'https://upb.pitt.edu/' },
+    feedLabel: 'cfopitt',
+    jobs: [
+      job('Postdoctoral Associate', 'Physics & Astronomy', 'Research in the neutrino group.'),
+      job('Research Professional', 'All Temps', 'Support a study.'),
+      job('Lecturer', 'Dietrich School', 'Teach undergraduates.')
+    ]
+  });
+  assert.strictEqual(branch.verdict, 'inconclusive');
+  assert.strictEqual(branch.reason, 'insufficient_evidence');
+
+  // Too few postings to judge is its own answer, distinct from having judged.
+  const thin = scoreFeedOwnership({
+    employer: { name: 'Somewhere University', city: 'Ames', state: 'IA' },
+    jobs: [job('Analyst', 'Ames, IA', 'x')]
+  });
+  assert.strictEqual(thin.verdict, 'inconclusive');
+  assert.strictEqual(thin.reason, 'thin_sample');
+
+  // "CA" must not be read out of "CAMPUS", and full state names count.
+  assert.strictEqual(stateOf('Morgantown, WV'), 'WV');
+  assert.strictEqual(stateOf('West Virginia University'), 'WV');
+  assert.strictEqual(stateOf('Main Campus'), null);
+  assert.strictEqual(stateOf('Physics & Astronomy'), null);
+}
+
 function testTaleoAdapter() {
   const employer = {
     id: 'university-of-alabama-at-birmingham',
@@ -3548,6 +3656,7 @@ async function main() {
   testAdpAdapter();
   testCsodAdapter();
   await testCsodPagingContract();
+  testFeedOwnershipGate();
   testTaleoAdapter();
   testIcimsAdapter();
   await testIcimsSitemapFallback();

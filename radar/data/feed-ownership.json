@@ -1,0 +1,552 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-06T18:32:30.310Z",
+  "sample_size": 12,
+  "counts": {
+    "confirmed": 8,
+    "inconclusive": 2,
+    "rejected": 1
+  },
+  "results": [
+    {
+      "host": "uab.taleo.net",
+      "section": "ext",
+      "claimed_by": "UNIVERSITY OF ALABAMA AT BIRMINGHAM",
+      "employer_place": "Birmingham, AL",
+      "verdict": "confirmed",
+      "reason": "postings_name_employer",
+      "sample_size": 12,
+      "signals": {
+        "name_fraction": 1,
+        "city_fraction": 0,
+        "state_fraction": 0,
+        "name_count": 12,
+        "other_org_count": 0,
+        "usable_location_fraction": 0,
+        "name_tokens": [
+          "alabama",
+          "birmingham"
+        ],
+        "domain": "uab.edu"
+      },
+      "evidence": [
+        {
+          "signal": "domain",
+          "job": "RESEARCH ENGINEER III",
+          "quote": "ng and Technology Development (EITD) department https://www.uab.edu/engineering/eitd/ is seeking a project engineer to join our team. To develop viabl"
+        },
+        {
+          "signal": "domain",
+          "job": "FINANCIAL OFFICER II",
+          "quote": "tor. The Title IX notice of nondiscrimination is located at uab.edu/titleix. !|! Education Bachelor's degree in Accounting, Business or a related fie"
+        },
+        {
+          "signal": "domain",
+          "job": "INSTRUCTOR-PROFESSIONAL STUDIES & LEARNING",
+          "quote": "tor. The Title IX notice of nondiscrimination is located at uab.edu/titleix. !|! Doctor of Philosophy (PhD) in a related field and (3) years of relat"
+        },
+        {
+          "signal": "domain",
+          "job": "ADMINISTRATIVE SUPPORT SPECIALIST",
+          "quote": "tor. The Title IX notice of nondiscrimination is located at uab.edu/titleix. !|! Bachelor's degree in a related field and one (1) year of related exp"
+        },
+        {
+          "signal": "domain",
+          "job": "CLINICAL RESEARCH COORDINATOR I",
+          "quote": "tor. The Title IX notice of nondiscrimination is located at uab.edu/titleix. !|! High School diploma or GED required. Preferences Bachelor's degree o"
+        },
+        {
+          "signal": "domain",
+          "job": "FINANCIAL AFFAIRS ASSOCIATE II",
+          "quote": "tor. The Title IX notice of nondiscrimination is located at uab.edu/titleix. !|! Associate's degree and two (2) years of experience required. Work ex"
+        }
+      ]
+    },
+    {
+      "host": "wvu.taleo.net",
+      "section": "staff",
+      "claimed_by": "WEST VIRGINIA UNIVERSITY",
+      "employer_place": "Morgantown, WV",
+      "verdict": "confirmed",
+      "reason": "postings_name_employer",
+      "sample_size": 12,
+      "signals": {
+        "name_fraction": 1,
+        "city_fraction": 1,
+        "state_fraction": 1,
+        "name_count": 12,
+        "other_org_count": 0,
+        "usable_location_fraction": 1,
+        "name_tokens": [
+          "west",
+          "virginia"
+        ],
+        "domain": "wvu.edu"
+      },
+      "evidence": [
+        {
+          "signal": "domain",
+          "job": "PRT Guideway Technician - Transportation & Parking",
+          "quote": "will make a lasting impact. To learn more about WVU, visit wvu.edu. West Virginia University is an Equal Opportunity Employer. We invite all qualifie"
+        },
+        {
+          "signal": "state",
+          "job": "PRT Guideway Technician - Transportation & Parking",
+          "quote": "US-West Virginia-Morgantown-Downtown Campus"
+        },
+        {
+          "signal": "domain",
+          "job": "Pre-Kindergarten Lead Teacher – WVU Early Learning Institute",
+          "quote": "will make a lasting impact. To learn more about WVU, visit wvu.edu . West Virginia University is an Equal Opportunity Employer. We invite all qualifi"
+        },
+        {
+          "signal": "state",
+          "job": "Pre-Kindergarten Lead Teacher – WVU Early Learning Institute",
+          "quote": "US-West Virginia-Morgantown"
+        },
+        {
+          "signal": "domain",
+          "job": "Night Operations Desk Manager - Housing & Residence Life",
+          "quote": "will make a lasting impact. To learn more about WVU, visit wvu.edu. West Virginia University is an Equal Opportunity Employer. We invite all qualifie"
+        },
+        {
+          "signal": "state",
+          "job": "Night Operations Desk Manager - Housing & Residence Life",
+          "quote": "US-West Virginia-Morgantown-Downtown Campus"
+        },
+        {
+          "signal": "state",
+          "job": "Executive Senior Associate Athletics Director- Governance and Compliance, Athletics",
+          "quote": "US-West Virginia-Morgantown"
+        },
+        {
+          "signal": "state",
+          "job": "Supervisor of Operations - Campus Services",
+          "quote": "US-West Virginia-Morgantown-Downtown Campus"
+        }
+      ]
+    },
+    {
+      "host": "temple.taleo.net",
+      "section": "tu_ex_staff",
+      "claimed_by": "TEMPLE UNIVERSITY",
+      "employer_place": "Philadelphia, PA",
+      "verdict": "confirmed",
+      "reason": "postings_name_employer",
+      "sample_size": 12,
+      "signals": {
+        "name_fraction": 1,
+        "city_fraction": 0.9166666666666666,
+        "state_fraction": 0.9166666666666666,
+        "name_count": 12,
+        "other_org_count": 0,
+        "usable_location_fraction": 0.9166666666666666,
+        "name_tokens": [
+          "temple"
+        ],
+        "domain": "temple.edu"
+      },
+      "evidence": [
+        {
+          "signal": "domain",
+          "job": "Program Coordinator",
+          "quote": "related to campus safety. Go here to review: https://safety.temple.edu/reports-logs/annual-security-report You may request a copy of the report by cal"
+        },
+        {
+          "signal": "state",
+          "job": "Program Coordinator",
+          "quote": "United States-Pennsylvania-Philadelphia"
+        },
+        {
+          "signal": "domain",
+          "job": "Assistant Director Finance - Lewis Katz School of Medicine",
+          "quote": "related to campus safety. Go here to review: https://safety.temple.edu/reports-logs/annual-security-report You may request a copy of the report by cal"
+        },
+        {
+          "signal": "state",
+          "job": "Assistant Director Finance - Lewis Katz School of Medicine",
+          "quote": "United States-Pennsylvania-Philadelphia"
+        },
+        {
+          "signal": "domain",
+          "job": "PT School-Based Liaison, TPSN",
+          "quote": "related to campus safety. Go here to review: https://safety.temple.edu/reports-logs/annual-security-report You may request a copy of the report by cal"
+        },
+        {
+          "signal": "state",
+          "job": "PT School-Based Liaison, TPSN",
+          "quote": "United States-Pennsylvania-Philadelphia"
+        },
+        {
+          "signal": "state",
+          "job": "PT Univ-Based Liaison, TPSN",
+          "quote": "United States-Pennsylvania-Philadelphia"
+        },
+        {
+          "signal": "state",
+          "job": "Web Content Manager",
+          "quote": "United States-Pennsylvania-Philadelphia"
+        }
+      ]
+    },
+    {
+      "host": "smu.taleo.net",
+      "section": "ex",
+      "claimed_by": "SOUTHERN METHODIST UNIVERSITY",
+      "employer_place": "Dallas, TX",
+      "verdict": "confirmed",
+      "reason": "postings_in_employer_city",
+      "sample_size": 12,
+      "signals": {
+        "name_fraction": 0.16666666666666666,
+        "city_fraction": 1,
+        "state_fraction": 1,
+        "name_count": 2,
+        "other_org_count": 0,
+        "usable_location_fraction": 1,
+        "name_tokens": [
+          "southern",
+          "methodist"
+        ],
+        "domain": "smu.edu"
+      },
+      "evidence": [
+        {
+          "signal": "state",
+          "job": "Senior Event Manager (HR Title: Meeting Event Planner II)",
+          "quote": "TX-Dallas"
+        },
+        {
+          "signal": "state",
+          "job": "Graduate Recruiter (HR Title: Student Recruiter II)",
+          "quote": "TX-Dallas"
+        },
+        {
+          "signal": "name",
+          "job": "Community Life Chef (HR Title: Lead Food Service Worker)",
+          "quote": "elcoming of all. The oldest graduate professional School at Southern Methodist University, Perkins embraces its setting in the Southwestern United Sta"
+        },
+        {
+          "signal": "state",
+          "job": "Community Life Chef (HR Title: Lead Food Service Worker)",
+          "quote": "TX-Dallas"
+        },
+        {
+          "signal": "state",
+          "job": "Assistant Athletic Trainer, Equestrian",
+          "quote": "TX-Dallas"
+        },
+        {
+          "signal": "state",
+          "job": "Clinic Coordinator (HR Title: Coordinator 2)",
+          "quote": "TX-Dallas"
+        },
+        {
+          "signal": "state",
+          "job": "Director of Motion Graphics (HR Title: Motion Graphic Design Specialist II)",
+          "quote": "TX-Dallas"
+        },
+        {
+          "signal": "state",
+          "job": "Athletics Development Assistant (HR Title: Coordinator 1)",
+          "quote": "TX-Dallas"
+        }
+      ]
+    },
+    {
+      "host": "tcnj.taleo.net",
+      "section": "00_ex_faculty",
+      "claimed_by": "COLLEGE OF NEW JERSEY",
+      "employer_place": "Ewing, NJ",
+      "verdict": "confirmed",
+      "reason": "postings_name_employer",
+      "sample_size": 4,
+      "signals": {
+        "name_fraction": 1,
+        "city_fraction": 0,
+        "state_fraction": 0,
+        "name_count": 4,
+        "other_org_count": 0,
+        "usable_location_fraction": 0,
+        "name_tokens": [
+          "new",
+          "jersey"
+        ],
+        "domain": "tcnj.edu"
+      },
+      "evidence": [
+        {
+          "signal": "domain",
+          "job": "Assistant Professor-Biology",
+          "quote": "ore information about the college, please visit: http://www.tcnj.edu/ . About the Department: Our new colleague will join a department of 16 full-time"
+        },
+        {
+          "signal": "domain",
+          "job": "Visiting Assistant Professor-Kinesiology & Health Sciences",
+          "quote": "nable accommodation to apply or interview should contact hr@tcnj.edu . Employee Benefits As a member of The College of New Jersey Community, you will"
+        },
+        {
+          "signal": "domain",
+          "job": "Visiting Assistant Professor-Civil Engineering",
+          "quote": "nable accommodation to apply or interview should contact hr@tcnj.edu . Employee Benefits As a member of The College of New Jersey Community, you will"
+        },
+        {
+          "signal": "domain",
+          "job": "Visiting Assistant Professor-Art & Art Education",
+          "quote": "nable accommodation to apply or interview should contact hr@tcnj.edu . Employee Benefits As a member of The College of New Jersey Community, you will"
+        }
+      ]
+    },
+    {
+      "host": "towson.taleo.net",
+      "section": "fac_ex",
+      "claimed_by": "TOWSON UNIVERSITY",
+      "employer_place": "Towson, MD",
+      "verdict": "confirmed",
+      "reason": "postings_name_employer",
+      "sample_size": 12,
+      "signals": {
+        "name_fraction": 1,
+        "city_fraction": 0,
+        "state_fraction": 0,
+        "name_count": 12,
+        "other_org_count": 0,
+        "usable_location_fraction": 0,
+        "name_tokens": [
+          "towson"
+        ],
+        "domain": "towson.edu"
+      },
+      "evidence": [
+        {
+          "signal": "domain",
+          "job": "Assistant Professor, Forensic Chemistry",
+          "quote": "idential letters of recommendation to be sent to FRSCsearch@towson.edu by 5:00 PM Eastern time on August 30 th , 2026 . Letters must focus on the cand"
+        },
+        {
+          "signal": "domain",
+          "job": "Assistant Professor of Political Science",
+          "quote": "ns about applications to: Dr. Paul T. McCartney (pmccartney@towson.edu) Click here to apply. Please note that the search number for which you are appl"
+        },
+        {
+          "signal": "domain",
+          "job": "Assistant Professor of Public Relations",
+          "quote": "partment The Department of Mass Communication ( https://www.towson.edu/cofac/departments/mass-communication/ ) offers an undergraduate major in Mass C"
+        },
+        {
+          "signal": "name",
+          "job": "Assistant Professor of Marketing",
+          "quote": "tment of Marketing College of Business & Economics CBE-4007 Towson University: Towson University (TU) is one of the nation’s top 100 public universiti"
+        },
+        {
+          "signal": "name",
+          "job": "Assistant Professor of Printmaking",
+          "quote": "Education College of Fine Arts and Communication COFAC-4003 Towson University Towson University is one of the nation’s top 100 public universities. Lo"
+        },
+        {
+          "signal": "domain",
+          "job": "Assistant Professor, Organic Chemistry",
+          "quote": "the search committee, Dr. Keith Reber, at organicsearch2026@towson.edu. Salary and Benefits: Targeted salary range: $77,000 – $81,000, commensurate wi"
+        }
+      ]
+    },
+    {
+      "host": "cfopitt.taleo.net",
+      "section": "pitt_staff_external",
+      "claimed_by": "UNIVERSITY OF PITTSBURGH PITTSBURGH CAMPUS",
+      "employer_place": "Pittsburgh, PA",
+      "verdict": "confirmed",
+      "reason": "postings_name_employer",
+      "sample_size": 12,
+      "signals": {
+        "name_fraction": 1,
+        "city_fraction": 0,
+        "state_fraction": 0,
+        "name_count": 12,
+        "other_org_count": 0,
+        "usable_location_fraction": 0,
+        "name_tokens": [
+          "pittsburgh",
+          "pittsburgh"
+        ],
+        "domain": "pitt.edu"
+      },
+      "evidence": [
+        {
+          "signal": "name",
+          "job": "Senior Director, Growth & Revenue Cycle",
+          "quote": "licensed dentists who serve as faculty of the University of Pittsburgh School of Dental Medicine. UDHS dentists include general practitioners as well"
+        },
+        {
+          "signal": "name",
+          "job": "Academic Administrative Coordinator",
+          "quote": "able to pick-up and carry 25 pounds. !|! The University of Pittsburgh is an equal opportunity employer / disability / veteran. !|!Full-time regular!|"
+        },
+        {
+          "signal": "name",
+          "job": "Academic Advisor",
+          "quote": "nd campus occasionally is necessary. !|! The University of Pittsburgh is an equal opportunity employer / disability / veteran. !|!Full-time regular!|"
+        },
+        {
+          "signal": "name",
+          "job": "Academic Advisor",
+          "quote": "nd campus occasionally is necessary. !|! The University of Pittsburgh is an equal opportunity employer / disability / veteran. !|!Full-time regular!|"
+        },
+        {
+          "signal": "domain",
+          "job": "Marketing and Communications Manager",
+          "quote": "ur organization, please explore our website at https://hsee.pitt.edu/. !|! The responsibilities of this position include but are not limited to the f"
+        },
+        {
+          "signal": "name",
+          "job": "Director, Greater Hazelwood Neighborhood Commitment",
+          "quote": "ime especially for community events. !|! The University of Pittsburgh is an equal opportunity employer / disability / veteran. !|!Full-time regular!|"
+        }
+      ]
+    },
+    {
+      "host": "cfopitt.taleo.net",
+      "section": "pitt_staff_external",
+      "claimed_by": "UNIVERSITY OF PITTSBURGH BRADFORD",
+      "employer_place": "Bradford, PA",
+      "verdict": "inconclusive",
+      "reason": "insufficient_evidence",
+      "sample_size": 12,
+      "signals": {
+        "name_fraction": 0,
+        "city_fraction": 0,
+        "state_fraction": 0,
+        "name_count": 0,
+        "other_org_count": 0,
+        "usable_location_fraction": 0,
+        "name_tokens": [
+          "pittsburgh",
+          "bradford"
+        ],
+        "domain": "upb.pitt.edu"
+      },
+      "evidence": []
+    },
+    {
+      "host": "cfopitt.taleo.net",
+      "section": "pitt_staff_external",
+      "claimed_by": "UNIVERSITY OF PITTSBURGH GREENSBURG",
+      "employer_place": "Greensburg, PA",
+      "verdict": "inconclusive",
+      "reason": "insufficient_evidence",
+      "sample_size": 12,
+      "signals": {
+        "name_fraction": 0,
+        "city_fraction": 0,
+        "state_fraction": 0,
+        "name_count": 0,
+        "other_org_count": 0,
+        "usable_location_fraction": 0,
+        "name_tokens": [
+          "pittsburgh",
+          "greensburg"
+        ],
+        "domain": "greensburg.pitt.edu"
+      },
+      "evidence": []
+    },
+    {
+      "host": "schneider.taleo.net",
+      "section": "1",
+      "claimed_by": "ADVANCED CAREER INSTITUTE",
+      "employer_place": "Visalia, CA",
+      "verdict": "rejected",
+      "reason": "postings_name_another_org",
+      "sample_size": 12,
+      "signals": {
+        "name_fraction": 0,
+        "city_fraction": 0,
+        "state_fraction": 0,
+        "name_count": 0,
+        "other_org_count": 2,
+        "usable_location_fraction": 0,
+        "name_tokens": [
+          "advanced",
+          "career"
+        ],
+        "domain": "advanced.edu"
+      },
+      "evidence": [
+        {
+          "signal": "other_org",
+          "job": "Intermodal truck driver | Nighttime - Top drivers earn up to $80,000",
+          "quote": "d. HazMat endorsement required within 60 days of transfer — Schneider’s self-paced online certification training will help you secure it. !|! Average"
+        },
+        {
+          "signal": "other_org",
+          "job": "Van Truckload Driver Instructor | Atlanta, GA",
+          "quote": "n. Prepare new drivers for a safe and rewarding career with Schneider. Job duties Demonstrate and teach driving skills and techniques that align with"
+        }
+      ]
+    },
+    {
+      "host": "utsw.taleo.net",
+      "section": "2",
+      "claimed_by": "UNIVERSITY OF TEXAS SOUTHWESTERN MEDICAL CENTER",
+      "employer_place": "Dallas, TX",
+      "verdict": "confirmed",
+      "reason": "postings_name_employer",
+      "sample_size": 12,
+      "signals": {
+        "name_fraction": 1,
+        "city_fraction": 1,
+        "state_fraction": 1,
+        "name_count": 12,
+        "other_org_count": 0,
+        "usable_location_fraction": 1,
+        "name_tokens": [
+          "texas",
+          "southwestern"
+        ],
+        "domain": "utsouthwestern.edu"
+      },
+      "evidence": [
+        {
+          "signal": "name",
+          "job": "Administrative Associate, Pediatric Pulmonology  & Sleep Medicine ",
+          "quote": "ERN? With over 75 years of excellence in Dallas-Fort Worth, Texas, UT Southwestern is committed to excellence, innovation, teamwork, and compassion. A"
+        },
+        {
+          "signal": "state",
+          "job": "Administrative Associate, Pediatric Pulmonology  & Sleep Medicine ",
+          "quote": "Texas-Dallas-5323 Harry Hines Blvd"
+        },
+        {
+          "signal": "name",
+          "job": "Coding Specialist III - Inpatient",
+          "quote": "ERN? With over 75 years of excellence in Dallas-Fort Worth, Texas, UT Southwestern is committed to excellence, innovation, teamwork, and compassion. A"
+        },
+        {
+          "signal": "state",
+          "job": "Coding Specialist III - Inpatient",
+          "quote": "Texas-Dallas-5323 Harry Hines Blvd"
+        },
+        {
+          "signal": "name",
+          "job": "Advanced Pharmacy Technician, Infusion Services",
+          "quote": "ERN? With over 75 years of excellence in Dallas-Fort Worth, Texas, UT Southwestern is committed to excellence, innovation, teamwork, and compassion. A"
+        },
+        {
+          "signal": "state",
+          "job": "Advanced Pharmacy Technician, Infusion Services",
+          "quote": "Texas-Dallas-5323 Harry Hines Blvd"
+        },
+        {
+          "signal": "state",
+          "job": "Patient Care Technician - 2 12 hour shifts/week  (Nights)",
+          "quote": "Texas-Dallas-5323 Harry Hines Blvd"
+        },
+        {
+          "signal": "state",
+          "job": "Emergency Room Tech - PRN",
+          "quote": "Texas-Dallas-5323 Harry Hines Blvd"
+        }
+      ]
+    }
+  ]
+}
