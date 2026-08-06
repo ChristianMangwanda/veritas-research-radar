@@ -5327,14 +5327,23 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "ipeds:139658"
+      "ipeds:139658",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "faculty-emory",
     "careers_url": "https://faculty-emory.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 290 live postings. USCIS 534 approvals / DOL 55 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 290 live postings. USCIS 534 approvals / DOL 55 research LCAs (3y). Feed attached 2026-08-05 (271 postings live); employer name confirmed against the board's own hiringOrganization. Runs a second board for the other population (staff-emory, 339 postings), carried as a secondary feed.",
+    "ats_config": {},
+    "secondary_ats_feeds": [
+      {
+        "ats_provider": "icims",
+        "ats_token": "staff-emory",
+        "ats_config": {}
+      }
+    ]
   },
   {
     "id": "oregon-health-science-university",
@@ -5344,14 +5353,23 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "ipeds:209490"
+      "ipeds:209490",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "facultycareers-ohsu",
     "careers_url": "https://facultycareers-ohsu.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 167 live postings. USCIS 235 approvals / DOL 12 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 167 live postings. USCIS 235 approvals / DOL 12 research LCAs (3y). Feed attached 2026-08-05 (159 postings live); employer name confirmed against the board's own hiringOrganization. Runs a second board for the other population (careersat-ohsu, 504 postings), carried as a secondary feed.",
+    "ats_config": {},
+    "secondary_ats_feeds": [
+      {
+        "ats_provider": "icims",
+        "ats_token": "careersat-ohsu",
+        "ats_config": {}
+      }
+    ]
   },
   {
     "id": "auburn-university",
@@ -5366,9 +5384,9 @@
     "tier": "auto",
     "ats_provider": null,
     "ats_token": null,
-    "careers_url": "https://jobs-auburn.icims.com/jobs/search?ss=1",
+    "careers_url": "https://jobs.auburn.edu/jobs",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 157 approvals / DOL 4 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 157 approvals / DOL 4 research LCAs (3y). Left iCIMS: the old board is a JS redirect stub, careers_url updated 2026-08-05. No public feed found at the new host yet."
   },
   {
     "id": "utah-state-university",
@@ -5433,14 +5451,16 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "ipeds:459824"
+      "ipeds:459824",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "tuncareers-touro",
     "careers_url": "https://tuncareers-touro.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 18 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 18 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y). Feed attached 2026-08-05 (16 postings live); employer name confirmed against the board's own hiringOrganization.",
+    "ats_config": {}
   },
   {
     "id": "norfolk-state-university",
@@ -6179,9 +6199,9 @@
     "tier": "auto",
     "ats_provider": null,
     "ats_token": null,
-    "careers_url": "https://careers-ucla.icims.com/jobs/search?ss=1",
+    "careers_url": "https://jobs.ucla.edu/jobs",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 266 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 266 approvals / DOL 0 research LCAs (3y). Left iCIMS: the old board is a JS redirect stub, careers_url updated 2026-08-05. No public feed found at the new host yet."
   },
   {
     "id": "university-of-california-irvine",
@@ -6196,9 +6216,9 @@
     "tier": "auto",
     "ats_provider": null,
     "ats_token": null,
-    "careers_url": "https://careers-uci.icims.com/jobs/search?ss=1",
+    "careers_url": "https://jobs.uci.edu/jobs",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 159 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 159 approvals / DOL 0 research LCAs (3y). Left iCIMS: the old board is a JS redirect stub, careers_url updated 2026-08-05. No public feed found at the new host yet."
   },
   {
     "id": "the-rockefeller-university",
@@ -6213,9 +6233,9 @@
     "tier": "auto",
     "ats_provider": null,
     "ats_token": null,
-    "careers_url": "https://careers-rockefelleruniversity.icims.com/jobs/search?ss=1",
+    "careers_url": "https://careers.rockefeller.edu/jobs",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 126 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 0 live postings. USCIS 126 approvals / DOL 0 research LCAs (3y). Left iCIMS: the old board is a JS redirect stub, careers_url updated 2026-08-05. No public feed found at the new host yet."
   },
   {
     "id": "san-diego-state-university",
@@ -6225,14 +6245,15 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "ipeds:122409"
+      "ipeds:122409",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "careers-sdsurf",
     "careers_url": "https://careers-sdsurf.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 41 live postings. USCIS 37 approvals / DOL 0 research LCAs (3y).",
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 41 live postings. USCIS 37 approvals / DOL 0 research LCAs (3y). Feed attached 2026-08-05 (39 postings live); employer name confirmed against the board's own hiringOrganization.",
     "secondary_ats_feeds": [
       {
         "ats_provider": "interfolio",
@@ -6241,7 +6262,8 @@
           "tenant_id": 14858
         }
       }
-    ]
+    ],
+    "ats_config": {}
   },
   {
     "id": "eastern-virginia-medical-school",
@@ -6251,14 +6273,16 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "ipeds:231970"
+      "ipeds:231970",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "careers-evms",
     "careers_url": "https://careers-evms.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 81 live postings. USCIS 20 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 81 live postings. USCIS 20 approvals / DOL 0 research LCAs (3y). Feed attached 2026-08-05 (74 postings live); employer name confirmed against the board's own hiringOrganization.",
+    "ats_config": {}
   },
   {
     "id": "new-york-institute-of-technology",
@@ -6268,14 +6292,16 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "ipeds:194091"
+      "ipeds:194091",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "careers-nyit",
     "careers_url": "https://careers-nyit.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 63 live postings. USCIS 18 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 63 live postings. USCIS 18 approvals / DOL 0 research LCAs (3y). Feed attached 2026-08-05 (65 postings live); employer name confirmed against the board's own hiringOrganization.",
+    "ats_config": {}
   },
   {
     "id": "hackensack-meridian-school-of-medicine",
@@ -6285,14 +6311,16 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "ipeds:495314"
+      "ipeds:495314",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "careers-hackensackmeridianhealth",
     "careers_url": "https://careers-hackensackmeridianhealth.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 1546 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-05); probe saw 1546 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y). Feed attached 2026-08-05 (1571 postings live); employer name confirmed against the board's own hiringOrganization.",
+    "ats_config": {}
   },
   {
     "id": "sri-international",
@@ -6302,14 +6330,16 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "irs_eo_bmf"
+      "irs_eo_bmf",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "careers-sri",
     "careers_url": "https://careers-sri.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-06); probe saw 37 live postings. USCIS 44 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-06); probe saw 37 live postings. USCIS 44 approvals / DOL 0 research LCAs (3y). Feed attached 2026-08-05 (38 postings live); employer name confirmed against the board's own hiringOrganization.",
+    "ats_config": {}
   },
   {
     "id": "american-enterprise-institute-for-public-policy-",
@@ -6319,14 +6349,16 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "irs_eo_bmf"
+      "irs_eo_bmf",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "careers-aei",
     "careers_url": "https://careers-aei.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-06); probe saw 11 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-06); probe saw 11 live postings. USCIS 4 approvals / DOL 0 research LCAs (3y). Feed attached 2026-08-05 (12 postings live); employer name confirmed against the board's own hiringOrganization.",
+    "ats_config": {}
   },
   {
     "id": "lovelace-biomedical-research-institute",
@@ -6336,14 +6368,16 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "irs_eo_bmf"
+      "irs_eo_bmf",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "careers-lrri",
     "careers_url": "https://careers-lrri.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-06); probe saw 17 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-07-06); probe saw 17 live postings. USCIS 5 approvals / DOL 0 research LCAs (3y). Feed attached 2026-08-05 (16 postings live); employer name confirmed against the board's own hiringOrganization.",
+    "ats_config": {}
   },
   {
     "id": "athens-state-university",
@@ -6378,9 +6412,9 @@
     "tier": "auto",
     "ats_provider": null,
     "ats_token": null,
-    "careers_url": "https://jobs-aum.icims.com/jobs/search?ss=1",
+    "careers_url": "https://jobs.aum.edu/jobs",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-08-03); probe saw 0 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-08-03); probe saw 0 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y). Left iCIMS: the old board is a JS redirect stub, careers_url updated 2026-08-05. No public feed found at the new host yet."
   },
   {
     "id": "arizona-state-university-campus-immersion",
@@ -7056,23 +7090,6 @@
     "notes": "Auto-wired from ATS discovery crawl (2026-08-03); probe saw 49 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y)."
   },
   {
-    "id": "concorde-career-college-aurora",
-    "name": "Concorde Career College-Aurora",
-    "aliases": [],
-    "type": "institution_of_higher_education",
-    "cap_exempt_status": "likely",
-    "evidence_sources": [
-      "ats_discovery_crawl",
-      "ipeds:126687"
-    ],
-    "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
-    "careers_url": "https://careers-concorde.icims.com/jobs/search?ss=1",
-    "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-08-03); probe saw 98 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y)."
-  },
-  {
     "id": "case-western-reserve-university",
     "name": "Case Western Reserve University",
     "aliases": [],
@@ -7344,14 +7361,16 @@
     "cap_exempt_status": "likely",
     "evidence_sources": [
       "ats_discovery_crawl",
-      "ipeds:145497"
+      "ipeds:145497",
+      "ats_feed_verified"
     ],
     "tier": "auto",
-    "ats_provider": null,
-    "ats_token": null,
+    "ats_provider": "icims",
+    "ats_token": "htccareers-touro",
     "careers_url": "https://htccareers-touro.icims.com/jobs/search?ss=1",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-08-04); probe saw 3 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-08-04); probe saw 3 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y). Feed attached 2026-08-05 (3 postings live); employer name confirmed against the board's own hiringOrganization.",
+    "ats_config": {}
   },
   {
     "id": "joliet-junior-college",
@@ -8302,9 +8321,9 @@
     "tier": "auto",
     "ats_provider": null,
     "ats_token": null,
-    "careers_url": "https://careers-hazelden.icims.com/jobs/search?ss=1",
+    "careers_url": "https://jobs.hazeldenbettyford.org/jobs",
     "research_areas": [],
-    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-08-04); probe saw 0 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y)."
+    "notes": "iCIMS board, scout-driven (browser-rendered; sitemap-verified). Auto-wired from ATS discovery crawl (2026-08-04); probe saw 0 live postings. USCIS 0 approvals / DOL 0 research LCAs (3y). Left iCIMS: the old board is a JS redirect stub, careers_url updated 2026-08-05. No public feed found at the new host yet."
   },
   {
     "id": "minneapolis-college-of-art-and-design",
