@@ -2186,6 +2186,44 @@ function testSeedCacheKeys() {
     'a different hash function would key rows the scorer cannot address');
 }
 
+async function testJudgeFunction() {
+  const handler = require('../api/judge.js');
+  const { inList, MAX_IDS } = handler;
+
+  /* Job ids are colon-composed, and a bare colon ends a PostgREST value. An
+   * unquoted list does not error — it matches nothing, which reads as "no
+   * judgments are cached" and re-judges the whole screen at full price. */
+  assert.strictEqual(inList(['workday:cornell:WDR-00059001']), '("workday:cornell:WDR-00059001")');
+  assert.strictEqual(inList(['a', 'b']), '("a","b")');
+  assert.strictEqual(inList(['say "hi"']), '("say ""hi""")', 'quotes are doubled, not dropped');
+
+  // The guards, exercised through the real handler with a fake req/res. None of
+  // these paths touch the network, so they hold without any deployment.
+  const call = async (request) => {
+    const captured = { status: null, body: null };
+    const response = {
+      setHeader() {},
+      status(code) { captured.status = code; return response; },
+      json(payload) { captured.body = payload; return response; },
+      end() { return response; }
+    };
+    await handler({ headers: {}, ...request }, response);
+    return captured;
+  };
+
+  assert.strictEqual((await call({ method: 'GET' })).status, 405, 'GET is not a judging verb');
+  assert.strictEqual((await call({ method: 'OPTIONS' })).status, 204, 'preflight is answered');
+
+  const previous = process.env.SUPABASE_URL;
+  process.env.SUPABASE_URL = '';
+  const unconfigured = await call({ method: 'POST', body: { ids: ['x'] } });
+  assert.strictEqual(unconfigured.status, 500);
+  assert.match(unconfigured.body.error, /SUPABASE_URL/, 'missing config is named, not guessed at');
+  if (previous === undefined) delete process.env.SUPABASE_URL; else process.env.SUPABASE_URL = previous;
+
+  assert(MAX_IDS <= 20, 'a batch has to finish inside the function timeout');
+}
+
 function testJudgedMatch() {
   const {
     deriveVerdict, normalizeJudgment, matchCacheKey, candidateBrief, jobBrief,
@@ -3697,6 +3735,7 @@ async function main() {
   await testFlushScheduler();
   testProfileDocument();
   testSeedCacheKeys();
+  await testJudgeFunction();
   testJudgedMatch();
   testManifestSync();
   testFitAudit();

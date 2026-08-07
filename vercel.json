@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "mkdir -p site/data && cp -r radar/public/* site/ && cp radar/data/refresh-report.json radar/data/discovery-candidates.json site/data/ && cp radar/employers.json site/data/employers.json",
+  "outputDirectory": "site",
+  "functions": {
+    "api/judge.js": {
+      "maxDuration": 60
+    }
+  },
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- radar/public radar/employers.json radar/data/refresh-report.json radar/data/discovery-candidates.json api vercel.json"
+}
