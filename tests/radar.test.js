@@ -2157,6 +2157,35 @@ function testProfileDocument() {
   assert.deepStrictEqual(parseProfileDocument('---\navoid: []\n---\n\n## Who I am\nx').core.avoid_signals, []);
 }
 
+function testSeedCacheKeys() {
+  const { parseCacheKey } = require('../radar/scripts/seed-supabase.js');
+  const { matchCacheKey } = require('../radar/scripts/lib/match.js');
+
+  // Round-trip against the real key builder, so this test fails if the key
+  // format ever moves rather than testing a copy of it.
+  const key = matchCacheKey('fnv1a:69236853', 'fnv1a:6dffd8d0', 'in-profile');
+  assert.deepStrictEqual(parseCacheKey(key), {
+    job_hash: 'fnv1a:69236853',
+    profile_hash: 'fnv1a:6dffd8d0'
+  });
+
+  /* The two dead generations. Both were judged by a local qwen against the
+   * résumé-derived profile.json, under preferences that lived in their own
+   * file. Their profile hash is not the current one, so nothing would ever
+   * read them back — importing them would only make the row count lie. */
+  assert.strictEqual(parseCacheKey('1:fnv1a:69236853:fnv1a:cae25871:0ab9086e'), null);
+  assert.strictEqual(parseCacheKey('1:fnv1a:69236853:fnv1a:cae25871:0d97e33b'), null);
+
+  // Malformed input must be dropped, never guessed at.
+  assert.strictEqual(parseCacheKey(''), null);
+  assert.strictEqual(parseCacheKey(null), null);
+  assert.strictEqual(parseCacheKey('1:fnv1a:69236853:fnv1a:6dffd8d0'), null, 'too few parts');
+  assert.strictEqual(parseCacheKey('2:fnv1a:69236853:fnv1a:6dffd8d0:in-profile'), null,
+    'a future schema version is not silently treated as this one');
+  assert.strictEqual(parseCacheKey('1:sha1:69236853:fnv1a:6dffd8d0:in-profile'), null,
+    'a different hash function would key rows the scorer cannot address');
+}
+
 function testJudgedMatch() {
   const {
     deriveVerdict, normalizeJudgment, matchCacheKey, candidateBrief, jobBrief,
@@ -3667,6 +3696,7 @@ async function main() {
   testProfessionGate();
   await testFlushScheduler();
   testProfileDocument();
+  testSeedCacheKeys();
   testJudgedMatch();
   testManifestSync();
   testFitAudit();
