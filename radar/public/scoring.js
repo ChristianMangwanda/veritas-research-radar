@@ -120,7 +120,7 @@
 
   function validateProfile(value) {
     if (!value || typeof value !== 'object') return 'profile is not an object';
-    if (value.schema_version !== 2) return `expected schema_version 2 (got ${value.schema_version}) — re-run npm run radar:profile`;
+    if (value.schema_version !== 2) return `expected schema_version 2 (got ${value.schema_version}) — check the profile document's frontmatter`;
     if (!value.core || typeof value.core !== 'object') return 'profile.core missing';
     if (!Array.isArray(value.variants) || value.variants.length === 0) return 'profile.variants must be a non-empty array';
     const ids = new Set();

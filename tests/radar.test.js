@@ -2085,7 +2085,17 @@ async function testFlushScheduler() {
 }
 
 function testProfileDocument() {
-  const { parseProfileDocument, parseCapabilities } = require('../radar/scripts/lib/profile-doc.js');
+  const RadarProfileDoc = require('../radar/public/profile-doc.js');
+  const { parseProfileDocument, parseCapabilities } = RadarProfileDoc;
+
+  /* Dual-env, same trick and same reason as scoring.js: the browser parses the
+   * profile document now that it lives in Supabase rather than on the server's
+   * disk, and the judge parses it server-side. Two parsers would eventually
+   * disagree, and a disagreement here moves profileHash — which silently
+   * orphans every paid-for judgment in the cache. So: one file, both runtimes. */
+  assert.strictEqual(globalThis.RadarProfileDoc, RadarProfileDoc,
+    'must attach to the global in Node too, exactly as the browser sees it');
+  assert.strictEqual(typeof globalThis.RadarProfileDoc.parseProfileDocument, 'function');
 
   // Parenthesised detail is where the most matchable terms live — a posting
   // says "SARIMAX", not "time-series forecasting". Keep the parent AND each

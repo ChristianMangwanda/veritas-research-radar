@@ -9,7 +9,7 @@ const { syncManifest, isResumeFile, RESUME_EXTENSIONS } = require('./lib/manifes
 const {
   JUDGMENT_SCHEMA, JUDGE_SYSTEM_PROMPT, judgeUserPrompt, matchCacheKey, normalizeJudgment
 } = require('./lib/match.js');
-const { parseProfileDocument } = require('./lib/profile-doc.js');
+const { parseProfileDocument } = require('../public/profile-doc.js');
 const { createFlushScheduler } = require('./lib/flush-scheduler.js');
 const { DEFAULT_MODEL, readKey, judgeOnce, costOf } = require('./lib/openai.js');
 const RadarScoring = require('../public/scoring.js');
