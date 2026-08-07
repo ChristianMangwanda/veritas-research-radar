@@ -37,10 +37,26 @@ const LAUNCH_DEADLINE_MS = 45000;
 
 const MODEL = process.env.RADAR_MATCH_MODEL || DEFAULT_MODEL;
 
+/* Both key names are accepted because both are in circulation: CI holds
+ * SUPABASE_SERVICE_KEY as a repo secret, and Supabase's dashboard now issues
+ * the same thing as a "secret key" (sb_secret_…). Which name a key was pasted
+ * under should never be the thing that breaks judging. */
 function env() {
   const url = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
-  const key = process.env.SUPABASE_SERVICE_KEY || '';
+  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SECRET_KEY || '';
   return url && key ? { url, key } : null;
+}
+
+/** Which of the required variables are actually missing — so a 500 says what
+ *  to go and set rather than restating the whole list. */
+function missingEnv() {
+  const missing = [];
+  if (!process.env.SUPABASE_URL) missing.push('SUPABASE_URL');
+  if (!process.env.SUPABASE_SERVICE_KEY && !process.env.SUPABASE_SECRET_KEY) {
+    missing.push('SUPABASE_SERVICE_KEY (or SUPABASE_SECRET_KEY)');
+  }
+  if (!process.env.OPENAI_API_KEY) missing.push('OPENAI_API_KEY');
+  return missing;
 }
 
 /** PostgREST with the service role. Small clone of lib/supabase.js's request()
@@ -116,9 +132,12 @@ async function handler(request, response) {
   if (request.method === 'OPTIONS') { response.status(204).end(); return; }
   if (request.method !== 'POST') { response.status(405).json({ error: 'POST only' }); return; }
 
+  const missing = missingEnv();
+  if (missing.length) {
+    response.status(500).json({ error: `not configured on this deployment: ${missing.join(', ')}` });
+    return;
+  }
   const config = env();
-  if (!config) { response.status(500).json({ error: 'SUPABASE_URL / SUPABASE_SERVICE_KEY not configured' }); return; }
-  if (!process.env.OPENAI_API_KEY) { response.status(500).json({ error: 'OPENAI_API_KEY not configured' }); return; }
 
   const token = /^Bearer (.+)$/i.exec(request.headers.authorization || '')?.[1];
   const user = await verifyUser(config, token);

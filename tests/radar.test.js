@@ -2214,12 +2214,44 @@ async function testJudgeFunction() {
   assert.strictEqual((await call({ method: 'GET' })).status, 405, 'GET is not a judging verb');
   assert.strictEqual((await call({ method: 'OPTIONS' })).status, 204, 'preflight is answered');
 
-  const previous = process.env.SUPABASE_URL;
-  process.env.SUPABASE_URL = '';
+  const saved = {
+    url: process.env.SUPABASE_URL,
+    service: process.env.SUPABASE_SERVICE_KEY,
+    secret: process.env.SUPABASE_SECRET_KEY,
+    openai: process.env.OPENAI_API_KEY
+  };
+  const restore = () => {
+    for (const [name, value] of [['SUPABASE_URL', saved.url], ['SUPABASE_SERVICE_KEY', saved.service],
+      ['SUPABASE_SECRET_KEY', saved.secret], ['OPENAI_API_KEY', saved.openai]]) {
+      if (value === undefined) delete process.env[name]; else process.env[name] = value;
+    }
+  };
+  for (const name of ['SUPABASE_URL', 'SUPABASE_SERVICE_KEY', 'SUPABASE_SECRET_KEY', 'OPENAI_API_KEY']) {
+    delete process.env[name];
+  }
+
   const unconfigured = await call({ method: 'POST', body: { ids: ['x'] } });
   assert.strictEqual(unconfigured.status, 500);
-  assert.match(unconfigured.body.error, /SUPABASE_URL/, 'missing config is named, not guessed at');
-  if (previous === undefined) delete process.env.SUPABASE_URL; else process.env.SUPABASE_URL = previous;
+  // The 500 must NAME what is missing. A generic "not configured" cost a live
+  // deployment's worth of guessing about which of three variables was wrong.
+  assert.match(unconfigured.body.error, /SUPABASE_URL/);
+  assert.match(unconfigured.body.error, /OPENAI_API_KEY/);
+
+  /* Supabase's dashboard issues the key as SUPABASE_SECRET_KEY now, while CI
+   * holds it as SUPABASE_SERVICE_KEY. Both must satisfy the check — the name a
+   * key happened to be pasted under is not a reason for judging to be down. */
+  process.env.SUPABASE_URL = 'https://x.supabase.co';
+  process.env.OPENAI_API_KEY = 'sk-test';
+  process.env.SUPABASE_SECRET_KEY = 'sb_secret_test';
+  // 401 rather than 500 is the signal: the config check passed and it moved on
+  // to wanting a token.
+  const withSecretName = await call({ method: 'POST', body: { ids: [] } });
+  assert.strictEqual(withSecretName.status, 401, 'SUPABASE_SECRET_KEY satisfies the config check');
+  delete process.env.SUPABASE_SECRET_KEY;
+  process.env.SUPABASE_SERVICE_KEY = 'sb_secret_test';
+  const withServiceName = await call({ method: 'POST', body: { ids: [] } });
+  assert.strictEqual(withServiceName.status, 401, 'and so does the CI name');
+  restore();
 
   assert(MAX_IDS <= 20, 'a batch has to finish inside the function timeout');
 }
