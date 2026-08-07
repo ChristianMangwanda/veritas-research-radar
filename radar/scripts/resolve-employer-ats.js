@@ -26,8 +26,17 @@
  * radar/data/ats-resolutions.json, contains suggested registry entries for the
  * ones that survived; it never edits the registry itself.
  *
+ * Two pools feed it. `--pool colleges` (the default) is the ATS-discovery crawl,
+ * which only ever covered IPEDS institutions. `--pool nonprofits` is the ranked
+ * IRS side — the research institutes, which the crawl never visited at all and
+ * which are therefore 34 of 535 in a registry that is 94% colleges. Their
+ * websites were resolved separately into nonprofit-websites.json and never
+ * joined back to anything; this reads both and hands the resolver the same
+ * record shape the crawl produces.
+ *
  * Usage:
- *   node radar/scripts/resolve-employer-ats.js [--min-uscis N] [--limit N]
+ *   node radar/scripts/resolve-employer-ats.js [--pool colleges|nonprofits]
+ *        [--min-uscis N] [--limit N]
  *        [--name "EXACT ORG NAME"] [--no-model] [--max-spend USD] [--force]
  */
 
@@ -41,9 +50,12 @@ const { probeCsod, probeOracle, probeIcims } = require('./probe-ats-config.js');
 const { probeHost: probeTaleoHost, DEFAULT_CODES: TALEO_CODES } = require('./probe-taleo-sections.js');
 const { readKey } = require('./lib/openai.js');
 const { normalizeName } = require('./lib/entity-resolution.js');
+const { verifyWebsite } = require('./lib/verify-website.js');
 
 const DATA_DIR = path.resolve(__dirname, '../data');
 const DISCOVERY_PATH = path.join(DATA_DIR, 'ats-discovery.json');
+const RANKING_PATH = path.join(DATA_DIR, 'nonprofit-ranking.json');
+const NONPROFIT_SITES_PATH = path.join(DATA_DIR, 'nonprofit-websites.json');
 const DIRECTORY_PATH = path.join(DATA_DIR, 'cap-exempt-directory.json');
 const REGISTRY_PATH = path.resolve(__dirname, '../employers.json');
 const CACHE_PATH = path.join(DATA_DIR, 'ats-resolve-cache.json');
@@ -87,7 +99,10 @@ const ATS_HOST_SIGNS = [
 const PEOPLESOFT_URL = /\/(psp|psc)\/[a-z0-9_]+\/(employee|candidate)/i;
 
 function parseArgs(argv) {
-  const args = { minUscis: 10, limit: Infinity, name: null, noModel: false, maxSpend: 8, force: false };
+  const args = {
+    minUscis: 10, limit: Infinity, name: null, noModel: false,
+    maxSpend: 8, force: false, pool: 'colleges'
+  };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--min-uscis') args.minUscis = Number(argv[++i]);
     else if (argv[i] === '--limit') args.limit = Number(argv[++i]);
@@ -95,8 +110,46 @@ function parseArgs(argv) {
     else if (argv[i] === '--no-model') args.noModel = true;
     else if (argv[i] === '--max-spend') args.maxSpend = Number(argv[++i]);
     else if (argv[i] === '--force') args.force = true;
+    else if (argv[i] === '--pool') args.pool = argv[++i];
+  }
+  if (!['colleges', 'nonprofits'].includes(args.pool)) {
+    throw new Error(`--pool must be colleges or nonprofits, got "${args.pool}"`);
   }
   return args;
+}
+
+/**
+ * The nonprofit pool, in the shape the crawl would have produced if it had ever
+ * looked at these organisations.
+ *
+ * Only proven and strong survive: the tiers below them are ranked on revenue and
+ * NTEE code alone, and a resolver run costs real money per organisation. A
+ * nonprofit has no crawled careers_url — its homepage is the entry point, and
+ * stage A's link-following is what turns that into a careers page.
+ */
+async function loadNonprofitPool() {
+  const ranking = JSON.parse(await fsp.readFile(RANKING_PATH, 'utf8'));
+  let sites = {};
+  try {
+    sites = JSON.parse(await fsp.readFile(NONPROFIT_SITES_PATH, 'utf8')).websites || {};
+  } catch { /* the website pass has not been run; names alone still work */ }
+
+  const pool = {};
+  for (const org of ranking.organizations) {
+    if (org.excluded || !['proven', 'strong'].includes(org.tier)) continue;
+    pool[org.name] = {
+      name: org.name,
+      // The ranking's own website field predates the resolver pass, so prefer
+      // whichever exists; both were verified before being written.
+      website: org.website || sites[org.key]?.website || null,
+      careers_url: null,
+      ats: [],
+      uscis_approvals_3y: org.uscis_approvals_3y || 0,
+      ein: org.ein,
+      tier: org.tier
+    };
+  }
+  return pool;
 }
 
 /** "hr.upenn.edu" and "www.upenn.edu" are the same place for provenance. */
@@ -563,6 +616,43 @@ async function verifyProvenance(pageUrl, orgWebsite, atsUrl, provider) {
   return { ok: true, page: pageUrl };
 }
 
+/**
+ * Provenance needs to know the employer's own domain, and 143 of the ranked
+ * nonprofits have no website on file — the model declined to guess one, which
+ * was the right answer at the time and is a dead end here: without a domain
+ * every one of them ends `ats_found_unverified` no matter how good the find.
+ *
+ * The careers page the model named is a domain we can test rather than trust.
+ * Run it through the same two-independent-token rule that guards every other
+ * website in this project; if it verifies, that IS the organisation's site and
+ * the ordinary provenance check can proceed from it.
+ *
+ * The vendor-host exclusion is what keeps this honest. A careers page served
+ * from myworkdayjobs.com will mention the employer by name — adopting that as
+ * "their domain" would make the provenance check compare the ATS host to
+ * itself and pass everything. Provenance means the ORG's own domain links the
+ * board, so a page on the vendor's domain can never supply it.
+ */
+async function learnOrgWebsite(pageUrl, orgName) {
+  if (!pageUrl) return null;
+  const domain = registrableDomain(pageUrl);
+  if (!domain) return null;
+  if (ATS_HOST_SIGNS.some(([fragment]) => domain.includes(fragment.replace(/^\./, '')))) {
+    return null;
+  }
+  const check = await verifyWebsite(`https://${domain}/`, orgName).catch(() => null);
+  // `blocked` (403/429/406) is a pass for "is this domain real", which is what
+  // verifyWebsite was built to answer. It is not a pass here: a refused request
+  // returns no page text, so nothing has connected this domain to this name.
+  // Establishing identity needs the tokens, not just a live server.
+  if (!check?.ok || check.blocked || !check.matched_token) return null;
+  return {
+    website: `https://${domain}/`,
+    method: 'verified_from_careers_page',
+    matched_token: check.matched_token
+  };
+}
+
 /** Enough of the ATS URL to prove the page links THIS tenant, not the vendor. */
 function registrableDomainWithPath(atsUrl) {
   const match = /^https?:\/\/([^/]+)(\/[^?#\s]{0,40})?/i.exec(atsUrl || '');
@@ -591,7 +681,9 @@ function suggestEntry(org, dirEntry, provider, derived, careersUrl) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const discovery = JSON.parse(await fsp.readFile(DISCOVERY_PATH, 'utf8')).employers;
+  const discovery = args.pool === 'nonprofits'
+    ? await loadNonprofitPool()
+    : JSON.parse(await fsp.readFile(DISCOVERY_PATH, 'utf8')).employers;
   const directory = JSON.parse(await fsp.readFile(DIRECTORY_PATH, 'utf8')).entries;
   const registry = JSON.parse(await fsp.readFile(REGISTRY_PATH, 'utf8'));
   const registryNames = new Set();
@@ -628,7 +720,7 @@ async function main() {
     .sort((a, b) => (b[1].uscis_approvals_3y || 0) - (a[1].uscis_approvals_3y || 0))
     .slice(0, args.limit);
 
-  console.log(`${pool.length} org(s) to resolve (min ${args.minUscis} H-1B approvals; cache holds ${Object.keys(cache.entries).length})\n`);
+  console.log(`${pool.length} ${args.pool} org(s) to resolve (min ${args.minUscis} H-1B approvals; cache holds ${Object.keys(cache.entries).length})\n`);
 
   const key = args.noModel ? null : readKey(ENV_PATH);
   if (!args.noModel && !key) console.log('No OPENAI_API_KEY — running free stages only.\n');
@@ -646,9 +738,18 @@ async function main() {
     // one is re-checked against the live board and picks up fixes (the PageUp
     // token collision below was cached as `proposed` and would otherwise have
     // survived its own fix). Only unresolvable outcomes are terminal.
-    const retryable = cached && cached.provider
+    // A failure recorded by a run that never consulted the model is not a
+    // finding, it is an unfinished job. Running --no-model first (the sensible
+    // way to see what is free before paying for anything) otherwise writes 272
+    // terminal `no_ats_found` rows, and the paid run that follows skips every
+    // one of them — the free reconnaissance silently cancels the paid pass.
+    // Read off the record itself rather than a flag, so entries written before
+    // this existed are judged correctly too: no provider found AND no model
+    // call on file means the paid stage never ran, whatever the reason.
+    const stalled = cached && !cached.provider && !cached.model && !cached.model_answer;
+    const replayable = cached && cached.provider
       && ['needs_config', 'ats_found_unverified', 'proposed', 'feed_unproven'].includes(cached.status);
-    if (!args.force && cached && !retryable) {
+    if (!args.force && cached && !replayable && !stalled) {
       results.push(cached);
       continue;
     }
@@ -657,7 +758,10 @@ async function main() {
 
     let found;
     let careersPage;
-    if (retryable && !args.force) {
+    // A stalled entry has nothing to replay — no provider, no bought answer.
+    // It re-runs stage A from scratch (free) and then reaches the model, which
+    // is the whole point of un-sticking it.
+    if (replayable && !args.force) {
       out.stage_a = cached.stage_a;
       if (cached.model) out.model = { ...cached.model, cost: 0, reused: true };
       if (cached.model_answer) {
@@ -695,6 +799,12 @@ async function main() {
     if (found.via) out.via = found.via;
 
     // B — paid, only on failure and under budget
+    if (found.status !== 'found' && !(key && spend < args.maxSpend)) {
+      // Why this org never reached the paid stage — no key, or the budget ran
+      // out mid-run. Either way the result below is provisional, and `stalled`
+      // above uses this to let a funded run pick the org back up.
+      out.model_skipped = key ? 'budget_exhausted' : 'no_key';
+    }
     if (found.status !== 'found' && key && spend < args.maxSpend) {
       try {
         const answer = await modelDetect(key, org);
@@ -766,6 +876,17 @@ async function main() {
       continue;
     }
     out.jobs_found = derived.jobs_found;
+
+    // An org with no website on file can still earn one here, from the careers
+    // page itself — see learnOrgWebsite. Free, and it is the difference between
+    // a promotable nonprofit and an unverifiable one.
+    if (!org.website && careersPage) {
+      const learned = await learnOrgWebsite(careersPage, name);
+      if (learned) {
+        org.website = learned.website;
+        out.learned_website = learned;
+      }
+    }
 
     // D — provenance. Stage-A finds carry it by construction (we fetched the
     // org's own recorded page); model finds must survive a re-fetch.
