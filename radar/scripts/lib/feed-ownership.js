@@ -174,7 +174,11 @@ function scoreFeedOwnership({ employer, jobs, feedLabel = null, thresholds = {} 
    * crawl filed it under — that is positive evidence of another owner, not
    * merely absent evidence of this one. Only distinctive slugs qualify: a
    * generic or employer-matching label proves nothing either way. */
-  const label = (feedLabel || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  // "careers-atcc" and "careers2-emory" carry a decorative subdomain prefix
+  // that is not part of anyone's identity; left on, a real tenant reads as
+  // foreign and its own employer loses the feed. promote-employers.js strips
+  // the same prefix for the same reason.
+  const label = (feedLabel || '').toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^careers2?/, '');
   const labelIsForeign = label.length >= 4
     && !wanted.some((token) => token.includes(label) || label.includes(token))
     && (!domain || !domain.includes(label))
@@ -248,10 +252,33 @@ function scoreFeedOwnership({ employer, jobs, feedLabel = null, thresholds = {} 
   // Confirm on any single sufficient signal. A feed whose postings repeatedly
   // name the employer is settled regardless of what its location column holds,
   // which matters because Taleo's location column is frequently a department.
-  if (signals.name_fraction >= limits.nameConfirm) {
+  /* A name that reduces to a single token cannot verify itself.
+   *
+   * "FOSSA" is an Oregon nonprofit with no revenue; fossa.com is a San
+   * Francisco software company. Every sampled posting said "FOSSA", the board
+   * slug said "fossainc", and on name evidence alone the gate confirmed the
+   * software company as a cap-exempt research employer. Nothing about the name
+   * could separate them, because the name is genuinely identical — only the
+   * geography differed, and the name path never looked at it.
+   *
+   * This is the two-independent-signals rule that verify-website.js already
+   * reached from the other direction, and for the same reason: one word is a
+   * coincidence waiting to happen. Multi-token names stay self-sufficient —
+   * "Charles Stark Draper Laboratory" is nobody else. */
+  const nameIsDistinctive = wanted.length >= 2;
+  const geographyAgrees = signals.city_fraction > 0 || signals.state_fraction > 0;
+  if (signals.name_fraction >= limits.nameConfirm && (nameIsDistinctive || geographyAgrees)) {
     return { verdict: 'confirmed', reason: 'postings_name_employer', sample_size: size, signals, evidence };
   }
-  if (locationsUsable && signals.city_fraction >= limits.cityConfirm) {
+  /* City agreement alone is not enough when the feed's own label names some
+   * other organisation. Dean McGee Eye Institute sits in Oklahoma City, and so
+   * does OU Health — whose `oumedicine` board it links from its careers page.
+   * All thirteen sampled postings agreed on "Oklahoma City" and not one said
+   * "Dean McGee"; on city evidence alone the institute would have been promoted
+   * onto a health system's feed. Co-location is the normal condition for a
+   * research institute, so a shared city is the weakest signal here rather than
+   * a strong one, and it needs the feed label to at least not contradict it. */
+  if (locationsUsable && signals.city_fraction >= limits.cityConfirm && !labelIsForeign) {
     return { verdict: 'confirmed', reason: 'postings_in_employer_city', sample_size: size, signals, evidence };
   }
   if (locationsUsable && signals.state_fraction >= limits.stateConfirm
