@@ -122,4 +122,10 @@ server.on('error', (error) => {
 server.listen(PORT, HOST, () => {
   console.log(`Veritas Research Radar running at http://${HOST}:${PORT}`);
   console.log('Sign in on the page — profile, judgments and triage live in Supabase.');
+  /* Judging is a serverless function, so there is none alongside this server.
+   * Reading existing judgments works regardless; only judging a posting nobody
+   * has read yet needs the deployment. Point the page at it by adding
+   *   <script>window.RADAR_JUDGE_ORIGIN = 'https://veritas-research-radar.vercel.app'</script>
+   * before app.js, or just do that work on the deployed site. */
+  console.log('Judging runs on Vercel — set window.RADAR_JUDGE_ORIGIN to use it from here.');
 });

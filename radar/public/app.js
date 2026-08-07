@@ -242,68 +242,90 @@ async function loadJobs() {
   const local = await tryJson('/api/jobs');
   if (Array.isArray(local) && local.length) return local;
   try {
-    // Count first, then fetch pages concurrently — but bounded. A full
-    // parallel burst (10 concurrent deep-offset scans of a ~44MB table)
-    // makes Supabase 500 the high-offset pages and the dashboard loaded 0
-    // jobs; 3 at a time with one retry per page is reliably fast instead.
-    const pageSize = 1000;
+    /* Keyset pagination — `id > last seen` — rather than OFFSET.
+     *
+     * OFFSET makes Postgres walk and discard every row before the window, so
+     * the cost climbs with depth while the statement timeout does not. At
+     * ~25,000 rows of large payloads that started returning 500 for the deeper
+     * pages: a live load showed 14,054 of 25,054 jobs with 11 of 26 pages
+     * failed. Concurrency was not the cause — single deep requests failed on
+     * their own — so the previous fix (3 at a time, one retry) had bought time
+     * rather than solved it.
+     *
+     * Keyset reads an index range instead, so page 25 costs what page 1 costs.
+     * It is sequential by nature — each request needs the previous page's last
+     * id — and that turns out to be a feature. Fetching bounded ranges four at
+     * a time was measured as an alternative and was far worse: 65 transient
+     * failures, 3,000 rows missing, 214s. Concurrency is what the database
+     * minds here, not depth.
+     *
+     * 500 rows a page rather than 1000, for the same reason — measured over
+     * the live table, 500 returned all 25,054 rows with zero failures where
+     * 1000 dropped a page. The cost is ~60s for a first load, which is what
+     * moving ~120MB of posting text to a browser actually costs; the local
+     * mirror above short-circuits it during development. */
+    const pageSize = 500;
     const head = await fetch(`${SUPABASE_URL}/rest/v1/jobs?select=id`, {
       headers: { apikey: SUPABASE_ANON_KEY, prefer: 'count=exact', range: '0-0' }
     });
     const total = Number((head.headers.get('content-range') || '').split('/')[1] || 0);
-    if (total > 0) {
-      const pageCount = Math.ceil(total / pageSize);
-      const pages = new Array(pageCount).fill(null);
-      let nextPage = 0;
-      let failedPages = 0;
-      const fetchPage = async (page) => {
-        // description_text lives in its own column and is no longer duplicated
-        // inside payload, so it has to be selected and rejoined below.
-        const query = `/jobs?select=payload,description_text&order=id&limit=${pageSize}&offset=${page * pageSize}`;
+
+    const jobs = [];
+    let failedPages = 0;
+    let pageCount = 0;
+    let cursor = null;
+    for (;;) {
+      // description_text lives in its own column and is no longer duplicated
+      // inside payload, so it has to be selected and rejoined below.
+      const query = `/jobs?select=payload,description_text&order=id&limit=${pageSize}`
+        + (cursor ? `&id=gt.${encodeURIComponent(cursor)}` : '');
+      /* Three attempts with a growing pause. A statement timeout is transient
+       * — the same query usually succeeds a moment later — and a failed page
+       * cannot be skipped the way an OFFSET page could, because the cursor
+       * lives in its last row. Giving up means stopping, so it is worth a
+       * couple of tries first. */
+      let rows = null;
+      for (let attempt = 0; attempt < 3 && !rows; attempt += 1) {
         try {
-          return await supabaseGet(query);
+          rows = await supabaseGet(query);
         } catch {
-          return supabaseGet(query);
+          if (attempt === 2) break;
+          await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
         }
-      };
-      await Promise.all(Array.from({ length: Math.min(3, pageCount) }, async () => {
-        while (nextPage < pageCount) {
-          const page = nextPage;
-          nextPage += 1;
-          try {
-            pages[page] = await fetchPage(page);
-          } catch {
-            // One flaky page must not zero out the dashboard — keep every page
-            // that did load and report the gap instead of failing the whole load.
-            pages[page] = [];
-            failedPages += 1;
-          }
-        }
-      }));
-      // Rows written before the payload slimming still carry the description
-      // inside payload, so prefer the column and fall back to it.
-      const jobs = pages.flat()
-        .filter((row) => row && row.payload)
-        .map((row) => ({
+      }
+      if (!rows) {
+        // Stop and report the gap rather than silently returning a prefix.
+        failedPages += 1;
+        break;
+      }
+      pageCount += 1;
+      if (!rows || !rows.length) break;
+      for (const row of rows) {
+        if (!row || !row.payload) continue;
+        // Rows written before the payload slimming still carry the description
+        // inside payload, so prefer the column and fall back to it.
+        jobs.push({
           ...row.payload,
           description_text: row.description_text ?? row.payload.description_text ?? null
-        }));
-      if (jobs.length) {
-        if (failedPages) {
-          // The banner renderer uses the structured fields; the message string
-          // doubles as the "there is a problem" signal.
-          state.loadFailedPages = failedPages;
-          state.loadTotalPages = pageCount;
-          state.loadShown = jobs.length;
-          state.loadTotal = total;
-          state.loadError = `Showing ${jobs.length.toLocaleString()} of ~${total.toLocaleString()} jobs — `
-            + `${failedPages} data page${failedPages === 1 ? '' : 's'} failed to load.`;
-        }
-        return jobs;
+        });
       }
-      // Every page failed: fall through to the committed file rather than
-      // returning an empty list that reads as "no jobs".
+      cursor = rows[rows.length - 1]?.payload?.id ?? null;
+      if (!cursor || rows.length < pageSize) break;
     }
+
+    if (jobs.length) {
+      if (failedPages || (total && jobs.length < total)) {
+        state.loadFailedPages = failedPages;
+        state.loadTotalPages = pageCount;
+        state.loadShown = jobs.length;
+        state.loadTotal = total;
+        state.loadError = `Showing ${jobs.length.toLocaleString()} of ~${total.toLocaleString()} jobs — `
+          + 'the data load stopped early. Refresh to try again.';
+      }
+      return jobs;
+    }
+    // Every page failed: fall through to the committed file rather than
+    // returning an empty list that reads as "no jobs".
   } catch { /* fall through */ }
   const fallback = (await tryJson('data/jobs.json')) || [];
   if (!fallback.length) {
@@ -311,6 +333,7 @@ async function loadJobs() {
   }
   return fallback;
 }
+
 
 async function loadRefreshReport() {
   const local = await tryJson('/api/refresh-report');
@@ -1555,12 +1578,18 @@ function possibleCountLine(jobs) {
    produces. */
 function buildProfilePrompt() {
   const wrap = el('div', 'empty-state profile-prompt');
-  wrap.append(el('h2', undefined, 'No profile loaded'));
-  wrap.append(el('p', undefined,
-    'Possible ranks open postings against radar/data/profile.md — who you are, in one document you write. '
-    + 'Start the local radar with npm start and this page reads it off disk.'));
+  const signedIn = auth.signedIn();
+  wrap.append(el('h2', undefined, signedIn ? 'No profile saved' : 'Sign in to rank these'));
+  wrap.append(el('p', undefined, signedIn
+    ? 'Possible ranks open postings against your profile — who you are, in one document you write. '
+      + 'Write it under Status, and every posting is judged against it.'
+    : 'Possible ranks open postings against your profile, which lives in your account. '
+      + 'Open Status and sign in.'));
+  if (state.profileError) {
+    wrap.append(el('p', 'profile-error', `Your profile did not parse: ${state.profileError}`));
+  }
   wrap.append(el('p', 'profile-prompt-hint',
-    'All jobs works without one. Writing the document: radar/PROFILE-PROMPT.md.'));
+    'All jobs works without signing in — postings are public. Writing the document: radar/PROFILE-PROMPT.md.'));
   return wrap;
 }
 

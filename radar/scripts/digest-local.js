@@ -29,7 +29,7 @@ const JOBS_PATH = path.join(DATA_DIR, 'jobs.json');
 const PROFILE_PATH = path.join(DATA_DIR, 'profile.json');
 const ROUTE_CACHE_PATH = path.join(DATA_DIR, 'route-cache.json');
 const CLASSIFY_CACHE_PATH = path.join(DATA_DIR, 'classify-cache.json');
-const DEFAULT_DASHBOARD = 'https://christianmangwanda.github.io/veritas-research-radar/';
+const DEFAULT_DASHBOARD = 'https://veritas-research-radar.vercel.app/';
 const MAX_LISTED = 8;
 
 // Verdict cutoff is inclusive down to DIGEST_MIN_VERDICT (rank 0 = strong).

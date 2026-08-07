@@ -18,7 +18,7 @@ const path = require('path');
 const { fetchAllJobs } = require('./lib/supabase.js');
 
 const JOBS_PATH = path.resolve(__dirname, '../data/jobs.json');
-const DEFAULT_DASHBOARD = 'https://christianmangwanda.github.io/veritas-research-radar/';
+const DEFAULT_DASHBOARD = 'https://veritas-research-radar.vercel.app/';
 const MAX_LISTED = 8;
 
 function evidenceLine(job) {
