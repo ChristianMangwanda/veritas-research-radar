@@ -23,6 +23,12 @@ radar/data/local-state.json
 radar/data/profile*.json
 # The authored profile document — this is Christian, in a public repo.
 radar/data/profile*.md
+# Match it wherever it lands, not just in its home directory. Copies have twice
+# been saved to the wrong path ("Profile chris.md" at the repo root, "radar/my
+# profile.md"), and a copy in the wrong place is still a work-authorization
+# status one `git add -A` away from being public.
+**/*[Pp]rofile*.md
+!radar/PROFILE-PROMPT.md
 radar/data/resumes/
 radar/data/route-cache.json
 radar/data/resume*.txt
