@@ -11064,5 +11064,247 @@
         }
       ]
     }
+  },
+  {
+    "id": "pew-research-center",
+    "name": "Pew Research Center",
+    "aliases": [
+      "PEW RESEARCH CENTER"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:200881724"
+    ],
+    "ats_provider": "workday",
+    "ats_token": "pewtrusts",
+    "ats_config": {
+      "host": "pewtrusts.wd5.myworkdayjobs.com",
+      "tenant": "pewtrusts",
+      "site": "centerexternal"
+    },
+    "careers_url": "https://pewresearch.org/",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (WASHINGTON, DC); feed ownership postings_name_employer on a 3-posting sample, and the live adapter read 3 jobs."
+  },
+  {
+    "id": "allen-institute-for-ai-ai2",
+    "name": "Allen Institute for AI (Ai2)",
+    "aliases": [
+      "THE ALLEN INSTITUTE FOR ARTIFICIAL INTELLIGENCE"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:824083177"
+    ],
+    "ats_provider": "greenhouse",
+    "ats_token": "thealleninstitute",
+    "ats_config": {},
+    "careers_url": "https://allenai.org/",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (SEATTLE, WA); feed ownership postings_in_employer_city on a 12-posting sample, and the live adapter read 26 jobs."
+  },
+  {
+    "id": "benaroya-research-institute-at-virginia-mason",
+    "name": "Benaroya Research Institute at Virginia Mason",
+    "aliases": [
+      "BENAROYA RESEARCH INSTITUTE AT VIRGINIA MASON"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:910653422"
+    ],
+    "ats_provider": "icims",
+    "ats_token": "careers-benaroyaresearch",
+    "ats_config": {},
+    "careers_url": "https://benaroyaresearch.org/",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (SEATTLE, WA); feed ownership postings_name_employer on a 8-posting sample, and the live adapter read 8 jobs."
+  },
+  {
+    "id": "brookings-institution",
+    "name": "Brookings Institution",
+    "aliases": [
+      "BROOKINGS INSTITUTION"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:530196577"
+    ],
+    "ats_provider": "icims",
+    "ats_token": "careers-brookings",
+    "ats_config": {},
+    "careers_url": "https://brookings.edu/",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (WASHINGTON, DC); feed ownership postings_name_employer on a 3-posting sample, and the live adapter read 3 jobs."
+  },
+  {
+    "id": "minneapolis-heart-institute-foundation",
+    "name": "Minneapolis Heart Institute Foundation",
+    "aliases": [
+      "MINNEAPOLIS HEART INSTITUTE FOUNDATION"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:411426406"
+    ],
+    "ats_provider": "adp",
+    "ats_token": "39263a55-c11d-480c-b3b1-4599b9d7ad64",
+    "ats_config": {
+      "cid": "39263a55-c11d-480c-b3b1-4599b9d7ad64"
+    },
+    "careers_url": "https://mplsheart.org/",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (MINNEAPOLIS, MN); feed ownership postings_name_employer on a 6-posting sample, and the live adapter read 6 jobs."
+  },
+  {
+    "id": "altarum-institute",
+    "name": "Altarum Institute",
+    "aliases": [
+      "ALTARUM INSTITUTE"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:381983442"
+    ],
+    "ats_provider": "lever",
+    "ats_token": "altarum",
+    "ats_config": {},
+    "careers_url": "https://altarum.org/",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (NOVI, MI); feed ownership postings_name_employer on a 5-posting sample, and the live adapter read 5 jobs."
+  },
+  {
+    "id": "american-type-culture-collection-atcc",
+    "name": "American Type Culture Collection (ATCC)",
+    "aliases": [
+      "AMERICAN TYPE CULTURE COLLECTION"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:530196548"
+    ],
+    "ats_provider": "icims",
+    "ats_token": "careers-atcc",
+    "ats_config": {},
+    "careers_url": "https://www.atcc.org/",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (MANASSAS, VA); feed ownership postings_in_employer_city on a 3-posting sample, and the live adapter read 3 jobs."
+  },
+  {
+    "id": "draper-laboratory",
+    "name": "Draper Laboratory",
+    "aliases": [
+      "CHARLES STARK DRAPER LABORATORY INC"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:042505372"
+    ],
+    "ats_provider": "workday",
+    "ats_token": "draper",
+    "ats_config": {
+      "host": "draper.wd5.myworkdayjobs.com",
+      "tenant": "draper",
+      "site": "draper_careers"
+    },
+    "careers_url": "https://www.draper.com/",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (CAMBRIDGE, MA); feed ownership postings_name_employer on a 12-posting sample, and the live adapter read 25 jobs."
+  },
+  {
+    "id": "model-evaluation-and-threat-research-metr",
+    "name": "Model Evaluation and Threat Research (METR)",
+    "aliases": [
+      "MODEL EVALUATION AND THREAT RESEARCH"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:991219864"
+    ],
+    "ats_provider": "lever",
+    "ats_token": "metr",
+    "ats_config": {},
+    "careers_url": "https://metr.org/",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (COVINA, CA); feed ownership postings_name_employer on a 5-posting sample, and the live adapter read 5 jobs."
+  },
+  {
+    "id": "riverside-research-institute",
+    "name": "Riverside Research Institute",
+    "aliases": [
+      "RIVERSIDE RESEARCH INSTITUTE"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:132593244"
+    ],
+    "ats_provider": "icims",
+    "ats_token": "careers-riversideresearch",
+    "ats_config": {},
+    "careers_url": "https://www.riversideresearch.org/",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (FAIRFAX, VA); feed ownership postings_name_employer on a 12-posting sample, and the live adapter read 15 jobs."
+  },
+  {
+    "id": "medical-university-of-south-carolina",
+    "name": "Medical University of South Carolina",
+    "aliases": [
+      "THE MEDICAL UNIVERSITY OF SOUTH CAROLINA FOUNDATION"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:576028985"
+    ],
+    "ats_provider": "workday",
+    "ats_token": "musc",
+    "ats_config": {
+      "host": "musc.wd1.myworkdayjobs.com",
+      "tenant": "musc",
+      "site": "musc"
+    },
+    "careers_url": "https://giving.musc.edu/",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (CHARLESTON, SC); feed ownership postings_name_employer on a 12-posting sample, and the live adapter read 58 jobs."
+  },
+  {
+    "id": "michael-j-fox-foundation-for-parkinson-s-researc",
+    "name": "Michael J. Fox Foundation for Parkinson's Research",
+    "aliases": [
+      "MICHAEL J FOX FOUNDATION FOR PARKINSONS RESEARCH"
+    ],
+    "type": "nonprofit_research_org",
+    "cap_exempt_status": "likely",
+    "evidence_sources": [
+      "ats_resolver",
+      "irs_eo_bmf:134141945"
+    ],
+    "ats_provider": "greenhouse",
+    "ats_token": "themichaeljfoxfoundation",
+    "ats_config": {},
+    "careers_url": "https://www.michaeljfox.org/careers",
+    "research_areas": [],
+    "notes": "Resolved from the ranked IRS nonprofit pool (NEW YORK, NY); feed ownership postings_name_employer on a 11-posting sample, and the live adapter read 11 jobs."
   }
 ]

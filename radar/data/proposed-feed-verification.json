@@ -1,0 +1,477 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-06T23:41:53.894Z",
+  "sample_size": 12,
+  "counts": {
+    "rejected": 6,
+    "confirmed": 1,
+    "inconclusive": 4
+  },
+  "results": [
+    {
+      "name": "SALK INSTITUTE FOR BIOLOGICAL STUDIES",
+      "provider": "ultipro",
+      "token": "SAL1013SIBS",
+      "config": {
+        "host": "recruiting2.ultipro.com",
+        "tenant": "SAL1013SIBS",
+        "boards": [
+          "e9f055e1-a105-4f91-9a67-21aea61655fa"
+        ]
+      },
+      "jobs_found_at_resolve": null,
+      "employer_place": "LA JOLLA, CA",
+      "suggested_registry_entry": {
+        "id": "salk-institute-for-biological-studies",
+        "name": "SALK INSTITUTE FOR BIOLOGICAL STUDIES",
+        "type": "nonprofit_research_org",
+        "cap_exempt_status": "likely",
+        "evidence_sources": [
+          "ats_resolver",
+          "irs_eo_bmf:952160097"
+        ],
+        "careers_url": "https://www.salk.edu/about/careers/open-positions/",
+        "ats_provider": "ultipro",
+        "ats_token": "SAL1013SIBS",
+        "ats_config": {
+          "host": "recruiting2.ultipro.com",
+          "tenant": "SAL1013SIBS",
+          "boards": [
+            "e9f055e1-a105-4f91-9a67-21aea61655fa"
+          ]
+        }
+      },
+      "verdict": "rejected",
+      "reason": "feed already serves salk-institute"
+    },
+    {
+      "name": "NEW YORK STEM CELL FOUNDATION INC",
+      "provider": "workday",
+      "token": "thejacksonlaboratory",
+      "config": {
+        "host": "thejacksonlaboratory.wd503.myworkdayjobs.com",
+        "tenant": "thejacksonlaboratory",
+        "site": "external_jax"
+      },
+      "jobs_found_at_resolve": 54,
+      "employer_place": "NEW YORK, NY",
+      "suggested_registry_entry": {
+        "id": "new-york-stem-cell-foundation-inc",
+        "name": "NEW YORK STEM CELL FOUNDATION INC",
+        "type": "nonprofit_research_org",
+        "cap_exempt_status": "likely",
+        "evidence_sources": [
+          "ats_resolver",
+          "irs_eo_bmf:202905531"
+        ],
+        "careers_url": "https://nyscf.org/",
+        "ats_provider": "workday",
+        "ats_token": "thejacksonlaboratory",
+        "ats_config": {
+          "host": "thejacksonlaboratory.wd503.myworkdayjobs.com",
+          "tenant": "thejacksonlaboratory",
+          "site": "external_jax"
+        }
+      },
+      "verdict": "rejected",
+      "reason": "feed already serves jackson-laboratory"
+    },
+    {
+      "name": "ROSKAMP INSTITUTE INC",
+      "provider": "adp",
+      "token": "29172b8d-ed10-4a42-a1e1-00687c29aa76",
+      "config": {
+        "cid": "29172b8d-ed10-4a42-a1e1-00687c29aa76"
+      },
+      "jobs_found_at_resolve": null,
+      "employer_place": "SARASOTA, FL",
+      "suggested_registry_entry": {
+        "id": "roskamp-institute-inc",
+        "name": "ROSKAMP INSTITUTE INC",
+        "type": "nonprofit_research_org",
+        "cap_exempt_status": "likely",
+        "evidence_sources": [
+          "ats_resolver",
+          "irs_eo_bmf:271397124"
+        ],
+        "careers_url": "https://roskampinstitute.org/",
+        "ats_provider": "adp",
+        "ats_token": "29172b8d-ed10-4a42-a1e1-00687c29aa76",
+        "ats_config": {
+          "cid": "29172b8d-ed10-4a42-a1e1-00687c29aa76"
+        }
+      },
+      "adapter_jobs": 0,
+      "verdict": "rejected",
+      "reason": "adapter returned no jobs"
+    },
+    {
+      "name": "RESEARCH FOR ACTION INC",
+      "provider": "adp",
+      "token": "672697df-5c45-42d2-9198-e958445cada6",
+      "config": {
+        "cid": "672697df-5c45-42d2-9198-e958445cada6"
+      },
+      "jobs_found_at_resolve": null,
+      "employer_place": "PHILADELPHIA, PA",
+      "suggested_registry_entry": {
+        "id": "research-for-action-inc",
+        "name": "RESEARCH FOR ACTION INC",
+        "type": "nonprofit_research_org",
+        "cap_exempt_status": "likely",
+        "evidence_sources": [
+          "ats_resolver",
+          "irs_eo_bmf:232710950"
+        ],
+        "careers_url": "https://www.researchforaction.org/careers/",
+        "ats_provider": "adp",
+        "ats_token": "672697df-5c45-42d2-9198-e958445cada6",
+        "ats_config": {
+          "cid": "672697df-5c45-42d2-9198-e958445cada6"
+        }
+      },
+      "adapter_jobs": 0,
+      "verdict": "rejected",
+      "reason": "adapter returned no jobs"
+    },
+    {
+      "name": "MICHAEL J FOX FOUNDATION FOR PARKINSONS RESEARCH",
+      "provider": "greenhouse",
+      "token": "themichaeljfoxfoundation",
+      "config": {},
+      "jobs_found_at_resolve": 11,
+      "employer_place": "NEW YORK, NY",
+      "suggested_registry_entry": {
+        "id": "michael-j-fox-foundation-for-parkinsons-research",
+        "name": "MICHAEL J FOX FOUNDATION FOR PARKINSONS RESEARCH",
+        "type": "nonprofit_research_org",
+        "cap_exempt_status": "likely",
+        "evidence_sources": [
+          "ats_resolver",
+          "irs_eo_bmf:134141945"
+        ],
+        "careers_url": "https://www.michaeljfox.org/careers",
+        "ats_provider": "greenhouse",
+        "ats_token": "themichaeljfoxfoundation",
+        "ats_config": {}
+      },
+      "adapter_jobs": 11,
+      "verdict": "confirmed",
+      "reason": "postings_name_employer",
+      "sample_size": 11,
+      "signals": {
+        "name_fraction": 1,
+        "city_fraction": 0,
+        "state_fraction": 0,
+        "name_count": 11,
+        "other_org_count": 0,
+        "usable_location_fraction": 0.09090909090909091,
+        "name_tokens": [
+          "michael",
+          "fox",
+          "parkinsons"
+        ],
+        "domain": "michaeljfox.org"
+      },
+      "evidence": [
+        {
+          "signal": "domain",
+          "job": "Clinical Research Lead (Biology Informed Drug Development)",
+          "quote": "both academic and industry labs worldwide. &nbsp; Visit www.michaeljfox.org for more information. &nbsp; &nbsp; Research has shown that people from ma"
+        },
+        {
+          "signal": "domain",
+          "job": "Director of Major Gifts (East)",
+          "quote": "both academic and industry labs worldwide. &nbsp; Visit www.michaeljfox.org for more information. &nbsp; &nbsp; Research has shown that people from ma"
+        },
+        {
+          "signal": "domain",
+          "job": "Federal Government Relations Manager",
+          "quote": "both academic and industry labs worldwide. &nbsp; Visit www.michaeljfox.org for more information. &nbsp; &nbsp; &nbsp; Research has shown that people"
+        },
+        {
+          "signal": "domain",
+          "job": "Marketing Automation Manager",
+          "quote": "both academic and industry labs worldwide. &nbsp; Visit www.michaeljfox.org for more information. &nbsp; &nbsp; Research has shown that people from ma"
+        },
+        {
+          "signal": "domain",
+          "job": "Senior Alliances Manager (Clinical Industry)",
+          "quote": "both academic and industry labs worldwide. &nbsp; Visit www.michaeljfox.org for more information. &nbsp; &nbsp; Research has shown that people from ma"
+        },
+        {
+          "signal": "domain",
+          "job": "Senior Financial Modeling Analyst",
+          "quote": "both academic and industry labs worldwide. &nbsp; Visit www.michaeljfox.org for more information. &nbsp; &nbsp; Research has shown that people from ma"
+        }
+      ]
+    },
+    {
+      "name": "FOSSA",
+      "provider": "greenhouse",
+      "token": "fossainc",
+      "config": {},
+      "jobs_found_at_resolve": 4,
+      "employer_place": "BEND, OR",
+      "suggested_registry_entry": {
+        "id": "fossa",
+        "name": "FOSSA",
+        "type": "nonprofit_research_org",
+        "cap_exempt_status": "likely",
+        "evidence_sources": [
+          "ats_resolver",
+          "irs_eo_bmf:922881948"
+        ],
+        "careers_url": "https://fossa.com/careers/",
+        "ats_provider": "greenhouse",
+        "ats_token": "fossainc",
+        "ats_config": {}
+      },
+      "adapter_jobs": 4,
+      "verdict": "inconclusive",
+      "reason": "insufficient_evidence",
+      "sample_size": 4,
+      "signals": {
+        "name_fraction": 1,
+        "city_fraction": 0,
+        "state_fraction": 0,
+        "name_count": 4,
+        "other_org_count": 0,
+        "usable_location_fraction": 0,
+        "name_tokens": [
+          "fossa"
+        ],
+        "domain": "fossa.com"
+      },
+      "evidence": [
+        {
+          "signal": "name",
+          "job": "Enterprise Account Executive - West Coast",
+          "quote": "biggest problems facing engineering and legal teams today. FOSSA is the platform they use to address these challenges. We help thousands of organizat"
+        },
+        {
+          "signal": "name",
+          "job": "Sales Engineer - West Coast",
+          "quote": "biggest problems facing engineering and legal teams today. FOSSA is the platform they use to address these challenges. We help thousands of organizat"
+        },
+        {
+          "signal": "name",
+          "job": "Software Engineer (Analysis)",
+          "quote": "biggest problems facing engineering and legal teams today. FOSSA is the platform they use to address these challenges. We help thousands of organizat"
+        },
+        {
+          "signal": "name",
+          "job": "Software Engineer (Analysis) ",
+          "quote": "biggest problems facing engineering and legal teams today. FOSSA is the platform they use to address these challenges. We help thousands of organizat"
+        }
+      ]
+    },
+    {
+      "name": "HEALTH EFFECTS INSTITUTE",
+      "provider": "adp",
+      "token": "690d1077-da40-4f53-b190-45ddb5ac7726",
+      "config": {
+        "cid": "690d1077-da40-4f53-b190-45ddb5ac7726"
+      },
+      "jobs_found_at_resolve": null,
+      "employer_place": "BOSTON, MA",
+      "suggested_registry_entry": {
+        "id": "health-effects-institute",
+        "name": "HEALTH EFFECTS INSTITUTE",
+        "type": "nonprofit_research_org",
+        "cap_exempt_status": "likely",
+        "evidence_sources": [
+          "ats_resolver",
+          "irs_eo_bmf:042708045"
+        ],
+        "careers_url": "https://www.healtheffects.org/",
+        "ats_provider": "adp",
+        "ats_token": "690d1077-da40-4f53-b190-45ddb5ac7726",
+        "ats_config": {
+          "cid": "690d1077-da40-4f53-b190-45ddb5ac7726"
+        }
+      },
+      "adapter_jobs": 0,
+      "verdict": "rejected",
+      "reason": "adapter returned no jobs"
+    },
+    {
+      "name": "CARDIOVASCULAR RESEARCH FOUNDATION",
+      "provider": "adp",
+      "token": "019c48b1-a9fc-4840-beb4-24c24db60e0a",
+      "config": {
+        "cid": "019c48b1-a9fc-4840-beb4-24c24db60e0a"
+      },
+      "jobs_found_at_resolve": null,
+      "employer_place": "OWENSBORO, KY",
+      "suggested_registry_entry": {
+        "id": "cardiovascular-research-foundation",
+        "name": "CARDIOVASCULAR RESEARCH FOUNDATION",
+        "type": "nonprofit_research_org",
+        "cap_exempt_status": "likely",
+        "evidence_sources": [
+          "ats_resolver",
+          "irs_eo_bmf:300057331"
+        ],
+        "careers_url": "https://www.crf.org/crf/contact-us/careers",
+        "ats_provider": "adp",
+        "ats_token": "019c48b1-a9fc-4840-beb4-24c24db60e0a",
+        "ats_config": {
+          "cid": "019c48b1-a9fc-4840-beb4-24c24db60e0a"
+        }
+      },
+      "adapter_jobs": 2,
+      "verdict": "inconclusive",
+      "reason": "thin_sample",
+      "sample_size": 2,
+      "signals": {},
+      "evidence": []
+    },
+    {
+      "name": "AMERICAN SOCIETY FOR TESTING AND MATERIALS",
+      "provider": "adp",
+      "token": "cb316e90-dff0-482d-84cc-2f99849ec539",
+      "config": {
+        "cid": "cb316e90-dff0-482d-84cc-2f99849ec539"
+      },
+      "jobs_found_at_resolve": null,
+      "employer_place": "CONSHOHOCKEN, PA",
+      "suggested_registry_entry": {
+        "id": "american-society-for-testing-and-materials",
+        "name": "AMERICAN SOCIETY FOR TESTING AND MATERIALS",
+        "type": "nonprofit_research_org",
+        "cap_exempt_status": "likely",
+        "evidence_sources": [
+          "ats_resolver",
+          "irs_eo_bmf:231352024"
+        ],
+        "careers_url": "https://www.astm.org/",
+        "ats_provider": "adp",
+        "ats_token": "cb316e90-dff0-482d-84cc-2f99849ec539",
+        "ats_config": {
+          "cid": "cb316e90-dff0-482d-84cc-2f99849ec539"
+        }
+      },
+      "adapter_jobs": 0,
+      "verdict": "rejected",
+      "reason": "adapter returned no jobs"
+    },
+    {
+      "name": "CENTER FOR IMPROVING VALUE IN HEALTH CARE",
+      "provider": "adp",
+      "token": "d203d09b-4ff6-4f17-b8bb-e46f24573365",
+      "config": {
+        "cid": "d203d09b-4ff6-4f17-b8bb-e46f24573365"
+      },
+      "jobs_found_at_resolve": null,
+      "employer_place": "GLENDALE, CO",
+      "suggested_registry_entry": {
+        "id": "center-for-improving-value-in-health-care",
+        "name": "CENTER FOR IMPROVING VALUE IN HEALTH CARE",
+        "type": "nonprofit_research_org",
+        "cap_exempt_status": "likely",
+        "evidence_sources": [
+          "ats_resolver",
+          "irs_eo_bmf:272884568"
+        ],
+        "careers_url": "https://civhc.org/",
+        "ats_provider": "adp",
+        "ats_token": "d203d09b-4ff6-4f17-b8bb-e46f24573365",
+        "ats_config": {
+          "cid": "d203d09b-4ff6-4f17-b8bb-e46f24573365"
+        }
+      },
+      "adapter_jobs": 1,
+      "verdict": "inconclusive",
+      "reason": "thin_sample",
+      "sample_size": 1,
+      "signals": {},
+      "evidence": []
+    },
+    {
+      "name": "DEAN MCGEE EYE INSTITUTE",
+      "provider": "workday",
+      "token": "oumedicine",
+      "config": {
+        "host": "oumedicine.wd5.myworkdayjobs.com",
+        "tenant": "oumedicine",
+        "site": "ouhealthcareers"
+      },
+      "jobs_found_at_resolve": 381,
+      "employer_place": "OKLAHOMA CITY, OK",
+      "suggested_registry_entry": {
+        "id": "dean-mcgee-eye-institute",
+        "name": "DEAN MCGEE EYE INSTITUTE",
+        "type": "nonprofit_research_org",
+        "cap_exempt_status": "likely",
+        "evidence_sources": [
+          "ats_resolver",
+          "irs_eo_bmf:736109395"
+        ],
+        "careers_url": "https://www.dmei.org/",
+        "ats_provider": "workday",
+        "ats_token": "oumedicine",
+        "ats_config": {
+          "host": "oumedicine.wd5.myworkdayjobs.com",
+          "tenant": "oumedicine",
+          "site": "ouhealthcareers"
+        }
+      },
+      "adapter_jobs": 13,
+      "verdict": "inconclusive",
+      "reason": "insufficient_evidence",
+      "sample_size": 12,
+      "signals": {
+        "name_fraction": 0,
+        "city_fraction": 0.5833333333333334,
+        "state_fraction": 0.5833333333333334,
+        "name_count": 0,
+        "other_org_count": 0,
+        "usable_location_fraction": 0.5833333333333334,
+        "name_tokens": [
+          "dean",
+          "mcgee",
+          "eye"
+        ],
+        "domain": null
+      },
+      "evidence": [
+        {
+          "signal": "state",
+          "job": "Financial Improvement Analyst",
+          "quote": "Oklahoma City"
+        },
+        {
+          "signal": "state",
+          "job": "Electronic Data Interface (EDI) Developer II",
+          "quote": "Oklahoma City"
+        },
+        {
+          "signal": "state",
+          "job": "Laboratory Scientist - PRN",
+          "quote": "Oklahoma City"
+        },
+        {
+          "signal": "state",
+          "job": "Nursing Research Scientist",
+          "quote": "Oklahoma City"
+        },
+        {
+          "signal": "state",
+          "job": "AI Specialist",
+          "quote": "Oklahoma City"
+        },
+        {
+          "signal": "state",
+          "job": "Laboratory Coordinator - HPC & Cellular Therapy",
+          "quote": "Oklahoma City"
+        },
+        {
+          "signal": "state",
+          "job": "IT Business Analyst",
+          "quote": "Oklahoma City"
+        }
+      ]
+    }
+  ]
+}
