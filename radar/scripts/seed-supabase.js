@@ -32,7 +32,12 @@
 const fsp = require('fs/promises');
 const path = require('path');
 
+const { loadEnvFile } = require('./lib/env-file.js');
 const { supabaseEnv } = require('./lib/supabase.js');
+
+// Run by hand, so read .env — explicitly, rather than having lib/supabase.js
+// do it for every script including the one that deletes rows.
+loadEnvFile();
 const { parseProfileDocument } = require('../public/profile-doc.js');
 const RadarScoring = require('../public/scoring.js');
 

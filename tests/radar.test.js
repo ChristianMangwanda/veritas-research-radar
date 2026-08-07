@@ -2224,6 +2224,81 @@ async function testJudgeFunction() {
   assert(MAX_IDS <= 20, 'a batch has to finish inside the function timeout');
 }
 
+async function testAuthClient() {
+  const { createAuthClient, needsRefresh, SESSION_KEY } = require('../radar/public/auth.js');
+
+  // Expiry arithmetic, in isolation. The margin exists so a token never dies
+  // mid-request; without it the UI would have to interpret a 401 that means
+  // "try again" rather than "you are signed out".
+  assert.strictEqual(needsRefresh(null, 1000), false, 'no session is not a stale session');
+  assert.strictEqual(needsRefresh({ access_token: 't', expires_at: 500000 }, 100000), false);
+  assert.strictEqual(needsRefresh({ access_token: 't', expires_at: 150000 }, 100000), true, 'inside the margin');
+  assert.strictEqual(needsRefresh({ access_token: 't' }, 100000), true, 'unknown expiry counts as stale');
+
+  const makeStorage = () => {
+    const map = new Map();
+    return {
+      getItem: (k) => (map.has(k) ? map.get(k) : null),
+      setItem: (k, v) => map.set(k, v),
+      removeItem: (k) => map.delete(k),
+      _map: map
+    };
+  };
+  const ok = (payload) => ({ ok: true, status: 200, json: async () => payload });
+
+  // Password grant stores an absolute expiry, not the relative one GoTrue sends.
+  let storage = makeStorage();
+  let calls = [];
+  let client = createAuthClient({
+    url: 'https://x.supabase.co', anonKey: 'anon', storage, now: () => 1000,
+    fetchFn: async (url, init) => { calls.push(url); return ok({ access_token: 'a1', refresh_token: 'r1', expires_in: 3600, user: { id: 'u', email: 'e' } }); }
+  });
+  const session = await client.signIn('e', 'p');
+  assert.strictEqual(session.access_token, 'a1');
+  assert.strictEqual(session.expires_at, 1000 + 3600000);
+  assert.strictEqual(client.signedIn(), true);
+  assert.deepStrictEqual(client.user(), { id: 'u', email: 'e' });
+  assert(storage.getItem(SESSION_KEY), 'session survives a reload');
+
+  // A fresh token is handed back without touching the network.
+  calls = [];
+  assert.strictEqual(await client.accessToken(), 'a1');
+  assert.deepStrictEqual(calls, [], 'no refresh while the token is good');
+
+  /* Concurrent callers share ONE refresh. The dashboard fires several authed
+   * requests at boot; without single-flight they each spend the refresh token
+   * and all but one fails. */
+  storage = makeStorage();
+  storage.setItem(SESSION_KEY, JSON.stringify({ access_token: 'old', refresh_token: 'r1', expires_at: 0 }));
+  let refreshCount = 0;
+  client = createAuthClient({
+    url: 'https://x.supabase.co', anonKey: 'anon', storage, now: () => 1000000,
+    fetchFn: async () => { refreshCount += 1; return ok({ access_token: 'a2', refresh_token: 'r2', expires_in: 3600 }); }
+  });
+  const tokens = await Promise.all([client.accessToken(), client.accessToken(), client.accessToken()]);
+  assert.deepStrictEqual(tokens, ['a2', 'a2', 'a2']);
+  assert.strictEqual(refreshCount, 1, 'three callers, one refresh');
+
+  // A rejected refresh token will not start working — that is signed out, not
+  // a retry loop.
+  storage = makeStorage();
+  storage.setItem(SESSION_KEY, JSON.stringify({ access_token: 'old', refresh_token: 'bad', expires_at: 0 }));
+  client = createAuthClient({
+    url: 'https://x.supabase.co', anonKey: 'anon', storage, now: () => 1000000,
+    fetchFn: async () => ({ ok: false, status: 400, json: async () => ({ error: 'invalid_grant' }) })
+  });
+  assert.strictEqual(await client.accessToken(), null);
+  assert.strictEqual(storage.getItem(SESSION_KEY), null, 'a dead session is cleared, not kept');
+  assert.strictEqual(await client.headers(), null, 'no headers means the caller must not pretend');
+
+  // A failed sign-in surfaces the server's reason rather than a generic one.
+  client = createAuthClient({
+    url: 'https://x.supabase.co', anonKey: 'anon', storage: makeStorage(), now: () => 0,
+    fetchFn: async () => ({ ok: false, status: 400, json: async () => ({ error_description: 'Invalid login credentials' }) })
+  });
+  await assert.rejects(() => client.signIn('e', 'nope'), /Invalid login credentials/);
+}
+
 function testJudgeJobsScript() {
   const { parseArgs, diffMisses, rowFromJudgment } = require('../radar/scripts/judge-jobs.js');
   const { deriveVerdict } = require('../radar/scripts/lib/match.js');
@@ -3785,6 +3860,7 @@ async function main() {
   testProfileDocument();
   testSeedCacheKeys();
   await testJudgeFunction();
+  await testAuthClient();
   testJudgeJobsScript();
   testJudgedMatch();
   testManifestSync();

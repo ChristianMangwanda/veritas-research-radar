@@ -16,9 +16,21 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Credentials come from the ENVIRONMENT only — never from a file found lying
+ * around. That is a safety property, not an oversight: syncJobs ends by
+ * deleting every row it did not just write, so a local run that silently
+ * adopted a .env would mutate production while its author believed they were
+ * working offline. Scripts meant to be run by hand opt in explicitly with
+ * lib/env-file.js.
+ *
+ * Both key names are accepted because both are in circulation: CI holds
+ * SUPABASE_SERVICE_KEY as a repo secret, and Supabase now calls the same thing
+ * a "secret key" (sb_secret_…) in the dashboard.
+ */
 function supabaseEnv() {
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_KEY;
+  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) return null;
   return { url: url.replace(/\/$/, ''), key };
 }

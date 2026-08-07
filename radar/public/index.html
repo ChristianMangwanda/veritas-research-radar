@@ -37,11 +37,38 @@
       <ul id="errors-list" class="errors-list" hidden></ul>
       <div id="status-instruments" class="status-instruments"></div>
 
-      <!-- The profile is a file you edit, not a form you fill in — so this
-           reports what the server actually loaded and says where to change it.
+      <!-- Signing in is what unlocks the profile, the judgments and triage.
+           Anonymous is a real mode, not a broken one: All jobs works exactly
+           as it always has, because postings are public data. -->
+      <div id="auth-section" class="status-section">
+        <form id="auth-form" class="auth-form" autocomplete="on">
+          <label class="auth-label" for="auth-email">Email</label>
+          <input id="auth-email" type="email" name="email" autocomplete="username" required>
+          <label class="auth-label" for="auth-password">Password</label>
+          <input id="auth-password" type="password" name="current-password" autocomplete="current-password" required>
+          <button id="auth-submit" type="submit">Sign in</button>
+          <p id="auth-error" class="auth-error" hidden></p>
+        </form>
+        <div id="auth-signed-in" class="auth-signed-in" hidden>
+          <span id="auth-who"></span>
+          <button id="auth-signout" class="link-button" type="button">Sign out</button>
+        </div>
+      </div>
+
+      <!-- The profile is still a document you write — that has not changed, and
+           it is why judgments stay cached across edits to everything else. What
+           changed is where it lives: an account rather than one laptop's disk.
            A broken edit has to be visible somewhere, or every job is silently
            judged against nothing. -->
       <div id="status-profile" class="status-profile"></div>
+      <div id="profile-editor" class="profile-editor" hidden>
+        <textarea id="profile-text" spellcheck="false" rows="18"></textarea>
+        <p id="profile-editor-error" class="auth-error" hidden></p>
+        <div class="profile-editor-actions">
+          <button id="profile-save" type="button">Save profile</button>
+          <button id="profile-cancel" class="link-button" type="button">Cancel</button>
+        </div>
+      </div>
 
       <details id="ignored-section" class="status-section" hidden>
         <summary id="ignored-summary">Hidden employers</summary>
@@ -127,10 +154,11 @@
              either a control for machinery that no longer exists (résumé
              variants, routing) or a setting with exactly one right value
              (closed postings and citizens-only federal jobs are never what you
-             are looking for). Your profile is radar/data/profile.md — a file
-             you edit, which is why there is no panel for it here. -->
+             are looking for). The profile is still a document rather than a
+             form, but it is edited in the Status drawer now that it lives in
+             your account instead of on one machine. -->
         <p class="profile-note filters-footnote">Closed postings and citizens-only federal roles are
-          always hidden. Your profile lives in <code>radar/data/profile.md</code> — edit the file.</p>
+          always hidden. Your profile is a document you write — edit it under <strong>Status</strong>.</p>
       </aside>
 
       <section class="list-pane" aria-label="Job list">
@@ -209,6 +237,8 @@
 
     <script src="scoring.js"></script>
     <script src="pipeline.js"></script>
+    <script src="profile-doc.js"></script>
+    <script src="auth.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

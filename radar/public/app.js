@@ -1,15 +1,16 @@
 const state = {
   jobs: [],
-  local: { version: 1, triage: {} },
-  profile: null,      // profile.json v2 (user's own resume variants)
+  local: { version: 1, triage: {}, ignored_employers: [] },
+  profile: null,      // parsed profile document (schema_version 2)
+  profileText: '',    // the markdown as stored, so the editor shows what is saved
   compiled: null,     // RadarScoring.compileProfile(profile)
-  routeCache: null,   // local Ollama routing verdicts (route-cache.json)
-  profileError: null, // validation message when an import is rejected
-  profileFreshness: null, // /api/profile-freshness status (local server only)
-  profileSyncedAt: null,  // set when the hosted page adopted the local server's profile
-  matches: {},            // jobId -> judged match (local server only)
-  matchPending: 0,        // jobs queued for judging
-  matchAvailable: false,  // false on the hosted dashboard (no local model)
+  routeCache: null,   // retired; kept so scoreAll's signature stays honest
+  profileError: null, // validation message when the document does not parse
+  matches: {},        // jobId -> judged match
+  matchesByHash: {},  // jobContentHash -> judged match, as stored
+  judgmentCursor: null, // newest judged_at seen, so polls fetch only what is new
+  matchPending: 0,      // qualified postings with no judgment yet
+  matchAvailable: false, // true once judgments have been read (i.e. signed in)
   loadError: null,    // set when the job load partially/fully failed (distinct from "no matches")
   lastVisit: null,
   selectedId: null,
@@ -66,6 +67,19 @@ const DOM = {
   statusRefresh: document.querySelector('#status-refresh'),
   statusInstruments: document.querySelector('#status-instruments'),
   statusProfile: document.querySelector('#status-profile'),
+  authForm: document.querySelector('#auth-form'),
+  authEmail: document.querySelector('#auth-email'),
+  authPassword: document.querySelector('#auth-password'),
+  authSubmit: document.querySelector('#auth-submit'),
+  authError: document.querySelector('#auth-error'),
+  authSignedIn: document.querySelector('#auth-signed-in'),
+  authWho: document.querySelector('#auth-who'),
+  authSignout: document.querySelector('#auth-signout'),
+  profileEditor: document.querySelector('#profile-editor'),
+  profileText: document.querySelector('#profile-text'),
+  profileEditorError: document.querySelector('#profile-editor-error'),
+  profileSave: document.querySelector('#profile-save'),
+  profileCancel: document.querySelector('#profile-cancel'),
   errorsList: document.querySelector('#errors-list'),
   discoverySummary: document.querySelector('#discovery-summary'),
   discoveryList: document.querySelector('#discovery-list'),
@@ -169,6 +183,43 @@ async function supabaseGet(pathname) {
   if (!response.ok) throw new Error(`supabase ${response.status}`);
   return response.json();
 }
+
+/* The signed-in half of the database: the profile document, the judgments and
+ * triage. Postings are public and stay on the anon key above; everything here
+ * is yours, and RLS refuses the anon key outright rather than returning an
+ * empty list — so a missing session is an error to handle, not silence. */
+const auth = RadarAuth.createAuthClient({
+  url: SUPABASE_URL,
+  anonKey: SUPABASE_ANON_KEY,
+  storage: window.localStorage
+});
+
+async function authedFetch(pathname, init = {}) {
+  const headers = await auth.headers();
+  if (!headers) return null;
+  const response = await fetch(`${SUPABASE_URL}/rest/v1${pathname}`, {
+    ...init,
+    headers: { 'content-type': 'application/json', ...headers, ...(init.headers || {}) }
+  });
+  if (response.status === 401 || response.status === 403) {
+    // The session died under us. Say so once, rather than letting every
+    // subsequent call fail in its own way.
+    state.session = null;
+    return null;
+  }
+  if (!response.ok) throw new Error(`supabase ${response.status} on ${pathname}`);
+  if (response.status === 204) return null;
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
+}
+
+const authedGet = (pathname) => authedFetch(pathname);
+
+/** Upsert rows, merging on conflict — the same verb syncJobs uses server-side. */
+const authedUpsert = (table, rows, onConflict) => authedFetch(
+  `/${table}?on_conflict=${onConflict}`,
+  { method: 'POST', body: JSON.stringify(rows), headers: { prefer: 'resolution=merge-duplicates,return=minimal' } }
+);
 
 async function tryJson(url) {
   try {
@@ -301,25 +352,76 @@ function loadTriageFromBrowser() {
   return { version: 1, triage: {}, ignored_employers: [] };
 }
 
-async function saveLocalState() {
-  const payload = {
+/* Signed out, triage still works — it just lives in this browser, exactly as it
+ * did on the hosted page before there was an account. The first sign-in merges
+ * whatever accumulated here into the database (see importBrowserTriage). */
+function saveTriageToBrowser() {
+  localStorage.setItem(LOCAL_TRIAGE_KEY, JSON.stringify({
+    version: 1,
     triage: state.local.triage,
     ignored_employers: state.local.ignored_employers || []
+  }));
+}
+
+function triageRow(jobId, record) {
+  return {
+    job_id: jobId,
+    status: record.status,
+    note: record.note ?? null,
+    applied_at: record.applied_at ?? null,
+    variant_sent: record.variant_sent ?? null,
+    updated_at: record.updated_at
   };
+}
+
+/**
+ * Persist ONE triage record.
+ *
+ * The local server took the whole document on every keystroke and replaced it
+ * wholesale. That was fine for a single writer on a single disk and is exactly
+ * wrong across devices: two browsers touching different jobs would each write
+ * their complete map and the later one would erase the other's work. A row at
+ * a time cannot do that.
+ */
+async function persistTriageRecord(jobId) {
+  const record = state.local.triage[jobId];
+  if (!auth.signedIn()) { saveTriageToBrowser(); return; }
   try {
-    const response = await fetch('/api/local-state', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (!response.ok) throw new Error(String(response.status));
-  } catch {
-    localStorage.setItem(LOCAL_TRIAGE_KEY, JSON.stringify({ version: 1, ...payload }));
+    if (!record) {
+      // Undo back to "never triaged". That is a different state from "triaged
+      // as new", so the row has to actually go.
+      await authedFetch(`/triage?job_id=eq.${encodeURIComponent(jobId)}`,
+        { method: 'DELETE', headers: { prefer: 'return=minimal' } });
+    } else {
+      await authedUpsert('triage', [triageRow(jobId, record)], 'job_id');
+    }
+  } catch (error) {
+    // Keep the change rather than losing it to a network blip; the next
+    // sign-in merge will carry it up.
+    console.warn('triage write failed, kept in this browser:', error.message);
+    saveTriageToBrowser();
   }
 }
 
-// Employers the user has hidden from discovery. A device-local preference —
-// deliberately NOT in the triage sync (it is not application state).
+async function persistIgnoredEmployers() {
+  if (!auth.signedIn()) { saveTriageToBrowser(); return; }
+  const userId = auth.user()?.id;
+  if (!userId) return;
+  try {
+    await authedUpsert('user_state', [{
+      user_id: userId,
+      ignored_employers: state.local.ignored_employers || [],
+      updated_at: new Date().toISOString()
+    }], 'user_id');
+  } catch (error) {
+    console.warn('ignored-employer write failed:', error.message);
+  }
+}
+
+// Employers hidden from the list. This used to be deliberately device-local,
+// on the reasoning that it is a preference rather than application state — but
+// that reasoning was really "there is nowhere shared to put it". There is now,
+// and hiding an employer on the laptop should hide it on the phone.
 function ignoredEmployers() {
   return new Set(state.local.ignored_employers || []);
 }
@@ -333,35 +435,38 @@ async function ignoreEmployer(job) {
   set.add(job.employer_id);
   state.local.ignored_employers = [...set];
   state.selectedId = null;
-  await saveLocalState();
+  await persistIgnoredEmployers();
   render();
 }
 
 async function unignoreEmployer(employerId) {
   state.local.ignored_employers = (state.local.ignored_employers || [])
     .filter((id) => id !== employerId);
-  await saveLocalState();
+  await persistIgnoredEmployers();
   render();
 }
 
 /* One place every triage mutation persists through.
  *
- * There used to be a Supabase sync here, gated by a token you pasted into the
- * sidebar. It was built for a fleet of devices that does not exist: this is one
- * person on one machine, and saveLocalState() already writes every change
- * through to radar/data/local-state.json on disk. A token field, a merge, and
- * two RPCs bought nothing that a file on the machine did not already give. */
-async function persistTriage() {
-  await saveLocalState();
+ * There used to be a Supabase sync here gated by a token you pasted into the
+ * sidebar, and it was removed as machinery for a fleet of devices that did not
+ * exist. The sync is back, but the reasoning that killed it still holds — what
+ * changed is that there is an account now, so the token, the RPCs and the
+ * pasted secret are all gone. Rows are written as themselves, one at a time. */
+async function persistTriage(jobId) {
+  await persistTriageRecord(jobId);
 }
 
 /* ------------------------------------------------------------------------ */
-/* Profile: compiled from radar/data/profile.md by the local server. The     */
-/* browser only ever reads it — there is no import, no editor, and no        */
-/* derived-from-résumés rebuild. Editing the document is how it changes.     */
+/* Profile: a document you write, stored in your account and parsed here.    */
+/*                                                                          */
+/* It used to be a file the local server read off disk, which the hosted     */
+/* page could only obtain by reaching back to localhost over a CORS bridge   */
+/* while the laptop happened to be running. Now the browser fetches the      */
+/* document and parses it with radar/public/profile-doc.js — the same parser */
+/* the judge uses server-side, because two parsers would eventually disagree */
+/* and a disagreement moves profileHash, orphaning every judgment paid for.  */
 
-const PROFILE_KEY = 'veritas_radar_profile';
-const ROUTE_CACHE_KEY = 'veritas_radar_route_cache';
 const CLASSIFY_CACHE_KEY = 'veritas_radar_classify_cache';
 
 function jobText(job) {
@@ -370,20 +475,20 @@ function jobText(job) {
   return (job._searchBlob ??= `${job.title} ${job.department} ${job.employer_name} ${job.description_text}`.toLowerCase());
 }
 
-function loadProfileFromBrowser() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(PROFILE_KEY));
-    if (stored && !RadarScoring.validateProfile(stored)) return stored;
-  } catch { /* corrupted -> none */ }
-  return null;
-}
-
-function loadRouteCacheFromBrowser() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(ROUTE_CACHE_KEY));
-    if (stored && typeof stored.verdicts === 'object') return stored;
-  } catch { /* corrupted -> none */ }
-  return null;
+/**
+ * Fetch the profile document and parse it. Returns the parsed profile, and
+ * keeps the raw markdown so the editor can show exactly what is stored rather
+ * than a re-serialisation of the parse.
+ */
+async function loadProfileDocument() {
+  const rows = await authedGet('/profile_documents?select=content,updated_at&limit=1');
+  const content = rows?.[0]?.content;
+  if (!content) { state.profileText = ''; state.profileError = null; return null; }
+  state.profileText = content;
+  const parsed = RadarProfileDoc.parseProfileDocument(content);
+  const invalid = RadarScoring.validateProfile(parsed);
+  state.profileError = invalid || null;
+  return invalid ? null : parsed;
 }
 
 function loadClassifyCacheFromBrowser() {
@@ -423,93 +528,227 @@ function renderStatusProfile() {
     DOM.statusProfile.append(el('p', 'profile-error', state.profileError));
   }
 
-  const info = state.profileFreshness;
-  if (info && !info.loaded) {
-    DOM.statusProfile.append(el('p', 'profile-error',
-      info.error === 'no radar/data/profile.md yet'
-        ? 'No profile yet. Write one with radar/PROFILE-PROMPT.md and save it as radar/data/profile.md.'
-        : `profile.md could not be read: ${info.error}`));
+  if (!auth.signedIn()) {
+    DOM.statusProfile.append(el('p', 'drawer-note',
+      'Sign in to load your profile. Postings are public and need no account; the profile, the judgments and your triage are yours.'));
     return;
   }
 
   if (!state.compiled) {
     DOM.statusProfile.append(el('p', 'drawer-note',
-      'No profile loaded. Start the local radar (npm start) — it reads radar/data/profile.md from disk.'));
+      state.profileText
+        ? 'Your profile could not be parsed — fix it below.'
+        : 'No profile yet. Write one with radar/PROFILE-PROMPT.md as a guide, then paste it in below.'));
+    DOM.statusProfile.append(profileEditButton('Write profile'));
     return;
   }
 
-  const capabilities = info?.capabilities ?? (state.profile?.variants?.[0]?.skills?.length || 0);
+  const capabilities = state.profile?.variants?.[0]?.skills?.length || 0;
   DOM.statusProfile.append(el('p', 'drawer-note',
-    `${capabilities} capabilities · every job is judged against radar/data/profile.md and nothing else.`));
+    `${capabilities} capabilities · every job is judged against this document and nothing else.`));
 
   // A skill too short to match is reported, never silently lost — that is the
   // one failure this document exists to prevent.
-  if ((info?.dropped_terms || []).length) {
+  const dropped = state.profile?.dropped_terms || [];
+  if (dropped.length) {
     DOM.statusProfile.append(el('p', 'drawer-note',
-      `Not matchable, so ignored: ${info.dropped_terms.join(', ')} — too short to search for safely.`));
+      `Not matchable, so ignored: ${dropped.join(', ')} — too short to search for safely.`));
   }
-  if (state.profileSyncedAt) {
-    DOM.statusProfile.append(el('p', 'drawer-note', 'Auto-synced from your local radar.'));
-  }
+  DOM.statusProfile.append(profileEditButton('Edit profile'));
+}
+
+function profileEditButton(label) {
+  const button = el('button', 'link-button', label);
+  button.type = 'button';
+  button.addEventListener('click', () => openProfileEditor());
+  return button;
 }
 
 /* ------------------------------------------------------------------------ */
-/* Profile freshness. The server re-reads profile.md whenever its mtime      */
-/* changes, so this poll is how a tab left open all day notices that you     */
-/* edited the document in another window. On the hosted dashboard, the page  */
-/* pulls the compiled profile FROM the local server when it happens to be    */
-/* running (CORS-opened, one direction only — nothing leaves the Mac).       */
+/* The profile editor.                                                       */
+/*                                                                           */
+/* Validation happens HERE, before the document is stored, using the same    */
+/* parser the judge will use. Saving a profile that does not parse would     */
+/* leave every posting judged against nothing while the UI looked fine.      */
 
-const LOCAL_RADAR_ORIGIN = 'http://localhost:4173';
-
-let freshnessTimer = null;
-
-async function pollProfileFreshness() {
-  clearTimeout(freshnessTimer);
-  const status = await getJson('/api/profile-freshness', null);
-  if (!status) return; // hosted dashboard — no local API here
-  state.profileFreshness = status;
-  // The document may have changed under us. The server reports whether it
-  // loaded, not WHICH version, so identity comes from the compiled hash —
-  // re-score only when it actually differs, never on a timer.
-  if (status.loaded) {
-    const fresh = await getJson('/api/profile', null);
-    if (fresh && !RadarScoring.validateProfile(fresh)
-      && RadarScoring.compileProfile(fresh).hash !== state.compiled?.hash) {
-      applyProfile(fresh, state.routeCache);
-      render();
-    }
-  }
-  renderStatusProfile();
-  // A quiet once-a-minute check keeps a long-lived tab honest about edits
-  // made while it sat open.
-  freshnessTimer = setTimeout(pollProfileFreshness, 60000);
+function openProfileEditor() {
+  if (!DOM.profileEditor || !DOM.profileText) return;
+  DOM.profileText.value = state.profileText || '';
+  DOM.profileEditorError.hidden = true;
+  DOM.profileEditor.hidden = false;
+  DOM.profileText.focus();
 }
 
-async function maybeSyncProfileFromLocalRadar() {
-  const host = window.location.hostname;
-  if (host === 'localhost' || host === '127.0.0.1') return; // served BY the local radar
-  let fresh = null;
+function closeProfileEditor() {
+  if (DOM.profileEditor) DOM.profileEditor.hidden = true;
+}
+
+async function saveProfileDocument() {
+  const content = DOM.profileText.value;
+  const parsed = RadarProfileDoc.parseProfileDocument(content);
+  const invalid = RadarScoring.validateProfile(parsed);
+  if (invalid) {
+    DOM.profileEditorError.textContent = invalid;
+    DOM.profileEditorError.hidden = false;
+    return;
+  }
+  const userId = auth.user()?.id;
+  if (!userId) return;
+
+  DOM.profileSave.disabled = true;
   try {
-    const response = await fetch(`${LOCAL_RADAR_ORIGIN}/api/profile`, { signal: AbortSignal.timeout(2500) });
-    if (!response.ok) return;
-    fresh = await response.json();
-  } catch { return; } // local radar not running — the stored profile stands
-  if (!fresh || RadarScoring.validateProfile(fresh)) return;
-  // Newest build wins; never clobber a newer manual import with an older file.
-  if (state.profile?.generated_at && fresh.generated_at
-    && fresh.generated_at <= state.profile.generated_at) return;
-  let routeCache = state.routeCache;
-  try {
-    const response = await fetch(`${LOCAL_RADAR_ORIGIN}/api/route-cache`, { signal: AbortSignal.timeout(2500) });
-    if (response.ok) routeCache = (await response.json()) || routeCache;
-  } catch { /* keep whatever we had */ }
-  localStorage.setItem(PROFILE_KEY, JSON.stringify(fresh));
-  if (routeCache) localStorage.setItem(ROUTE_CACHE_KEY, JSON.stringify(routeCache));
-  state.profileSyncedAt = new Date().toISOString();
+    await authedUpsert('profile_documents', [{
+      user_id: userId, content, updated_at: new Date().toISOString()
+    }], 'user_id');
+  } catch (error) {
+    DOM.profileEditorError.textContent = `Could not save: ${error.message}`;
+    DOM.profileEditorError.hidden = false;
+    return;
+  } finally {
+    DOM.profileSave.disabled = false;
+  }
+
+  const previousHash = state.compiled?.hash;
+  state.profileText = content;
   state.profileError = null;
-  applyProfile(fresh, routeCache);
+  applyProfile(parsed, null);
+  closeProfileEditor();
+
+  /* Judgments are keyed on the profile hash, so an edit that moves it makes
+   * every cached verdict unaddressable — not lost, but not read either. The
+   * 6-hourly job re-judges under the new hash; say so rather than letting the
+   * Possible tab look mysteriously empty. */
+  if (previousHash && state.compiled?.hash !== previousHash) {
+    state.matches = {};
+    state.matchesByHash = {};
+    state.judgmentCursor = null;
+    await loadJudgments();
+  }
   render();
+}
+
+/* ------------------------------------------------------------------------ */
+/* Signing in.                                                               */
+/*                                                                           */
+/* There used to be a CORS bridge here: the hosted page reached back to       */
+/* http://localhost:4173 to borrow the profile from the laptop, whenever the  */
+/* laptop happened to be awake and running the server, in Chrome, having      */
+/* answered a Private Network Access preflight. It worked, and it was a       */
+/* workaround for not having anywhere to put the document. Now there is.      */
+
+function renderAuthSection() {
+  if (!DOM.authForm || !DOM.authSignedIn) return;
+  const user = auth.user();
+  DOM.authForm.hidden = Boolean(user);
+  DOM.authSignedIn.hidden = !user;
+  if (user && DOM.authWho) DOM.authWho.textContent = `Signed in as ${user.email || 'you'}`;
+}
+
+async function handleSignIn(event) {
+  event.preventDefault();
+  DOM.authError.hidden = true;
+  DOM.authSubmit.disabled = true;
+  try {
+    await auth.signIn(DOM.authEmail.value.trim(), DOM.authPassword.value);
+    DOM.authPassword.value = '';
+    renderAuthSection();
+    await loadAuthedState();
+    render();
+  } catch (error) {
+    DOM.authError.textContent = error.message;
+    DOM.authError.hidden = false;
+  } finally {
+    DOM.authSubmit.disabled = false;
+  }
+}
+
+async function handleSignOut() {
+  await auth.signOut();
+  // Everything private goes with the session — leaving judgments on screen
+  // after signing out would be a lie about who can see them.
+  state.profile = null;
+  state.compiled = null;
+  state.profileText = '';
+  state.matches = {};
+  state.matchesByHash = {};
+  state.judgmentCursor = null;
+  state.local = { version: 1, triage: {}, ignored_employers: [] };
+  RadarScoring.scoreAll(state.jobs, null, null);
+  renderAuthSection();
+  closeProfileEditor();
+  render();
+}
+
+/**
+ * Everything behind the sign-in, in one place: the profile, the judgments,
+ * triage, and the hidden-employer list.
+ */
+async function loadAuthedState() {
+  if (!auth.signedIn()) return;
+  try {
+    const [profile, triageRows, stateRows] = await Promise.all([
+      loadProfileDocument(),
+      loadTriageRows(),
+      authedGet('/user_state?select=ignored_employers&limit=1')
+    ]);
+    state.local.triage = triageRows;
+    state.local.ignored_employers = stateRows?.[0]?.ignored_employers || [];
+    await importBrowserTriage();
+    applyProfile(profile, null);
+    await loadJudgments();
+  } catch (error) {
+    console.warn('could not load your account state:', error.message);
+  }
+  renderAuthSection();
+  renderStatusProfile();
+}
+
+async function loadTriageRows() {
+  const rows = await authedGet('/triage?select=*&order=job_id') || [];
+  const triage = {};
+  for (const row of rows) {
+    const record = { status: row.status, updated_at: row.updated_at };
+    // Absent fields are omitted rather than set to null: the record shape the
+    // rest of the app reads has always used "missing" to mean "never set".
+    if (row.note != null) record.note = row.note;
+    if (row.applied_at != null) record.applied_at = row.applied_at;
+    if (row.variant_sent != null) record.variant_sent = row.variant_sent;
+    triage[row.job_id] = record;
+  }
+  return triage;
+}
+
+/**
+ * Carry triage made before signing in (or while signed out) into the account,
+ * once. Uses the merge that has been sitting in pipeline.js since the sync was
+ * removed — last-write-wins by updated_at, ties keeping what is already stored.
+ */
+const TRIAGE_IMPORTED_KEY = 'veritas_radar_triage_imported';
+
+async function importBrowserTriage() {
+  if (localStorage.getItem(TRIAGE_IMPORTED_KEY)) return;
+  const stored = loadTriageFromBrowser();
+  const localTriage = stored.triage || {};
+  if (!Object.keys(localTriage).length && !(stored.ignored_employers || []).length) {
+    localStorage.setItem(TRIAGE_IMPORTED_KEY, new Date().toISOString());
+    return;
+  }
+  const merged = RadarPipeline.mergeTriage(state.local.triage, localTriage);
+  const changed = Object.entries(merged).filter(([jobId, record]) => {
+    const existing = state.local.triage[jobId];
+    return !existing || existing.updated_at !== record.updated_at || existing.status !== record.status;
+  });
+  if (changed.length) {
+    await authedUpsert('triage', changed.map(([jobId, record]) => triageRow(jobId, record)), 'job_id');
+  }
+  state.local.triage = merged;
+  const employers = new Set([...(state.local.ignored_employers || []), ...(stored.ignored_employers || [])]);
+  if (employers.size !== (state.local.ignored_employers || []).length) {
+    state.local.ignored_employers = [...employers];
+    await persistIgnoredEmployers();
+  }
+  localStorage.setItem(TRIAGE_IMPORTED_KEY, new Date().toISOString());
+  if (changed.length) console.info(`carried ${changed.length} triage records into your account`);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -581,10 +820,15 @@ function groupKeyFor(job) {
  * dropped poll took the whole poll chain with it: the backlog then sat still
  * until some unrelated re-render happened to restart it. */
 let matchChain = Promise.resolve();
-let matchPollTimer = null;
-let backlogSent = false;
-let matchCursor = 0; // last judgment sequence number this page has collected
 const matchRequested = new Set();
+
+/* Where the judge lives. Same origin in production; when this page is served
+ * by the dev server on localhost there is no function alongside it, so point
+ * at the deployment — the alternative is a local stub that behaves differently
+ * from the thing that actually runs. */
+const JUDGE_ORIGIN = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname)
+  ? (window.RADAR_JUDGE_ORIGIN || '')
+  : '';
 
 function serializeMatch(task) {
   const next = matchChain.then(task, task);
@@ -592,108 +836,120 @@ function serializeMatch(task) {
   return next;
 }
 
-function requestMatches(jobs, priority) {
-  return serializeMatch(() => postMatch(jobs, priority));
+/* A posting's judgment is found by content, not by id.
+ *
+ * Two postings with identical text share a verdict, and a posting whose text
+ * was edited needs a new one — which is exactly what hashing title, department
+ * and body gives. Computed once per job and kept, because resolving the whole
+ * pool runs on every judgment load. */
+function jobHash(job) {
+  return (job._contentHash ??= RadarScoring.jobContentHash(job));
 }
 
-async function postMatch(jobs, priority) {
+function resolveJudgments() {
+  if (!state.compiled) return 0;
+  let resolved = 0;
+  for (const job of state.jobs) {
+    const record = state.matchesByHash[jobHash(job)];
+    if (record && !state.matches[job.id]) { state.matches[job.id] = record; resolved += 1; }
+  }
+  return resolved;
+}
+
+/**
+ * Read the judgments for the current profile out of the database.
+ *
+ * Incremental after the first call: `judged_at` is a cursor, so the poll that
+ * picks up what the 6-hourly job wrote costs one empty page rather than
+ * re-downloading thousands of rows.
+ */
+async function loadJudgments() {
+  if (!auth.signedIn() || !state.compiled) return;
+  const PAGE = 1000;
+  const base = `/match_cache?profile_hash=eq.${encodeURIComponent(state.compiled.hash)}`
+    + '&select=job_hash,verdict,different_profession,meets_requirements,matches_preferences,'
+    + 'role_summary,reasons,gaps,judged_at,model';
+  const cursor = state.judgmentCursor;
+  let newest = cursor;
   try {
-    const response = await fetch('/api/match', {
+    for (let offset = 0; ; offset += PAGE) {
+      const rows = await authedGet(
+        `${base}${cursor ? `&judged_at=gt.${encodeURIComponent(cursor)}` : ''}`
+        + `&order=judged_at.asc&limit=${PAGE}&offset=${offset}`);
+      if (!rows || !rows.length) break;
+      for (const row of rows) {
+        const { job_hash: hash, ...record } = row;
+        state.matchesByHash[hash] = record;
+        if (!newest || record.judged_at > newest) newest = record.judged_at;
+      }
+      if (rows.length < PAGE) break;
+    }
+  } catch (error) {
+    console.warn('could not load judgments:', error.message);
+    return;
+  }
+  state.judgmentCursor = newest;
+  state.matchAvailable = true;
+  if (resolveJudgments()) render();
+}
+
+/**
+ * Ask the judge to read specific postings — ids only.
+ *
+ * The old endpoint took whole job payloads because the client already had
+ * them, and a backlog pass shipped tens of megabytes of posting text to ask
+ * "have you read these yet". The function fetches the postings itself now, so
+ * this is a list of ids and nothing else.
+ */
+const JUDGE_BATCH = 20;
+
+async function requestJudgments(jobs) {
+  if (!auth.signedIn() || !jobs.length) return;
+  const token = await auth.accessToken();
+  if (!token) return;
+  const batch = jobs.slice(0, JUDGE_BATCH);
+  try {
+    const response = await fetch(`${JUDGE_ORIGIN}/api/judge`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ priority, since: matchCursor, jobs: jobs.map(matchPayload) })
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+      body: JSON.stringify({ ids: batch.map((job) => job.id) })
     });
     if (!response.ok) throw new Error(String(response.status));
     const result = await response.json();
-    state.matchAvailable = true;
-    state.matchPending = result.pending || 0;
-    if (Number.isFinite(result.cursor)) matchCursor = result.cursor;
     let fresh = 0;
-    for (const [id, judgment] of Object.entries(result.judgments || {})) {
+    for (const [id, record] of Object.entries(result.judgments || {})) {
       if (!state.matches[id]) fresh += 1;
-      state.matches[id] = judgment;
+      state.matches[id] = record;
+      const job = state.jobs.find((candidate) => candidate.id === id);
+      if (job) state.matchesByHash[jobHash(job)] = record;
     }
     // Re-render only when something actually arrived, so the list doesn't
     // flicker under the user while they read.
     if (fresh) render();
-    scheduleMatchPoll(result);
-  } catch {
-    state.matchAvailable = false; // hosted dashboard, or the server went away
+  } catch (error) {
+    console.warn('judge request failed:', error.message);
   }
 }
 
-// Only the fields the judge prompt uses — posting bodies are large and this
-// rides over the wire on every batch.
-function matchPayload(job) {
-  return {
-    id: job.id,
-    title: job.title,
-    employer_name: job.employer_name,
-    department: job.department,
-    location: job.location,
-    remote: job.remote,
-    salary_min: job.salary_min,
-    salary_max: job.salary_max,
-    // Send the description WHOLE. Trimming it here to save bandwidth looks
-    // free and is not: the match cache is keyed on jobContentHash, which
-    // hashes description_text, so a truncated payload hashes differently and
-    // silently invalidates every judgment already made for a long posting.
-    // Truncation for the prompt belongs in jobBrief, where it does not touch
-    // identity. (Measured cost of sending them whole: ~4 MB once per load.)
-    description_text: job.description_text
-  };
-}
-
-function scheduleMatchPoll(result) {
-  clearTimeout(matchPollTimer);
-  if (!result || (!result.pending && !result.running)) return;
-  // Collect-only: the whole backlog is already queued server-side, and the
-  // cursor brings back everything finished since the last poll, so this posts
-  // an empty body rather than re-uploading postings to ask about them.
-  matchPollTimer = setTimeout(() => requestMatches([], 2), 6000);
-}
-
-/* Hand the server the whole eligible backlog, once, in fit order.
+/* What's on screen gets read first; the next screenful is queued behind it so
+ * scrolling rarely waits.
  *
- * The queue used to hold only the ~20-40 postings this page had asked about.
- * That kept the model busy while you were watching, but it ran dry a few
- * minutes after you closed the tab — so the reading only ever happened at the
- * speed you were looking, and a 989-posting list stayed 92% unread. Handing
- * over everything lets the server keep going on its own; judgments are cached
- * to disk, so the reading you slept through is there in the morning. */
-const BACKLOG_CHUNK = 150;
-
-function sendBacklog() {
-  if (backlogSent || !state.compiled || !state.jobs.length) return;
-  backlogSent = true;
-  // Built from the full dataset rather than the current view: a search box
-  // with something in it must not decide how much of the backlog gets read.
-  const backlog = state.jobs
-    .filter((job) => RadarScoring.isQualified(job) && !state.matches[job.id])
-    .sort((a, b) => (b.fit?.fit_score || 0) - (a.fit?.fit_score || 0));
-  if (!backlog.length) return;
-  serializeMatch(async () => {
-    for (let i = 0; i < backlog.length; i += BACKLOG_CHUNK) {
-      await postMatch(backlog.slice(i, i + BACKLOG_CHUNK), 2);
-      // The hosted dashboard has no model behind it. Stop at the first
-      // refusal rather than firing the remaining chunks into the void.
-      if (!state.matchAvailable) return;
-    }
-  });
-}
-
-// What's on screen gets judged first; the next screenful is queued behind it
-// so scrolling rarely waits.
+ * There is no backlog pass here any more. The page used to hand the server its
+ * entire eligible pool because the reading only happened while a tab was open,
+ * so a list left unattended stayed unread. The 6-hourly job in CI does that
+ * now — postings arrive already judged, and this only covers the gap between
+ * a posting appearing and the next scheduled run. */
 function pumpMatches() {
   if (viewMode !== 'possible' || !state.compiled || !state.visible.length) return;
+  if (!auth.signedIn()) return;
   const onScreen = state.visible.slice(0, 12).filter((job) => !state.matches[job.id]);
   const prefetch = state.visible.slice(12, 40).filter((job) => !state.matches[job.id]);
-  const batch = onScreen.length ? onScreen : prefetch;
+  const batch = (onScreen.length ? onScreen : prefetch).slice(0, JUDGE_BATCH);
   if (!batch.length) return;
   const key = batch.map((job) => job.id).join(',');
   if (matchRequested.has(key)) return;
   matchRequested.add(key);
-  requestMatches(batch, onScreen.length ? 0 : 1);
+  serializeMatch(() => requestJudgments(batch));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1155,9 +1411,6 @@ function renderStats() {
       && state.matches[job.id]?.verdict !== 'no').length.toLocaleString()
     : '–';
   renderHealthDot();
-  // Reading the backlog is not the Possible tab's private business — start it
-  // from any tab, on the first render that has a profile and some jobs.
-  sendBacklog();
 }
 
 // One dot summarizes system health: red when a feed errored, a recall alarm
@@ -1486,9 +1739,13 @@ function renderJudgeProgress() {
     bar,
     el('span', 'instrument-eta', `${read.toLocaleString()} / ${qualified.length.toLocaleString()}`)
   );
-  row.title = state.matchPending
-    ? `${state.matchPending.toLocaleString()} still queued — the model keeps reading while this app is open`
-    : 'Nothing queued';
+  /* Counted here rather than reported by a server queue. Judging runs in CI
+   * after each refresh now, so "still queued" is not a live number this page
+   * could know — what it can say is how much of the pool has been read. */
+  const unread = qualified.length - read;
+  row.title = unread
+    ? `${unread.toLocaleString()} not read yet — the next scheduled run reads them`
+    : 'Everything qualified has been read';
   DOM.statusRefresh.append(row);
 }
 
@@ -2238,7 +2495,7 @@ async function setTriage(job, status) {
   // Pick it in the detail pane, or leave it blank.
   if (status === 'applied' && !record.applied_at) record.applied_at = now;
   state.local.triage[job.id] = record;
-  await persistTriage();
+  await persistTriage(job.id);
   render();
 }
 
@@ -2251,7 +2508,7 @@ async function setNote(job, note) {
   if (note && note.trim()) record.note = note;
   else delete record.note;
   state.local.triage[job.id] = record;
-  await persistTriage();
+  await persistTriage(job.id);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -2314,13 +2571,13 @@ async function undoLast() {
     // Direct restore, never through setTriage — no re-entrant undo push, and
     // restoreTriageRecord keeps absent ≠ {status:'new'} for sync/LWW.
     state.local.triage = RadarPipeline.restoreTriageRecord(state.local.triage, entry.jobId, entry.prev);
-    await persistTriage();
+    await persistTriage(entry.jobId);
     render();
   } else if (entry.type === 'ignore_employer') {
     state.local.ignored_employers = (state.local.ignored_employers || [])
       .filter((id) => id !== entry.employerId);
     state.selectedId = entry.prevSelectedId;
-    await saveLocalState();
+    await persistIgnoredEmployers();
     render();
   }
 }
@@ -2542,6 +2799,11 @@ function bindEvents() {
   DOM.markSeen.addEventListener('click', markAllSeen);
   DOM.undoBtn.addEventListener('click', undoLast);
 
+  if (DOM.authForm) DOM.authForm.addEventListener('submit', handleSignIn);
+  if (DOM.authSignout) DOM.authSignout.addEventListener('click', handleSignOut);
+  if (DOM.profileSave) DOM.profileSave.addEventListener('click', saveProfileDocument);
+  if (DOM.profileCancel) DOM.profileCancel.addEventListener('click', closeProfileEditor);
+
   DOM.blockedNote.addEventListener('click', () => {
     showBlocked = !showBlocked;
     showAllRows = false;
@@ -2591,10 +2853,15 @@ async function init() {
   try { localStorage.removeItem('veritas_radar_theme'); } catch { /* fine */ }
   // Saved views retired with the 2026-08-04 three-tab restructure
   try { localStorage.removeItem('veritas_radar_views'); } catch { /* fine */ }
-  // Cross-device triage sync retired 2026-08-05 — one person, one machine, and
-  // the server already writes every change to radar/data/local-state.json.
-  // Dropping the stored token so a stale secret doesn't sit in localStorage.
+  // The token-gated triage sync was retired 2026-08-05 and replaced by a real
+  // account; a stale shared secret must not sit in localStorage either way.
   try { localStorage.removeItem('veritas_radar_sync_token'); } catch { /* fine */ }
+  // The profile and route cache used to be mirrored here by the localhost
+  // bridge. The profile lives in your account now, and route-cache never
+  // shipped — leaving copies behind would mean an old profile could outlive
+  // an edit made on another device.
+  try { localStorage.removeItem('veritas_radar_profile'); } catch { /* fine */ }
+  try { localStorage.removeItem('veritas_radar_route_cache'); } catch { /* fine */ }
   // The "NEW" watermark must NOT advance on every load — that made everything
   // stop being NEW the moment you reloaded. Read it and leave it; only an
   // explicit "Mark all as seen" advances it. Seed it once on the very first
@@ -2609,13 +2876,13 @@ async function init() {
   setViewMode(viewMode, { skipRender: true });
   hydrateFromUrl();
 
-  const [jobs, local, report, discovery, profile, routeCache] = await Promise.all([
+  /* Public data first — postings, the refresh report, the discovery queue —
+   * because none of it needs an account and the list should be on screen
+   * before any auth round-trip finishes. */
+  const [jobs, report, discovery] = await Promise.all([
     loadJobs(),
-    getJson('/api/local-state', null),
     loadRefreshReport(),
-    getJson('/api/discovery', { candidates: [] }),
-    getJson('/api/profile', null),
-    getJson('/api/route-cache', null)
+    getJson('/api/discovery', { candidates: [] })
   ]);
   state.jobs = jobs;
   // Job-side classifications describe the posting, not the person, so they
@@ -2625,20 +2892,16 @@ async function init() {
   RadarScoring.applyJobClassifications(state.jobs, state.classifyCache);
   state.report = report || null;
   state.discovery = discovery || null;
-  // null means no API server (static hosting) -> browser-local triage
-  state.local = local || loadTriageFromBrowser();
+  // Signed out, triage is whatever this browser accumulated; signing in merges
+  // it upward and takes over.
+  state.local = loadTriageFromBrowser();
   if (!Array.isArray(state.local.ignored_employers)) state.local.ignored_employers = [];
-  // The profile comes off disk via the local server; a stored copy in this
-  // browser is the fallback for the hosted dashboard. One served from disk
-  // that fails validation is surfaced, not silently ignored.
-  const diskProblem = profile ? RadarScoring.validateProfile(profile) : null;
-  if (diskProblem) state.profileError = `profile.json is not usable: ${diskProblem}`;
-  applyProfile(!profile || diskProblem ? loadProfileFromBrowser() : profile,
-    routeCache || loadRouteCacheFromBrowser());
-  // Fire-and-forget: locally, narrate/adopt the server's auto-rebuilds; on
-  // the hosted page, pull a fresher profile from the local radar if it's up.
-  pollProfileFreshness();
-  maybeSyncProfileFromLocalRadar();
+  /* Score with no profile so every job carries a fit stamp. All jobs sorts on
+   * job.fit whether or not anyone is signed in, and an unstamped job crashes
+   * the comparator — which is exactly what happened when this call was moved
+   * behind the sign-in. */
+  applyProfile(null, null);
+  renderAuthSection();
   renderRefreshStatus(report);
   renderDiscovery(discovery);
   // Keep the next-pull countdown honest without touching anything else
@@ -2650,6 +2913,16 @@ async function init() {
   if (!narrowLayout.matches && state.visible.length && !state.selectedId) {
     selectJob(state.visible[0].id);
   }
+
+  /* Your half of the data, after the public half is already drawn. Then a
+   * quiet poll: the 6-hourly job writes judgments while nothing is open, and
+   * a tab left up all day should notice without being reloaded. */
+  await loadAuthedState();
+  render();
+  setInterval(() => { loadJudgments(); }, 60000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) loadJudgments();
+  });
 }
 
 init();

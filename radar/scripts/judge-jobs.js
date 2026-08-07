@@ -28,9 +28,14 @@ const {
   JUDGMENT_SCHEMA, JUDGE_SYSTEM_PROMPT, judgeUserPrompt, normalizeJudgment
 } = require('./lib/match.js');
 const { DEFAULT_MODEL, judgeOnce, costOf } = require('./lib/openai.js');
+const { loadEnvFile } = require('./lib/env-file.js');
 const { fetchAllJobs, supabaseEnv } = require('./lib/supabase.js');
 const { parseProfileDocument } = require('../public/profile-doc.js');
 const RadarScoring = require('../public/scoring.js');
+
+// Runs in CI with real environment variables, and by hand while iterating —
+// this only fills gaps, so CI is unaffected.
+loadEnvFile();
 
 const CONCURRENCY = Number(process.env.RADAR_MATCH_CONCURRENCY || 6);
 /* Written as results land, not at the end. A crash or a cancelled workflow run
