@@ -2224,6 +2224,55 @@ async function testJudgeFunction() {
   assert(MAX_IDS <= 20, 'a batch has to finish inside the function timeout');
 }
 
+function testJudgeJobsScript() {
+  const { parseArgs, diffMisses, rowFromJudgment } = require('../radar/scripts/judge-jobs.js');
+  const { deriveVerdict } = require('../radar/scripts/lib/match.js');
+
+  // The spend cap has to default to something, because CI runs this unattended
+  // on a schedule and an uncapped loop over a fresh pool is a real bill.
+  const defaults = parseArgs([]);
+  assert.strictEqual(defaults.maxSpend, 5);
+  assert.strictEqual(defaults.limit, Infinity);
+  assert.strictEqual(defaults.dryRun, false);
+  assert.strictEqual(defaults.pruneStaleProfiles, false, 'pruning is never the default');
+
+  const custom = parseArgs(['--dry-run', '--max-spend', '0.5', '--limit', '10', '--prune-stale-profiles']);
+  assert.deepStrictEqual(custom, { dryRun: true, maxSpend: 0.5, limit: 10, pruneStaleProfiles: true });
+
+  // Only postings with no judgment under THIS profile are worth paying for.
+  const pool = [{ job: { id: 'a' }, hash: 'fnv1a:1' }, { job: { id: 'b' }, hash: 'fnv1a:2' }];
+  assert.deepStrictEqual(diffMisses(pool, new Set(['fnv1a:1'])).map((m) => m.job.id), ['b']);
+  assert.strictEqual(diffMisses(pool, new Set(['fnv1a:1', 'fnv1a:2'])).length, 0);
+  assert.strictEqual(diffMisses(pool, new Set()).length, 2);
+
+  // A row must carry every column match_cache declares NOT NULL, and the
+  // verdict must be the derived one rather than anything the model wrote.
+  const judgment = {
+    verdict: deriveVerdict({ different_profession: false, meets_requirements: true, matches_preferences: true }),
+    different_profession: false,
+    meets_requirements: true,
+    matches_preferences: true,
+    role_summary: 'Research data analyst',
+    reasons: ['overlap'],
+    gaps: []
+  };
+  const row = rowFromJudgment({ id: 'workday:x:1' }, 'fnv1a:9', 'fnv1a:p', judgment, 'gpt-5.6-luna', '2026-08-07T00:00:00.000Z');
+  assert.strictEqual(row.verdict, 'strong');
+  assert.strictEqual(row.job_hash, 'fnv1a:9');
+  assert.strictEqual(row.profile_hash, 'fnv1a:p');
+  assert.strictEqual(row.job_id, 'workday:x:1');
+  for (const column of ['different_profession', 'meets_requirements', 'matches_preferences']) {
+    assert.strictEqual(typeof row[column], 'boolean', `${column} is NOT NULL in the table`);
+  }
+  assert(Array.isArray(row.reasons) && Array.isArray(row.gaps), 'jsonb columns take arrays');
+
+  // A judgment missing its arrays still produces a storable row rather than
+  // failing the whole batch on a null.
+  const sparse = rowFromJudgment({ id: 'j' }, 'h', 'p', { ...judgment, reasons: undefined, gaps: null }, 'm', 'now');
+  assert.deepStrictEqual(sparse.reasons, []);
+  assert.deepStrictEqual(sparse.gaps, []);
+}
+
 function testJudgedMatch() {
   const {
     deriveVerdict, normalizeJudgment, matchCacheKey, candidateBrief, jobBrief,
@@ -3736,6 +3785,7 @@ async function main() {
   testProfileDocument();
   testSeedCacheKeys();
   await testJudgeFunction();
+  testJudgeJobsScript();
   testJudgedMatch();
   testManifestSync();
   testFitAudit();

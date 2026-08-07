@@ -30,6 +30,16 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      - name: Judge new postings against the profile
+        # Deliberately AFTER the refresh and deliberately WITHOUT if: always().
+        # syncJobs ends by deleting every posting it did not see this run, so
+        # judging a half-synced table would spend money on rows about to vanish;
+        # and if the refresh failed there is nothing here worth reading.
+        run: node radar/scripts/judge-jobs.js --max-spend 5
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       - name: Sync to latest main (this run's outputs win)
         # if: always() -- a real bug found 2026-08-04: this workflow has no
         # timeout-minutes set (defaults to GitHub's 6h cap), and a run that
