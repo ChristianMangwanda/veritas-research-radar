@@ -4,6 +4,86 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Session 2026-08-07 — the laptop stops being part of the system
+
+The dashboard lives at **https://veritas-research-radar.vercel.app**. Everything
+that used to require this machine being awake now does not.
+
+**What actually needed a server.** Judging costs money at the API, so it needs
+a key, and a key cannot ship in a page served from a public repo. GitHub Pages
+has no server-side anything, which is the entire reason the laptop stayed in
+the loop — the profile, the judgments and triage lived on its disk because that
+is where the key was. `api/judge.js` on Vercel is that missing server: 20 job
+ids in, judgments out, the key in Vercel's environment. The contract is ids
+only; the old endpoint took whole job payloads and a backlog pass shipped ~80MB
+of posting text per page load to ask "have you read these yet".
+
+**7,795 judgments migrated rather than re-bought.** The cache key is
+`1:<jobContentHash>:<profileHash>:in-profile`, and the whole migration turns on
+it staying byte-identical — so `profile-doc.js` moved into `radar/public/`
+under the same UMD wrapper `scoring.js` uses, and the browser, the Vercel
+function and the Actions job all compute hashes with one implementation.
+Verified by resolving stored hashes against live postings: 7,659 of 7,934
+qualified jobs hit. The 275 misses were 273 postings that arrived after judging
+finished and 2 whose text changed. Had the contract broken, that number would
+have been 7,934.
+
+**Private state got a user, not a shared secret.** Four Supabase tables behind
+Supabase Auth with signups disabled. This replaces `triage.sql`, which reached
+for SECURITY DEFINER RPCs behind a pasted token because the page ships a public
+anon key and there was no user to attach a row to. `match_cache` deliberately
+has NO foreign key to `jobs`: refresh ends by deleting every posting it did not
+see this run, and a cascade would take judgments we paid for. Grants are
+written out explicitly — `schema.sql` leans on the project's default privileges,
+which makes a table's security depend on a setting invisible from the repo.
+
+**The backlog judges itself now.** `judge-jobs.js` runs after each refresh,
+capped at $5. Before this, reading a fresh pool meant holding a browser tab
+open for the better part of an hour — measured: 3,193 postings, 45 minutes,
+$1.39 — and every profile edit meant doing it again. Step order is the race
+guard: it runs strictly after `syncJobs` and its delete sweep, deliberately
+without `if: always()`.
+
+**Retired:** `pages.yml`, the CORS bridge that let the hosted page borrow the
+profile from `localhost:4173` over a Private Network Access preflight, and 491
+lines of `server.js` — which is now static files and the local jobs mirror. It
+stubs nothing, so developing on localhost exercises the endpoints that actually
+run.
+
+**Bugs found by running it, not by reading it.**
+
+- The dashboard was showing **14,054 of 25,054 jobs**, 11 of 26 pages failed.
+  `OFFSET` makes Postgres walk and discard every row before the window, so cost
+  climbs with depth while the statement timeout does not. Single deep requests
+  failed on their own, so the earlier "3 at a time with one retry" fix had
+  bought time rather than solved it. Keyset pagination at 500 rows a page with
+  backoff returns all 25,054, zero failures. A ranged-concurrent variant was
+  measured and was far worse — 65 failures, 3,000 rows missing, 214s.
+  Concurrency is what this database minds, not depth.
+- Anonymous load crashed the comparator: `job.fit` is only stamped by
+  `applyProfile`, which had moved behind the sign-in.
+- A `.env` fallback added to `supabaseEnv()` broke "refresh must not need
+  Supabase" — a safety property, since a local run could have mutated
+  production believing it was offline. Reading `.env` is now explicit opt-in via
+  `lib/env-file.js`.
+- `/api/judge` answered every request with "SUPABASE_SERVICE_KEY not
+  configured" because Supabase's dashboard issues the key as
+  SUPABASE_**SECRET**_KEY now. Both names accepted; the error names which
+  variable is missing.
+- The Possible tab still told you to run `npm start` — copy missed when the
+  profile moved into the account.
+
+**Spend.** ~$12.70 to build the whole thing. Ongoing: the median 6-hour cycle
+brings ~68 qualified postings at $0.000435 each — about **$0.03 a cycle, $3.50
+a month**. A profile edit re-judges the pool once, ~$3.44.
+
+**Two traps that cost real time, recorded so they cost none next time.** Vercel
+binds environment variables at deployment time — saving one does not change the
+deployment already running. And a second, empty Supabase project in the same
+account authenticates perfectly happily while holding none of the data; the URL
+and the key must come from the same project.
+
+
 ### Session 2026-08-06 — the platforms that looked shut, and the one rule that kept paying
 
 **Taleo was never browser-only.** The HTTP 500 "An Error Occurred in TEE" that
