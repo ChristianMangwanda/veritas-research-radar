@@ -4,6 +4,80 @@ All notable changes to Veritas are documented in this file.
 
 ## [Unreleased]
 
+### Session 2026-08-15 — the writes were never as safe as the runs looked
+
+Every scheduled run was green. Underneath, the judge was losing paid judgments
+to a Postgres error that was guaranteed rather than unlucky, the sync was
+rewriting all 25,000 rows six times a day and timing out on half of them, and
+a sync that failed left no trace anywhere — not in the report, not in the
+dead-man switch, not in the exit code.
+
+**The 21000 errors were arithmetic, not bad luck.** Two postings with identical
+title, department and description share a content hash, and `match_cache` is
+keyed on that hash. Every reader already knew this and fanned one row out to
+every job sharing it; the write path did not, and carried one row per job. Two
+rows with the same key in one upsert make Postgres reject the whole batch
+("cannot affect row a second time"). Measured on the live pool: 7,671 distinct
+hashes among 7,859 qualified postings, and because misses sort by fit score the
+duplicates land adjacent — 64 of 158 batches carried one. The misses now
+collapse to one representative per hash before anything is spent.
+
+**A failed batch used to take the judgments with it.** `flush()` spliced the
+queue and then awaited the request, so a rejection discarded up to fifty
+already-paid rows, counted them as judged anyway, and — because the same job
+incremented `judgedNow` and then `unjudged` — produced the negative "not
+reached" numbers in the summaries. One serialized writer now holds the queue
+until PostgREST confirms the write, backs off and splits on a timeout, and
+stops the workers outright when the sink is dead rather than buying judgments
+it cannot store.
+
+**The sync was a mirror.** It upserted all ~25,000 rows stamped with the run's
+timestamp and deleted everything older, so Postgres wrote every row and
+maintained the `updated_at` index whether or not the posting had moved —
+roughly 154,000 large upserts a day. It now diffs against the baseline the run
+already read and writes only what changed, deleting by explicit id and only
+after every upsert has landed. Two fields are excluded from the comparison
+because `enrichJob` restamps them on every fetch and nobody reads either:
+`last_seen_at` and `provenance.fetched_at`. **A stored `last_seen_at` now means
+"when the content last changed", not "when we last saw it."** Keys are sorted
+before comparing, because jsonb does not preserve key order and a naive compare
+marks every row changed. Verified against the live table: 25,584 rows,
+re-fetched with fresh timestamps, produce zero writes.
+
+The reader moved to keyset pagination too — the dashboard was fixed in
+`cb30a57` after deep `OFFSET` lost 11 of 26 pages, and the Node path was never
+given the same treatment.
+
+**"git dataset unaffected" had stopped being true.** Supabase is the dataset of
+record. The report was written before the sync was attempted, the failure was
+downgraded to a warning, and the run went green with the table missing its
+writes — while the judge step, which runs next, read it anyway. A failed sync
+now records `supabase_sync_status` in the report, fails the step so judging is
+skipped, and trips the dead-man switch, which previously noticed only a sync
+that *aborted*.
+
+**Rate limits, on both sides.** Six judge workers each retried a 429 privately,
+so one rate limit became six ladders climbing in step; the backoff is shared
+across the process now and concurrency is three. On the fetch side, ADP's 47
+"tenants" are client ids on one host, but the lane key was built from the
+token, so the pool saw 47 hosts and let four hammer one server — the same six
+employers answered 429 on every run for weeks, under the dead-man threshold, so
+nothing ever said so. And a 200 carrying HTML, which is how a board says
+"challenge", surfaced as `Unexpected token '<'`; it is labelled now, which is
+what lets a circuit breaker notice five unrelated tenants failing identically
+and stop querying the rest, carrying their jobs forward.
+
+**Six full refreshes a day became four.** The firehose and the scout each ran
+the complete 547-employer refresh purely to fold in a file they had just
+written, which the next scheduled run would have merged anyway. They now commit
+the file and stop. The shared concurrency group moved from workflow level to
+the jobs that need it: a five-hour Monday crawl was not just slow, it was
+cancelling the refreshes queued behind it, since GitHub keeps only one pending
+entry per group.
+
+`RADAR_MATCH_CONCURRENCY` is read again (the note further down this file saying
+it is gone describes the retired Ollama path) and now defaults to 3.
+
 ### Session 2026-08-07 — the laptop stops being part of the system
 
 The dashboard lives at **https://veritas-research-radar.vercel.app**. Everything

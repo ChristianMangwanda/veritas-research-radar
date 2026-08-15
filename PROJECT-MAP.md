@@ -66,17 +66,28 @@ Seven scheduled GitHub Actions — nothing runs on your machine.
 
 | Workflow | Runs | Does |
 |---|---|---|
-| Research Job Radar | every 6h | Pulls live jobs from all ATS feeds |
-| Aggregator Firehose | 2×/day | Sweeps Nature/Science job boards |
-| Employer Scout | weekly (Mon) | Discovers new cap-exempt employers |
+| Research Job Radar | every 6h | Pulls live jobs from every ATS feed, syncs Supabase, then judges |
+| Aggregator Firehose | 2×/day | Sweeps Nature/Science job boards (the radar folds the snapshot in) |
+| Employer Scout | weekly (Mon) | Re-scouts registry employers that have no clean ATS feed |
+| ATS Discovery | monthly | Sharded crawl for employers whose board we could wire |
 | Enrichment | monthly | Refreshes sponsorship evidence (IPEDS/IRS/USCIS/DOL) |
-| Deploy to Pages | every 6h | Rebuilds the live dashboard |
 | Daily Digest | daily | Sponsorship-ranked summary (fit digest runs locally) |
-| Dead-Man Switch | every 2h | Alerts if data goes stale >8h or feeds error |
+| Dead-Man Switch | every 2h | Alerts if data goes stale >8h, feeds error, or a sync failed |
+
+**Only the radar writes Supabase.** The others produce a file and commit it;
+the next radar run merges it. That is what keeps the differential sync honest —
+a run may treat the table it read at the start as the whole table only because
+nothing else is writing while it does. Every job that commits data or touches
+Supabase shares one concurrency group so they serialize; the long crawls hold
+it only for the minute they spend committing, not for the hours they spend
+crawling.
 
 **Safety net:** a refresh that reads an empty dataset *aborts instead of
-overwriting*; any employer dropping to zero jobs raises a recall alarm; the
-dead-man switch pings if the whole thing stalls.
+overwriting*; a sync that fails partway records itself and fails the run, so
+the judge step is skipped rather than paying to read a half-written table; any
+employer dropping to zero jobs raises a recall alarm; a provider answering
+identically for five unrelated tenants trips a circuit breaker and its jobs are
+carried forward; the dead-man switch pings if the whole thing stalls.
 
 ## 6. How we got here
 
