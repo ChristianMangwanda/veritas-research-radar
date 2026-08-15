@@ -52,6 +52,36 @@ function isRetryable(status) {
 }
 
 /**
+ * A 429 is a statement about the whole key, not about one request, so the
+ * backoff belongs to the process rather than to the caller that happened to
+ * receive it. Six workers each retrying privately turn one rate limit into six
+ * retry ladders climbing in step, and the jitter (300ms against waits measured
+ * in seconds) is far too small to spread them apart.
+ *
+ * Every attempt waits on the shared deadline before it fetches, so one 429
+ * pauses the fleet. `pausedUntil` only ever moves forward: a later 429 with a
+ * shorter Retry-After must not shorten a pause somebody else already earned.
+ */
+let pausedUntil = 0;
+
+function noteRateLimit(waitMs) {
+  pausedUntil = Math.max(pausedUntil, Date.now() + waitMs);
+}
+
+async function awaitCooldown() {
+  const remaining = pausedUntil - Date.now();
+  if (remaining <= 0) return;
+  // Jitter is a full second here, not 300ms: the point is to stagger the
+  // workers as they wake, and they all wake from the same deadline.
+  await new Promise((resolve) => setTimeout(resolve, remaining + Math.floor(Math.random() * 1000)));
+}
+
+/** Tests only — the cooldown is module state and would leak between cases. */
+function _resetCooldown() {
+  pausedUntil = 0;
+}
+
+/**
  * One judgment. Returns the parsed object, or null when the model refused or
  * produced something unparseable — the caller decides what an absent judgment
  * means, which is never "no".
@@ -69,6 +99,7 @@ async function judgeOnce({ key, model = DEFAULT_MODEL, system, user, schema, sig
 
   let response;
   for (let attempt = 0; ; attempt += 1) {
+    await awaitCooldown();
     response = await fetch(ENDPOINT, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
@@ -82,7 +113,10 @@ async function judgeOnce({ key, model = DEFAULT_MODEL, system, user, schema, sig
     const wait = Number.isFinite(retryAfter) && retryAfter > 0
       ? retryAfter
       : Math.min(20000, 500 * 2 ** attempt) + Math.floor(Math.random() * 300);
-    await new Promise((resolve) => setTimeout(resolve, wait));
+    // A rate limit pauses everyone (the loop top waits on it); 408s and 5xx are
+    // about this one request, so they wait alone.
+    if (response.status === 429) noteRateLimit(wait);
+    else await new Promise((resolve) => setTimeout(resolve, wait));
   }
 
   if (!response.ok) {
@@ -112,12 +146,23 @@ const PRICES = {
   'gpt-4o-mini': { input: 0.15, cached: 0.075, output: 0.60 }
 };
 
+const unpricedWarned = new Set();
+
 function costOf(model, usage) {
   const price = PRICES[model];
+  // An unpriced model reports every run as free, which silently disables
+  // --max-spend. Say so once rather than discovering it on a bill.
+  if (!price && !unpricedWarned.has(model)) {
+    unpricedWarned.add(model);
+    console.warn(`No published price for model "${model}" — spend will report as $0 and --max-spend cannot bind.`);
+  }
   if (!price) return 0;
   return ((usage.input - usage.cached) / 1e6) * price.input
     + (usage.cached / 1e6) * price.cached
     + (usage.output / 1e6) * price.output;
 }
 
-module.exports = { DEFAULT_MODEL, readKey, judgeOnce, costOf, PRICES };
+module.exports = {
+  DEFAULT_MODEL, readKey, judgeOnce, costOf, PRICES,
+  noteRateLimit, awaitCooldown, _resetCooldown
+};

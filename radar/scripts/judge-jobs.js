@@ -28,6 +28,7 @@ const {
   JUDGMENT_SCHEMA, JUDGE_SYSTEM_PROMPT, judgeUserPrompt, normalizeJudgment
 } = require('./lib/match.js');
 const { DEFAULT_MODEL, judgeOnce, costOf } = require('./lib/openai.js');
+const { groupMissesByHash, createCacheWriter } = require('./lib/match-cache.js');
 const { loadEnvFile } = require('./lib/env-file.js');
 const { fetchAllJobs, supabaseEnv } = require('./lib/supabase.js');
 const { parseProfileDocument } = require('../public/profile-doc.js');
@@ -37,11 +38,17 @@ const RadarScoring = require('../public/scoring.js');
 // this only fills gaps, so CI is unaffected.
 loadEnvFile();
 
-const CONCURRENCY = Number(process.env.RADAR_MATCH_CONCURRENCY || 6);
+/* Three, not six. Six workers produced a steady 4-16 unrecoverable 429s per
+ * run: the retry ladders climbed in lockstep and the fleet spent its attempts
+ * racing itself. Three plus the shared cooldown in lib/openai.js finishes the
+ * same backlog without the pile-up — the limit was never throughput. */
+const CONCURRENCY = Number(process.env.RADAR_MATCH_CONCURRENCY || 3);
 /* Written as results land, not at the end. A crash or a cancelled workflow run
  * must not throw away judgments already paid for — the same lesson that put a
- * ceiling on the local cache's debounce after 2,900 of them sat unwritten. */
-const UPSERT_BATCH = 50;
+ * ceiling on the local cache's debounce after 2,900 of them sat unwritten.
+ * Smaller batches than before (50) because a rejected batch costs whatever it
+ * carried, and lib/match-cache.js only lets go of rows Supabase confirmed. */
+const UPSERT_BATCH = 25;
 const PAGE = 1000;
 const MODEL = process.env.RADAR_MATCH_MODEL || DEFAULT_MODEL;
 
@@ -137,14 +144,23 @@ async function main() {
     .map((job) => ({ job, hash: RadarScoring.jobContentHash(job) }));
 
   const judged = await loadJudgedHashes(client, profileHash);
-  const misses = diffMisses(qualified, judged).slice(0, args.limit);
+  const missedJobs = diffMisses(qualified, judged);
+  // One judgment per distinct posting content, not per posting. The cache is
+  // keyed on the content hash and every reader fans a row out to all the jobs
+  // sharing it, so judging duplicates separately pays twice for one answer and
+  // puts two rows with the same key in one upsert, which Postgres rejects whole.
+  const { representatives } = groupMissesByHash(missedJobs);
+  const duplicatesCollapsed = missedJobs.length - representatives.length;
+  const misses = representatives.slice(0, args.limit);
 
   console.log(`profile ${profileHash} · ${jobs.length} jobs · ${qualified.length} qualified`);
-  console.log(`${judged.size} already judged · ${misses.length} to judge${Number.isFinite(args.limit) ? ` (limited to ${args.limit})` : ''}`);
+  console.log(`${judged.size} already judged · ${missedJobs.length} unjudged postings`
+    + ` → ${representatives.length} distinct hashes (${duplicatesCollapsed} duplicates collapsed)`);
+  console.log(`${misses.length} to judge${Number.isFinite(args.limit) ? ` (limited to ${args.limit})` : ''}`);
 
   if (args.dryRun || !misses.length) {
     if (args.dryRun) console.log('Dry run — nothing judged, nothing written.');
-    await summarize({ judgedNow: 0, unjudged: 0, spend: 0, remaining: misses.length });
+    await summarize({ judgedNow: 0, unjudged: 0, spend: 0, remaining: misses.length, duplicatesCollapsed });
     return 0;
   }
 
@@ -152,19 +168,20 @@ async function main() {
   let judgedNow = 0;
   let unjudged = 0;
   let stopped = false;
-  const pending = [];
 
-  const flush = async () => {
-    if (!pending.length) return;
-    const batch = pending.splice(0, pending.length);
-    await client.request('POST', '/match_cache?on_conflict=job_hash,profile_hash', {
-      body: batch, headers: { prefer: 'resolution=merge-duplicates,return=minimal' }
-    });
-  };
+  /* Workers judge in parallel; exactly one of them writes at a time, and a row
+   * is only dropped from the queue once Supabase has confirmed it. */
+  const writer = createCacheWriter({
+    batchSize: UPSERT_BATCH,
+    upsert: (rows) => client.request('POST', '/match_cache?on_conflict=job_hash,profile_hash', {
+      body: rows, headers: { prefer: 'resolution=merge-duplicates,return=minimal' }
+    })
+  });
 
   let next = 0;
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, misses.length) }, async () => {
-    while (next < misses.length && !stopped) {
+    // Stop buying judgments the moment they can no longer be stored.
+    while (next < misses.length && !stopped && !writer.failed) {
       const { job, hash } = misses[next];
       next += 1;
       if (spend >= args.maxSpend) { stopped = true; break; }
@@ -179,9 +196,10 @@ async function main() {
         spend += costOf(MODEL, usage);
         const judgment = normalizeJudgment(parsed);
         if (!judgment) { unjudged += 1; continue; }
-        pending.push(rowFromJudgment(job, hash, profileHash, judgment, MODEL, new Date().toISOString()));
+        // Synchronous — the try/catch below now covers only the model call, so
+        // a write problem can no longer be counted as an unjudged posting.
+        writer.push(rowFromJudgment(job, hash, profileHash, judgment, MODEL, new Date().toISOString()));
         judgedNow += 1;
-        if (pending.length >= UPSERT_BATCH) await flush();
         if (judgedNow % 250 === 0) console.log(`  ${judgedNow} judged · $${spend.toFixed(3)}`);
       } catch (error) {
         // A bad key or a revoked one will fail identically on every posting;
@@ -196,14 +214,24 @@ async function main() {
       }
     }
   }));
-  await flush();
+  // close() drains what is left and never throws, so the summary below is
+  // written whatever happened — a lost final batch used to take the step
+  // summary with it and exit before anyone could read what had gone wrong.
+  const { written, unwritten, failure } = await writer.close();
 
   if (stopped && spend >= args.maxSpend) {
     console.log(`Stopped at the $${args.maxSpend} cap — re-run to continue.`);
   }
-  const remaining = misses.length - judgedNow - unjudged;
+  const remaining = Math.max(0, misses.length - judgedNow - unjudged);
   console.log(`judged ${judgedNow} (${unjudged} unjudged, ${remaining} not reached) · $${spend.toFixed(3)}`);
-  await summarize({ judgedNow, unjudged, spend, remaining });
+  console.log(`cache: ${written} rows written${unwritten ? `, ${unwritten} UNWRITTEN` : ''}`);
+  if (failure) {
+    // The judgments still in the queue were paid for and are gone. They are not
+    // lost work in the long run: the next run sees the same hashes as misses.
+    console.error(`Cache write failed after retries — ${unwritten} judgments not stored: ${failure.message}`);
+  }
+  await summarize({ judgedNow, unjudged, spend, remaining, duplicatesCollapsed, written, unwritten, failure });
+  if (failure) return 1;
 
   if (args.pruneStaleProfiles) {
     // Manual only. A profile edit orphans an entire generation of judgments,
@@ -218,16 +246,22 @@ async function main() {
 
 /** GitHub renders this on the run page, so the outcome is visible without
  *  opening the log. */
-async function summarize({ judgedNow, unjudged, spend, remaining }) {
+async function summarize({
+  judgedNow, unjudged, spend, remaining,
+  duplicatesCollapsed = 0, written = 0, unwritten = 0, failure = null
+}) {
   const file = process.env.GITHUB_STEP_SUMMARY;
   if (!file) return;
   const fsp = require('fs/promises');
   await fsp.appendFile(file,
     `### Judged postings\n\n`
     + `- judged this run: **${judgedNow}**\n`
+    + `- duplicate postings served by one judgment: ${duplicatesCollapsed}\n`
     + `- unjudged (model gave no usable answer): ${unjudged}\n`
     + `- not reached: ${remaining}\n`
-    + `- spend: **$${spend.toFixed(3)}**\n`);
+    + `- written to cache: **${written}**${unwritten ? ` (unwritten: ${unwritten})` : ''}\n`
+    + `- spend: **$${spend.toFixed(3)}**\n`
+    + (failure ? `- **cache write failed:** ${failure.message}\n` : ''));
 }
 
 if (require.main === module) {

@@ -24,6 +24,7 @@ const {
   JUDGMENT_SCHEMA, JUDGE_SYSTEM_PROMPT, judgeUserPrompt, normalizeJudgment
 } = require('../radar/scripts/lib/match.js');
 const { DEFAULT_MODEL, judgeOnce, costOf } = require('../radar/scripts/lib/openai.js');
+const { groupMissesByHash, dedupeCacheRows } = require('../radar/scripts/lib/match-cache.js');
 const { rehydrateJob } = require('../radar/scripts/lib/supabase.js');
 const { parseProfileDocument } = require('../radar/public/profile-doc.js');
 const RadarScoring = require('../radar/public/scoring.js');
@@ -188,15 +189,27 @@ async function handler(request, response) {
       }
     }
 
-    /* ---- judge the rest ------------------------------------------------ */
+    /* ---- judge the rest ------------------------------------------------
+     * One call per distinct posting CONTENT, not per posting. A screenful can
+     * easily hold the same "Assistant Professor" text from two aggregators;
+     * judging each separately pays twice for one answer and puts two rows with
+     * the same (job_hash, profile_hash) into one upsert, which Postgres rejects
+     * whole. The cache is hash-keyed, so one judgment serves every duplicate. */
     const started = Date.now();
     const misses = jobs.filter((job) => !judgments[job.id]);
+    const { representatives, membersByHash } = groupMissesByHash(
+      misses.map((job) => ({ job, hash: hashOf.get(job.id) }))
+    );
     const unjudged = [];
     let spend = 0;
     const fresh = [];
 
-    await runPool(misses, CONCURRENCY, async (job) => {
-      if (Date.now() - started > LAUNCH_DEADLINE_MS) { unjudged.push(job.id); return; }
+    await runPool(representatives, CONCURRENCY, async ({ job, hash }) => {
+      const members = membersByHash.get(hash) || [job];
+      if (Date.now() - started > LAUNCH_DEADLINE_MS) {
+        for (const member of members) unjudged.push(member.id);
+        return;
+      }
       try {
         const { parsed, usage } = await judgeOnce({
           key: process.env.OPENAI_API_KEY,
@@ -209,19 +222,24 @@ async function handler(request, response) {
         // A refusal or an unparseable body is an ABSENT answer, never a "no" —
         // recording it as a verdict would hide a job with no stated reason.
         const judgment = normalizeJudgment(parsed);
-        if (!judgment) { unjudged.push(job.id); return; }
+        if (!judgment) {
+          for (const member of members) unjudged.push(member.id);
+          return;
+        }
         const record = { ...judgment, judged_at: new Date().toISOString(), model: MODEL };
-        judgments[job.id] = record;
-        fresh.push({ job_hash: hashOf.get(job.id), profile_hash: profileHash, job_id: job.id, ...record });
+        for (const member of members) judgments[member.id] = record;
+        fresh.push({ job_hash: hash, profile_hash: profileHash, job_id: job.id, ...record });
       } catch (error) {
-        unjudged.push(job.id);
+        for (const member of members) unjudged.push(member.id);
         console.error(`judge ${job.id}: ${error.message}`);
       }
     });
 
     if (fresh.length) {
       await sb(config, 'POST', '/match_cache?on_conflict=job_hash,profile_hash', {
-        body: fresh,
+        // Grouping above already guarantees this, but the upsert is the place
+        // where a duplicate key costs the whole batch — cheap to make certain.
+        body: dedupeCacheRows(fresh),
         headers: { prefer: 'resolution=merge-duplicates,return=minimal' }
       });
     }

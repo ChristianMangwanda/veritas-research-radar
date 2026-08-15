@@ -2331,6 +2331,179 @@ async function testAuthClient() {
   await assert.rejects(() => client.signIn('e', 'nope'), /Invalid login credentials/);
 }
 
+async function testBatchWrite() {
+  const { writeAllBatches, isTransientPostgrestError } = require('../radar/scripts/lib/batch-write.js');
+  const noSleep = async () => {};
+  const rows = (n) => Array.from({ length: n }, (_, i) => ({ id: `r${i}` }));
+
+  // Both PostgREST clients in this repo bake the status into the message, so
+  // the classifier has to read it out of the string rather than off the error.
+  assert.strictEqual(isTransientPostgrestError(new Error('POST /jobs → 500: boom')), true);
+  assert.strictEqual(isTransientPostgrestError(new Error('supabase POST /jobs: 429 slow down')), true);
+  assert.strictEqual(isTransientPostgrestError(Object.assign(new Error('x'), { name: 'AbortError' })), true);
+  assert.strictEqual(isTransientPostgrestError(new Error('fetch failed')), true);
+  // A duplicate key or a malformed row fails identically however small the
+  // batch is; retrying or splitting it only buys the same error again.
+  assert.strictEqual(isTransientPostgrestError(new Error('POST /match_cache → 400: 21000 cannot affect row a second time')), false);
+  assert.strictEqual(isTransientPostgrestError(new Error('POST /jobs → 401: bad key')), false);
+
+  // Batches go out one at a time — this database punishes concurrency, not depth.
+  let inFlight = 0;
+  const sizes = [];
+  await writeAllBatches(rows(250), async (batch) => {
+    inFlight += 1;
+    assert.strictEqual(inFlight, 1, 'batches must not overlap');
+    sizes.push(batch.length);
+    await new Promise((resolve) => setTimeout(resolve, 1));
+    inFlight -= 1;
+  }, { batchSize: 100, sleep: noSleep });
+  assert.deepStrictEqual(sizes, [100, 100, 50]);
+
+  // A transient failure is retried, not dropped.
+  let attempts = 0;
+  const retried = await writeAllBatches(rows(3), async () => {
+    attempts += 1;
+    if (attempts < 3) throw new Error('supabase POST /jobs: 503 busy');
+  }, { batchSize: 10, sleep: noSleep });
+  assert.strictEqual(attempts, 3);
+  assert.strictEqual(retried.written, 3);
+
+  // A batch that keeps timing out gets cut in half rather than abandoned: the
+  // statement timeout is about the size of the write, not the rows in it.
+  const accepted = [];
+  await writeAllBatches(rows(4), async (batch) => {
+    if (batch.length > 1) throw new Error('supabase POST /jobs: 504 statement timeout');
+    accepted.push(batch[0].id);
+  }, { batchSize: 4, attempts: 2, sleep: noSleep });
+  assert.deepStrictEqual(accepted, ['r0', 'r1', 'r2', 'r3'], 'splitting must still write every row exactly once');
+
+  // A deterministic error is thrown immediately — no retries, no splitting.
+  let calls = 0;
+  await assert.rejects(() => writeAllBatches(rows(4), async () => {
+    calls += 1;
+    throw new Error('POST /jobs → 400: malformed');
+  }, { batchSize: 4, sleep: noSleep }), /400/);
+  assert.strictEqual(calls, 1);
+}
+
+async function testMatchCacheWriter() {
+  const {
+    dedupeCacheRows, groupMissesByHash, createCacheWriter
+  } = require('../radar/scripts/lib/match-cache.js');
+  const noSleep = async () => {};
+  const row = (hash, id) => ({ job_hash: hash, profile_hash: 'p', job_id: id });
+
+  // THE 21000 GUARD. Two postings with identical text share a hash, and the
+  // cache key is (job_hash, profile_hash) — two such rows in one upsert make
+  // Postgres reject the entire batch, losing every judgment it carried.
+  const deduped = dedupeCacheRows([row('h1', 'a'), row('h2', 'b'), row('h1', 'c')]);
+  assert.strictEqual(deduped.length, 2);
+  assert.strictEqual(deduped.find((r) => r.job_hash === 'h1').job_id, 'c', 'last occurrence wins, as merge-duplicates does');
+  // Same content under a DIFFERENT profile is a different judgment, not a dupe.
+  assert.strictEqual(dedupeCacheRows([row('h1', 'a'), { ...row('h1', 'a'), profile_hash: 'q' }]).length, 2);
+
+  const writes = [];
+  const writer = createCacheWriter({
+    batchSize: 25, sleep: noSleep,
+    upsert: async (rows) => { writes.push(rows); }
+  });
+  for (let i = 0; i < 60; i += 1) writer.push(row(`h${i % 40}`, `j${i}`));
+  const closed = await writer.close();
+  assert.strictEqual(closed.unwritten, 0);
+  assert.strictEqual(closed.failure, null);
+  for (const batch of writes) {
+    assert(batch.length <= 25, 'batches stay small');
+    const keys = batch.map((r) => `${r.job_hash}:${r.profile_hash}`);
+    assert.strictEqual(new Set(keys).size, keys.length, 'no batch may carry a key twice');
+  }
+
+  // A row leaves the queue only after Supabase confirms it. The old writer
+  // spliced first and awaited second, so a failed batch silently discarded
+  // ~50 judgments that had already been paid for.
+  let failFirst = true;
+  const flaky = createCacheWriter({
+    batchSize: 2, sleep: noSleep,
+    upsert: async () => {
+      if (failFirst) { failFirst = false; throw new Error('supabase POST /match_cache: 503 busy'); }
+    }
+  });
+  flaky.push(row('a', '1'));
+  flaky.push(row('b', '2'));
+  const recovered = await flaky.close();
+  assert.strictEqual(recovered.written, 2, 'a transient failure must not lose paid judgments');
+  assert.strictEqual(recovered.unwritten, 0);
+
+  // A terminal failure keeps the rows, reports them, and refuses further work
+  // so the run stops buying judgments it cannot store.
+  const dead = createCacheWriter({
+    batchSize: 1, sleep: noSleep,
+    upsert: async () => { throw new Error('POST /match_cache → 400: malformed'); }
+  });
+  dead.push(row('a', '1'));
+  const failed = await dead.close();
+  assert(failed.failure, 'the failure must be reported, not swallowed');
+  assert.strictEqual(failed.written, 0);
+  assert.strictEqual(failed.unwritten, 1, 'unwritten rows are counted, never counted as judged');
+  assert.strictEqual(dead.push(row('b', '2')), false, 'a dead sink refuses new rows');
+
+  // Grouping: one judgment per distinct content, first (highest fit) kept.
+  const misses = [
+    { job: { id: 'a' }, hash: 'h1' },
+    { job: { id: 'b' }, hash: 'h2' },
+    { job: { id: 'c' }, hash: 'h1' }
+  ];
+  const { representatives, membersByHash } = groupMissesByHash(misses);
+  assert.deepStrictEqual(representatives.map((m) => m.job.id), ['a', 'b'], 'fit order is preserved');
+  assert.deepStrictEqual(membersByHash.get('h1').map((j) => j.id), ['a', 'c'], 'duplicates ride along for fan-out');
+  const distinct = [{ job: { id: 'x' }, hash: 'h9' }];
+  assert.strictEqual(groupMissesByHash(distinct).representatives.length, 1, 'no duplicates is the identity case');
+}
+
+async function testOpenAiCooldown() {
+  const { judgeOnce, noteRateLimit, awaitCooldown, _resetCooldown } = require('../radar/scripts/lib/openai.js');
+
+  // The pause only ever moves forward: a later 429 carrying a shorter
+  // Retry-After must not cut short a wait somebody else already earned.
+  _resetCooldown();
+  noteRateLimit(150);
+  noteRateLimit(5);
+  const started = Date.now();
+  await awaitCooldown();
+  assert(Date.now() - started >= 150, 'a shorter Retry-After must not shorten an existing pause');
+
+  // And an expired pause costs nothing.
+  const clear = Date.now();
+  await awaitCooldown();
+  assert(Date.now() - clear < 100, 'no pause outstanding means no wait');
+
+  // A 429 pauses the whole process, not just the caller that received it.
+  _resetCooldown();
+  const originalFetch = globalThis.fetch;
+  const fetchedAt = [];
+  try {
+    let first = true;
+    globalThis.fetch = async () => {
+      fetchedAt.push(Date.now());
+      if (first) {
+        first = false;
+        return { ok: false, status: 429, headers: { get: () => '0.2' }, text: async () => 'slow down' };
+      }
+      return {
+        ok: true, status: 200,
+        json: async () => ({ choices: [{ message: { content: '{}' } }], usage: {} })
+      };
+    };
+    const begin = Date.now();
+    await judgeOnce({ key: 'k', model: 'gpt-5.6-luna', system: 's', user: 'u', schema: {} });
+    const elapsed = Date.now() - begin;
+    assert(elapsed >= 200, `a 429 must be waited out, waited ${elapsed}ms`);
+    assert(fetchedAt.length === 2, 'one retry after the rate limit');
+  } finally {
+    globalThis.fetch = originalFetch;
+    _resetCooldown();
+  }
+}
+
 function testJudgeJobsScript() {
   const { parseArgs, diffMisses, rowFromJudgment } = require('../radar/scripts/judge-jobs.js');
   const { deriveVerdict } = require('../radar/scripts/lib/match.js');
@@ -3893,6 +4066,9 @@ async function main() {
   testSeedCacheKeys();
   await testJudgeFunction();
   await testAuthClient();
+  await testBatchWrite();
+  await testMatchCacheWriter();
+  await testOpenAiCooldown();
   testJudgeJobsScript();
   testJudgedMatch();
   testManifestSync();
