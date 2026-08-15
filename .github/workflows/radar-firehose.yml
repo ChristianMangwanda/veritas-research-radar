@@ -2,26 +2,30 @@ name: Radar Aggregator Firehose
 
 on:
   schedule:
-    - cron: "45 2,14 * * *"
+    # Shortly BEFORE a radar refresh (which runs at 15 */6), so the snapshot
+    # this produces is an hour and a half old when that run folds it in. This
+    # workflow used to run the full 547-employer refresh itself purely to merge
+    # its own output — two complete refreshes a day for a file the next
+    # scheduled run would have picked up anyway.
+    - cron: "45 4,16 * * *"
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
-# Shares the radar-data group so its jobs.json commit can never race the
-# 6-hourly refresh or the weekly scout.
-concurrency:
-  group: radar-data-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
   firehose:
     runs-on: ubuntu-latest
+    # No Supabase writes here any more, but it still commits through the
+    # fetch/reset-hard/restore dance below, which is only safe serialized.
+    concurrency:
+      group: radar-data-${{ github.ref }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -32,14 +36,6 @@ jobs:
           scout/.venv/bin/python -m playwright install --with-deps chromium
       - name: Scrape aggregators + apply cap-exempt filter
         run: npm run scout:aggregators -- --all --details 150 --import
-      - name: Refresh dataset
-        run: npm run radar:refresh
-        env:
-          USAJOBS_API_KEY: ${{ secrets.USAJOBS_API_KEY }}
-          USAJOBS_EMAIL: ${{ secrets.USAJOBS_EMAIL }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
       - name: Sync to latest main (this run's outputs win)
         # if: always() -- a real bug, confirmed live 2026-08-04: this run
         # was cancelled after 2h48m (no timeout-minutes set here, so it was
@@ -58,16 +54,19 @@ jobs:
         run: |
           set -euo pipefail
           tmp=$(mktemp -d)
-          cp radar/data/aggregated-jobs.json radar/data/refresh-report.json "$tmp"/
+          cp radar/data/aggregated-jobs.json "$tmp"/
           git fetch origin main
           git reset --hard origin/main
           cp "$tmp"/* radar/data/
       - name: Commit firehose data
         if: always()
+        # Only the aggregator snapshot. This workflow no longer refreshes, so
+        # committing refresh-report.json here would push a stale copy over the
+        # one the radar run just wrote.
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update aggregator firehose data"
-          file_pattern: "radar/data/aggregated-jobs.json radar/data/refresh-report.json"
+          file_pattern: "radar/data/aggregated-jobs.json"
       - name: Alert on failure
         if: failure() || cancelled()
         env:

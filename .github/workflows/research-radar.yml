@@ -8,20 +8,25 @@ on:
 permissions:
   contents: write
 
-# All workflows that commit radar data share one concurrency group so their
-# pushes serialize instead of racing to a non-fast-forward failure.
-concurrency:
-  group: radar-data-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    # The group covers every job that writes Supabase or commits radar data, so
+    # their pushes serialize instead of racing to a non-fast-forward failure. It
+    # is declared per JOB, not per workflow: GitHub keeps only one running and
+    # one pending entry per group, so a five-hour crawl holding it at workflow
+    # level displaces the 6-hourly refresh entirely.
+    #
+    # The serialization is also what makes the differential sync safe: it lets a
+    # run treat the table it read at the start as the whole table.
+    concurrency:
+      group: radar-data-${{ github.ref }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
       - name: Refresh public ATS data
         run: npm run radar:refresh
         env:
@@ -32,9 +37,12 @@ jobs:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
       - name: Judge new postings against the profile
         # Deliberately AFTER the refresh and deliberately WITHOUT if: always().
-        # syncJobs ends by deleting every posting it did not see this run, so
-        # judging a half-synced table would spend money on rows about to vanish;
-        # and if the refresh failed there is nothing here worth reading.
+        # The sync is differential now — it writes what changed and deletes what
+        # left, rather than rewriting the table — but a refresh whose sync fails
+        # exits non-zero precisely so this step is skipped: the table would be
+        # missing that run's writes, and judging it means paying to read
+        # postings about to change or disappear. If the refresh itself failed,
+        # there is nothing here worth reading either.
         run: node radar/scripts/judge-jobs.js --max-spend 5
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

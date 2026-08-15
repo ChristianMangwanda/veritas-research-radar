@@ -8,20 +8,20 @@ on:
 permissions:
   contents: write
 
-# Shares the radar-data group: enrichment commits different files, but a push
-# race with the refresh workflows would still fail non-fast-forward.
-concurrency:
-  group: radar-data-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
   enrich:
     runs-on: ubuntu-latest
+    # Shares the radar-data group: enrichment commits different files, but a
+    # push race with the refresh workflows would still fail non-fast-forward.
+    # Declared per job, matching the other workflows.
+    concurrency:
+      group: radar-data-${{ github.ref }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"

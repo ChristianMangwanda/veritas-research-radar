@@ -36,12 +36,9 @@ on:
 permissions:
   contents: write
 
-# Shares the radar-data group so the merge commit can never race the other
-# refresh/scout/enrich workflows.
-concurrency:
-  group: radar-data-${{ github.ref }}
-  cancel-in-progress: false
-
+# The radar-data group is taken by the MERGE job only (see below). The plan job
+# and the 330-minute shard matrix touch nothing shared, and holding the group
+# across them displaced the 6-hourly refresh for the length of the crawl.
 jobs:
   # A matrix cannot be a plain expression, so the shard list is computed here
   # and consumed via fromJSON. This is what lets the shard count be a dispatch
@@ -124,8 +121,16 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # This is the only job here that commits, so it is the only one that needs
+    # to serialize against the other radar workflows.
+    concurrency:
+      group: radar-data-${{ github.ref }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - name: Download every shard that produced results
         uses: actions/download-artifact@v4
         with:

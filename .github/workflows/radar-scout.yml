@@ -11,12 +11,11 @@ on:
 permissions:
   contents: write
 
-# Shares the radar-data group so its jobs.json commit can never race the
-# other refresh workflows.
-concurrency:
-  group: radar-data-${{ github.ref }}
-  cancel-in-progress: false
-
+# The crawl and the commit are separate jobs on purpose. The crawl can run for
+# five hours; the commit takes seconds. Holding the shared radar-data group for
+# the whole crawl meant a Monday scout displaced the 6-hourly refresh entirely,
+# because GitHub keeps only one running and one pending entry per group and
+# cancels the older pending one. Only the publish job takes the group now.
 jobs:
   scout:
     runs-on: ubuntu-latest
@@ -25,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -36,41 +35,56 @@ jobs:
           scout/.venv/bin/python -m playwright install --with-deps chromium
       - name: Scout employers without ATS feeds
         run: npm run scout:jobs -- --all --import
-      - name: Refresh dataset
-        run: npm run radar:refresh
-        env:
-          USAJOBS_API_KEY: ${{ secrets.USAJOBS_API_KEY }}
-          USAJOBS_EMAIL: ${{ secrets.USAJOBS_EMAIL }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-      - name: Sync to latest main (this run's outputs win)
-        # if: always() -- same real bug found 2026-08-04 in radar-firehose.yml
-        # (confirmed live: a run cancelled after 2h48m committed nothing at
-        # all, because every step after the one that got cancelled was
-        # skipped by default). This job's own timeout-minutes: 300 makes it
-        # just as exposed as Playwright scouting scales with the registry.
-        #
-        # checkout pins github.sha from queue time, so commits that landed while
-        # this run was pending/running would make a rebase conflict on
-        # refresh-report.json. Runs in the radar-data group are serialized, so
-        # this run's outputs are always the freshest — save, reset, restore.
+      - name: Save the snapshot
+        # if: always() -- a run cancelled at the timeout (confirmed live in
+        # radar-firehose.yml on 2026-08-04, 2h48m of work committed nowhere)
+        # skips every later step by default. Whatever the crawl imported before
+        # it was cut off is still worth keeping.
         if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scouted-jobs
+          path: radar/data/scouted-jobs.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  publish:
+    needs: scout
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Serialized against every other job that commits radar data or writes
+    # Supabase — held for the couple of minutes this takes, not for the crawl.
+    concurrency:
+      group: radar-data-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      # checkout pins github.sha from queue time, so commits that landed while
+      # the crawl was running would make a rebase conflict. Reset to main FIRST,
+      # then lay this run's snapshot on top.
+      - name: Sync to latest main
         run: |
           set -euo pipefail
-          tmp=$(mktemp -d)
-          cp radar/data/scouted-jobs.json radar/data/refresh-report.json "$tmp"/
           git fetch origin main
           git reset --hard origin/main
-          cp "$tmp"/* radar/data/
+      - name: Restore the snapshot (this run's output wins)
+        uses: actions/download-artifact@v4
+        with:
+          name: scouted-jobs
+          path: radar/data/
+        continue-on-error: true
       - name: Commit scouted data
-        if: always()
+        # No refresh here: the snapshot is TTL-gated for 14 days and the next
+        # 6-hourly radar run folds it into Supabase within the hour. Running a
+        # full 547-employer refresh to publish one file was most of what made
+        # this workflow hold the group for so long.
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update scouted employer data"
-          file_pattern: "radar/data/scouted-jobs.json radar/data/refresh-report.json"
+          file_pattern: "radar/data/scouted-jobs.json"
       - name: Alert on failure
-        if: failure() || cancelled()
+        if: failure() || cancelled() || needs.scout.result != 'success'
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: |
