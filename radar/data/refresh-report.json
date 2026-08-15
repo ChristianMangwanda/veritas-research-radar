@@ -1,11 +1,11 @@
 {
-  "refreshed_at": "2026-08-15T20:32:47.332Z",
+  "refreshed_at": "2026-08-15T21:05:12.700Z",
   "employer_count": 547,
   "ats_enabled_employer_count": 530,
   "job_count": 25497,
-  "active_job_count": 17819,
-  "closed_job_count": 7678,
-  "newly_closed_count": 12,
+  "active_job_count": 17820,
+  "closed_job_count": 7677,
+  "newly_closed_count": 7,
   "errored_employers": 1,
   "recall_anomalies": [],
   "prefilter_anomalies": [
@@ -477,7 +477,7 @@
       "ats_provider": "oracle",
       "ats_token": "loma-linda-university",
       "fetched_jobs": 8,
-      "prefiltered_count": 407,
+      "prefiltered_count": 406,
       "prefilter_survived_count": 23,
       "skipped": false,
       "error": null,
@@ -4454,12 +4454,12 @@
       "name": "Youngstown State University",
       "ats_provider": "governmentjobs",
       "ats_token": "ysu",
-      "fetched_jobs": 9,
-      "prefiltered_count": 39,
-      "prefilter_survived_count": 100,
+      "fetched_jobs": 8,
+      "prefiltered_count": 38,
+      "prefilter_survived_count": 98,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1
+      "closed_jobs": 2
     },
     {
       "employer_id": "susquehanna-university",
@@ -6124,7 +6124,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "aamu",
       "fetched_jobs": 53,
-      "prefiltered_count": 117,
+      "prefiltered_count": 116,
       "prefilter_survived_count": 53,
       "skipped": false,
       "error": null,
@@ -6303,12 +6303,12 @@
       "name": "Jackson State University",
       "ats_provider": "governmentjobs",
       "ats_token": "jsums",
-      "fetched_jobs": 26,
-      "prefiltered_count": 61,
-      "prefilter_survived_count": 26,
+      "fetched_jobs": 25,
+      "prefiltered_count": 62,
+      "prefilter_survived_count": 25,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1
+      "closed_jobs": 2
     },
     {
       "employer_id": "john-carroll-university",
@@ -6351,12 +6351,12 @@
       "name": "Mcneese State University",
       "ats_provider": "governmentjobs",
       "ats_token": "louisiana",
-      "fetched_jobs": 26,
-      "prefiltered_count": 455,
-      "prefilter_survived_count": 26,
+      "fetched_jobs": 27,
+      "prefiltered_count": 463,
+      "prefilter_survived_count": 27,
       "skipped": false,
       "error": null,
-      "closed_jobs": 38
+      "closed_jobs": 37
     },
     {
       "employer_id": "mercer-university",
@@ -6484,7 +6484,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ucmo",
       "fetched_jobs": 5,
-      "prefiltered_count": 84,
+      "prefiltered_count": 81,
       "prefilter_survived_count": 5,
       "skipped": false,
       "error": null,
@@ -6579,12 +6579,12 @@
       "name": "Utah Valley University",
       "ats_provider": "governmentjobs",
       "ats_token": "uvu",
-      "fetched_jobs": 6,
-      "prefiltered_count": 117,
-      "prefilter_survived_count": 6,
+      "fetched_jobs": 8,
+      "prefiltered_count": 121,
+      "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
-      "closed_jobs": 8
+      "closed_jobs": 6
     },
     {
       "employer_id": "villanova-university",
@@ -6874,5 +6874,13 @@
       "error": null,
       "closed_jobs": 3
     }
-  ]
+  ],
+  "supabase_sync": {
+    "mode": "diff",
+    "upserted": 799,
+    "deleted": 0,
+    "unchanged": 24698,
+    "total": 25497
+  },
+  "supabase_sync_status": "ok"
 }
