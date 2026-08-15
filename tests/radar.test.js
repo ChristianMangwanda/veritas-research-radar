@@ -880,6 +880,32 @@ async function testFetchRetry() {
     };
     await assert.rejects(() => fetchJson('https://example.test/missing', { retryDelayMs: 1 }), /HTTP 404/);
     assert.strictEqual(calls, 1);
+
+    // A 200 carrying HTML is how a board says "challenge" or "maintenance".
+    // Unlabelled it surfaces as "Unexpected token '<'", which reads like a
+    // parser bug and hides that a whole provider may be answering that way.
+    calls = 0;
+    globalThis.fetch = async () => {
+      calls += 1;
+      return {
+        ok: true,
+        status: 200,
+        headers: { get: () => 'text/html; charset=utf-8' },
+        json: async () => { throw new SyntaxError("Unexpected token '<'"); }
+      };
+    };
+    let nonJson = null;
+    try {
+      await fetchJson('https://tenant.example.test/jobs', { retryDelayMs: 1 });
+    } catch (error) {
+      nonJson = error;
+    }
+    assert(nonJson && /non-JSON response/.test(nonJson.message), 'the failure must name itself');
+    assert(/text\/html/.test(nonJson.message), 'and say what came back instead');
+    assert(/tenant\.example\.test/.test(nonJson.message), 'and which host said it');
+    assert.strictEqual(nonJson.nonJson, true);
+    assert.strictEqual(nonJson.status, 200);
+    assert.strictEqual(calls, 1, 'the same request returns the same page — retrying is waste');
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -2757,9 +2783,33 @@ async function testRefreshPool() {
   assert(caught && /boom/.test(caught.message), 'pool must rethrow a worker error');
   assert.strictEqual(finished, 3, 'pool must drain remaining work before rethrowing');
 
+  // A named provider overrides the global per-provider cap. ADP's tenants are
+  // all one host, so four at a time is what makes it answer 429.
+  const adpItems = Array.from({ length: 6 }, (_, i) => ({ provider: i < 4 ? 'adp' : 'workday', id: i }));
+  let adpInFlight = 0;
+  let adpPeak = 0;
+  let workdayPeak = 0;
+  let workdayInFlight = 0;
+  await runPooled(adpItems, async (item) => {
+    if (item.provider === 'adp') { adpInFlight += 1; adpPeak = Math.max(adpPeak, adpInFlight); }
+    else { workdayInFlight += 1; workdayPeak = Math.max(workdayPeak, workdayInFlight); }
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    if (item.provider === 'adp') adpInFlight -= 1; else workdayInFlight -= 1;
+  }, { concurrency: 8, perProvider: 4, groupOf: (item) => item.provider, providerLimits: { adp: 1 } });
+  assert.strictEqual(adpPeak, 1, `ADP must run one tenant at a time (peak ${adpPeak})`);
+  assert(workdayPeak > 1, 'a named limit must not throttle every other provider');
+
   // hostLane keys on the primary feed; employers with no feed get no lane.
   assert.strictEqual(hostLane({ ats_provider: 'workday', ats_token: 'cornell' }), 'workday:cornell');
   assert.strictEqual(hostLane({ ats_provider: null, ats_token: null }), null);
+  // ADP is the exception: every "tenant" is a cid on ONE host, so keying the
+  // lane on the token invented 47 lanes over a single server.
+  assert.strictEqual(hostLane({ ats_provider: 'adp', ats_token: 'aaa' }), 'adp:workforcenow.adp.com');
+  assert.strictEqual(
+    hostLane({ ats_provider: 'adp', ats_token: 'aaa' }),
+    hostLane({ ats_provider: 'adp', ats_token: 'bbb' }),
+    'two ADP tenants must share one lane'
+  );
   assert.strictEqual(
     hostLane({ ats_provider: null, ats_token: null, secondary_ats_feeds: [{ ats_provider: 'interfolio', ats_token: 'x' }] }),
     'interfolio:x',
@@ -2776,6 +2826,52 @@ async function testRefreshPool() {
   const crossStart = Date.now();
   await pacer('peopleadmin');
   assert(Date.now() - crossStart < 25, 'a different provider must not wait behind another provider');
+
+  // A named provider can be paced more slowly than the rest.
+  const slowPacer = createProviderPacer(5, { adp: 40 });
+  await slowPacer('adp');
+  const adpStart = Date.now();
+  await slowPacer('adp');
+  assert(Date.now() - adpStart >= 35, 'ADP must get its own, slower stagger');
+}
+
+function testProviderBreaker() {
+  const { createProviderBreaker, breakerSignature } = require('../radar/scripts/refresh.js');
+
+  // Only failures a vendor produces identically everywhere are evidence about
+  // the vendor. A timeout is evidence about the runner's network.
+  assert.strictEqual(breakerSignature('non-JSON response (content-type text/html) from x.com'), 'non-json');
+  assert.strictEqual(breakerSignature('HTTP 503 Service Unavailable'), 'http:503');
+  assert.strictEqual(breakerSignature('fetch failed'), null);
+  assert.strictEqual(breakerSignature('The operation was aborted'), null);
+
+  // Four tenants is a bad day; five unrelated tenants failing the same way is
+  // the vendor.
+  const breaker = createProviderBreaker({ threshold: 5 });
+  for (const id of ['a', 'b', 'c', 'd']) breaker.record('workday', id, 'non-JSON response (content-type text/html) from w');
+  assert.strictEqual(breaker.openSignature('workday'), null, 'four tenants must not trip the breaker');
+  breaker.record('workday', 'e', 'non-JSON response (content-type text/html) from w');
+  assert.strictEqual(breaker.openSignature('workday'), 'non-json');
+  assert.deepStrictEqual(breaker.tripped(), [{ provider: 'workday', signature: 'non-json' }]);
+  assert.strictEqual(breaker.openSignature('oracle'), null, 'one vendor going down says nothing about another');
+
+  // One tenant failing repeatedly is still one tenant.
+  const repeat = createProviderBreaker({ threshold: 5 });
+  for (let i = 0; i < 10; i += 1) repeat.record('adp', 'same-employer', 'HTTP 429 Too Many Requests');
+  assert.strictEqual(repeat.openSignature('adp'), null, 'distinct employers are counted, not attempts');
+
+  // Different failure modes do not pool into one count.
+  const mixed = createProviderBreaker({ threshold: 3 });
+  mixed.record('oracle', 'a', 'HTTP 500 Server Error');
+  mixed.record('oracle', 'b', 'HTTP 404 Not Found');
+  mixed.record('oracle', 'c', 'non-JSON response (content-type text/html) from o');
+  assert.strictEqual(mixed.openSignature('oracle'), null, 'three unrelated failures are not an outage');
+
+  // Timeouts can never trip it, however many there are — a wedged runner must
+  // not stop the refresh from trying.
+  const flaky = createProviderBreaker({ threshold: 2 });
+  for (const id of ['a', 'b', 'c', 'd']) flaky.record('workday', id, 'fetch failed');
+  assert.strictEqual(flaky.openSignature('workday'), null);
 }
 
 function testFitAudit() {
@@ -4088,6 +4184,7 @@ async function main() {
   testRoutingAmbiguity();
   testProfileV2();
   await testRefreshPool();
+  testProviderBreaker();
   testPageUpAdapter();
   testAdpAdapter();
   testCsodAdapter();

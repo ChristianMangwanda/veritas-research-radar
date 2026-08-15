@@ -191,6 +191,12 @@ const EMPLOYER_DELAY_MS = 500;
 // tunable so a run can be throttled without a code change.
 const REFRESH_CONCURRENCY = Math.max(1, Number(process.env.REFRESH_CONCURRENCY) || 8);
 const REFRESH_PROVIDER_CONCURRENCY = Math.max(1, Number(process.env.REFRESH_PROVIDER_CONCURRENCY) || 4);
+/* One global number cannot serve every vendor. Workday's tenants are genuinely
+ * separate hosts, so four at once is nothing; ADP's 47 tenants are all one host
+ * and four at once is what makes six of them answer 429 on every single run.
+ * Named vendors override the global cap and the stagger. */
+const PROVIDER_LIMITS = { adp: 1 };
+const PROVIDER_DELAY_MS = { adp: 3000 };
 // Auto-wired (tier: "auto") employers only commit research-relevant postings
 const AUTO_TIER_MIN_RESEARCH_SCORE = 25;
 const SMARTRECRUITERS_PAGE_LIMIT = 100;
@@ -329,6 +335,14 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function hostOf(url) {
+  try {
+    return new URL(url).host;
+  } catch {
+    return String(url).slice(0, 60);
+  }
+}
+
 function isRetryableFetchError(error) {
   // Network failures and timeouts carry no HTTP status; 429/5xx are transient.
   // Other 4xx (e.g. 404 for a wrong board token) are deterministic — do not retry.
@@ -358,7 +372,20 @@ async function fetchJson(url, options = {}) {
         error.status = response.status;
         throw error;
       }
-      return await response.json();
+      try {
+        return await response.json();
+      } catch {
+        /* A 200 carrying HTML is how a board says "challenge" or "maintenance"
+         * without saying it. Unwrapped, that surfaces as "Unexpected token '<'",
+         * which reads like a parser bug and hides that the whole provider may be
+         * answering the same way. Label it, and mark it deterministic: the same
+         * request will produce the same page a second later. */
+        const contentType = response.headers?.get?.('content-type') || 'unknown';
+        const error = new Error(`non-JSON response (content-type ${contentType}) from ${hostOf(url)}`);
+        error.status = response.status;
+        error.nonJson = true;
+        throw error;
+      }
     } catch (error) {
       lastError = error;
       if (attempt < retries && isRetryableFetchError(error)) {
@@ -2048,7 +2075,12 @@ const ADP_PAGE_STRIDE = 19;
 // 150 windows ≈ 2,850 postings — far beyond any single ADP client here.
 const ADP_MAX_PAGES = 150;
 const ADP_MAX_DETAIL_FETCHES = 400;
-const ADP_DETAIL_DELAY_MS = 200;
+const ADP_DETAIL_DELAY_MS = 500;
+/* Every ADP tenant here is a cid on one shared host, and it rate-limits by
+ * host. A single 1s retry was never going to clear a per-minute limiter — six
+ * employers failed with 429 on every run for weeks, quietly carrying stale
+ * jobs forward under the dead-man threshold. Three tries at 4s/8s/12s do. */
+const ADP_RETRY = { retries: 3, retryDelayMs: 4000 };
 
 function adpLocation(requisition) {
   const locations = requisition.requisitionLocations || [];
@@ -2115,7 +2147,7 @@ async function fetchAdpJobs(employer) {
   let declaredTotal = 0;
   for (let page = 0; page < ADP_MAX_PAGES; page += 1) {
     const skip = page * ADP_PAGE_STRIDE;
-    const payload = await fetchJson(`${ADP_BASE}?${query}&%24top=${ADP_PAGE_LIMIT}&%24skip=${skip}`);
+    const payload = await fetchJson(`${ADP_BASE}?${query}&%24top=${ADP_PAGE_LIMIT}&%24skip=${skip}`, ADP_RETRY);
     if (page === 0) declaredTotal = Number(payload.meta?.totalNumber ?? 0) || 0;
     const batch = payload.jobRequisitions || [];
     if (batch.length === 0) break;
@@ -2142,7 +2174,7 @@ async function fetchAdpJobs(employer) {
   for (const item of relevant) {
     let detail = null;
     try {
-      detail = await fetchJson(`${ADP_BASE}/${encodeURIComponent(item.itemID)}?${query}`);
+      detail = await fetchJson(`${ADP_BASE}/${encodeURIComponent(item.itemID)}?${query}`, ADP_RETRY);
     } catch (error) {
       console.warn(`ADP detail fetch failed for ${employer.id} req ${item.itemID}: ${error.message}`);
     }
@@ -2619,6 +2651,11 @@ function hostLane(employer) {
     ...(employer.secondary_ats_feeds || [])
   ].filter((feed) => feed.ats_provider);
   if (!feeds.length) return null;
+  /* ADP is the exception the token-keyed lane gets wrong: every tenant is a
+   * "cid" on ONE host, so keying on the token invents 47 lanes over a single
+   * server and lets four of them hammer it at once. Key it on the host it
+   * really is. */
+  if (feeds[0].ats_provider === 'adp') return `adp:${ADP_HOST}`;
   // The primary feed decides the lane; a secondary feed on a busy host is rare
   // enough that serializing on the primary is the right trade.
   return `${feeds[0].ats_provider}:${feeds[0].ats_token ?? ''}`;
@@ -2646,6 +2683,7 @@ function providerLane(employer) {
 async function runPooled(items, worker, options = {}) {
   const concurrency = Math.max(1, options.concurrency || REFRESH_CONCURRENCY);
   const perProvider = Math.max(1, options.perProvider || REFRESH_PROVIDER_CONCURRENCY);
+  const providerLimits = options.providerLimits || PROVIDER_LIMITS;
   const laneOf = options.laneOf || (() => null);
   const groupOf = options.groupOf || (() => null);
   const onStart = options.onStart || null;
@@ -2661,7 +2699,8 @@ async function runPooled(items, worker, options = {}) {
     const lane = laneOf(entry.item);
     if (lane && busyLanes.has(lane)) return false;
     const group = groupOf(entry.item);
-    if (group && (groupLoad.get(group) || 0) >= perProvider) return false;
+    const cap = providerLimits[group] ?? perProvider;
+    if (group && (groupLoad.get(group) || 0) >= cap) return false;
     return true;
   };
 
@@ -2705,15 +2744,65 @@ async function runPooled(items, worker, options = {}) {
  * Staggers the start of employers that share an ATS vendor, so a provider sees
  * requests spread out rather than a simultaneous burst from every tenant.
  */
-function createProviderPacer(delayMs = EMPLOYER_DELAY_MS) {
+function createProviderPacer(delayMs = EMPLOYER_DELAY_MS, overrides = PROVIDER_DELAY_MS) {
   const nextFreeAt = new Map();
   return async function pace(provider) {
     if (!provider) return;
+    const gap = overrides[provider] ?? delayMs;
     const now = Date.now();
     const readyAt = nextFreeAt.get(provider) || 0;
     const waitMs = Math.max(0, readyAt - now);
-    nextFreeAt.set(provider, Math.max(now, readyAt) + delayMs);
+    nextFreeAt.set(provider, Math.max(now, readyAt) + gap);
     if (waitMs > 0) await sleep(waitMs);
+  };
+}
+
+/**
+ * What kind of failure this is, for the purpose of noticing that a whole
+ * provider has gone down rather than one tenant.
+ *
+ * Only failures a vendor produces IDENTICALLY across unrelated tenants count:
+ * a challenge page served as a 200, or the same HTTP status everywhere. Network
+ * errors and timeouts deliberately return null — a wedged CI runner shows up as
+ * timeouts on everything, and mistaking that for a vendor outage would stop the
+ * refresh from even trying.
+ */
+function breakerSignature(errorText) {
+  const text = String(errorText || '');
+  if (/non-JSON response/.test(text)) return 'non-json';
+  const status = /HTTP (\d{3})/.exec(text);
+  return status ? `http:${status[1]}` : null;
+}
+
+/**
+ * When enough unrelated tenants of one provider fail the same way, stop asking
+ * the rest. Their previous jobs are carried forward by the lifecycle, so the
+ * cost of being wrong is one run of staleness — while the cost of being right
+ * is not spending an hour of timeouts on a vendor that is down.
+ *
+ * Distinct EMPLOYERS are counted, not failures: one tenant retrying is not
+ * evidence about anybody else.
+ */
+function createProviderBreaker({ threshold = 5 } = {}) {
+  const seen = new Map();
+  const open = new Map();
+  return {
+    record(provider, employerId, errorText) {
+      if (!provider || open.has(provider)) return;
+      const signature = breakerSignature(errorText);
+      if (!signature) return;
+      const key = `${provider} ${signature}`;
+      const tenants = seen.get(key) || new Set();
+      tenants.add(employerId);
+      seen.set(key, tenants);
+      if (tenants.size >= threshold) open.set(provider, signature);
+    },
+    openSignature(provider) {
+      return (provider && open.get(provider)) || null;
+    },
+    tripped() {
+      return [...open.entries()].map(([provider, signature]) => ({ provider, signature }));
+    }
   };
 }
 
@@ -2757,10 +2846,28 @@ async function runRefresh() {
   for (const employer of employers) validateEmployer(employer);
 
   const pace = createProviderPacer();
+  const breaker = createProviderBreaker();
   const completed = { count: 0 };
   const outcomes = await runPooled(employers, async (employer) => {
+    // This provider is already known to be answering the same way for everyone.
+    // Reporting it as an error (not "skipped") is what makes applyJobLifecycle
+    // carry the employer's existing jobs forward instead of tombstoning them.
+    const openSignature = breaker.openSignature(employer.ats_provider);
+    if (openSignature) {
+      completed.count += 1;
+      return {
+        employer,
+        enriched: [],
+        result: {
+          jobs: [], skipped: false, prefilteredCount: 0, prefilterSurvivedCount: 0,
+          error: `${employer.ats_provider} circuit open (${openSignature} from multiple tenants)`
+            + ' — not queried; previous jobs carried forward'
+        }
+      };
+    }
     await pace(employer.ats_provider);
     const result = await fetchEmployerJobs(employer);
+    if (result.error) breaker.record(employer.ats_provider, employer.id, result.error);
     let enriched = result.jobs
       .filter((job) => job.url && job.description_text)
       .map((job) => enrichJob(job, employer, previousById, dolSignals[employer.id]));
@@ -2944,6 +3051,7 @@ async function runRefresh() {
     errored_employers: employerReports.filter((report) => report.error).length,
     recall_anomalies: recallAnomalies,
     prefilter_anomalies: prefilterAnomalies,
+    provider_circuits: breaker.tripped(),
     sources: {
       greenhouse: 'https://developers.greenhouse.io/job-board.html',
       lever: 'https://github.com/lever/postings-api',
@@ -2991,6 +3099,22 @@ async function runRefresh() {
         .map((a) => `• ${a.name} [${a.ats_provider || 'n/a'}]: ${a.prefiltered_count} excluded vs ${a.fetched_jobs} fetched`)
         .join('\n'),
       tags: 'warning'
+    });
+  }
+  const trippedCircuits = report.provider_circuits;
+  if (trippedCircuits.length) {
+    // Deliberately loud. This also pushes errored_employers well past the
+    // dead-man threshold, which is correct — a vendor answering the same way
+    // for every tenant is exactly the thing nobody should learn about a week
+    // later from a dashboard that quietly stopped changing.
+    const summary = trippedCircuits.map((c) => `${c.provider} (${c.signature})`).join(', ');
+    console.warn(`Provider circuit opened: ${summary} — remaining tenants skipped, their jobs carried forward.`);
+    await pushNtfy({
+      title: `Radar provider outage: ${summary}`,
+      body: trippedCircuits
+        .map((c) => `• ${c.provider}: multiple unrelated tenants returned ${c.signature}; remaining tenants not queried`)
+        .join('\n'),
+      tags: 'rotating_light'
     });
   }
 
@@ -3068,6 +3192,8 @@ module.exports = {
   hostLane,
   providerLane,
   createProviderPacer,
+  createProviderBreaker,
+  breakerSignature,
   parsePeopleAdminAtom,
   mapPeopleAdminEntry,
   fetchPeopleAdminJobs,
