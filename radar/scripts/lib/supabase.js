@@ -4,7 +4,17 @@
  * caller degrades cleanly to git-only mode without them (dual-write phase).
  */
 
-const BATCH_SIZE = 500;
+const { writeAllBatches } = require('./batch-write.js');
+
+/* Upserts are batched small and written one after another. The old sink pushed
+ * 500 rows a time and rewrote all ~25,000 every run — a mirror, not a sync —
+ * which is what put statement timeouts on half the refreshes. A differential
+ * run writes hundreds, so the batch size is now about surviving a slow moment
+ * rather than about throughput. */
+const BATCH_SIZE = 100;
+/* Ids are long and colon-composed, so a delete list is chunked by count to keep
+ * the request URL well inside any sane limit. */
+const DELETE_BATCH = 80;
 const REQUEST_TIMEOUT_MS = 30000;
 // Deep-offset GET pages transiently 500 under load; a couple of retries with
 // backoff turns a flaky page into a slow one instead of an empty read that
@@ -18,10 +28,10 @@ function sleep(ms) {
 
 /**
  * Credentials come from the ENVIRONMENT only — never from a file found lying
- * around. That is a safety property, not an oversight: syncJobs ends by
- * deleting every row it did not just write, so a local run that silently
- * adopted a .env would mutate production while its author believed they were
- * working offline. Scripts meant to be run by hand opt in explicitly with
+ * around. That is a safety property, not an oversight: syncJobs writes and
+ * deletes rows in the dataset of record, so a local run that silently adopted a
+ * .env would mutate production while its author believed they were working
+ * offline. Scripts meant to be run by hand opt in explicitly with
  * lib/env-file.js.
  *
  * Both key names are accepted because both are in circulation: CI holds
@@ -113,39 +123,164 @@ function jobRow(job, syncedAt) {
 }
 
 /**
- * Full-dataset sync: upsert every current job stamped with this run's
- * timestamp, then delete rows the run did not touch (jobs that aged out of
- * the lifecycle entirely). Mirrors "jobs.json is the whole dataset" semantics.
+ * `in.("a","b")` for PostgREST. Quoting is not optional: job ids are
+ * colon-composed (`workday:cornell:WDR-1`) and a bare colon ends the value.
+ * Getting it wrong does not error — the filter simply matches nothing, which
+ * for a DELETE means the rows silently stay.
  */
-async function syncJobs(jobs, report) {
+function inList(values) {
+  return `(${values.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')})`;
+}
+
+/**
+ * JSON.stringify with object keys sorted, recursively.
+ *
+ * This is what makes a content comparison possible at all. Previous rows come
+ * back out of a jsonb column, and Postgres does not preserve key order in
+ * jsonb — it stores keys sorted by length then bytes. Fresh jobs carry the
+ * insertion order enrichJob built them with. Compared naively, every row on
+ * every run looks changed, and the differential sync degenerates into the full
+ * mirror it replaced.
+ */
+function stableStringify(value) {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map((v) => stableStringify(v) ?? 'null').join(',')}]`;
+  const parts = [];
+  for (const key of Object.keys(value).sort()) {
+    const encoded = stableStringify(value[key]);
+    // Matching JSON.stringify: a property whose value is undefined is dropped.
+    if (encoded !== undefined) parts.push(`${JSON.stringify(key)}:${encoded}`);
+  }
+  return `{${parts.join(',')}}`;
+}
+
+/**
+ * The comparison key for "has this posting actually changed?".
+ *
+ * Two fields are deliberately excluded because enrichJob restamps them on every
+ * single fetch: `last_seen_at` and `provenance.fetched_at`. Including them
+ * would mark all ~18,000 active jobs as changed every run and buy nothing —
+ * they are written by the refresh and read by nobody.
+ *
+ * The cost is a real semantic change worth knowing about: a stored
+ * `last_seen_at` now means "when this posting's CONTENT last changed", not
+ * "when we last saw it". Anything that ever wants true sighting times has to
+ * put the field back and accept rewriting the whole table to carry it.
+ *
+ * Comparing built rows rather than stored bytes also makes the two row
+ * generations equivalent: legacy rows keep the description inside `payload`
+ * and current rows do not, but both sides pass through payloadWithoutDescription
+ * here, so an untouched legacy row does not count as changed (it stays fat in
+ * the table until its content changes, which costs bytes, not correctness).
+ */
+function comparableRow(job) {
+  const probe = {
+    ...job,
+    last_seen_at: null,
+    provenance: job.provenance ? { ...job.provenance, fetched_at: null } : job.provenance
+  };
+  // A fixed timestamp on both sides, so updated_at cancels out.
+  return stableStringify(jobRow(probe, null));
+}
+
+/**
+ * What this run has to write, against the previous state it read.
+ *
+ * `previous` of null means "no trustworthy baseline" — everything is an upsert
+ * and nothing is deleted, which is the bootstrap shape and can never remove a
+ * row we failed to read.
+ *
+ * On deletes: the id list is exactly the rows the baseline had and this run no
+ * longer carries. Closed tombstones are still IN `jobs` until they age out, so
+ * they are never in that set — the deletions are expired tombstones and rows
+ * belonging to employers dropped from the registry. That is the same set the
+ * old timestamp sweep removed, enumerated instead of inferred.
+ */
+function diffJobs(previousJobs, nextJobs) {
+  // Same-id duplicates in one upsert make Postgres reject the whole batch
+  // ("cannot affect row a second time") — last occurrence wins.
+  const next = [...new Map(nextJobs.map((job) => [job.id, job])).values()];
+  if (!previousJobs) return { upserts: next, deleteIds: [], unchanged: 0 };
+
+  const previousById = new Map(previousJobs.map((job) => [job.id, job]));
+  const upserts = [];
+  let unchanged = 0;
+  for (const job of next) {
+    const before = previousById.get(job.id);
+    if (before && comparableRow(before) === comparableRow(job)) unchanged += 1;
+    else upserts.push(job);
+  }
+
+  const nextIds = new Set(next.map((job) => job.id));
+  const deleteIds = [...previousById.keys()].filter((id) => !nextIds.has(id));
+  return { upserts, deleteIds, unchanged };
+}
+
+/**
+ * Differential sync: write what changed, delete what left, leave the rest alone.
+ *
+ * The previous version was a mirror — it upserted all ~25,000 rows stamped with
+ * the run's timestamp and then deleted everything older. Postgres had to write
+ * every row and maintain the updated_at index whether or not anything about the
+ * posting had moved, roughly 154,000 large upserts a day across the schedules,
+ * and half of the refreshes hit a statement timeout on the way through.
+ *
+ * Order matters: upserts first, and deletes only once every one of them
+ * succeeded. A run that dies halfway leaves rows written but nothing removed,
+ * which is a state the next run corrects; the reverse could delete a posting
+ * whose replacement never landed.
+ */
+async function syncJobs(jobs, report, { previous = null } = {}) {
   const env = supabaseEnv();
   if (!env) return { synced: false, reason: 'SUPABASE_URL / SUPABASE_SERVICE_KEY not set' };
 
   const syncedAt = new Date().toISOString();
-  // Same-id duplicates in one upsert make Postgres reject the whole batch
-  // ("cannot affect row a second time") — last occurrence wins
-  const uniqueJobs = [...new Map(jobs.map((job) => [job.id, job])).values()];
-  for (let offset = 0; offset < uniqueJobs.length; offset += BATCH_SIZE) {
-    const batch = uniqueJobs.slice(offset, offset + BATCH_SIZE).map((job) => jobRow(job, syncedAt));
-    await request(env, 'POST', '/jobs?on_conflict=id', {
+  const { upserts, deleteIds, unchanged } = diffJobs(previous, jobs);
+
+  await writeAllBatches(
+    upserts.map((job) => jobRow(job, syncedAt)),
+    (batch) => request(env, 'POST', '/jobs?on_conflict=id', {
       body: batch,
       headers: { prefer: 'resolution=merge-duplicates,return=minimal' }
-    });
-  }
+    }),
+    { batchSize: BATCH_SIZE }
+  );
 
-  // Rows untouched by this sync are no longer in the dataset
-  await request(env, 'DELETE', `/jobs?updated_at=lt.${encodeURIComponent(syncedAt)}`, {
-    headers: { prefer: 'return=minimal' }
-  });
-
-  if (report) {
-    await request(env, 'POST', '/refresh_runs', {
-      body: { refreshed_at: report.refreshed_at, report },
+  for (let offset = 0; offset < deleteIds.length; offset += DELETE_BATCH) {
+    const batch = deleteIds.slice(offset, offset + DELETE_BATCH);
+    await request(env, 'DELETE', `/jobs?id=in.${encodeURIComponent(inList(batch))}`, {
       headers: { prefer: 'return=minimal' }
     });
   }
 
-  return { synced: true, count: uniqueJobs.length };
+  if (report) {
+    report.supabase_sync = {
+      mode: previous ? 'diff' : 'full',
+      upserted: upserts.length,
+      deleted: deleteIds.length,
+      unchanged,
+      total: jobs.length
+    };
+    try {
+      await request(env, 'POST', '/refresh_runs', {
+        body: { refreshed_at: report.refreshed_at, report },
+        headers: { prefer: 'return=minimal' }
+      });
+    } catch (error) {
+      // Telemetry, not data. The jobs table is already correct at this point and
+      // failing the refresh here would skip judging for no reason worth having.
+      report.refresh_run_recorded = false;
+      console.warn(`refresh_runs telemetry insert failed (jobs are synced): ${error.message}`);
+    }
+  }
+
+  return {
+    synced: true,
+    count: jobs.length,
+    upserted: upserts.length,
+    deleted: deleteIds.length,
+    unchanged
+  };
 }
 
 /**
@@ -158,14 +293,23 @@ async function syncJobs(jobs, report) {
  * uses this as previous state, and jobs carried forward through a failed fetch
  * are written straight back. Reading without it would blank the description of
  * every carried-forward job on the next run.
+ *
+ * KEYSET, not OFFSET, and 500 rows a page. OFFSET makes Postgres walk and
+ * discard every row before the window, so the cost climbs with depth while the
+ * statement timeout does not — the dashboard was measured losing 11 of 26 deep
+ * pages that way, showing 14,054 of 25,054 jobs. Cursoring on the primary key
+ * reads every page for the same price. The pages stay SEQUENTIAL: fetching
+ * ranges concurrently was measured far worse (65 failures, 3,000 rows missing).
  */
 async function fetchAllJobs() {
   const env = supabaseEnv();
   if (!env) return null;
-  const pageSize = 1000;
+  const pageSize = 500;
   const jobs = [];
-  for (let offset = 0; ; offset += pageSize) {
-    const pathname = `/jobs?select=payload,description_text&order=id&limit=${pageSize}&offset=${offset}`;
+  let cursor = null;
+  for (;;) {
+    const pathname = `/jobs?select=id,payload,description_text&order=id&limit=${pageSize}`
+      + (cursor === null ? '' : `&id=gt.${encodeURIComponent(cursor)}`);
     let rows = null;
     for (let attempt = 0; ; attempt += 1) {
       try {
@@ -182,8 +326,12 @@ async function fetchAllJobs() {
     }
     jobs.push(...rows.map(rehydrateJob).filter(Boolean));
     if (rows.length < pageSize) break;
+    cursor = rows[rows.length - 1].id;
   }
   return jobs.length ? jobs : null;
 }
 
-module.exports = { syncJobs, fetchAllJobs, supabaseEnv, jobRow, rehydrateJob, payloadWithoutDescription };
+module.exports = {
+  syncJobs, fetchAllJobs, supabaseEnv, jobRow, rehydrateJob, payloadWithoutDescription,
+  diffJobs, comparableRow, stableStringify, inList
+};

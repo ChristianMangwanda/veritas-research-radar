@@ -7,7 +7,8 @@
  *   - the last refresh is older than DEADMAN_MAX_AGE_HOURS (default 8), or
  *   - the last refresh reported fetch errors, or
  *   - the last refresh flagged a zero-job recall anomaly, or
- *   - the last refresh aborted its Supabase sync (lifecycle guard tripped).
+ *   - the last refresh aborted its Supabase sync (lifecycle guard tripped), or
+ *   - the last refresh FAILED its Supabase sync partway through.
  *
  * Env:
  *   NTFY_TOPIC              — ntfy.sh topic (prints instead of pushing when unset)
@@ -82,6 +83,15 @@ async function main() {
   }
   if (report.supabase_sync_aborted) {
     problems.push(`Supabase sync aborted: ${report.supabase_sync_aborted}`);
+  }
+  /* An ABORTED sync wrote nothing and left the table consistent. A FAILED one
+   * threw partway through, so the dataset of record is missing this run's
+   * writes while the report itself looks perfectly healthy — fresh timestamp,
+   * no errors, no anomalies. That combination is exactly what let a broken sync
+   * sit behind a green tick, so it gets its own alarm. Absent field = an older
+   * report from before this was recorded, which is not a problem. */
+  if (report.supabase_sync_status === 'failed') {
+    problems.push(`Supabase sync FAILED on the last refresh: ${report.supabase_sync_error || 'no reason recorded'}`);
   }
 
   if (!problems.length) {

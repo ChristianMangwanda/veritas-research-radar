@@ -3118,21 +3118,21 @@ async function runRefresh() {
     });
   }
 
-  // Dual-write phase: Supabase mirrors the dataset when credentials exist;
-  // git stays canonical, so a sync failure warns but never fails the refresh.
+  // Supabase IS the dataset of record — the dashboard, the digest and the judge
+  // all read it, and jobs.json is a local convenience. A sync that fails is
+  // therefore a failed refresh, not a footnote.
   //
-  // Guard the destructive path: syncJobs upserts this run then DELETEs every
-  // untouched row. That is only safe when we successfully loaded the previous
-  // state, so the upsert re-writes the full dataset with intact first_seen and
-  // tombstones. If we could NOT trust the previous state — the read errored
-  // (rows are still in Supabase but unseen here), or it came back empty and the
-  // local fallback was empty too (the normal CI shape) — then syncing is unsafe
-  // no matter how many jobs this run fetched: with zero fetched it DELETEs the
-  // whole table, and with jobs fetched it resets first_seen and drops
-  // tombstones. A stale local fallback is no safer — pushing it would overwrite
-  // fresher remote rows we never read, so we trust the baseline ONLY when it
-  // came from a successful non-empty remote read (trustedBaseline). Abort in
-  // every other case; a genuine first-run bootstrap sets RADAR_ALLOW_EMPTY_SYNC=1.
+  // Guard the destructive path first: the sync deletes the rows its baseline
+  // had and this run no longer carries. That is only meaningful when we
+  // successfully loaded the previous state. If we could NOT trust it — the read
+  // errored (rows are still in Supabase but unseen here), or it came back empty
+  // and the local fallback was empty too (the normal CI shape) — then syncing is
+  // unsafe no matter how many jobs this run fetched: it would reset first_seen,
+  // drop tombstones, and treat every unread row as departed. A stale local
+  // fallback is no safer — pushing it would overwrite fresher remote rows we
+  // never read, so we trust the baseline ONLY when it came from a successful
+  // non-empty remote read (trustedBaseline). Abort in every other case; a
+  // genuine first-run bootstrap sets RADAR_ALLOW_EMPTY_SYNC=1.
   const wouldResetLifecycle = supabaseConfigured
     && !trustedBaseline
     && !process.env.RADAR_ALLOW_EMPTY_SYNC;
@@ -3146,12 +3146,28 @@ async function runRefresh() {
     return report;
   }
   try {
-    const sync = await syncJobs(allJobs, report);
-    console.log(sync.synced
-      ? `Supabase sync: ${sync.count} jobs mirrored`
-      : `Supabase sync skipped (${sync.reason})`);
+    // The baseline this run already read, reused as the diff's left-hand side.
+    const sync = await syncJobs(allJobs, report, { previous: previousFromRemote ? previousJobs : null });
+    if (sync.synced) {
+      report.supabase_sync_status = 'ok';
+      console.log(`Supabase sync: ${sync.upserted} upserted, ${sync.deleted} deleted, `
+        + `${sync.unchanged} unchanged (${sync.count} total)`);
+    } else {
+      console.log(`Supabase sync skipped (${sync.reason})`);
+    }
+    await writeJson(REPORT_PATH, report);
   } catch (error) {
-    console.warn(`Supabase sync failed (git dataset unaffected): ${error.message}`);
+    /* The report was written before the sync was attempted, so without this it
+     * would be committed looking like a clean run. Record the failure, then
+     * fail the step: the workflow runs the judge immediately after this one and
+     * deliberately without `if: always()`, so a non-zero exit is what stops it
+     * paying to judge a table that missed this run's writes. The commit step
+     * runs with `if: always()` and preserves the report either way. */
+    report.supabase_sync_status = 'failed';
+    report.supabase_sync_error = String(error.message).slice(0, 300);
+    await writeJson(REPORT_PATH, report);
+    console.error(`Supabase sync FAILED: ${error.message}`);
+    process.exitCode = 1;
   }
   return report;
 }

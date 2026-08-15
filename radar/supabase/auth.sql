@@ -73,11 +73,13 @@ create policy "own profile update" on public.profile_documents
 --    radar/public/scoring.js in whichever runtime asks, so the browser, the
 --    Vercel function and the Actions job all address the same row.
 --
---    NO foreign key to jobs.id — deliberately. refresh's syncJobs ends with
---    `DELETE FROM jobs WHERE updated_at < <this run>`, so a posting that ages
---    out disappears; an FK would cascade that deletion into judgments we paid
---    for and might want again when the posting reappears. job_id is carried as
---    a plain informational column instead.
+--    NO foreign key to jobs.id — deliberately. refresh's syncJobs deletes the
+--    postings that have left the dataset, so a posting that ages out
+--    disappears; an FK would cascade that deletion into judgments we paid for
+--    and might want again when the posting reappears. job_id is carried as a
+--    plain informational column instead — and note it is only ONE of the jobs
+--    a judgment covers, since the key is the content hash and identical
+--    postings from different boards share a row.
 -- ---------------------------------------------------------------------------
 
 create table if not exists public.match_cache (

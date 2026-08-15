@@ -14,10 +14,12 @@
  * cycle. Nothing has to be open.
  *
  * ORDERING IS LOAD-BEARING. This must run AFTER refresh.js has finished
- * syncing, because syncJobs ends by deleting every posting it did not see this
- * run. Judging a half-synced table would spend money on rows about to vanish.
- * The workflow enforces it by step order, and deliberately without
- * `if: always()` — if the refresh failed there is nothing worth judging.
+ * syncing. The sync is differential — it writes what changed and deletes what
+ * left, rather than rewriting the table — but a refresh whose sync failed exits
+ * non-zero precisely so this step is skipped: the table would be missing that
+ * run's writes, and judging it means paying to read postings that are about to
+ * change or disappear. The workflow enforces it by step order, and deliberately
+ * without `if: always()`.
  *
  * Usage:
  *   node radar/scripts/judge-jobs.js [--dry-run] [--max-spend 5] [--limit N]

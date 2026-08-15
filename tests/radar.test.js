@@ -389,6 +389,150 @@ function testSupabaseSink() {
     body,
     'description must round-trip unchanged'
   );
+
+  // Job ids are colon-composed, and a bare colon ends a PostgREST value. An
+  // unquoted list does not error — it matches nothing, which for a DELETE means
+  // the rows silently stay behind.
+  const { inList } = require('../radar/scripts/lib/supabase.js');
+  assert.strictEqual(inList(['workday:cornell:WDR-1']), '("workday:cornell:WDR-1")');
+  assert.strictEqual(inList(['a', 'b']), '("a","b")');
+  assert.strictEqual(inList(['say "hi"']), '("say ""hi""")', 'embedded quotes are doubled');
+}
+
+function testSyncDiff() {
+  const { diffJobs, comparableRow, stableStringify, rehydrateJob, jobRow } = require('../radar/scripts/lib/supabase.js');
+
+  const job = (over = {}) => ({
+    id: 'lever:ucsf:1', employer_id: 'ucsf', employer_name: 'UCSF', title: 'Postdoc',
+    description_text: 'Genomics lab.', status: 'active', source: 'lever',
+    first_seen_at: '2026-07-01T00:00:00Z', last_seen_at: '2026-08-01T00:00:00Z',
+    citizenship_gated: false,
+    provenance: { job_source: 'lever', ats_provider: 'lever', fetched_at: '2026-08-01T00:00:00Z' },
+    ...over
+  });
+
+  // stableStringify has to match JSON.stringify's treatment of undefined,
+  // because the write path is JSON.stringify — comparing against anything the
+  // write would not produce manufactures permanent "changed" rows.
+  assert.strictEqual(stableStringify({ a: undefined, b: 1 }), '{"b":1}');
+  assert.strictEqual(stableStringify({ b: 1, a: 2 }), stableStringify({ a: 2, b: 1 }), 'key order must not matter');
+  assert.notStrictEqual(stableStringify([1, 2]), stableStringify([2, 1]), 'array order still matters');
+
+  // THE LOAD-BEARING CASE. Previous rows come back out of a jsonb column and
+  // Postgres does not preserve jsonb key order; fresh jobs carry insertion
+  // order. Compared naively every row looks changed on every run.
+  const shuffled = {};
+  for (const key of Object.keys(job()).reverse()) shuffled[key] = job()[key];
+  assert.strictEqual(comparableRow(job()), comparableRow(shuffled), 'key order must not count as a change');
+
+  // These two are restamped by enrichJob on every single fetch and read by
+  // nobody. Counting them would rewrite all ~18,000 active jobs every run.
+  const reseen = job({
+    last_seen_at: '2026-08-15T00:00:00Z',
+    provenance: { job_source: 'lever', ats_provider: 'lever', fetched_at: '2026-08-15T00:00:00Z' }
+  });
+  assert.strictEqual(comparableRow(job()), comparableRow(reseen), 'being seen again is not a change');
+  assert.deepStrictEqual(diffJobs([job()], [reseen]), { upserts: [], deleteIds: [], unchanged: 1 });
+
+  // Real content changes still write.
+  for (const change of [{ description_text: 'Different body.' }, { title: 'Research Scientist' }, { status: 'closed', closed_at: '2026-08-10T00:00:00Z' }]) {
+    const diff = diffJobs([job()], [job(change)]);
+    assert.strictEqual(diff.upserts.length, 1, `${Object.keys(change)[0]} must be written`);
+    assert.strictEqual(diff.unchanged, 0);
+  }
+
+  // A legacy row (description still inside payload) against the equivalent
+  // fresh job is NOT a change — both sides are compared as built rows.
+  const legacyStored = rehydrateJob({
+    payload: { ...jobRow(job(), null).payload, description_text: 'Genomics lab.' },
+    description_text: null
+  });
+  assert.strictEqual(comparableRow(legacyStored), comparableRow(job()), 'row generation is not a content change');
+
+  // A closed tombstone is a ROW in the table until it ages out: stable across
+  // runs, so neither rewritten nor deleted. Deleting it would resurrect the
+  // posting as "new" on the next refresh.
+  const tombstone = job({ status: 'closed', closed_at: '2026-08-01T00:00:00Z' });
+  assert.deepStrictEqual(diffJobs([tombstone], [tombstone]), { upserts: [], deleteIds: [], unchanged: 1 });
+
+  // Gone from the run's dataset entirely → deleted by id.
+  const other = job({ id: 'lever:ucsf:2' });
+  const removed = diffJobs([job(), other], [job()]);
+  assert.deepStrictEqual(removed.deleteIds, ['lever:ucsf:2']);
+  assert.strictEqual(removed.unchanged, 1);
+
+  // New id → upsert, nothing deleted.
+  const added = diffJobs([job()], [job(), other]);
+  assert.deepStrictEqual(added.upserts.map((j) => j.id), ['lever:ucsf:2']);
+  assert.deepStrictEqual(added.deleteIds, []);
+
+  // No trustworthy baseline: write everything, delete NOTHING. This is the
+  // bootstrap shape, and it must never remove a row we simply failed to read.
+  const bootstrap = diffJobs(null, [job(), other]);
+  assert.strictEqual(bootstrap.upserts.length, 2);
+  assert.deepStrictEqual(bootstrap.deleteIds, []);
+
+  // Duplicate ids within one run collapse before the upsert — two rows with the
+  // same id make Postgres reject the whole batch.
+  const duped = diffJobs(null, [job(), job({ title: 'Later wins' })]);
+  assert.strictEqual(duped.upserts.length, 1);
+  assert.strictEqual(duped.upserts[0].title, 'Later wins');
+}
+
+async function testFetchAllJobsKeyset() {
+  const { fetchAllJobs } = require('../radar/scripts/lib/supabase.js');
+  const savedUrl = process.env.SUPABASE_URL;
+  const savedKey = process.env.SUPABASE_SERVICE_KEY;
+  process.env.SUPABASE_URL = 'https://x.supabase.co';
+  process.env.SUPABASE_SERVICE_KEY = 'service-key';
+  const originalFetch = globalThis.fetch;
+  const paths = [];
+  const rowsFor = (from, count) => Array.from({ length: count }, (_, i) => ({
+    id: `job:${String(from + i).padStart(5, '0')}`,
+    payload: { id: `job:${String(from + i).padStart(5, '0')}`, title: 'T' },
+    description_text: 'body'
+  }));
+
+  try {
+    // Two full pages then a short one. OFFSET made Postgres walk and discard
+    // every row before the window; cursoring on the primary key does not.
+    let page = 0;
+    globalThis.fetch = async (url) => {
+      paths.push(String(url));
+      const batch = page === 0 ? rowsFor(0, 500) : page === 1 ? rowsFor(500, 500) : rowsFor(1000, 3);
+      page += 1;
+      return { ok: true, status: 200, json: async () => batch, text: async () => '' };
+    };
+    const jobs = await fetchAllJobs();
+    assert.strictEqual(jobs.length, 1003);
+    assert.strictEqual(paths.length, 3);
+    assert(!paths.some((p) => /offset=/.test(p)), 'deep OFFSET is what timed out — it must be gone');
+    assert(/select=id%2Cpayload%2Cdescription_text|select=id,payload,description_text/.test(paths[0]),
+      'the id column must be selected, since it is the cursor');
+    assert(!/id=gt\./.test(paths[0]), 'the first page has no cursor');
+    assert(/id=gt\.job%3A00499/.test(paths[1]), `page 2 must resume after the last id seen (${paths[1]})`);
+    assert(/id=gt\.job%3A00999/.test(paths[2]));
+
+    // An empty table returns null, NOT []. refresh.js's lifecycle guard depends
+    // on telling "nothing there" apart from "read it and it was empty".
+    globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => [], text: async () => '' });
+    assert.strictEqual(await fetchAllJobs(), null);
+
+    // A page that fails is retried rather than collapsing the read to empty.
+    let calls = 0;
+    globalThis.fetch = async () => {
+      calls += 1;
+      if (calls === 1) return { ok: false, status: 500, text: async () => 'boom' };
+      return { ok: true, status: 200, json: async () => rowsFor(0, 2), text: async () => '' };
+    };
+    const retried = await fetchAllJobs();
+    assert.strictEqual(retried.length, 2);
+    assert.strictEqual(calls, 2);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (savedUrl) process.env.SUPABASE_URL = savedUrl; else delete process.env.SUPABASE_URL;
+    if (savedKey) process.env.SUPABASE_SERVICE_KEY = savedKey; else delete process.env.SUPABASE_SERVICE_KEY;
+  }
 }
 
 function testEntityResolution() {
@@ -4109,6 +4253,22 @@ function testDeadmanExitContract() {
   writeReport({ recall_anomalies: [{ name: 'Somewhere University' }] });
   assert.strictEqual(run().status, 1, 'a recall anomaly with no delivery channel must fail the run');
 
+  // A sync that FAILED partway leaves a report that looks perfectly healthy —
+  // fresh timestamp, no errors, no anomalies — while the dataset of record is
+  // missing that run's writes. That combination is what hid a broken sync
+  // behind a green tick, so it has to alarm on its own.
+  writeReport({ supabase_sync_status: 'failed', supabase_sync_error: 'statement timeout' });
+  const failedSync = run();
+  assert.strictEqual(failedSync.status, 1, 'a failed Supabase sync must not read as healthy');
+  assert(/statement timeout/.test(failedSync.stdout + failedSync.stderr), 'the reason must be carried through');
+
+  // A successful sync, and an older report from before the field existed, are
+  // both fine.
+  writeReport({ supabase_sync_status: 'ok' });
+  assert.strictEqual(run().status, 0, 'a successful sync is healthy');
+  writeReport();
+  assert.strictEqual(run().status, 0, 'a report predating the field must not alarm');
+
   // The reason is also written to the Actions summary page when present.
   const summaryPath = path.join(root, 'summary.md');
   writeReport({ refreshed_at: new Date(Date.now() - 13 * 60 * 60 * 1000).toISOString() });
@@ -4132,6 +4292,8 @@ async function main() {
   testAnalyzerCorpus();
   testTitleClassEvidence();
   testSupabaseSink();
+  testSyncDiff();
+  await testFetchAllJobsKeyset();
   testPeopleAdminAdapter();
   testEntityResolution();
   testProviderMappers();
