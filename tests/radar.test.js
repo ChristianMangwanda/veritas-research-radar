@@ -479,6 +479,93 @@ function testSyncDiff() {
   assert.strictEqual(duped.upserts[0].title, 'Later wins');
 }
 
+async function testSyncJobsWrites() {
+  const { syncJobs } = require('../radar/scripts/lib/supabase.js');
+  const savedUrl = process.env.SUPABASE_URL;
+  const savedKey = process.env.SUPABASE_SERVICE_KEY;
+  process.env.SUPABASE_URL = 'https://x.supabase.co';
+  process.env.SUPABASE_SERVICE_KEY = 'service-key';
+  const originalFetch = globalThis.fetch;
+
+  const job = (id, over = {}) => ({
+    id, employer_id: 'e', title: 'Postdoc', description_text: 'body', status: 'active',
+    last_seen_at: '2026-08-01T00:00:00Z',
+    provenance: { fetched_at: '2026-08-01T00:00:00Z' },
+    ...over
+  });
+
+  try {
+    // 240 changed rows go out in batches of 100, sequentially, and the DELETE
+    // only happens once every one of them has landed. The reverse order could
+    // remove a posting whose replacement never arrived.
+    let calls = [];
+    let inFlight = 0;
+    globalThis.fetch = async (url, init) => {
+      inFlight += 1;
+      assert.strictEqual(inFlight, 1, 'writes must not overlap — this database minds concurrency');
+      const body = init.body ? JSON.parse(init.body) : null;
+      calls.push({ method: init.method, url: String(url), size: Array.isArray(body) ? body.length : null });
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      inFlight -= 1;
+      return { ok: true, status: 200, text: async () => '', json: async () => [] };
+    };
+
+    const previous = Array.from({ length: 260 }, (_, i) => job(`j:${i}`));
+    const next = [
+      ...Array.from({ length: 240 }, (_, i) => job(`j:${i}`, { title: 'Changed' })),
+      ...Array.from({ length: 20 }, (_, i) => job(`j:${i + 240}`))
+    ];
+    const report = { refreshed_at: '2026-08-15T00:00:00Z' };
+    const result = await syncJobs(next, report, { previous });
+
+    assert.strictEqual(result.upserted, 240);
+    assert.strictEqual(result.unchanged, 20, 'the untouched rows must not be rewritten');
+    assert.strictEqual(result.deleted, 0);
+    const upserts = calls.filter((c) => c.method === 'POST' && c.url.includes('/jobs'));
+    assert.deepStrictEqual(upserts.map((c) => c.size), [100, 100, 40]);
+    assert.deepStrictEqual(report.supabase_sync,
+      { mode: 'diff', upserted: 240, deleted: 0, unchanged: 20, total: 260 });
+    // The old sweep is gone: nothing may delete by timestamp.
+    assert(!calls.some((c) => /updated_at=lt/.test(c.url)), 'the timestamp sweep must not come back');
+
+    // Departed rows are deleted by an explicit, quoted id list, after the
+    // upserts. Ids are colon-composed, so an unquoted list matches nothing.
+    calls = [];
+    await syncJobs([job('workday:cornell:1')], null,
+      { previous: [job('workday:cornell:1'), job('workday:cornell:2')] });
+    const deletes = calls.filter((c) => c.method === 'DELETE');
+    assert.strictEqual(deletes.length, 1);
+    assert(/id=in\./.test(deletes[0].url), 'deletes go by id list');
+    assert(/%22workday%3Acornell%3A2%22/.test(deletes[0].url), `colon-composed ids must be quoted (${deletes[0].url})`);
+
+    // Telemetry is not data. If the refresh_runs insert fails after the jobs
+    // are correct, the sync still succeeded — failing here would skip judging
+    // for no reason worth having.
+    globalThis.fetch = async (url, init) => {
+      if (String(url).includes('/refresh_runs')) return { ok: false, status: 500, text: async () => 'nope' };
+      return { ok: true, status: 200, text: async () => '', json: async () => [] };
+    };
+    const telemetryReport = { refreshed_at: '2026-08-15T00:00:00Z' };
+    const stillOk = await syncJobs([job('a')], telemetryReport, { previous: [job('a')] });
+    assert.strictEqual(stillOk.synced, true, 'a telemetry failure must not fail the sync');
+    assert.strictEqual(telemetryReport.refresh_run_recorded, false, 'but it must be recorded');
+
+    // A failing jobs upsert DOES reject, so refresh.js can mark the run failed.
+    globalThis.fetch = async () => ({ ok: false, status: 400, text: async () => 'malformed' });
+    await assert.rejects(() => syncJobs([job('a', { title: 'new' })], null, { previous: [job('a')] }), /400/);
+
+    // No credentials: dormant, never a partial write.
+    delete process.env.SUPABASE_URL;
+    delete process.env.SUPABASE_SERVICE_KEY;
+    const skipped = await syncJobs([job('a')], null);
+    assert.strictEqual(skipped.synced, false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (savedUrl) process.env.SUPABASE_URL = savedUrl; else delete process.env.SUPABASE_URL;
+    if (savedKey) process.env.SUPABASE_SERVICE_KEY = savedKey; else delete process.env.SUPABASE_SERVICE_KEY;
+  }
+}
+
 async function testFetchAllJobsKeyset() {
   const { fetchAllJobs } = require('../radar/scripts/lib/supabase.js');
   const savedUrl = process.env.SUPABASE_URL;
@@ -4293,6 +4380,7 @@ async function main() {
   testTitleClassEvidence();
   testSupabaseSink();
   testSyncDiff();
+  await testSyncJobsWrites();
   await testFetchAllJobsKeyset();
   testPeopleAdminAdapter();
   testEntityResolution();
