@@ -4113,6 +4113,38 @@ function testTaleoAdapter() {
   // No initialHistory at all -> empty, never a crash.
   assert.deepStrictEqual(parseTaleoDetailPage('<html></html>'), { description_text: '', location: null });
 
+  /* THE HASH MUST NOT MOVE BETWEEN FETCHES. initialHistory ends with the page's
+   * own form state, and one of its fields is a csrftoken that Taleo reissues on
+   * every request. Storing it made every Taleo posting look new on every
+   * refresh: 509 postings re-judged four times a day, 5,904 judgments bought
+   * for answers already in the cache. */
+  const withState = (token) => encodeURIComponent(encodeURIComponent(
+    '<p>Run assays.</p>!|!pSessionTimeout!|!0!|!csrftoken!|!' + token + '!|!isListEmpty!|!false'
+  ));
+  const first = parseTaleoDetailPage(`<input name="initialHistory" value="a!|!b!*!${withState('AAAAbbbbCCCC1111')}" />`);
+  const second = parseTaleoDetailPage(`<input name="initialHistory" value="a!|!b!*!${withState('ZZZZyyyyXXXX9999')}" />`);
+  assert.strictEqual(first.description_text, 'Run assays.', 'the posting survives the cut');
+  assert.strictEqual(first.description_text, second.description_text,
+    'two fetches of one posting must produce identical text');
+  assert(!/csrftoken/.test(first.description_text), 'the session token must never reach the description');
+
+  // UTSW appends a requisition attribute table before the state block, and its
+  // timestamp moves too. Delimiters packed close together are never prose.
+  const withTable = encodeURIComponent(encodeURIComponent(
+    '<p>Run assays.</p>!|!Full-time!|!Day Job!|!Regular!|!Standard!|!Sep 12, 2023, 9:38:43 PM'
+  ));
+  const tabled = parseTaleoDetailPage(`<input name="initialHistory" value="a!|!b!*!${withTable}" />`);
+  assert.strictEqual(tabled.description_text, 'Run assays.', 'the attribute table is not description');
+
+  // But a lone delimiter inside real prose must NOT truncate the posting —
+  // Towson puts the description and the state in the SAME segment, and cutting
+  // by segment emptied it entirely.
+  const sparse = encodeURIComponent(encodeURIComponent(
+    'A long sentence of real posting prose that runs on for a while.!|!And more prose after a single delimiter.'
+  ));
+  const kept = parseTaleoDetailPage(`<input name="initialHistory" value="a!|!b!*!${sparse}" />`);
+  assert(/And more prose/.test(kept.description_text), 'one delimiter is not a state block');
+
   // A tenant may run several career sections holding DIFFERENT jobs (WVU keeps
   // its postdocs in `faculty`, not `staff`), so config validation must accept a
   // list and reject a section that lacks the portal the REST call needs.

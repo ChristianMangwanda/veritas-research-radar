@@ -1114,9 +1114,51 @@ function parseTaleoDetailPage(html) {
   // Taleo escapes its own delimiters with a backslash; undo that before use.
   const clean = (value) => (value || '').replace(/\\([:|])/g, '$1').trim();
 
+  /* Each segment ends with the page's own form state, written as key!|!value
+   * pairs. One of those keys is `csrftoken`, and Taleo issues a new one on
+   * EVERY request.
+   *
+   * Keeping it made the stored description different on every single fetch,
+   * always at the same length, so nothing ever looked wrong. But
+   * jobContentHash hashes the description, so every Taleo posting looked new
+   * every time: 509 postings re-judged four times a day, 5,904 judgments
+   * bought for answers we already had. It also fed the model "Apply for this
+   * position online" and a session token as if they were part of the job.
+   *
+   * The state block cannot be dropped a whole segment at a time — Towson
+   * returns only two segments and puts the description and the token in the
+   * same one, so that approach silently emptied the posting. Cut at the first
+   * known state key instead, and leave the segment alone when none appears. */
+  const STATE_BLOCK = /!\|!(?:pSessionTimeout|pSessionWarning|pBeaconBeat|focusOnField|csrftoken|emptyListToken|isListEmpty|listCount|displayCalloutInLegend|addThisRequired)!\|!/;
+
+  /* The state keys are the reliable marker, but they are not the only tail.
+   * UTSW appends the requisition attribute table first — "Full-time!|!Day
+   * Job!|!Regular!|!Standard!|!Sep 12, 2023, 9:38:43 PM" — and that timestamp
+   * moves too. Both tails share a shape prose never has: delimiters packed
+   * close together. Cut at whichever tail starts first. */
+  const DELIMITER = /!\|!/g;
+  const denseRunStart = (segment) => {
+    const at = [];
+    let m;
+    DELIMITER.lastIndex = 0;
+    while ((m = DELIMITER.exec(segment)) !== null) at.push(m.index);
+    for (let i = 0; i + 2 < at.length; i += 1) {
+      if (at[i + 2] - at[i] <= 120) return at[i];
+    }
+    return -1;
+  };
+
+  const dropPageState = (segment) => {
+    const marks = [segment.search(STATE_BLOCK), denseRunStart(segment)].filter((i) => i !== -1);
+    const kept = marks.length ? segment.slice(0, Math.min(...marks)) : segment;
+    // A lone trailing delimiter is what stops the duplicate-body check below
+    // from recognising the same text twice.
+    return kept.replace(/(?:!\|!)+\s*$/, '');
+  };
+
   const bodies = [];
   for (const segment of segments.slice(1)) {
-    const text = normalizeText(clean(decode(segment)));
+    const text = normalizeText(clean(dropPageState(decode(segment))));
     // Description and qualifications each appear twice; keep first occurrences.
     if (text && !bodies.includes(text)) bodies.push(text);
   }
