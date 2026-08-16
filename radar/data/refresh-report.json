@@ -1,11 +1,11 @@
 {
-  "refreshed_at": "2026-08-16T16:34:51.130Z",
+  "refreshed_at": "2026-08-16T16:54:53.057Z",
   "employer_count": 547,
   "ats_enabled_employer_count": 530,
   "job_count": 25311,
-  "active_job_count": 17777,
-  "closed_job_count": 7534,
-  "newly_closed_count": 14,
+  "active_job_count": 17789,
+  "closed_job_count": 7522,
+  "newly_closed_count": 4,
   "errored_employers": 1,
   "recall_anomalies": [],
   "prefilter_anomalies": [
@@ -3521,7 +3521,7 @@
       "ats_provider": "oracle",
       "ats_token": "the-university-of-texas-health-science-center-at-san-antonio",
       "fetched_jobs": 28,
-      "prefiltered_count": 216,
+      "prefiltered_count": 215,
       "prefilter_survived_count": 40,
       "skipped": false,
       "error": null,
@@ -3569,7 +3569,7 @@
       "ats_provider": "oracle",
       "ats_token": "the-university-of-tennessee-health-science-center",
       "fetched_jobs": 81,
-      "prefiltered_count": 264,
+      "prefiltered_count": 263,
       "prefilter_survived_count": 243,
       "skipped": false,
       "error": null,
@@ -4454,12 +4454,12 @@
       "name": "Youngstown State University",
       "ats_provider": "governmentjobs",
       "ats_token": "ysu",
-      "fetched_jobs": 8,
+      "fetched_jobs": 9,
       "prefiltered_count": 37,
-      "prefilter_survived_count": 100,
+      "prefilter_survived_count": 99,
       "skipped": false,
       "error": null,
-      "closed_jobs": 2
+      "closed_jobs": 1
     },
     {
       "employer_id": "susquehanna-university",
@@ -5668,7 +5668,7 @@
       "ats_provider": "oracle",
       "ats_token": "fa-ewlq-saasfaprod1.fa.ocs.oraclecloud.com",
       "fetched_jobs": 243,
-      "prefiltered_count": 264,
+      "prefiltered_count": 263,
       "prefilter_survived_count": 243,
       "skipped": false,
       "error": null,
@@ -6124,7 +6124,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "aamu",
       "fetched_jobs": 53,
-      "prefiltered_count": 118,
+      "prefiltered_count": 116,
       "prefilter_survived_count": 53,
       "skipped": false,
       "error": null,
@@ -6291,24 +6291,24 @@
       "name": "Governors State University",
       "ats_provider": "governmentjobs",
       "ats_token": "govst",
-      "fetched_jobs": 40,
-      "prefiltered_count": 10,
-      "prefilter_survived_count": 40,
+      "fetched_jobs": 43,
+      "prefiltered_count": 12,
+      "prefilter_survived_count": 43,
       "skipped": false,
       "error": null,
-      "closed_jobs": 6
+      "closed_jobs": 3
     },
     {
       "employer_id": "jackson-state-university",
       "name": "Jackson State University",
       "ats_provider": "governmentjobs",
       "ats_token": "jsums",
-      "fetched_jobs": 25,
+      "fetched_jobs": 26,
       "prefiltered_count": 62,
-      "prefilter_survived_count": 25,
+      "prefilter_survived_count": 26,
       "skipped": false,
       "error": null,
-      "closed_jobs": 2
+      "closed_jobs": 1
     },
     {
       "employer_id": "john-carroll-university",
@@ -6351,12 +6351,12 @@
       "name": "Mcneese State University",
       "ats_provider": "governmentjobs",
       "ats_token": "louisiana",
-      "fetched_jobs": 24,
-      "prefiltered_count": 486,
-      "prefilter_survived_count": 24,
+      "fetched_jobs": 29,
+      "prefiltered_count": 473,
+      "prefilter_survived_count": 29,
       "skipped": false,
       "error": null,
-      "closed_jobs": 40
+      "closed_jobs": 35
     },
     {
       "employer_id": "mercer-university",
@@ -6484,7 +6484,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ucmo",
       "fetched_jobs": 5,
-      "prefiltered_count": 86,
+      "prefiltered_count": 81,
       "prefilter_survived_count": 5,
       "skipped": false,
       "error": null,
@@ -6579,12 +6579,12 @@
       "name": "Utah Valley University",
       "ats_provider": "governmentjobs",
       "ats_token": "uvu",
-      "fetched_jobs": 6,
-      "prefiltered_count": 111,
-      "prefilter_survived_count": 6,
+      "fetched_jobs": 8,
+      "prefiltered_count": 109,
+      "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
-      "closed_jobs": 8
+      "closed_jobs": 6
     },
     {
       "employer_id": "villanova-university",
@@ -6877,9 +6877,9 @@
   ],
   "supabase_sync": {
     "mode": "diff",
-    "upserted": 802,
-    "deleted": 59,
-    "unchanged": 24509,
+    "upserted": 293,
+    "deleted": 0,
+    "unchanged": 25018,
     "total": 25311
   },
   "supabase_sync_status": "ok"
