@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-08-16T07:12:54.693Z",
+  "refreshed_at": "2026-08-16T13:14:09.511Z",
   "employer_count": 547,
   "ats_enabled_employer_count": 530,
-  "job_count": 25373,
-  "active_job_count": 17786,
-  "closed_job_count": 7587,
-  "newly_closed_count": 46,
-  "errored_employers": 2,
+  "job_count": 25370,
+  "active_job_count": 17784,
+  "closed_job_count": 7586,
+  "newly_closed_count": 8,
+  "errored_employers": 1,
   "recall_anomalies": [],
   "prefilter_anomalies": [
     {
@@ -29,7 +29,7 @@
       "employer_id": "hackensack-meridian-school-of-medicine",
       "name": "Hackensack Meridian School of Medicine",
       "ats_provider": "icims",
-      "prefiltered_count": 1527,
+      "prefiltered_count": 1526,
       "prefilter_survived_count": 35,
       "fetched_jobs": 16
     },
@@ -246,7 +246,7 @@
       "prefilter_survived_count": 156,
       "skipped": false,
       "error": null,
-      "closed_jobs": 51
+      "closed_jobs": 50
     },
     {
       "employer_id": "mit",
@@ -376,7 +376,7 @@
       "ats_token": "scu",
       "fetched_jobs": 5,
       "prefiltered_count": 31,
-      "prefilter_survived_count": 51,
+      "prefilter_survived_count": 50,
       "skipped": false,
       "error": null,
       "closed_jobs": 0
@@ -2157,11 +2157,11 @@
       "name": "The University of Texas Rio Grande Valley",
       "ats_provider": "peopleadmin",
       "ats_token": "utrgv-sb",
-      "fetched_jobs": 0,
+      "fetched_jobs": 128,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
-      "error": "HTTP 503 Service Unavailable",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -2564,7 +2564,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 12
+      "closed_jobs": 11
     },
     {
       "employer_id": "the-university-of-texas-at-dallas",
@@ -2732,19 +2732,19 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 10
+      "closed_jobs": 9
     },
     {
       "employer_id": "eastern-washington-university",
       "name": "Eastern Washington University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.hr.ewu.edu",
-      "fetched_jobs": 5,
+      "fetched_jobs": 4,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 20
+      "closed_jobs": 21
     },
     {
       "employer_id": "cleveland-state-university",
@@ -3806,7 +3806,7 @@
       "ats_provider": "icims",
       "ats_token": "careers-hackensackmeridianhealth",
       "fetched_jobs": 16,
-      "prefiltered_count": 1527,
+      "prefiltered_count": 1526,
       "prefilter_survived_count": 35,
       "skipped": false,
       "error": null,
@@ -4455,8 +4455,8 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ysu",
       "fetched_jobs": 9,
-      "prefiltered_count": 37,
-      "prefilter_survived_count": 99,
+      "prefiltered_count": 39,
+      "prefilter_survived_count": 100,
       "skipped": false,
       "error": null,
       "closed_jobs": 1
@@ -6123,12 +6123,12 @@
       "name": "Alabama A and M University",
       "ats_provider": "governmentjobs",
       "ats_token": "aamu",
-      "fetched_jobs": 52,
+      "fetched_jobs": 53,
       "prefiltered_count": 116,
       "prefilter_survived_count": 53,
       "skipped": false,
       "error": null,
-      "closed_jobs": 10
+      "closed_jobs": 9
     },
     {
       "employer_id": "alabama-state-university",
@@ -6291,12 +6291,12 @@
       "name": "Governors State University",
       "ats_provider": "governmentjobs",
       "ats_token": "govst",
-      "fetched_jobs": 45,
+      "fetched_jobs": 46,
       "prefiltered_count": 12,
-      "prefilter_survived_count": 45,
+      "prefilter_survived_count": 46,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1
+      "closed_jobs": 0
     },
     {
       "employer_id": "jackson-state-university",
@@ -6351,12 +6351,12 @@
       "name": "Mcneese State University",
       "ats_provider": "governmentjobs",
       "ats_token": "louisiana",
-      "fetched_jobs": 24,
-      "prefiltered_count": 473,
-      "prefilter_survived_count": 24,
+      "fetched_jobs": 22,
+      "prefiltered_count": 456,
+      "prefilter_survived_count": 22,
       "skipped": false,
       "error": null,
-      "closed_jobs": 40
+      "closed_jobs": 42
     },
     {
       "employer_id": "mercer-university",
@@ -6484,7 +6484,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ucmo",
       "fetched_jobs": 5,
-      "prefiltered_count": 84,
+      "prefiltered_count": 85,
       "prefilter_survived_count": 5,
       "skipped": false,
       "error": null,
@@ -6531,12 +6531,12 @@
       "name": "University of Pennsylvania",
       "ats_provider": "workday",
       "ats_token": "upenn",
-      "fetched_jobs": 182,
+      "fetched_jobs": 181,
       "prefiltered_count": 286,
-      "prefilter_survived_count": 182,
+      "prefilter_survived_count": 181,
       "skipped": false,
       "error": null,
-      "closed_jobs": 12
+      "closed_jobs": 13
     },
     {
       "employer_id": "university-of-scranton",
@@ -6580,7 +6580,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "uvu",
       "fetched_jobs": 7,
-      "prefiltered_count": 101,
+      "prefiltered_count": 110,
       "prefilter_survived_count": 7,
       "skipped": false,
       "error": null,
@@ -6877,10 +6877,10 @@
   ],
   "supabase_sync": {
     "mode": "diff",
-    "upserted": 896,
-    "deleted": 130,
-    "unchanged": 24477,
-    "total": 25373
+    "upserted": 796,
+    "deleted": 3,
+    "unchanged": 24574,
+    "total": 25370
   },
   "supabase_sync_status": "ok"
 }
