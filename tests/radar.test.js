@@ -2,6 +2,8 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const { analyzeText } = require('../scripts/keywords.js');
+const jobStore = require('../radar/public/jobstore.js');
+const { jobContentHash } = require('../radar/public/scoring.js');
 const {
   scoreFeedOwnership,
   stateOf,
@@ -4401,6 +4403,74 @@ function testDeadmanExitContract() {
   fs.rmSync(root, { recursive: true, force: true });
 }
 
+/* The cache's decisions, all of which fail invisibly until data goes missing.
+   Each encodes something measured against the live table — see jobstore.js. */
+function testJobStorePure() {
+  // A run stamps one updated_at at its START and writes for minutes after, so
+  // a watermark taken at face value skips that run's tail. It follows the
+  // SERVER's clock — the device's could be anywhere.
+  const server = '2026-08-18T02:20:00.000Z';
+  const w = jobStore.nextWatermark('2026-08-18T02:04:57.779Z', server);
+  assert.ok(Date.parse(w) < Date.parse('2026-08-18T02:04:57.779Z'),
+    'watermark must rewind behind the newest row seen');
+  assert.strictEqual(
+    jobStore.nextWatermark('2030-01-01T00:00:00.000Z', server),
+    jobStore.nextWatermark(null, server),
+    'a device clock running fast must not push the watermark past the server');
+  assert.strictEqual(jobStore.nextWatermark(null, null), null);
+
+  // A closure is an UPDATE, so the delta returns it; it must leave the cache.
+  const triaged = new Set(['workday:cornell:APPLIED-1']);
+  assert.strictEqual(jobStore.mergeDecision({ id: 'a', status: 'active' }, triaged), 'put');
+  assert.strictEqual(jobStore.mergeDecision({ id: 'a', status: 'closed' }, triaged), 'delete');
+  assert.strictEqual(
+    jobStore.mergeDecision({ id: 'a', status: 'active', citizenship_gated: true }, triaged),
+    'delete');
+  // ...unless you acted on it. The pipeline is never hidden.
+  assert.strictEqual(
+    jobStore.mergeDecision({ id: 'workday:cornell:APPLIED-1', status: 'closed' }, triaged),
+    'put', 'a posting you applied to stays even after it closes');
+
+  // Ids are colon-composed; a bare colon ends the value and the filter then
+  // matches nothing — silently.
+  assert.strictEqual(jobStore.inList(['workday:cornell:WDR-1']), '("workday:cornell:WDR-1")');
+  assert.deepStrictEqual(jobStore.chunk([1, 2, 3, 4, 5], 2), [[1, 2], [3, 4], [5]]);
+
+  // Deletes are invisible to updated_at, so the sweep runs on a schedule even
+  // when nothing looks wrong.
+  assert.strictEqual(jobStore.shouldSweep(null, Date.now(), false), true);
+  assert.strictEqual(jobStore.shouldSweep({ at: new Date().toISOString() }, Date.now(), false), false);
+  assert.strictEqual(jobStore.shouldSweep({ at: new Date().toISOString() }, Date.now(), true), true,
+    'the count tripwire overrides the daily timer');
+  const stale = new Date(Date.now() - 25 * 3600 * 1000).toISOString();
+  assert.strictEqual(jobStore.shouldSweep({ at: stale }, Date.now(), false), true);
+
+  // Any gap spanning a mass rewrite returns the whole table; treating that as
+  // a delta would merge 25,000 rows one page at a time.
+  assert.strictEqual(jobStore.isMassRewrite(500, 16009), false);
+  assert.strictEqual(jobStore.isMassRewrite(25661, 16009), true);
+  assert.strictEqual(jobStore.isMassRewrite(10, 0), true, 'an empty cache is never a delta');
+}
+
+/* The contract deciding whether ~7,900 already-paid judgments still resolve.
+   Nothing pinned it before. The NUL bytes are field delimiters, which is also
+   why plain grep finds nothing in scoring.js. */
+function testJobContentHashContract() {
+  const job = { title: 'Research Scientist', department: 'Biology', description_text: 'PhD required.' };
+  const hash = jobContentHash(job);
+  assert.ok(/^fnv1a:[0-9a-f]{8}$/.test(hash), 'hash shape is part of the stored key');
+  // Field boundaries must be real: moving text across them must change the hash.
+  assert.notStrictEqual(hash,
+    jobContentHash({ title: 'Research', department: 'ScientistBiology', description_text: 'PhD required.' }));
+  // Missing fields are empty strings, never "undefined".
+  assert.strictEqual(
+    jobContentHash({ title: 'A' }),
+    jobContentHash({ title: 'A', department: '', description_text: '' }));
+  // A description arriving later MUST change the hash — that is the whole
+  // reason the two-pass loader refuses to hash a job while one is pending.
+  assert.notStrictEqual(jobContentHash({ title: 'A', department: 'B', description_text: '' }), hash);
+}
+
 async function main() {
   testSharedAnalyzer();
   testNegationGuard();
@@ -4457,6 +4527,8 @@ async function main() {
   testTriageMerge();
   testRestoreTriageRecord();
   testTriageTransfer();
+  testJobStorePure();
+  testJobContentHashContract();
   testShouldAutoRefresh();
   testDaysSince();
   testVariantInitials();

@@ -105,7 +105,11 @@
 /* hidden must always win, even over display rules on the element */
 [hidden] { display: none !important; }
 
-html { height: 100%; }
+html {
+  height: 100%;
+  /* Safari inflates text on rotate without this; the layout is already fluid. */
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   margin: 0;
@@ -330,6 +334,17 @@ button { font: inherit; color: inherit; }
 }
 
 .chip:hover { border-color: var(--line-strong); }
+
+/* Signing in is the one thing an anonymous visitor most likely came to do, so
+   it gets a place in the topbar instead of living several screens down inside
+   the Status drawer. It removes itself once you are signed in. */
+.signin-chip {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.signin-chip:hover { border-color: var(--accent-ink); background: var(--accent-ink); }
 
 .icon-button {
   display: inline-flex;
@@ -604,6 +619,7 @@ button { font: inherit; color: inherit; }
 
 input[type="search"],
 input[type="text"],
+input[type="email"],
 input[type="password"],
 select,
 textarea {
@@ -622,6 +638,15 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 }
 
 textarea { resize: vertical; }
+
+/* iOS ignores `overflow: hidden` on body — pinning it is the only thing that
+   reliably stops the list scrolling underneath a full-screen overlay. The
+   scroll offset is carried on `top` and restored by setOverlayLock(). */
+body.overlay-open {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+}
 
 .segmented {
   display: flex;
@@ -779,12 +804,24 @@ textarea { resize: vertical; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 2px 4px 10px;
   font-size: 13px;
 }
 
 .list-head #count { white-space: nowrap; }
+
+/* This was a title="" on the Possible button, i.e. invisible on every touch
+   device — and it is the sentence that explains the app's default view. */
+.view-note {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0 4px 8px;
+  display: none;
+}
+
+body.possible-mode .view-note { display: block; }
 
 /* Says what the default view is holding back, and reveals it. Quiet, but
    never absent while anything is hidden. */
@@ -1035,7 +1072,9 @@ body.pipeline-mode .sort-inline { display: none; }
 
 /* The list is a grid "table": one column template shared by the header row
    and every job row. Not a <table> — #jobs also hosts pipeline group headers,
-   the collapsed terminal <details>, and the show-all button. */
+   the collapsed terminal <details>, and the show-all button.
+
+   Three tracks for three cells: role, visa, closes. */
 .row-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 140px 52px;
@@ -1095,7 +1134,8 @@ body.pipeline-mode .jobs-header { display: none; }
 .job-row:hover { background: var(--neutral-soft); }
 
 /* Hover-reveal quick action — opens the posting and arms the apply nudge.
-   Absolutely positioned so the 5-column grid never changes shape. */
+   Absolutely positioned so the row grid never changes shape. Hidden below
+   1180px, where there is no hover to reveal it with. */
 .row-apply {
   position: absolute;
   top: 8px;
@@ -1108,11 +1148,12 @@ body.pipeline-mode .jobs-header { display: none; }
   color: var(--accent-ink);
   cursor: pointer;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 120ms;
 }
 
 .job-row:hover .row-apply,
-.job-row:focus-within .row-apply { opacity: 1; }
+.job-row:focus-within .row-apply { opacity: 1; pointer-events: auto; }
 
 .row-apply:hover { background: var(--accent); color: var(--accent-contrast); }
 
@@ -1625,6 +1666,13 @@ mark.m-skill { background: var(--mark-skill); }
     inset: 0;
     z-index: 30;
     max-height: none;
+    /* 100% resolves against the initial viewport, so the last rows of a posting
+       sit behind Safari's toolbar. dvh follows the toolbar as it collapses. */
+    height: 100dvh;
+    /* Without this a scroll that reaches the end of the posting keeps going and
+       drags the job list underneath it. */
+    overscroll-behavior: contain;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .detail-back { display: block; }
@@ -1635,10 +1683,29 @@ mark.m-skill { background: var(--mark-skill); }
   .stat-value { font-size: 15px; }
   .stat-label { font-size: 10px; letter-spacing: 0.06em; }
 
-  /* Narrow: drop the visa + closes columns; role/fit/send carry the decision */
-  .row-grid { grid-template-columns: minmax(0, 1fr) 140px; }
+  /* One column, and the visa signal moves under the title with the flags.
+     It used to be dropped outright between 761 and 1180px — the app's
+     headline datum, invisible on every iPad and every phone, because a
+     `display: none` meant for the desktop grid leaked down. The row also kept
+     a 140px track for the column it had just hidden. */
+  .row-grid { grid-template-columns: minmax(0, 1fr); }
   .cell-closes { display: none; }
-  .cell-visa, .cell-closes { display: none; }
+  .cell-visa {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px;
+    grid-column: 1;
+    padding-top: 2px;
+  }
+  .jobs-header { display: none; }
+
+  /* The row quick-action reveals on hover, which touch does not have. It used
+     to be hidden only below 760px, leaving the whole iPad band with an
+     invisible but tappable button that opened the posting instead of selecting
+     the row. The detail pane's "Open posting" is the same flow. */
+  .row-apply { display: none; }
 }
 
 .filters-toggle { display: none; }
@@ -1653,7 +1720,13 @@ mark.m-skill { background: var(--mark-skill); }
 
   .filters-toggle { display: inline-flex; }
 
-  .topbar { flex-wrap: wrap; gap: 10px; padding: 10px 12px; }
+  .topbar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 12px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
 
   .refresh-meta { white-space: normal; }
 
@@ -1661,15 +1734,67 @@ mark.m-skill { background: var(--mark-skill); }
   .stat-strip { order: 3; width: 100%; justify-content: space-between; }
   .stat:first-child { padding-left: 0; }
 
-  /* Phone: one column — the visa tag moves under the title with the flags */
-  .row-grid { grid-template-columns: minmax(0, 1fr); }
-  .cell-visa { grid-column: 1; flex-direction: row; padding-top: 2px; }
   .sort-inline-label { display: none; }
 
   /* Group headers keep their count but drop the trailing note */
   .group-note { display: none; }
 
-  /* The row quick-action has no hover on touch — the detail pane's Open
-     posting button covers the same flow, so hide it instead of trapping taps */
-  .row-apply { display: none; }
+  .drawer { width: 100vw; }
+
+  #undo-bar { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+}
+
+/* --------------------------------------------------------------------------
+   Touch
+
+   Width told us how much room there is; it never told us how the thing is
+   being pointed at. Everything below is about the finger, not the viewport.
+-------------------------------------------------------------------------- */
+
+/* iOS Safari zooms the page whenever a focused control is under 16px and does
+   not zoom back out — which is why signing in on a phone was impossible:
+   tapping Email threw the page into a zoomed state with the password field and
+   the Sign in button off-screen. 16px is the whole fix. The width clause is
+   belt-and-braces for any tablet that reports a fine pointer. */
+@media (pointer: coarse), (max-width: 1180px) {
+  input[type="search"],
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  select,
+  textarea,
+  .auth-form input,
+  .sort-inline select,
+  .profile-editor textarea {
+    font-size: 16px;
+  }
+}
+
+/* Fingers are not cursors: 44px is the smallest reliably hittable target.
+   Everything here measured 27-37px. */
+@media (pointer: coarse) {
+  button,
+  .chip,
+  .segmented button,
+  .view-seg button,
+  .auth-form button,
+  .icon-button {
+    min-height: 44px;
+  }
+
+  /* These are text-in-a-line, not boxes — padding would break the sentence
+     they sit in, so they keep their size and gain room around them instead. */
+  .link-button,
+  .blocked-note,
+  .copy-cmd {
+    min-height: 0;
+    padding-block: 6px;
+  }
+
+  .job-row { padding-block: 12px; }
+
+  /* Hover states latch on touch — a tapped row stays "hovered" until something
+     else is tapped, which reads as a selection that isn't one. */
+  .job-row:hover { background: transparent; }
+  .job-row.is-selected:hover { background: var(--accent-soft); }
 }

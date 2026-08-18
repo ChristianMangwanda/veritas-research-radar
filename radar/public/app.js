@@ -12,6 +12,9 @@ const state = {
   matchPending: 0,      // qualified postings with no judgment yet
   matchAvailable: false, // true once judgments have been read (i.e. signed in)
   loadError: null,    // set when the job load partially/fully failed (distinct from "no matches")
+  jobsById: new Map(), // id -> job, so pass 2 can merge descriptions in O(1)
+  // phase: 'jobs' (payloads arriving) -> 'descriptions' (ranking fills in) -> 'idle'
+  loading: { phase: 'jobs', got: 0 },
   lastVisit: null,
   selectedId: null,
   visible: []
@@ -63,6 +66,7 @@ const DOM = {
   statNew: document.querySelector('#stat-new'),
   statPossible: document.querySelector('#stat-possible'),
   statusToggle: document.querySelector('#status-toggle'),
+  signinChip: document.querySelector('#signin-chip'),
   statusPanel: document.querySelector('#status-panel'),
   statusRefresh: document.querySelector('#status-refresh'),
   statusInstruments: document.querySelector('#status-instruments'),
@@ -231,112 +235,410 @@ async function tryJson(url) {
   }
 }
 
-async function loadJobs() {
+/* The active, non-gated slice is the only thing any view shows. Everything
+ * else — closed tombstones, citizens-only federal roles — was downloaded in
+ * full and then dropped client-side by the predicates in filterPredicates().
+ * Measured live: 25,661 rows total, 16,009 after this filter. It rides
+ * jobs_status_gated_idx, which the browser had never once used.
+ *
+ * The one exception is a posting you have acted on: `closed` deliberately
+ * keeps those visible. loadTriagedJobs() below fetches them back by id. */
+const JOBS_FILTER = 'status=eq.active&citizenship_gated=is.false';
+
+/* 1000 is the server's own ceiling (PostgREST max-rows — asking for 20,000
+ * returns exactly 1000), and it is safe here in a way it was not before:
+ * the old failure was on a combined payload+description page of ~3.5MB raw,
+ * where a payload-only page is ~1.8MB — smaller than the 500-row combined
+ * page that has been stable for months. One constant, so dropping back to
+ * 500 is a one-line change if a full run ever shows a failure. */
+const PAGE_SIZE = 1000;
+
+/* Only localhost has an API server. In production these three 404 on every
+ * load, and /api/jobs did it *in front of* the entire job pull. */
+const IS_LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
+
+/** Sequential keyset walk over one query shape. Calls onPage after each page.
+ *
+ * Sequential is not an oversight. Fetching bounded ranges four at a time was
+ * measured and was far worse — 65 transient failures, 3,000 rows missing,
+ * 214s. Concurrency is what this database minds, not depth. Keyset (`id >
+ * last seen`) rather than OFFSET, because OFFSET makes Postgres walk and
+ * discard every row before the window and the deep pages hit the statement
+ * timeout. */
+async function walkJobPages(select, extraFilter, onPage, onServerDate) {
+  let cursor = null;
+  let failedPages = 0;
+  let pageCount = 0;
+  for (;;) {
+    const query = `/jobs?select=${select}&${extraFilter}&order=id&limit=${PAGE_SIZE}`
+      + (cursor ? `&id=gt.${encodeURIComponent(cursor)}` : '');
+    /* Three attempts with a growing pause. A statement timeout is transient,
+     * and a failed page cannot be skipped the way an OFFSET page could,
+     * because the cursor lives in its last row. */
+    let rows = null;
+    for (let attempt = 0; attempt < 3 && !rows; attempt += 1) {
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1${query}`, {
+          headers: { apikey: SUPABASE_ANON_KEY, authorization: `Bearer ${SUPABASE_ANON_KEY}` }
+        });
+        if (!response.ok) throw new Error(`supabase ${response.status}`);
+        // The server's clock, never the device's — skew would silently skip rows.
+        if (onServerDate) onServerDate(response.headers.get('date'));
+        rows = await response.json();
+      } catch {
+        if (attempt === 2) break;
+        await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
+      }
+    }
+    if (!rows) { failedPages += 1; break; }
+    pageCount += 1;
+    if (!rows.length) break;
+    await onPage(rows);
+    // The COLUMN id, not payload.id. They agree today because
+    // payloadWithoutDescription() strips only the description, but the query
+    // orders and filters on the column, so the cursor must read the column.
+    cursor = rows[rows.length - 1]?.id ?? null;
+    if (!cursor || rows.length < PAGE_SIZE) break;
+  }
+  return { failedPages, pageCount };
+}
+
+/** Pass 1: payload only. ~48KB gzipped a page against ~515KB for the old
+ *  combined page, which is what puts the list on screen in well under a
+ *  second instead of at the 59th. Descriptions follow in pass 2. */
+let pullStartServerDate = null;
+
+async function loadJobs(onPage) {
+  pullStartServerDate = null;
   state.loadError = null;
   state.loadFailedPages = 0;
   state.loadTotalPages = 0;
   state.loadShown = 0;
   state.loadTotal = 0;
-  // An empty local file (fresh clone — jobs.json is untracked now) must not
-  // shadow the live database
-  const local = await tryJson('/api/jobs');
-  if (Array.isArray(local) && local.length) return local;
-  try {
-    /* Keyset pagination — `id > last seen` — rather than OFFSET.
-     *
-     * OFFSET makes Postgres walk and discard every row before the window, so
-     * the cost climbs with depth while the statement timeout does not. At
-     * ~25,000 rows of large payloads that started returning 500 for the deeper
-     * pages: a live load showed 14,054 of 25,054 jobs with 11 of 26 pages
-     * failed. Concurrency was not the cause — single deep requests failed on
-     * their own — so the previous fix (3 at a time, one retry) had bought time
-     * rather than solved it.
-     *
-     * Keyset reads an index range instead, so page 25 costs what page 1 costs.
-     * It is sequential by nature — each request needs the previous page's last
-     * id — and that turns out to be a feature. Fetching bounded ranges four at
-     * a time was measured as an alternative and was far worse: 65 transient
-     * failures, 3,000 rows missing, 214s. Concurrency is what the database
-     * minds here, not depth.
-     *
-     * 500 rows a page rather than 1000, for the same reason — measured over
-     * the live table, 500 returned all 25,054 rows with zero failures where
-     * 1000 dropped a page. The cost is ~60s for a first load, which is what
-     * moving ~120MB of posting text to a browser actually costs; the local
-     * mirror above short-circuits it during development. */
-    const pageSize = 500;
-    const head = await fetch(`${SUPABASE_URL}/rest/v1/jobs?select=id`, {
-      headers: { apikey: SUPABASE_ANON_KEY, prefer: 'count=exact', range: '0-0' }
-    });
-    const total = Number((head.headers.get('content-range') || '').split('/')[1] || 0);
 
-    const jobs = [];
-    let failedPages = 0;
-    let pageCount = 0;
-    let cursor = null;
-    for (;;) {
-      // description_text lives in its own column and is no longer duplicated
-      // inside payload, so it has to be selected and rejoined below.
-      const query = `/jobs?select=payload,description_text&order=id&limit=${pageSize}`
-        + (cursor ? `&id=gt.${encodeURIComponent(cursor)}` : '');
-      /* Three attempts with a growing pause. A statement timeout is transient
-       * — the same query usually succeeds a moment later — and a failed page
-       * cannot be skipped the way an OFFSET page could, because the cursor
-       * lives in its last row. Giving up means stopping, so it is worth a
-       * couple of tries first. */
-      let rows = null;
-      for (let attempt = 0; attempt < 3 && !rows; attempt += 1) {
-        try {
-          rows = await supabaseGet(query);
-        } catch {
-          if (attempt === 2) break;
-          await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
-        }
-      }
-      if (!rows) {
-        // Stop and report the gap rather than silently returning a prefix.
-        failedPages += 1;
-        break;
-      }
-      pageCount += 1;
-      if (!rows || !rows.length) break;
+  if (IS_LOCAL) {
+    const local = await tryJson('/api/jobs');
+    if (Array.isArray(local) && local.length) {
+      await onPage(local);
+      return { failedPages: 0, fromMirror: true };
+    }
+  }
+
+  /* Deliberately not awaited: it is a full COUNT(*) and measured 1.23s of
+   * dead time before byte one. Nothing needs it until the load banner or the
+   * progress line renders. This is not the concurrency the measurements warn
+   * about — that was concurrent data pages; this is one range:0-0 header. */
+  fetch(`${SUPABASE_URL}/rest/v1/jobs?select=id&${JOBS_FILTER}`, {
+    headers: { apikey: SUPABASE_ANON_KEY, prefer: 'count=exact', range: '0-0' }
+  })
+    .then((head) => {
+      state.loadTotal = Number((head.headers.get('content-range') || '').split('/')[1] || 0);
+    })
+    .catch(() => { /* the progress line just stays unqualified */ });
+
+  try {
+    const { failedPages, pageCount } = await walkJobPages('id,payload', JOBS_FILTER, async (rows) => {
+      const fresh = [];
       for (const row of rows) {
         if (!row || !row.payload) continue;
-        // Rows written before the payload slimming still carry the description
-        // inside payload, so prefer the column and fall back to it.
-        jobs.push({
+        const embedded = row.payload.description_text ?? null;
+        /* id after the spread so the column wins. A legacy row already has
+         * its description here, so it is complete on arrival; everything else
+         * waits for pass 2, and _descPending is the only thing that says
+         * "not known yet". */
+        fresh.push({
           ...row.payload,
-          description_text: row.description_text ?? row.payload.description_text ?? null
+          id: row.id,
+          description_text: embedded,
+          _descPending: embedded === null
         });
       }
-      cursor = rows[rows.length - 1]?.payload?.id ?? null;
-      if (!cursor || rows.length < pageSize) break;
-    }
+      await onPage(fresh);
+    }, (date) => { if (!pullStartServerDate) pullStartServerDate = date; });
 
-    if (jobs.length) {
-      if (failedPages || (total && jobs.length < total)) {
+    if (state.jobs.length) {
+      if (failedPages || (state.loadTotal && state.jobs.length < state.loadTotal)) {
         state.loadFailedPages = failedPages;
         state.loadTotalPages = pageCount;
-        state.loadShown = jobs.length;
-        state.loadTotal = total;
-        state.loadError = `Showing ${jobs.length.toLocaleString()} of ~${total.toLocaleString()} jobs — `
-          + 'the data load stopped early. Refresh to try again.';
+        state.loadShown = state.jobs.length;
+        state.loadError = `Showing ${state.jobs.length.toLocaleString()} of `
+          + `~${state.loadTotal.toLocaleString()} jobs — the data load stopped early. `
+          + 'Refresh to try again.';
       }
-      return jobs;
+      return { failedPages };
     }
-    // Every page failed: fall through to the committed file rather than
-    // returning an empty list that reads as "no jobs".
   } catch { /* fall through */ }
-  const fallback = (await tryJson('data/jobs.json')) || [];
-  if (!fallback.length) {
+
+  if (!state.jobs.length) {
     state.loadError = 'Could not load jobs from the database. Check your connection and refresh.';
   }
-  return fallback;
+  return { failedPages: 1 };
 }
 
+/** Pass 2: the descriptions, in the background, after the list is already
+ *  usable. They are not optional — scoreJob() builds its corpus from them,
+ *  assessEligibility() quotes them, jobContentHash() hashes them to find the
+ *  ~7,900 judgments already paid for, and search reads them. They are merely
+ *  not needed in the first second. */
+async function loadDescriptions(onPage) {
+  return walkJobPages('id,description_text', JOBS_FILTER, async (rows) => {
+    const touched = [];
+    for (const row of rows) {
+      const job = state.jobsById.get(row.id);
+      if (!job) continue;
+      job.description_text = row.description_text ?? job.description_text ?? null;
+      job._descPending = false;
+      // Memoized off a description that had not arrived yet. Both must go or
+      // they answer for a job that no longer exists.
+      job._searchBlob = undefined;
+      job._contentHash = undefined;
+      touched.push(job);
+    }
+    await onPage(touched);
+  });
+}
+
+/* --------------------------------------------------------------- cache -- */
+
+/* The cache is strictly an optimisation. `state.cache` is nulled on the first
+ * sign of trouble and every path below checks it, so a browser with IndexedDB
+ * disabled takes the ~10s network load and behaves exactly as it did before. */
+const store = (typeof RadarJobStore !== 'undefined') ? RadarJobStore : null;
+
+const RUNTIME_KEYS = new Set([
+  'description_text', '_descPending', '_searchBlob', '_contentHash', 'fit'
+]);
+
+function rowFor(job) {
+  const payload = {};
+  for (const key of Object.keys(job)) {
+    if (!RUNTIME_KEYS.has(key)) payload[key] = job[key];
+  }
+  return { id: job.id, payload, description_text: job.description_text ?? null };
+}
+
+/** Rehydrate a cached row into a job. Must build the job the same way pass 1
+ *  and pass 2 do, or a cached job hashes differently from a fetched one and
+ *  its judgment stops resolving. */
+function jobFromRow(row) {
+  const embedded = row.payload ? (row.payload.description_text ?? null) : null;
+  return {
+    ...row.payload,
+    id: row.id,
+    description_text: row.description_text ?? embedded ?? null,
+    _descPending: false
+  };
+}
+
+async function openCache() {
+  if (!store) return null;
+  try {
+    return await store.open();
+  } catch {
+    return null;   // private browsing, blocked upgrade, quota — all "no cache"
+  }
+}
+
+/** Hydrate state from the cache, a slice at a time so the raw rows are
+ *  released as they are converted rather than all being held alongside the
+ *  jobs built from them. onFirst fires as soon as there is something to draw. */
+async function hydrateFromCache(db, onFirst, descriptionsComplete) {
+  let seen = 0;
+  await store.readChunked(db, 2000, (rows) => {
+    const fresh = [];
+    for (const row of rows) {
+      if (!row || !row.payload) continue;
+      const job = jobFromRow(row);
+      // A cached row with no description is only trustworthy if the cache
+      // claims to hold them all; otherwise it is missing, not absent.
+      if (!descriptionsComplete && job.description_text === null) job._descPending = true;
+      fresh.push(job);
+    }
+    if (!fresh.length) return;
+    RadarScoring.applyJobClassifications(fresh, state.classifyCache);
+    RadarScoring.scoreAll(fresh, state.compiled, state.routeCache);
+    for (const job of fresh) {
+      state.jobs.push(job);
+      state.jobsById.set(job.id, job);
+    }
+    seen += fresh.length;
+    if (onFirst && seen === fresh.length) onFirst();
+  });
+  return seen;
+}
+
+/** Everything written since the watermark.
+ *
+ *  Deliberately WITHOUT the active filter: a closure is an UPDATE, so filtering
+ *  on status would hide the very transitions this query exists to observe
+ *  (measured: 670 active / 330 closed in one 1,000-row delta). Keyset on id
+ *  rather than updated_at, because one run stamps thousands of rows with a
+ *  single timestamp. */
+async function pullDelta(db, watermark) {
+  const triaged = new Set(Object.keys(state.local?.triage || {}));
+  const filter = `updated_at=gt.${encodeURIComponent(watermark)}`;
+  let maxSeen = null;
+  let serverDate = null;
+  let changed = 0;
+  let removed = 0;
+  const pendingPuts = [];
+  const pendingDeletes = [];
+
+  const { failedPages } = await walkJobPages(
+    'id,payload,description_text,status,citizenship_gated,updated_at', filter,
+    async (rows) => {
+      for (const row of rows) {
+        if (row.updated_at && (!maxSeen || row.updated_at > maxSeen)) maxSeen = row.updated_at;
+        const decision = store.mergeDecision(row, triaged);
+        if (decision === 'delete') {
+          pendingDeletes.push(row.id);
+          const job = state.jobsById.get(row.id);
+          if (job) {
+            state.jobsById.delete(row.id);
+            const at = state.jobs.indexOf(job);
+            if (at >= 0) state.jobs.splice(at, 1);
+          }
+          removed += 1;
+          continue;
+        }
+        if (!row.payload) continue;
+        const job = jobFromRow(row);
+        RadarScoring.applyJobClassifications([job], state.classifyCache);
+        RadarScoring.scoreAll([job], state.compiled, state.routeCache);
+        const existing = state.jobsById.get(row.id);
+        if (existing) {
+          const at = state.jobs.indexOf(existing);
+          if (at >= 0) state.jobs[at] = job;
+        } else {
+          state.jobs.push(job);
+        }
+        state.jobsById.set(row.id, job);
+        pendingPuts.push(rowFor(job));
+        changed += 1;
+      }
+    },
+    (response) => { if (!serverDate) serverDate = response; }
+  );
+
+  if (pendingPuts.length) await store.putRows(db, pendingPuts).catch(() => {});
+  if (pendingDeletes.length) await store.deleteIds(db, pendingDeletes).catch(() => {});
+  // Advance ONLY after the whole delta drained. A partial drain that moved the
+  // watermark would lose every row it did not reach.
+  if (!failedPages) {
+    const next = store.nextWatermark(maxSeen, serverDate);
+    if (next) await store.writeMeta(db, { key: 'watermark', at: next }).catch(() => {});
+  }
+  return { changed, removed, failedPages };
+}
+
+/** Real DELETEs are invisible to updated_at, so the id set is the only exact
+ *  answer. 17 requests and ~73KB — cheap in bytes, not free in round trips,
+ *  which is why it runs on a tripwire or once a day rather than every open. */
+async function sweepDeleted(db) {
+  const triaged = new Set(Object.keys(state.local?.triage || {}));
+  const live = new Set();
+  const { failedPages } = await walkJobPages('id', JOBS_FILTER, async (rows) => {
+    for (const row of rows) live.add(row.id);
+  });
+  if (failedPages) return 0;
+  const gone = [];
+  for (const id of state.jobsById.keys()) {
+    if (!live.has(id) && !triaged.has(id)) gone.push(id);
+  }
+  for (const id of gone) {
+    const job = state.jobsById.get(id);
+    state.jobsById.delete(id);
+    const at = state.jobs.indexOf(job);
+    if (at >= 0) state.jobs.splice(at, 1);
+  }
+  await store.deleteIds(db, gone).catch(() => {});
+  await store.writeMeta(db, { key: 'sweep', at: new Date().toISOString(), count: live.size })
+    .catch(() => {});
+  return gone.length;
+}
+
+/** One request. Catches every net deletion; misses a delete and an insert that
+ *  cancel exactly, which the daily sweep then picks up. */
+async function activeCount() {
+  try {
+    const head = await fetch(`${SUPABASE_URL}/rest/v1/jobs?select=id&${JOBS_FILTER}`, {
+      headers: { apikey: SUPABASE_ANON_KEY, prefer: 'count=exact', range: '0-0' }
+    });
+    return Number((head.headers.get('content-range') || '').split('/')[1] || 0);
+  } catch { return 0; }
+}
+
+/** Write the freshly-pulled pool to the cache, in slices, after render. */
+async function fillCache(db, jobs) {
+  const room = await store.hasRoomForDescriptions();
+  for (let i = 0; i < jobs.length; i += 500) {
+    const rows = jobs.slice(i, i + 500).map((job) => {
+      const row = rowFor(job);
+      // Out of room: keep the payloads (the cheap half in bytes, and enough to
+      // draw the whole list) and re-fetch descriptions next time.
+      if (!room) row.description_text = null;
+      return row;
+    });
+    try {
+      await store.putRows(db, rows);
+    } catch {
+      // QuotaExceeded mid-fill leaves a partial cache, which is worse than
+      // none: the delta would then trust a watermark covering rows it lacks.
+      await store.clear(db).catch(() => {});
+      return false;
+    }
+  }
+  await store.writeMeta(db, { key: 'descriptions', complete: room }).catch(() => {});
+  return true;
+}
+
+/** Merge the triaged-but-hidden postings into the pool. Called from both the
+ *  cold path and the warm one — idempotent, because loadTriagedJobs() only
+ *  asks for ids the pool does not already hold. */
+async function loadTriagedIntoPool() {
+  const recovered = await loadTriagedJobs();
+  if (!recovered.length) return 0;
+  RadarScoring.applyJobClassifications(recovered, state.classifyCache);
+  RadarScoring.scoreAll(recovered, state.compiled, state.routeCache);
+  for (const job of recovered) {
+    state.jobs.push(job);
+    state.jobsById.set(job.id, job);
+  }
+  return recovered.length;
+}
+
+/** Postings you have acted on, which the server-side filter hides once they
+ *  close. Fetched WITH descriptions: there are dozens, not thousands, and a
+ *  job in your pipeline is the one job whose fit must never be provisional. */
+async function loadTriagedJobs() {
+  const wanted = Object.keys(state.local?.triage || {}).filter((id) => !state.jobsById.has(id));
+  if (!wanted.length) return [];
+  const recovered = [];
+  for (let i = 0; i < wanted.length; i += 60) {
+    const batch = wanted.slice(i, i + 60);
+    /* Ids are colon-composed (workday:cornell:WDR-1) and a bare colon ends
+     * the value, so each one is quoted. Getting this wrong does not error —
+     * the filter simply matches nothing, which is a silent recall loss. */
+    const list = batch.map((id) => `"${id.replace(/"/g, '\\"')}"`).join(',');
+    let rows = null;
+    try {
+      rows = await supabaseGet(`/jobs?select=id,payload,description_text&id=in.(${encodeURIComponent(list)})`);
+    } catch { continue; }
+    for (const row of rows || []) {
+      if (!row || !row.payload) continue;
+      recovered.push({
+        ...row.payload,
+        id: row.id,
+        description_text: row.description_text ?? null,
+        _descPending: false
+      });
+    }
+  }
+  return recovered;
+}
 
 async function loadRefreshReport() {
-  const local = await tryJson('/api/refresh-report');
+  const local = IS_LOCAL ? await tryJson('/api/refresh-report') : null;
   if (local) return local;
   try {
     const rows = await supabaseGet('/refresh_runs?select=report&order=refreshed_at.desc&limit=1');
@@ -495,7 +797,7 @@ const CLASSIFY_CACHE_KEY = 'veritas_radar_classify_cache';
 function jobText(job) {
   // Built once per job and cached — the search filter runs this for every job on
   // every render, and (with the debounced search box) that must stay cheap.
-  return (job._searchBlob ??= `${job.title} ${job.department} ${job.employer_name} ${job.description_text}`.toLowerCase());
+  return (job._searchBlob ??= `${job.title || ''} ${job.department || ''} ${job.employer_name || ''} ${job.description_text || ''}`.toLowerCase());
 }
 
 /**
@@ -665,6 +967,16 @@ function renderAuthSection() {
   DOM.authForm.hidden = Boolean(user);
   DOM.authSignedIn.hidden = !user;
   if (user && DOM.authWho) DOM.authWho.textContent = `Signed in as ${user.email || 'you'}`;
+  if (DOM.signinChip) DOM.signinChip.hidden = Boolean(user);
+}
+
+// Signing in used to mean: find Status, open it, scroll past the refresh
+// countdown, the error list and the workflow grid, and only then reach the
+// email field. On a phone that is several screens of diagnostics.
+function openSignIn() {
+  if (DOM.statusPanel.hidden) toggleStatusPanel();
+  DOM.authEmail?.focus();
+  DOM.authEmail?.scrollIntoView({ block: 'center' });
 }
 
 async function handleSignIn(event) {
@@ -866,6 +1178,11 @@ function serializeMatch(task) {
  * and body gives. Computed once per job and kept, because resolving the whole
  * pool runs on every judgment load. */
 function jobHash(job) {
+  // Not knowable until the description lands. Returning a provisional value
+  // here is precisely what would poison the memo for the rest of the session:
+  // fnv1a(title \0 dept \0 '') matches nothing in match_cache, and pumpMatches
+  // would then pay to re-judge ~7,900 postings already bought.
+  if (job._descPending) return null;
   return (job._contentHash ??= RadarScoring.jobContentHash(job));
 }
 
@@ -873,7 +1190,9 @@ function resolveJudgments() {
   if (!state.compiled) return 0;
   let resolved = 0;
   for (const job of state.jobs) {
-    const record = state.matchesByHash[jobHash(job)];
+    const hash = jobHash(job);
+    if (!hash) continue;
+    const record = state.matchesByHash[hash];
     if (record && !state.matches[job.id]) { state.matches[job.id] = record; resolved += 1; }
   }
   return resolved;
@@ -965,6 +1284,9 @@ async function requestJudgments(jobs) {
 function pumpMatches() {
   if (viewMode !== 'possible' || !state.compiled || !state.visible.length) return;
   if (!auth.signedIn()) return;
+  // Never spend money on a ranking that is still filling in: "the top twelve"
+  // is not a meaningful set until every description has landed.
+  if (state.loading.phase !== 'idle') return;
   const onScreen = state.visible.slice(0, 12).filter((job) => !state.matches[job.id]);
   const prefetch = state.visible.slice(12, 40).filter((job) => !state.matches[job.id]);
   const batch = (onScreen.length ? onScreen : prefetch).slice(0, JUDGE_BATCH);
@@ -1458,7 +1780,9 @@ function render() {
 
   // "Mark all as seen" only appears when there's actually something new to clear
   const newCount = state.jobs.filter(isNewSinceLastVisit).length;
-  DOM.markSeen.hidden = newCount === 0;
+  // Mid-load this count climbs from zero as pages arrive, so offering to mark
+  // them seen would offer to discard postings not yet on screen.
+  DOM.markSeen.hidden = newCount === 0 || state.loading.phase !== 'idle';
   DOM.markSeen.textContent = `Mark all as seen (${newCount})`;
 
   const filters = activeFilterCount();
@@ -1482,9 +1806,10 @@ function render() {
 
   const jobs = filteredJobs();
   state.visible = jobs;
-  DOM.count.textContent = viewMode === 'possible'
+  DOM.count.textContent = (viewMode === 'possible'
     ? possibleCountLine(jobs)
-    : `${jobs.length.toLocaleString()} job${jobs.length === 1 ? '' : 's'} · sorted by ${SORT_LABELS[DOM.sort.value] || 'fit'}`;
+    : `${jobs.length.toLocaleString()} job${jobs.length === 1 ? '' : 's'} · sorted by ${SORT_LABELS[DOM.sort.value] || 'fit'}`)
+    + loadingSuffix();
   renderBlockedNote();
   // A hard load failure (zero rows loaded) is not "no filter matches" — show
   // the error banner instead of the empty-state hint. A *partial* load still
@@ -1562,10 +1887,28 @@ function appendGroupedRows(toRender, allJobs) {
 // Deliberately terse: the section headers now carry the breakdown, and the
 // header stat carries the total. All this line adds is whether the model is
 // still working through the list.
+/* Says which half of the load you are looking at. Pass 1 puts every posting
+   on screen; pass 2 is what makes the ordering mean anything, so staying quiet
+   through it would present a provisional ranking as a finished one. */
+function loadingSuffix() {
+  if (state.loading.phase === 'idle') return '';
+  if (state.loading.phase === 'delta') return ' · checking for updates…';
+  if (state.loading.phase === 'jobs') {
+    return state.loadTotal
+      ? ` · loading ${state.loading.got.toLocaleString()} of ${state.loadTotal.toLocaleString()}…`
+      : ' · loading…';
+  }
+  const total = state.jobs.length;
+  return ` · ranking ${state.loading.got.toLocaleString()} of ${total.toLocaleString()}…`;
+}
+
 function possibleCountLine(jobs) {
   // Without a profile the list is a prompt, not a result — "0 jobs" would
   // read as an answer.
   if (!state.compiled) return '';
+  if (state.loading.phase === 'jobs' || state.loading.phase === 'descriptions') {
+    return `${jobs.length.toLocaleString()} so far`;
+  }
   const total = `${jobs.length.toLocaleString()} job${jobs.length === 1 ? '' : 's'}`;
   if (!state.matchAvailable) return total;
   const judged = jobs.filter((job) => state.matches[job.id]).length;
@@ -1971,16 +2314,50 @@ function selectedJob() {
   return state.visible.find((job) => job.id === state.selectedId) || null;
 }
 
+/* An overlay that covers the screen has to take the scroll with it, or the
+   list behind it moves under the finger and the posting appears to jump. The
+   scroll position is restored on close because position:fixed discards it. */
+let overlayScrollY = null;
+let justOpenedOverlay = false;
+
+/* Focus follows the overlay so the back button and Escape are the next things
+   reachable, rather than whatever sat behind it. Called at the END of
+   renderDetail() because the pane is a bare shell until buildDetailSkeleton()
+   has run. */
+function focusOverlayIfJustOpened() {
+  if (!justOpenedOverlay) return;
+  justOpenedOverlay = false;
+  DOM.detailPane.querySelector('.detail-back')?.focus({ preventScroll: true });
+}
+
+function setOverlayLock(locked) {
+  if (locked === (overlayScrollY !== null)) return;
+  if (locked) {
+    overlayScrollY = window.scrollY;
+    document.body.style.top = `-${overlayScrollY}px`;
+    document.body.classList.add('overlay-open');
+    justOpenedOverlay = true;
+  } else {
+    const y = overlayScrollY;
+    overlayScrollY = null;
+    document.body.classList.remove('overlay-open');
+    document.body.style.top = '';
+    window.scrollTo(0, y);
+  }
+}
+
 function renderDetail() {
   const job = selectedJob();
 
   // Narrow layouts show the detail pane as an overlay only when a row is
   // selected; wide layouts keep it always present.
-  if (narrowLayout.matches) {
+  const overlay = narrowLayout.matches;
+  if (overlay) {
     DOM.detailPane.hidden = !job;
   } else {
     DOM.detailPane.hidden = false;
   }
+  setOverlayLock(overlay && Boolean(job));
 
   if (!job) {
     DOM.detailScroll.innerHTML = '';
@@ -2025,6 +2402,8 @@ function renderDetail() {
   renderDetailWhy(job);
   renderDetailDescription(job);
   DOM.detailDisclaimer.textContent = job.disclaimer || '';
+  // The pane exists now, so there is something to focus.
+  focusOverlayIfJustOpened();
 }
 
 // The stepper renders progress (done steps filled soft, the current step
@@ -2854,6 +3233,7 @@ function bindEvents() {
   DOM.filtersToggle.addEventListener('click', () => document.body.classList.toggle('show-filters'));
 
   DOM.statusToggle.addEventListener('click', toggleStatusPanel);
+  DOM.signinChip?.addEventListener('click', openSignIn);
 
   DOM.statusPanel.addEventListener('click', async (event) => {
     const button = event.target.closest('.copy-cmd');
@@ -2905,43 +3285,180 @@ async function init() {
   setViewMode(viewMode, { skipRender: true });
   hydrateFromUrl();
 
-  /* Public data first — postings, the refresh report, the discovery queue —
-   * because none of it needs an account and the list should be on screen
-   * before any auth round-trip finishes. */
-  const [jobs, report, discovery] = await Promise.all([
-    loadJobs(),
-    loadRefreshReport(),
-    getJson('/api/discovery', { candidates: [] })
-  ]);
-  state.jobs = jobs;
-  // Job-side classifications describe the posting, not the person, so they
-  // apply before scoring and regardless of whether a profile is loaded.
-  // (Browser-only: the server never had a classify-cache route.)
+  /* Everything that does not need the network happens before the first byte
+   * of job data, so the shell is interactive immediately. This used to sit
+   * *after* the whole 25,000-row pull, which is why the Sign in control did
+   * not exist for the first minute of a visit. */
   state.classifyCache = loadClassifyCacheFromBrowser();
-  RadarScoring.applyJobClassifications(state.jobs, state.classifyCache);
-  state.report = report || null;
-  state.discovery = discovery || null;
   // Signed out, triage is whatever this browser accumulated; signing in merges
   // it upward and takes over.
   state.local = loadTriageFromBrowser();
   if (!Array.isArray(state.local.ignored_employers)) state.local.ignored_employers = [];
-  /* Score with no profile so every job carries a fit stamp. All jobs sorts on
-   * job.fit whether or not anyone is signed in, and an unstamped job crashes
-   * the comparator — which is exactly what happened when this call was moved
-   * behind the sign-in. */
-  applyProfile(null, null);
   renderAuthSection();
-  renderRefreshStatus(report);
-  renderDiscovery(discovery);
+  bindEvents();
+  render();
+
+  /* Public data — postings, the refresh report, the discovery queue — none of
+   * which needs an account. The report and the queue are small and resolve in
+   * one round trip each; the postings arrive a page at a time. */
+  loadRefreshReport().then((report) => {
+    state.report = report || null;
+    renderRefreshStatus(report);
+  });
+  getJson(IS_LOCAL ? '/api/discovery' : STATIC_DATA['/api/discovery'], { candidates: [] })
+    .then((discovery) => {
+      state.discovery = discovery || null;
+      renderDiscovery(discovery);
+    });
+
   // Keep the next-pull countdown honest without touching anything else
   setInterval(renderRefreshMetaLine, 60000);
-  bindEvents();
+
+  /* Render on the first page, then coalesce — renderStats() alone is four
+   * linear passes plus a sort, and doing that 17 times in six seconds is
+   * worse than not rendering at all. */
+  let firstPageDrawn = false;
+  let pendingRender = null;
+  const drawSoon = () => {
+    if (pendingRender) return;
+    pendingRender = setTimeout(() => { pendingRender = null; render(); }, 250);
+  };
+
+  /* A warm cache is the whole difference between a phone that is usable and
+   * one that is not: the postings are already here, so the only network work
+   * is what changed since last time (measured ~528 rows per 6h cycle). */
+  const db = await openCache();
+  if (db) {
+    try {
+      const watermark = (await store.readMeta(db, 'watermark'))?.at || null;
+      const descriptionsComplete =
+        (await store.readMeta(db, 'descriptions'))?.complete === true;
+      const cached = watermark
+        ? await hydrateFromCache(
+          db, () => { firstPageDrawn = true; render(); }, descriptionsComplete)
+        : 0;
+      if (cached) {
+        state.loading.phase = 'delta';
+        render();
+
+        /* If the gap spans a mass rewrite the "delta" is the whole table, so
+         * there is nothing to be gained by pretending otherwise — the cached
+         * pool is already on screen, and this just refreshes it. */
+        const deltaSize = await (async () => {
+          try {
+            const head = await fetch(
+              `${SUPABASE_URL}/rest/v1/jobs?select=id&updated_at=gt.${encodeURIComponent(watermark)}`,
+              { headers: { apikey: SUPABASE_ANON_KEY, prefer: 'count=exact', range: '0-0' } }
+            );
+            return Number((head.headers.get('content-range') || '').split('/')[1] || 0);
+          } catch { return 0; }
+        })();
+
+        if (store.isMassRewrite(deltaSize, cached)) {
+          await store.clear(db).catch(() => {});
+          state.jobs = [];
+          state.jobsById = new Map();
+          state.loading.phase = 'jobs';
+        } else {
+          await pullDelta(db, watermark);
+
+          /* Storage was tight last time, so the descriptions were left out.
+           * Fetch them now — without them a job has no corpus to score or
+           * quote, and no hash to find its judgment by. */
+          if (!descriptionsComplete) {
+            state.loading.phase = 'descriptions';
+            state.loading.got = 0;
+            await loadDescriptions(async (touched) => {
+              if (!touched.length) return;
+              RadarScoring.applyJobClassifications(touched, state.classifyCache);
+              RadarScoring.scoreAll(touched, state.compiled, state.routeCache);
+              state.loading.got += touched.length;
+              drawSoon();
+            });
+            fillCache(db, state.jobs).catch(() => {});
+          }
+
+          state.loading.phase = 'idle';
+          if (pendingRender) { clearTimeout(pendingRender); pendingRender = null; }
+          if (state.compiled) resolveJudgments();
+          render();
+
+          /* Real deletes never appear in a delta. One count request each open
+           * says whether anything went missing; the full id sweep runs on that
+           * signal or once a day, because it costs 17 round trips. */
+          const live = await activeCount();
+          const tripwire = Boolean(live) && live !== state.jobsById.size;
+          const sweepMeta = await store.readMeta(db, 'sweep').catch(() => null);
+          if (store.shouldSweep(sweepMeta, Date.now(), tripwire)) {
+            const dropped = await sweepDeleted(db);
+            if (dropped) render();
+          }
+          await loadTriagedIntoPool();
+          render();
+          return;
+        }
+      }
+    } catch {
+      // Any cache trouble at all: fall through to the plain network load.
+      state.loading.phase = 'jobs';
+    }
+  }
+
+  await loadJobs(async (fresh) => {
+    /* Score the PAGE, never state.jobs — scoreAll takes any array, and
+     * re-scoring the accumulated list once per page is quadratic. Every job
+     * needs a fit stamp regardless of sign-in state: All jobs sorts on
+     * job.fit and an unstamped job crashes the comparator. */
+    RadarScoring.scoreAll(fresh, state.compiled, state.routeCache);
+    for (const job of fresh) {
+      state.jobs.push(job);
+      state.jobsById.set(job.id, job);
+    }
+    state.loading.got = state.jobs.length;
+    if (!firstPageDrawn) { firstPageDrawn = true; render(); } else drawSoon();
+  });
+
+  if (pendingRender) { clearTimeout(pendingRender); pendingRender = null; }
+  render();
 
   // Preselect the first job on wide screens so the detail pane is never empty
-  render();
   if (!narrowLayout.matches && state.visible.length && !state.selectedId) {
     selectJob(state.visible[0].id);
   }
+
+  /* Pass 2, in the background: the descriptions. Until these land a job has
+   * no corpus, so its fit score, its eligibility evidence and its judgment
+   * are all provisional — which is what the progress line says. */
+  state.loading.phase = 'descriptions';
+  state.loading.got = 0;
+  await loadDescriptions(async (touched) => {
+    if (!touched.length) return;
+    RadarScoring.applyJobClassifications(touched, state.classifyCache);
+    RadarScoring.scoreAll(touched, state.compiled, state.routeCache);
+    state.loading.got += touched.length;
+    drawSoon();
+  });
+
+  await loadTriagedIntoPool();
+
+  /* Write the pool down so the next open starts from disk. After render, in
+   * slices — 16,000 puts on the frame we just spent ten seconds earning would
+   * be a poor trade. */
+  if (db) {
+    const cacheWatermark = store.nextWatermark(null, pullStartServerDate);
+    fillCache(db, state.jobs)
+      .then((ok) => (ok && cacheWatermark)
+        && store.writeMeta(db, { key: 'watermark', at: cacheWatermark }).catch(() => {}))
+      .catch(() => {});
+  }
+
+  state.loading.phase = 'idle';
+  if (pendingRender) { clearTimeout(pendingRender); pendingRender = null; }
+  /* Judgments resolve on the content hash, which only becomes computable once
+   * descriptions have landed — so the pool has to be re-resolved here even
+   * though loadJudgments() may already have run against a pending pool. */
+  if (state.compiled) resolveJudgments();
+  render();
 
   /* Your half of the data, after the public half is already drawn. Then a
    * quiet poll: the 6-hourly job writes judgments while nothing is open, and

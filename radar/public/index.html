@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Veritas Research Radar</title>
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -23,6 +23,7 @@
       </div>
 
       <div class="topbar-actions">
+        <button id="signin-chip" class="chip signin-chip" type="button" hidden>Sign in</button>
         <button id="status-toggle" class="chip status-toggle" type="button"><i class="health-dot" aria-hidden="true"></i> Status</button>
       </div>
     </header>
@@ -32,10 +33,6 @@
         <h2>System status</h2>
         <button class="icon-button drawer-close" type="button" aria-label="Close">✕</button>
       </div>
-
-      <div id="status-refresh" class="status-refresh"></div>
-      <ul id="errors-list" class="errors-list" hidden></ul>
-      <div id="status-instruments" class="status-instruments"></div>
 
       <!-- Signing in is what unlocks the profile, the judgments and triage.
            Anonymous is a real mode, not a broken one: All jobs works exactly
@@ -60,6 +57,10 @@
            changed is where it lives: an account rather than one laptop's disk.
            A broken edit has to be visible somewhere, or every job is silently
            judged against nothing. -->
+      <div id="status-refresh" class="status-refresh"></div>
+      <ul id="errors-list" class="errors-list" hidden></ul>
+      <div id="status-instruments" class="status-instruments"></div>
+
       <div id="status-profile" class="status-profile"></div>
       <div id="profile-editor" class="profile-editor" hidden>
         <textarea id="profile-text" spellcheck="false" rows="18"></textarea>
@@ -164,7 +165,7 @@
       <section class="list-pane" aria-label="Job list">
         <div class="list-head">
           <div id="view-seg" class="segmented view-seg" role="group" aria-label="View">
-            <button type="button" data-value="possible" class="is-active" title="Open jobs with no quoted barrier, grouped by how the model read each one">Possible</button>
+            <button type="button" data-value="possible" class="is-active">Possible</button>
             <button type="button" data-value="radar">All jobs</button>
             <button type="button" data-value="pipeline">Applied</button>
           </div>
@@ -185,6 +186,7 @@
           </label>
           <button id="filters-toggle" class="chip filters-toggle" type="button">Filters <span class="count-slot"></span></button>
         </div>
+        <p id="view-note" class="view-note">Open jobs with no quoted barrier, grouped by how the model read each one.</p>
         <div id="load-error" class="load-error" role="alert" hidden></div>
         <div id="pipeline-stats" class="pipeline-stats" hidden></div>
         <div id="jobs-header" class="row-grid jobs-header" aria-hidden="true">
@@ -236,6 +238,7 @@
     </div>
 
     <script src="scoring.js"></script>
+    <script src="jobstore.js"></script>
     <script src="pipeline.js"></script>
     <script src="profile-doc.js"></script>
     <script src="auth.js"></script>
