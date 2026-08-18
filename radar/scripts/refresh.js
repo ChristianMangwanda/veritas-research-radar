@@ -516,11 +516,17 @@ function enrichJob(job, employer, previousById, dolSignal = {}) {
     salary_period: salary?.salary_period ?? null,
     salary_currency: salary?.salary_currency ?? null,
     employer_name: employer.name,
-    employer_type: employer.type,
     cap_exempt_status: employer.cap_exempt_status,
     cap_exempt_score: employer.cap_exempt_score ?? null,
     cap_exempt_evidence_sources: employer.evidence_sources || [],
-    cap_exempt_notes: employer.notes || '',
+    /* employer_type and cap_exempt_notes used to be stamped here. Both
+     * described the EMPLOYER, not the posting, so the registry's note —
+     * "Auto-wired from ATS discovery crawl (2026-07-06); probe saw 5 live
+     * postings…" — was copied onto every one of its jobs: 22 distinct strings
+     * across a 400-job sample, and nothing anywhere ever read either field.
+     * They cost 303 bytes a row, which is 4.6MB of JSON the browser parsed
+     * and cached for no reader. Registry facts belong in radar/employers.json,
+     * which is where they already are. */
     first_seen_at: previous?.first_seen_at || nowIso(),
     last_seen_at: nowIso(),
     veritas_state: veritas.state,
