@@ -1,14 +1,30 @@
 {
-  "refreshed_at": "2026-08-22T07:05:12.119Z",
+  "refreshed_at": "2026-08-22T13:15:16.145Z",
   "employer_count": 547,
   "ats_enabled_employer_count": 530,
-  "job_count": 26516,
-  "active_job_count": 17886,
-  "closed_job_count": 8630,
-  "newly_closed_count": 94,
-  "errored_employers": 185,
+  "job_count": 26483,
+  "active_job_count": 17875,
+  "closed_job_count": 8608,
+  "newly_closed_count": 23,
+  "errored_employers": 0,
   "recall_anomalies": [],
   "prefilter_anomalies": [
+    {
+      "employer_id": "university-of-wisconsin-milwaukee",
+      "name": "University of Wisconsin-Milwaukee",
+      "ats_provider": "workday",
+      "prefiltered_count": 30,
+      "prefilter_survived_count": 0,
+      "fetched_jobs": 0
+    },
+    {
+      "employer_id": "san-juan-college",
+      "name": "San Juan College",
+      "ats_provider": "workday",
+      "prefiltered_count": 37,
+      "prefilter_survived_count": 1,
+      "fetched_jobs": 0
+    },
     {
       "employer_id": "hackensack-meridian-school-of-medicine",
       "name": "Hackensack Meridian School of Medicine",
@@ -18,12 +34,52 @@
       "fetched_jobs": 14
     },
     {
+      "employer_id": "palm-beach-state-college",
+      "name": "Palm Beach State College",
+      "ats_provider": "workday",
+      "prefiltered_count": 237,
+      "prefilter_survived_count": 3,
+      "fetched_jobs": 0
+    },
+    {
       "employer_id": "assumption-university",
       "name": "Assumption University",
       "ats_provider": "paylocity",
       "prefiltered_count": 25,
       "prefilter_survived_count": 0,
       "fetched_jobs": 0
+    },
+    {
+      "employer_id": "dorsey-college",
+      "name": "Dorsey College",
+      "ats_provider": "workday",
+      "prefiltered_count": 65,
+      "prefilter_survived_count": 0,
+      "fetched_jobs": 0
+    },
+    {
+      "employer_id": "nebraska-methodist-college-of-nursing-allied-hea",
+      "name": "Nebraska Methodist College of Nursing & Allied Health",
+      "ats_provider": "workday",
+      "prefiltered_count": 246,
+      "prefilter_survived_count": 3,
+      "fetched_jobs": 2
+    },
+    {
+      "employer_id": "metropolitan-community-college-area",
+      "name": "Metropolitan Community College Area",
+      "ats_provider": "workday",
+      "prefiltered_count": 76,
+      "prefilter_survived_count": 2,
+      "fetched_jobs": 0
+    },
+    {
+      "employer_id": "mid-plains-community-college",
+      "name": "Mid-Plains Community College",
+      "ats_provider": "workday",
+      "prefiltered_count": 118,
+      "prefilter_survived_count": 3,
+      "fetched_jobs": 2
     },
     {
       "employer_id": "bergen-community-college",
@@ -74,12 +130,7 @@
       "fetched_jobs": 1
     }
   ],
-  "provider_circuits": [
-    {
-      "provider": "workday",
-      "signature": "non-json"
-    }
-  ],
+  "provider_circuits": [],
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
@@ -162,12 +213,12 @@
       "name": "St. Jude Children's Research Hospital",
       "ats_provider": "workday",
       "ats_token": "stjude",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 111,
+      "prefiltered_count": 64,
+      "prefilter_survived_count": 111,
       "skipped": false,
-      "error": "non-JSON response (content-type text/html; charset=UTF-8) from stjude.wd1.myworkdayjobs.com",
-      "closed_jobs": 27
+      "error": null,
+      "closed_jobs": 28
     },
     {
       "employer_id": "scripps-research",
@@ -198,11 +249,11 @@
       "name": "University of Chicago",
       "ats_provider": "workday",
       "ats_token": "uchicago",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 155,
+      "prefiltered_count": 271,
+      "prefilter_survived_count": 155,
       "skipped": false,
-      "error": "non-JSON response (content-type text/html; charset=UTF-8) from uchicago.wd5.myworkdayjobs.com",
+      "error": null,
       "closed_jobs": 54
     },
     {
@@ -247,7 +298,7 @@
       "ats_provider": "eightfold",
       "ats_token": "jhu",
       "fetched_jobs": 235,
-      "prefiltered_count": 361,
+      "prefiltered_count": 362,
       "prefilter_survived_count": 235,
       "skipped": false,
       "error": null,
@@ -295,11 +346,11 @@
       "name": "University of Washington",
       "ats_provider": "workday",
       "ats_token": "uw",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 114,
+      "prefiltered_count": 427,
+      "prefilter_survived_count": 114,
       "skipped": false,
-      "error": "non-JSON response (content-type text/html; charset=UTF-8) from wd5.myworkdaysite.com",
+      "error": null,
       "closed_jobs": 61
     },
     {
@@ -307,11 +358,11 @@
       "name": "Liberty University",
       "ats_provider": "workday",
       "ats_token": "liberty",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 2,
+      "prefiltered_count": 18,
+      "prefilter_survived_count": 31,
       "skipped": false,
-      "error": "non-JSON response (content-type text/html; charset=UTF-8) from liberty.wd5.myworkdayjobs.com",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -331,11 +382,11 @@
       "name": "Santa Clara University",
       "ats_provider": "workday",
       "ats_token": "scu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 5,
+      "prefiltered_count": 31,
+      "prefilter_survived_count": 51,
       "skipped": false,
-      "error": "non-JSON response (content-type text/html; charset=UTF-8) from wd1.myworkdaysite.com",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -343,11 +394,11 @@
       "name": "Wentworth Institute of Technology",
       "ats_provider": "workday",
       "ats_token": "wit",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 1,
+      "prefiltered_count": 33,
+      "prefilter_survived_count": 5,
       "skipped": false,
-      "error": "non-JSON response (content-type text/html; charset=UTF-8) from wit.wd1.myworkdayjobs.com",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -356,10 +407,10 @@
       "ats_provider": "workday",
       "ats_token": "albanymed",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "prefiltered_count": 5,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "non-JSON response (content-type text/html; charset=UTF-8) from albanymed.wd5.myworkdayjobs.com",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -529,11 +580,11 @@
       "name": "Memorial Sloan Kettering Cancer Center",
       "ats_provider": "workday",
       "ats_token": "msk",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 20,
+      "prefiltered_count": 66,
+      "prefilter_survived_count": 20,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 22
     },
     {
@@ -542,11 +593,11 @@
       "ats_provider": "oracle",
       "ats_token": "mayo",
       "fetched_jobs": 229,
-      "prefiltered_count": 1132,
+      "prefiltered_count": 1127,
       "prefilter_survived_count": 230,
       "skipped": false,
       "error": null,
-      "closed_jobs": 127
+      "closed_jobs": 128
     },
     {
       "employer_id": "cleveland-clinic",
@@ -566,11 +617,11 @@
       "name": "Howard Hughes Medical Institute",
       "ats_provider": "workday",
       "ats_token": "hhmi",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 33,
+      "prefiltered_count": 13,
+      "prefilter_survived_count": 33,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 7
     },
     {
@@ -583,18 +634,18 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 801
+      "closed_jobs": 778
     },
     {
       "employer_id": "washington-university-in-st-louis",
       "name": "Washington University in St Louis",
       "ats_provider": "workday",
       "ats_token": "wustl",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 174,
+      "prefiltered_count": 477,
+      "prefilter_survived_count": 185,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 101
     },
     {
@@ -602,23 +653,23 @@
       "name": "Cornell University",
       "ats_provider": "workday",
       "ats_token": "cornell",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 17,
+      "prefiltered_count": 152,
+      "prefilter_survived_count": 18,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
-      "closed_jobs": 21
+      "error": null,
+      "closed_jobs": 22
     },
     {
       "employer_id": "northeastern-university",
       "name": "Northeastern University",
       "ats_provider": "workday",
       "ats_token": "northeastern",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 219,
+      "prefiltered_count": 142,
+      "prefilter_survived_count": 219,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 56
     },
     {
@@ -626,11 +677,11 @@
       "name": "Carnegie Mellon University",
       "ats_provider": "workday",
       "ats_token": "cmu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 101,
+      "prefiltered_count": 113,
+      "prefilter_survived_count": 101,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 37
     },
     {
@@ -638,11 +689,11 @@
       "name": "University of Miami",
       "ats_provider": "workday",
       "ats_token": "umiami",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 265,
+      "prefiltered_count": 25,
+      "prefilter_survived_count": 265,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 31
     },
     {
@@ -650,11 +701,11 @@
       "name": "Brown University",
       "ats_provider": "workday",
       "ats_token": "brown",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 16,
+      "prefiltered_count": 95,
+      "prefilter_survived_count": 16,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 9
     },
     {
@@ -662,23 +713,41 @@
       "name": "University of Rochester",
       "ats_provider": "workday",
       "ats_token": "rochester",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 444,
+      "prefiltered_count": 899,
+      "prefilter_survived_count": 101,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
-      "closed_jobs": 89
+      "error": null,
+      "feeds": [
+        {
+          "ats_provider": "workday",
+          "ats_token": "rochester",
+          "ok": true,
+          "skipped": false,
+          "error": null,
+          "fetchedCount": 101
+        },
+        {
+          "ats_provider": "interfolio",
+          "ats_token": "university-of-rochester",
+          "ok": true,
+          "skipped": false,
+          "error": null,
+          "fetchedCount": 343
+        }
+      ],
+      "closed_jobs": 91
     },
     {
       "employer_id": "university-of-nevada-reno",
       "name": "University of Nevada-Reno",
       "ats_provider": "workday",
       "ats_token": "nshe",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 24,
+      "prefiltered_count": 81,
+      "prefilter_survived_count": 24,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 11
     },
     {
@@ -686,11 +755,29 @@
       "name": "Georgetown University",
       "ats_provider": "workday",
       "ats_token": "georgetown",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 73,
+      "prefiltered_count": 126,
+      "prefilter_survived_count": 26,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
+      "feeds": [
+        {
+          "ats_provider": "workday",
+          "ats_token": "georgetown",
+          "ok": true,
+          "skipped": false,
+          "error": null,
+          "fetchedCount": 26
+        },
+        {
+          "ats_provider": "interfolio",
+          "ats_token": "georgetown-university",
+          "ok": true,
+          "skipped": false,
+          "error": null,
+          "fetchedCount": 47
+        }
+      ],
       "closed_jobs": 20
     },
     {
@@ -698,11 +785,11 @@
       "name": "Medical College of Wisconsin",
       "ats_provider": "workday",
       "ats_token": "mcw",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 219,
+      "prefiltered_count": 124,
+      "prefilter_survived_count": 219,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 43
     },
     {
@@ -710,11 +797,11 @@
       "name": "University of Arkansas for Medical Sciences",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 43,
+      "prefiltered_count": 273,
+      "prefilter_survived_count": 43,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 45
     },
     {
@@ -722,11 +809,11 @@
       "name": "Thomas Jefferson University",
       "ats_provider": "workday",
       "ats_token": "jeffersonhealth",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 82,
+      "prefiltered_count": 918,
+      "prefilter_survived_count": 82,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 95
     },
     {
@@ -734,11 +821,11 @@
       "name": "University of Louisville",
       "ats_provider": "workday",
       "ats_token": "uofl",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 57,
+      "prefiltered_count": 82,
+      "prefilter_survived_count": 57,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 47
     },
     {
@@ -746,23 +833,23 @@
       "name": "University of Arkansas",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 17,
+      "prefiltered_count": 48,
+      "prefilter_survived_count": 17,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
-      "closed_jobs": 10
+      "error": null,
+      "closed_jobs": 9
     },
     {
       "employer_id": "university-of-mississippi",
       "name": "University of Mississippi",
       "ats_provider": "workday",
       "ats_token": "olemiss",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 9,
+      "prefiltered_count": 44,
+      "prefilter_survived_count": 9,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 3
     },
     {
@@ -770,11 +857,11 @@
       "name": "Stevens Institute of Technology",
       "ats_provider": "workday",
       "ats_token": "stevens",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 9,
+      "prefiltered_count": 32,
+      "prefilter_survived_count": 12,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 9
     },
     {
@@ -782,11 +869,11 @@
       "name": "University of Central Florida",
       "ats_provider": "workday",
       "ats_token": "ucf",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 16,
+      "prefiltered_count": 30,
+      "prefilter_survived_count": 17,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 9
     },
     {
@@ -794,11 +881,11 @@
       "name": "Rochester Institute of Technology",
       "ats_provider": "workday",
       "ats_token": "rit",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 13,
+      "prefiltered_count": 63,
+      "prefilter_survived_count": 13,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 5
     },
     {
@@ -806,11 +893,11 @@
       "name": "Worcester Polytechnic Institute",
       "ats_provider": "workday",
       "ats_token": "wpi",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 47,
+      "prefiltered_count": 33,
+      "prefilter_survived_count": 47,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 6
     },
     {
@@ -818,11 +905,11 @@
       "name": "Howard University",
       "ats_provider": "workday",
       "ats_token": "howard",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 30,
+      "prefiltered_count": 123,
+      "prefilter_survived_count": 33,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 12
     },
     {
@@ -830,11 +917,11 @@
       "name": "Colorado School of Mines",
       "ats_provider": "workday",
       "ats_token": "mines",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 9,
+      "prefiltered_count": 20,
+      "prefilter_survived_count": 10,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 7
     },
     {
@@ -842,23 +929,23 @@
       "name": "Western Governors University",
       "ats_provider": "workday",
       "ats_token": "wgu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 30,
+      "prefiltered_count": 85,
+      "prefilter_survived_count": 30,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
-      "closed_jobs": 42
+      "error": null,
+      "closed_jobs": 44
     },
     {
       "employer_id": "university-of-maryland-college-park",
       "name": "University of Maryland-College Park",
       "ats_provider": "workday",
       "ats_token": "umd",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 63,
+      "prefiltered_count": 131,
+      "prefilter_survived_count": 64,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 19
     },
     {
@@ -866,11 +953,11 @@
       "name": "University of Southern California",
       "ats_provider": "workday",
       "ats_token": "usc",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 5,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -878,11 +965,11 @@
       "name": "Clemson University",
       "ats_provider": "workday",
       "ats_token": "clemson",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 5,
+      "prefiltered_count": 59,
+      "prefilter_survived_count": 6,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 8
     },
     {
@@ -890,11 +977,11 @@
       "name": "Kean University",
       "ats_provider": "workday",
       "ats_token": "kean",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 42,
+      "prefiltered_count": 7,
+      "prefilter_survived_count": 42,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 3
     },
     {
@@ -902,11 +989,11 @@
       "name": "Florida Institute of Technology",
       "ats_provider": "workday",
       "ats_token": "floridatech",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 10,
+      "prefiltered_count": 39,
+      "prefilter_survived_count": 10,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 13
     },
     {
@@ -914,11 +1001,11 @@
       "name": "Colby College",
       "ats_provider": "workday",
       "ats_token": "colby",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 21,
+      "prefilter_survived_count": 2,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -926,11 +1013,29 @@
       "name": "Wake Forest University",
       "ats_provider": "workday",
       "ats_token": "wfu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 9,
+      "prefiltered_count": 60,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
+      "feeds": [
+        {
+          "ats_provider": "workday",
+          "ats_token": "wfu",
+          "ok": true,
+          "skipped": false,
+          "error": null,
+          "fetchedCount": 3
+        },
+        {
+          "ats_provider": "interfolio",
+          "ats_token": "wake-forest-university",
+          "ok": true,
+          "skipped": false,
+          "error": null,
+          "fetchedCount": 6
+        }
+      ],
       "closed_jobs": 10
     },
     {
@@ -938,11 +1043,11 @@
       "name": "Montclair State University",
       "ats_provider": "workday",
       "ats_token": "montclair",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 30,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 4
     },
     {
@@ -950,11 +1055,11 @@
       "name": "Ball State University",
       "ats_provider": "workday",
       "ats_token": "bsu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 10,
+      "prefiltered_count": 31,
+      "prefilter_survived_count": 10,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 8
     },
     {
@@ -962,11 +1067,11 @@
       "name": "Bucknell University",
       "ats_provider": "workday",
       "ats_token": "bucknell",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 4,
+      "prefiltered_count": 16,
+      "prefilter_survived_count": 5,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -974,11 +1079,11 @@
       "name": "New Jersey City University",
       "ats_provider": "workday",
       "ats_token": "kean",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 42,
+      "prefiltered_count": 7,
+      "prefilter_survived_count": 42,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -986,11 +1091,11 @@
       "name": "Ivy Tech Community College",
       "ats_provider": "workday",
       "ats_token": "ivytech",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 274,
+      "prefiltered_count": 256,
+      "prefilter_survived_count": 275,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 73
     },
     {
@@ -998,11 +1103,11 @@
       "name": "Bentley University",
       "ats_provider": "workday",
       "ats_token": "bentley",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 23,
+      "prefiltered_count": 1,
+      "prefilter_survived_count": 23,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1010,11 +1115,11 @@
       "name": "Wesleyan University",
       "ats_provider": "workday",
       "ats_token": "wesleyan",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 7,
+      "prefiltered_count": 19,
+      "prefilter_survived_count": 8,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 4
     },
     {
@@ -1022,11 +1127,11 @@
       "name": "The New School",
       "ats_provider": "workday",
       "ats_token": "newschool",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 8,
+      "prefiltered_count": 139,
+      "prefilter_survived_count": 9,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 5
     },
     {
@@ -1034,11 +1139,11 @@
       "name": "Seattle Pacific University",
       "ats_provider": "workday",
       "ats_token": "spu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 16,
+      "prefiltered_count": 13,
+      "prefilter_survived_count": 16,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 4
     },
     {
@@ -1046,11 +1151,11 @@
       "name": "Texas A&M University-Kingsville",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 10,
+      "prefiltered_count": 16,
+      "prefilter_survived_count": 10,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 4
     },
     {
@@ -1058,11 +1163,11 @@
       "name": "University of North Florida",
       "ats_provider": "workday",
       "ats_token": "unf",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 22,
+      "prefiltered_count": 86,
+      "prefilter_survived_count": 24,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 8
     },
     {
@@ -1070,11 +1175,11 @@
       "name": "Northwest Missouri State University",
       "ats_provider": "workday",
       "ats_token": "nwmissouri",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 6,
+      "prefiltered_count": 13,
+      "prefilter_survived_count": 6,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 3
     },
     {
@@ -1082,11 +1187,11 @@
       "name": "Tarleton State University",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 37,
+      "prefiltered_count": 92,
+      "prefilter_survived_count": 37,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 9
     },
     {
@@ -1094,11 +1199,11 @@
       "name": "Southeastern Louisiana University",
       "ats_provider": "workday",
       "ats_token": "ulsselu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 5,
+      "prefiltered_count": 15,
+      "prefilter_survived_count": 6,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -1106,11 +1211,11 @@
       "name": "Grand Valley State University",
       "ats_provider": "workday",
       "ats_token": "gvsu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 4,
+      "prefiltered_count": 14,
+      "prefilter_survived_count": 5,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -1118,11 +1223,11 @@
       "name": "Union College",
       "ats_provider": "workday",
       "ats_token": "unioncollege",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 38,
+      "prefilter_survived_count": 4,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1130,23 +1235,23 @@
       "name": "Prairie View A & M University",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 31,
+      "prefiltered_count": 54,
+      "prefilter_survived_count": 32,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
-      "closed_jobs": 20
+      "error": null,
+      "closed_jobs": 19
     },
     {
       "employer_id": "university-of-san-francisco",
       "name": "University of San Francisco",
       "ats_provider": "workday",
       "ats_token": "usfca",
-      "fetched_jobs": 0,
+      "fetched_jobs": 5,
       "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefilter_survived_count": 5,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 5
     },
     {
@@ -1154,11 +1259,11 @@
       "name": "Fairfield University",
       "ats_provider": "workday",
       "ats_token": "ffd",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 11,
+      "prefiltered_count": 36,
+      "prefilter_survived_count": 12,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 4
     },
     {
@@ -1167,10 +1272,10 @@
       "ats_provider": "workday",
       "ats_token": "depauw",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 9,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1178,11 +1283,11 @@
       "name": "Mount Holyoke College",
       "ats_provider": "workday",
       "ats_token": "mtholyoke",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 14,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1190,11 +1295,11 @@
       "name": "Dickinson College",
       "ats_provider": "workday",
       "ats_token": "dickinson",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 2,
+      "prefiltered_count": 31,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 3
     },
     {
@@ -1202,11 +1307,11 @@
       "name": "The University of Tampa",
       "ats_provider": "workday",
       "ats_token": "utampa",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 7,
+      "prefiltered_count": 56,
+      "prefilter_survived_count": 7,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 4
     },
     {
@@ -1215,10 +1320,10 @@
       "ats_provider": "workday",
       "ats_token": "neiu",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 9,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1226,23 +1331,23 @@
       "name": "Washington State University",
       "ats_provider": "workday",
       "ats_token": "wsu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 25,
+      "prefiltered_count": 40,
+      "prefilter_survived_count": 25,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
-      "closed_jobs": 6
+      "error": null,
+      "closed_jobs": 5
     },
     {
       "employer_id": "university-of-northern-iowa",
       "name": "University of Northern Iowa",
       "ats_provider": "workday",
       "ats_token": "uni",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 2,
+      "prefiltered_count": 26,
+      "prefilter_survived_count": 2,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 5
     },
     {
@@ -1250,11 +1355,11 @@
       "name": "Northern Kentucky University",
       "ats_provider": "workday",
       "ats_token": "nku",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 18,
+      "prefiltered_count": 45,
+      "prefilter_survived_count": 18,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 5
     },
     {
@@ -1262,11 +1367,11 @@
       "name": "Minnesota State University-Mankato",
       "ats_provider": "workday",
       "ats_token": "minnstate",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 21,
+      "prefiltered_count": 101,
+      "prefilter_survived_count": 21,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 49
     },
     {
@@ -1275,10 +1380,10 @@
       "ats_provider": "workday",
       "ats_token": "wlu",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 17,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1287,10 +1392,10 @@
       "ats_provider": "workday",
       "ats_token": "campbellsville",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 22,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -1298,11 +1403,11 @@
       "name": "Saginaw Valley State University",
       "ats_provider": "workday",
       "ats_token": "svsu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 34,
+      "prefiltered_count": 41,
+      "prefilter_survived_count": 34,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 6
     },
     {
@@ -1310,11 +1415,11 @@
       "name": "Carleton College",
       "ats_provider": "workday",
       "ats_token": "carleton",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 9,
+      "prefiltered_count": 12,
+      "prefilter_survived_count": 9,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1322,11 +1427,11 @@
       "name": "Texas A&M University-Central Texas",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 6,
+      "prefiltered_count": 3,
+      "prefilter_survived_count": 6,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1334,11 +1439,11 @@
       "name": "Fort Lewis College",
       "ats_provider": "workday",
       "ats_token": "fortlewiscollege",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 9,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1346,11 +1451,11 @@
       "name": "Berklee College of Music",
       "ats_provider": "workday",
       "ats_token": "berklee",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 50,
+      "prefilter_survived_count": 8,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1358,11 +1463,11 @@
       "name": "Florida Polytechnic University",
       "ats_provider": "workday",
       "ats_token": "flpoly",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 7,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1370,11 +1475,11 @@
       "name": "Meharry Medical College",
       "ats_provider": "workday",
       "ats_token": "meharrymedicalcollege",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 18,
+      "prefiltered_count": 36,
+      "prefilter_survived_count": 18,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -1382,11 +1487,11 @@
       "name": "University of Wisconsin-Whitewater",
       "ats_provider": "workday",
       "ats_token": "wisconsin",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 76,
+      "prefiltered_count": 261,
+      "prefilter_survived_count": 78,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 39
     },
     {
@@ -1394,11 +1499,11 @@
       "name": "Texas A&M University-San Antonio",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 8,
+      "prefiltered_count": 5,
+      "prefilter_survived_count": 9,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 8
     },
     {
@@ -1406,11 +1511,11 @@
       "name": "Barnard College",
       "ats_provider": "workday",
       "ats_token": "barnard",
-      "fetched_jobs": 0,
+      "fetched_jobs": 8,
       "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefilter_survived_count": 8,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 6
     },
     {
@@ -1418,11 +1523,11 @@
       "name": "Bryn Mawr College",
       "ats_provider": "workday",
       "ats_token": "brynmawr",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 14,
+      "prefilter_survived_count": 4,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 3
     },
     {
@@ -1430,11 +1535,11 @@
       "name": "Claremont McKenna College",
       "ats_provider": "workday",
       "ats_token": "theclaremontcolleges",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 2,
+      "prefiltered_count": 14,
+      "prefilter_survived_count": 2,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1442,11 +1547,11 @@
       "name": "Colorado Mesa University",
       "ats_provider": "workday",
       "ats_token": "coloradomesa",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 19,
+      "prefilter_survived_count": 6,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -1454,11 +1559,11 @@
       "name": "Metropolitan State University of Denver",
       "ats_provider": "workday",
       "ats_token": "msudenver",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 6,
+      "prefiltered_count": 113,
+      "prefilter_survived_count": 6,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 5
     },
     {
@@ -1466,11 +1571,11 @@
       "name": "Emerson College",
       "ats_provider": "workday",
       "ats_token": "emerson",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 39,
+      "prefilter_survived_count": 2,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1479,10 +1584,10 @@
       "ats_provider": "workday",
       "ats_token": "park",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 7,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1490,11 +1595,11 @@
       "name": "Texas A & M International University",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 25,
+      "prefiltered_count": 30,
+      "prefilter_survived_count": 25,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 16
     },
     {
@@ -1502,11 +1607,11 @@
       "name": "Harvey Mudd College",
       "ats_provider": "workday",
       "ats_token": "theclaremontcolleges",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 2,
+      "prefiltered_count": 19,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1514,11 +1619,11 @@
       "name": "Adams State University",
       "ats_provider": "workday",
       "ats_token": "adams",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 18,
+      "prefilter_survived_count": 5,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1526,11 +1631,11 @@
       "name": "Guilford College",
       "ats_provider": "workday",
       "ats_token": "guilford",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 18,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1539,10 +1644,10 @@
       "ats_provider": "workday",
       "ats_token": "onu",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 20,
+      "prefilter_survived_count": 4,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1550,11 +1655,11 @@
       "name": "Rhodes College",
       "ats_provider": "workday",
       "ats_token": "rhodes",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 7,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1562,11 +1667,11 @@
       "name": "Regis University",
       "ats_provider": "workday",
       "ats_token": "regis",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 12,
+      "prefiltered_count": 9,
+      "prefilter_survived_count": 12,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 7
     },
     {
@@ -1574,11 +1679,11 @@
       "name": "Saint Leo University",
       "ats_provider": "workday",
       "ats_token": "saintleo",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 5,
+      "prefiltered_count": 78,
+      "prefilter_survived_count": 6,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1586,11 +1691,11 @@
       "name": "Maryland Institute College of Art",
       "ats_provider": "workday",
       "ats_token": "mica",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 2,
+      "prefiltered_count": 35,
+      "prefilter_survived_count": 2,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1599,10 +1704,10 @@
       "ats_provider": "workday",
       "ats_token": "macalester",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 8,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1610,11 +1715,11 @@
       "name": "Saint Anselm College",
       "ats_provider": "workday",
       "ats_token": "anselm",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 7,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1622,11 +1727,11 @@
       "name": "Xavier University",
       "ats_provider": "workday",
       "ats_token": "xavier",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 9,
+      "prefiltered_count": 22,
+      "prefilter_survived_count": 9,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -1635,10 +1740,10 @@
       "ats_provider": "workday",
       "ats_token": "lewisandclark",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 7,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1646,11 +1751,11 @@
       "name": "Philadelphia College of Osteopathic Medicine",
       "ats_provider": "workday",
       "ats_token": "pcom",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 31,
+      "prefilter_survived_count": 14,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -1658,11 +1763,11 @@
       "name": "Furman University",
       "ats_provider": "workday",
       "ats_token": "furman",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 14,
+      "prefiltered_count": 14,
+      "prefilter_survived_count": 14,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 3
     },
     {
@@ -1671,10 +1776,10 @@
       "ats_provider": "workday",
       "ats_token": "theclaremontcolleges",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 21,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1683,10 +1788,10 @@
       "ats_provider": "workday",
       "ats_token": "theclaremontcolleges",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 18,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1694,11 +1799,11 @@
       "name": "Colorado State University Pueblo",
       "ats_provider": "workday",
       "ats_token": "csusystem",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 14,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1707,10 +1812,10 @@
       "ats_provider": "workday",
       "ats_token": "western",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 6,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1718,11 +1823,11 @@
       "name": "Northern New Mexico College",
       "ats_provider": "workday",
       "ats_token": "chess",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 12,
+      "prefilter_survived_count": 2,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1731,10 +1836,10 @@
       "ats_provider": "workday",
       "ats_token": "wingate",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 1,
+      "prefilter_survived_count": 24,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1743,10 +1848,10 @@
       "ats_provider": "workday",
       "ats_token": "willamette",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 11,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1755,10 +1860,10 @@
       "ats_provider": "workday",
       "ats_token": "muhlenberg",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 12,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1766,11 +1871,11 @@
       "name": "Wofford College",
       "ats_provider": "workday",
       "ats_token": "wofford",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 8,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1779,10 +1884,10 @@
       "ats_provider": "workday",
       "ats_token": "soka",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 4,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1791,10 +1896,10 @@
       "ats_provider": "workday",
       "ats_token": "theclaremontcolleges",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 5,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1804,9 +1909,9 @@
       "ats_token": "ringling",
       "fetched_jobs": 0,
       "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1814,11 +1919,11 @@
       "name": "Anderson University",
       "ats_provider": "workday",
       "ats_token": "andersonuniversity",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 20,
+      "prefiltered_count": 15,
+      "prefilter_survived_count": 21,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 5
     },
     {
@@ -1826,11 +1931,11 @@
       "name": "The University of Findlay",
       "ats_provider": "workday",
       "ats_token": "findlay",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 17,
+      "prefiltered_count": 20,
+      "prefilter_survived_count": 17,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 3
     },
     {
@@ -1838,11 +1943,11 @@
       "name": "Abilene Christian University",
       "ats_provider": "workday",
       "ats_token": "acu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 21,
+      "prefiltered_count": 40,
+      "prefilter_survived_count": 21,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 17
     },
     {
@@ -1850,23 +1955,23 @@
       "name": "Texas A & M University-Corpus Christi",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 24,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
-      "closed_jobs": 4
+      "error": null,
+      "closed_jobs": 5
     },
     {
       "employer_id": "texas-a-m-university-texarkana",
       "name": "Texas A&M University-Texarkana",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 41,
+      "prefilter_survived_count": 5,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 4
     },
     {
@@ -1875,10 +1980,10 @@
       "ats_provider": "workday",
       "ats_token": "wisconsin",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 30,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1886,11 +1991,11 @@
       "name": "Claremont Graduate University",
       "ats_provider": "workday",
       "ats_token": "theclaremontcolleges",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 3,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1898,11 +2003,11 @@
       "name": "Samuel Merritt University",
       "ats_provider": "workday",
       "ats_token": "samuelmerritt",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 23,
+      "prefilter_survived_count": 33,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1911,10 +2016,10 @@
       "ats_provider": "workday",
       "ats_token": "goucher",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 9,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1922,11 +2027,11 @@
       "name": "Montgomery College",
       "ats_provider": "workday",
       "ats_token": "mc",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 24,
+      "prefilter_survived_count": 12,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -1935,10 +2040,10 @@
       "ats_provider": "workday",
       "ats_token": "endicott",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 23,
+      "prefilter_survived_count": 6,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1947,10 +2052,10 @@
       "ats_provider": "workday",
       "ats_token": "dunwoody",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 22,
+      "prefilter_survived_count": 2,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -1958,11 +2063,11 @@
       "name": "Clarkson College",
       "ats_provider": "workday",
       "ats_token": "nebraskamed",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 8,
+      "prefilter_survived_count": 2,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -1971,10 +2076,10 @@
       "ats_provider": "workday",
       "ats_token": "chess",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 37,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -2462,12 +2567,12 @@
       "name": "Oregon State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.oregonstate.edu",
-      "fetched_jobs": 95,
+      "fetched_jobs": 94,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 8
+      "closed_jobs": 9
     },
     {
       "employer_id": "the-university-of-texas-at-dallas",
@@ -2563,7 +2668,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 29
+      "closed_jobs": 28
     },
     {
       "employer_id": "marquette-university",
@@ -2635,7 +2740,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 11
+      "closed_jobs": 10
     },
     {
       "employer_id": "eastern-washington-university",
@@ -2827,7 +2932,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 73
+      "closed_jobs": 70
     },
     {
       "employer_id": "western-university-of-health-sciences",
@@ -2966,11 +3071,11 @@
       "name": "MEMORIAL SLOAN-KETTERING CANCER CENTER",
       "ats_provider": "workday",
       "ats_token": "msk",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 15,
+      "prefiltered_count": 66,
+      "prefilter_survived_count": 20,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 6
     },
     {
@@ -2978,11 +3083,11 @@
       "name": "Dana-Farber Cancer Institute",
       "ats_provider": "workday",
       "ats_token": "danafarber",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 99,
+      "prefiltered_count": 271,
+      "prefilter_survived_count": 99,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 53
     },
     {
@@ -2990,11 +3095,11 @@
       "name": "HOWARD HUGHES MEDICAL INSTITUTE",
       "ats_provider": "workday",
       "ats_token": "hhmi",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 33,
+      "prefiltered_count": 13,
+      "prefilter_survived_count": 33,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -3002,23 +3107,23 @@
       "name": "JACKSON LABORATORY",
       "ats_provider": "workday",
       "ats_token": "thejacksonlaboratory",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 21,
+      "prefiltered_count": 32,
+      "prefilter_survived_count": 21,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
-      "closed_jobs": 7
+      "error": null,
+      "closed_jobs": 8
     },
     {
       "employer_id": "van-andel-research-institute",
       "name": "VAN ANDEL RESEARCH INSTITUTE",
       "ats_provider": "workday",
       "ats_token": "vai",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 12,
+      "prefiltered_count": 6,
+      "prefilter_survived_count": 12,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 4
     },
     {
@@ -3026,11 +3131,11 @@
       "name": "J DAVID GLADSTONE INSTITUTES",
       "ats_provider": "workday",
       "ats_token": "gladstone",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 7,
+      "prefiltered_count": 6,
+      "prefilter_survived_count": 9,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 3
     },
     {
@@ -3038,23 +3143,23 @@
       "name": "NATIONWIDE CHILDRENS HOSPITAL INC",
       "ats_provider": "workday",
       "ats_token": "nationwidechildrens",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 73,
+      "prefiltered_count": 520,
+      "prefilter_survived_count": 90,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
-      "closed_jobs": 38
+      "error": null,
+      "closed_jobs": 39
     },
     {
       "employer_id": "urban-institute",
       "name": "URBAN INSTITUTE",
       "ats_provider": "workday",
       "ats_token": "urban",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 4,
+      "prefiltered_count": 2,
+      "prefilter_survived_count": 4,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -3074,11 +3179,11 @@
       "name": "WOODS HOLE OCEANOGRAPHIC INSTITUTION",
       "ats_provider": "workday",
       "ats_token": "whoi",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 8,
+      "prefiltered_count": 11,
+      "prefilter_survived_count": 11,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 5
     },
     {
@@ -3232,10 +3337,10 @@
       "ats_provider": "workday",
       "ats_token": "nsu",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 14,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -3781,11 +3886,11 @@
       "name": "Arizona State University Campus Immersion",
       "ats_provider": "workday",
       "ats_token": "asu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 6,
+      "prefiltered_count": 105,
+      "prefilter_survived_count": 9,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 7
     },
     {
@@ -3793,11 +3898,11 @@
       "name": "Embry-Riddle Aeronautical University-Prescott",
       "ats_provider": "workday",
       "ats_token": "embryriddle",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 18,
+      "prefiltered_count": 95,
+      "prefilter_survived_count": 45,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -3914,10 +4019,10 @@
       "ats_provider": "workday",
       "ats_token": "academyofartuniversity",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 13,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4033,11 +4138,11 @@
       "name": "National University",
       "ats_provider": "workday",
       "ats_token": "nus",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 13,
+      "prefiltered_count": 17,
+      "prefilter_survived_count": 40,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -4069,11 +4174,11 @@
       "name": "Point Loma Nazarene University",
       "ats_provider": "workday",
       "ats_token": "pointloma",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 44,
+      "prefilter_survived_count": 4,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4118,10 +4223,10 @@
       "ats_provider": "workday",
       "ats_token": "tcsedsystem",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 3,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4130,10 +4235,10 @@
       "ats_provider": "workday",
       "ats_token": "tcsedsystem",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 2,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4166,10 +4271,10 @@
       "ats_provider": "workday",
       "ats_token": "aims",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 20,
+      "prefilter_survived_count": 28,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4249,11 +4354,11 @@
       "name": "Strayer University-District of Columbia",
       "ats_provider": "workday",
       "ats_token": "strayer",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 3,
+      "prefilter_survived_count": 5,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4261,11 +4366,11 @@
       "name": "Barry University",
       "ats_provider": "workday",
       "ats_token": "barryu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 28,
+      "prefilter_survived_count": 28,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -4273,11 +4378,11 @@
       "name": "Full Sail University",
       "ats_provider": "workday",
       "ats_token": "fullsail",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 4,
+      "prefiltered_count": 38,
+      "prefilter_survived_count": 27,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4286,10 +4391,10 @@
       "ats_provider": "workday",
       "ats_token": "palmbeachstate",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 237,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4298,10 +4403,10 @@
       "ats_provider": "workday",
       "ats_token": "pensacolastate",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 19,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4345,11 +4450,11 @@
       "name": "Joliet Junior College",
       "ats_provider": "workday",
       "ats_token": "jjc",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 2,
+      "prefiltered_count": 56,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4357,12 +4462,12 @@
       "name": "Youngstown State University",
       "ats_provider": "governmentjobs",
       "ats_token": "ysu",
-      "fetched_jobs": 9,
+      "fetched_jobs": 8,
       "prefiltered_count": 37,
-      "prefilter_survived_count": 98,
+      "prefilter_survived_count": 97,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1
+      "closed_jobs": 2
     },
     {
       "employer_id": "susquehanna-university",
@@ -4393,11 +4498,11 @@
       "name": "College of Lake County",
       "ats_provider": "workday",
       "ats_token": "clc",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 17,
+      "prefilter_survived_count": 18,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -4465,11 +4570,11 @@
       "name": "St. John's College-Department of Nursing",
       "ats_provider": "workday",
       "ats_token": "hshs",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 10,
+      "prefiltered_count": 368,
+      "prefilter_survived_count": 12,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 7
     },
     {
@@ -4573,12 +4678,12 @@
       "name": "Iowa State University",
       "ats_provider": "workday",
       "ats_token": "isu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 20,
+      "prefiltered_count": 45,
+      "prefilter_survived_count": 33,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
-      "closed_jobs": 12
+      "error": null,
+      "closed_jobs": 13
     },
     {
       "employer_id": "centre-college",
@@ -4586,10 +4691,10 @@
       "ats_provider": "workday",
       "ats_token": "centrecollege",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 1,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4597,11 +4702,11 @@
       "name": "University of the Cumberlands",
       "ats_provider": "workday",
       "ats_token": "ucumberlands",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 2,
+      "prefiltered_count": 26,
+      "prefilter_survived_count": 7,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4609,11 +4714,11 @@
       "name": "Louisiana State University and Agricultural & Mechanical College",
       "ats_provider": "workday",
       "ats_token": "lsu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 45,
+      "prefiltered_count": 192,
+      "prefilter_survived_count": 82,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 23
     },
     {
@@ -4633,11 +4738,11 @@
       "name": "Bowie State University",
       "ats_provider": "workday",
       "ats_token": "marylandconnect",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 6,
+      "prefiltered_count": 30,
+      "prefilter_survived_count": 14,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4646,10 +4751,10 @@
       "ats_provider": "workday",
       "ats_token": "marylandconnect",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 4,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4669,11 +4774,11 @@
       "name": "Frostburg State University",
       "ats_provider": "workday",
       "ats_token": "marylandconnect",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 22,
+      "prefilter_survived_count": 6,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4693,11 +4798,11 @@
       "name": "Loyola University Maryland",
       "ats_provider": "workday",
       "ats_token": "loyola",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 50,
+      "prefilter_survived_count": 8,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 5
     },
     {
@@ -4705,11 +4810,11 @@
       "name": "University of Maryland Global Campus",
       "ats_provider": "workday",
       "ats_token": "umgc",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 19,
+      "prefilter_survived_count": 164,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4741,11 +4846,11 @@
       "name": "Salisbury University",
       "ats_provider": "workday",
       "ats_token": "marylandconnect",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 2,
+      "prefiltered_count": 22,
+      "prefilter_survived_count": 8,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4765,11 +4870,11 @@
       "name": "Amherst College",
       "ats_provider": "workday",
       "ats_token": "amherst",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 2,
+      "prefiltered_count": 51,
+      "prefilter_survived_count": 5,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -4789,11 +4894,11 @@
       "name": "Smith College",
       "ats_provider": "workday",
       "ats_token": "smithcollege",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 28,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4814,10 +4919,10 @@
       "ats_provider": "workday",
       "ats_token": "lindenwood",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 65,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4874,10 +4979,10 @@
       "ats_provider": "workday",
       "ats_token": "hamline",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
+      "prefiltered_count": 6,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4934,11 +5039,11 @@
       "name": "Kansas City University",
       "ats_provider": "workday",
       "ats_token": "kansascity",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 1,
+      "prefiltered_count": 24,
+      "prefilter_survived_count": 16,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4958,11 +5063,11 @@
       "name": "Nebraska Methodist College of Nursing & Allied Health",
       "ats_provider": "workday",
       "ats_token": "bestcare",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 2,
+      "prefiltered_count": 246,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 3
     },
     {
@@ -4971,10 +5076,10 @@
       "ats_provider": "workday",
       "ats_token": "mccneb",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 76,
+      "prefilter_survived_count": 2,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4982,11 +5087,11 @@
       "name": "Mid-Plains Community College",
       "ats_provider": "workday",
       "ats_token": "gphealth",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 2,
+      "prefiltered_count": 118,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -6027,7 +6132,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "aamu",
       "fetched_jobs": 51,
-      "prefiltered_count": 113,
+      "prefiltered_count": 114,
       "prefilter_survived_count": 51,
       "skipped": false,
       "error": null,
@@ -6074,11 +6179,11 @@
       "name": "Babson College",
       "ats_provider": "workday",
       "ats_token": "babson",
-      "fetched_jobs": 0,
+      "fetched_jobs": 7,
       "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "prefilter_survived_count": 8,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -6086,11 +6191,11 @@
       "name": "Brandeis University",
       "ats_provider": "workday",
       "ats_token": "brandeis",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 18,
+      "prefiltered_count": 55,
+      "prefilter_survived_count": 18,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 6
     },
     {
@@ -6158,11 +6263,11 @@
       "name": "College of Holy Cross",
       "ats_provider": "workday",
       "ats_token": "holycross",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 49,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -6182,11 +6287,11 @@
       "name": "Fort Hays State University",
       "ats_provider": "workday",
       "ats_token": "fhsu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 8,
+      "prefiltered_count": 8,
+      "prefilter_survived_count": 8,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -6194,12 +6299,12 @@
       "name": "Governors State University",
       "ats_provider": "governmentjobs",
       "ats_token": "govst",
-      "fetched_jobs": 41,
+      "fetched_jobs": 44,
       "prefiltered_count": 18,
-      "prefilter_survived_count": 41,
+      "prefilter_survived_count": 44,
       "skipped": false,
       "error": null,
-      "closed_jobs": 5
+      "closed_jobs": 2
     },
     {
       "employer_id": "jackson-state-university",
@@ -6207,7 +6312,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "jsums",
       "fetched_jobs": 26,
-      "prefiltered_count": 59,
+      "prefiltered_count": 58,
       "prefilter_survived_count": 26,
       "skipped": false,
       "error": null,
@@ -6230,11 +6335,11 @@
       "name": "Louisiana Tech University",
       "ats_provider": "workday",
       "ats_token": "ulsltu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 14,
+      "prefiltered_count": 12,
+      "prefilter_survived_count": 14,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -6242,11 +6347,11 @@
       "name": "Loyola Marymount University",
       "ats_provider": "workday",
       "ats_token": "lmu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 42,
+      "prefiltered_count": 77,
+      "prefilter_survived_count": 42,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -6255,7 +6360,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "louisiana",
       "fetched_jobs": 35,
-      "prefiltered_count": 472,
+      "prefiltered_count": 454,
       "prefilter_survived_count": 35,
       "skipped": false,
       "error": null,
@@ -6266,11 +6371,11 @@
       "name": "Mercer University",
       "ats_provider": "workday",
       "ats_token": "merceruniversity",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 26,
+      "prefiltered_count": 51,
+      "prefilter_survived_count": 26,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 5
     },
     {
@@ -6326,11 +6431,11 @@
       "name": "Saint Louis University",
       "ats_provider": "workday",
       "ats_token": "slu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 25,
+      "prefiltered_count": 44,
+      "prefilter_survived_count": 25,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 15
     },
     {
@@ -6350,11 +6455,11 @@
       "name": "Suffolk University",
       "ats_provider": "workday",
       "ats_token": "suffolk",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 4,
+      "prefiltered_count": 22,
+      "prefilter_survived_count": 4,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -6387,7 +6492,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ucmo",
       "fetched_jobs": 5,
-      "prefiltered_count": 84,
+      "prefiltered_count": 86,
       "prefilter_survived_count": 5,
       "skipped": false,
       "error": null,
@@ -6410,11 +6515,11 @@
       "name": "University of New Orleans",
       "ats_provider": "workday",
       "ats_token": "ulsuno",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 17,
+      "prefiltered_count": 69,
+      "prefilter_survived_count": 17,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -6434,11 +6539,11 @@
       "name": "University of Pennsylvania",
       "ats_provider": "workday",
       "ats_token": "upenn",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 182,
+      "prefiltered_count": 280,
+      "prefilter_survived_count": 182,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 26
     },
     {
@@ -6458,11 +6563,11 @@
       "name": "University of Texas at Austin",
       "ats_provider": "workday",
       "ats_token": "utaustin",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 177,
+      "prefiltered_count": 394,
+      "prefilter_survived_count": 177,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 31
     },
     {
@@ -6482,12 +6587,12 @@
       "name": "Utah Valley University",
       "ats_provider": "governmentjobs",
       "ats_token": "uvu",
-      "fetched_jobs": 7,
-      "prefiltered_count": 116,
-      "prefilter_survived_count": 7,
+      "fetched_jobs": 6,
+      "prefiltered_count": 109,
+      "prefilter_survived_count": 6,
       "skipped": false,
       "error": null,
-      "closed_jobs": 9
+      "closed_jobs": 10
     },
     {
       "employer_id": "villanova-university",
@@ -6506,11 +6611,11 @@
       "name": "West Texas A and M University",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 8,
+      "prefiltered_count": 18,
+      "prefilter_survived_count": 8,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -6638,11 +6743,11 @@
       "name": "Pew Research Center",
       "ats_provider": "workday",
       "ats_token": "pewtrusts",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 3,
+      "prefiltered_count": 2,
+      "prefilter_survived_count": 3,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -6722,11 +6827,11 @@
       "name": "Draper Laboratory",
       "ats_provider": "workday",
       "ats_token": "draper",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 27,
+      "prefiltered_count": 185,
+      "prefilter_survived_count": 27,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -6758,11 +6863,11 @@
       "name": "Medical University of South Carolina",
       "ats_provider": "workday",
       "ats_token": "musc",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": 0,
+      "fetched_jobs": 76,
+      "prefiltered_count": 924,
+      "prefilter_survived_count": 76,
       "skipped": false,
-      "error": "workday circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
+      "error": null,
       "closed_jobs": 27
     },
     {
@@ -6780,10 +6885,10 @@
   ],
   "supabase_sync": {
     "mode": "diff",
-    "upserted": 456,
-    "deleted": 83,
-    "unchanged": 26060,
-    "total": 26516
+    "upserted": 304,
+    "deleted": 34,
+    "unchanged": 26179,
+    "total": 26483
   },
   "supabase_sync_status": "ok"
 }
