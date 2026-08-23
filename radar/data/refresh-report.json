@@ -1,11 +1,11 @@
 {
-  "refreshed_at": "2026-08-23T07:13:58.766Z",
+  "refreshed_at": "2026-08-23T13:16:50.956Z",
   "employer_count": 547,
   "ats_enabled_employer_count": 530,
-  "job_count": 26304,
-  "active_job_count": 17859,
-  "closed_job_count": 8445,
-  "newly_closed_count": 37,
+  "job_count": 26273,
+  "active_job_count": 17868,
+  "closed_job_count": 8405,
+  "newly_closed_count": 9,
   "errored_employers": 2,
   "recall_anomalies": [],
   "prefilter_anomalies": [
@@ -274,7 +274,7 @@
       "ats_provider": "oracle",
       "ats_token": "stanford",
       "fetched_jobs": 191,
-      "prefiltered_count": 224,
+      "prefiltered_count": 222,
       "prefilter_survived_count": 191,
       "skipped": false,
       "error": null,
@@ -347,8 +347,8 @@
       "ats_provider": "workday",
       "ats_token": "uw",
       "fetched_jobs": 113,
-      "prefiltered_count": 428,
-      "prefilter_survived_count": 114,
+      "prefiltered_count": 427,
+      "prefilter_survived_count": 113,
       "skipped": false,
       "error": null,
       "closed_jobs": 62
@@ -634,7 +634,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 778
+      "closed_jobs": 761
     },
     {
       "employer_id": "washington-university-in-st-louis",
@@ -934,7 +934,7 @@
       "prefilter_survived_count": 30,
       "skipped": false,
       "error": null,
-      "closed_jobs": 44
+      "closed_jobs": 43
     },
     {
       "employer_id": "university-of-maryland-college-park",
@@ -1092,7 +1092,7 @@
       "ats_provider": "workday",
       "ats_token": "ivytech",
       "fetched_jobs": 273,
-      "prefiltered_count": 253,
+      "prefiltered_count": 252,
       "prefilter_survived_count": 274,
       "skipped": false,
       "error": null,
@@ -2194,7 +2194,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 71
+      "closed_jobs": 70
     },
     {
       "employer_id": "sam-houston-state-university",
@@ -2572,7 +2572,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 9
+      "closed_jobs": 8
     },
     {
       "employer_id": "the-university-of-texas-at-dallas",
@@ -2584,7 +2584,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 57
+      "closed_jobs": 56
     },
     {
       "employer_id": "south-dakota-state-university",
@@ -2932,7 +2932,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 70
+      "closed_jobs": 67
     },
     {
       "employer_id": "western-university-of-health-sciences",
@@ -4463,8 +4463,8 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ysu",
       "fetched_jobs": 9,
-      "prefiltered_count": 35,
-      "prefilter_survived_count": 95,
+      "prefiltered_count": 37,
+      "prefilter_survived_count": 98,
       "skipped": false,
       "error": null,
       "closed_jobs": 1
@@ -4598,7 +4598,7 @@
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "fetch failed",
       "closed_jobs": 0
     },
     {
@@ -6132,7 +6132,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "aamu",
       "fetched_jobs": 51,
-      "prefiltered_count": 114,
+      "prefiltered_count": 113,
       "prefilter_survived_count": 51,
       "skipped": false,
       "error": null,
@@ -6299,12 +6299,12 @@
       "name": "Governors State University",
       "ats_provider": "governmentjobs",
       "ats_token": "govst",
-      "fetched_jobs": 43,
+      "fetched_jobs": 40,
       "prefiltered_count": 18,
-      "prefilter_survived_count": 43,
+      "prefilter_survived_count": 40,
       "skipped": false,
       "error": null,
-      "closed_jobs": 3
+      "closed_jobs": 6
     },
     {
       "employer_id": "jackson-state-university",
@@ -6312,7 +6312,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "jsums",
       "fetched_jobs": 26,
-      "prefiltered_count": 58,
+      "prefiltered_count": 59,
       "prefilter_survived_count": 26,
       "skipped": false,
       "error": null,
@@ -6359,12 +6359,12 @@
       "name": "Mcneese State University",
       "ats_provider": "governmentjobs",
       "ats_token": "louisiana",
-      "fetched_jobs": 31,
-      "prefiltered_count": 466,
-      "prefilter_survived_count": 31,
+      "fetched_jobs": 41,
+      "prefiltered_count": 453,
+      "prefilter_survived_count": 41,
       "skipped": false,
       "error": null,
-      "closed_jobs": 62
+      "closed_jobs": 52
     },
     {
       "employer_id": "mercer-university",
@@ -6383,11 +6383,11 @@
       "name": "Oberlin College",
       "ats_provider": "peopleadmin",
       "ats_token": "oberlin",
-      "fetched_jobs": 0,
+      "fetched_jobs": 76,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
-      "error": "fetch failed",
+      "error": null,
       "closed_jobs": 21
     },
     {
@@ -6492,7 +6492,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ucmo",
       "fetched_jobs": 5,
-      "prefiltered_count": 86,
+      "prefiltered_count": 88,
       "prefilter_survived_count": 5,
       "skipped": false,
       "error": null,
@@ -6587,12 +6587,12 @@
       "name": "Utah Valley University",
       "ats_provider": "governmentjobs",
       "ats_token": "uvu",
-      "fetched_jobs": 6,
-      "prefiltered_count": 111,
-      "prefilter_survived_count": 6,
+      "fetched_jobs": 8,
+      "prefiltered_count": 110,
+      "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
-      "closed_jobs": 10
+      "closed_jobs": 8
     },
     {
       "employer_id": "villanova-university",
@@ -6885,10 +6885,10 @@
   ],
   "supabase_sync": {
     "mode": "diff",
-    "upserted": 382,
-    "deleted": 85,
-    "unchanged": 25922,
-    "total": 26304
+    "upserted": 297,
+    "deleted": 31,
+    "unchanged": 25976,
+    "total": 26273
   },
   "supabase_sync_status": "ok"
 }
