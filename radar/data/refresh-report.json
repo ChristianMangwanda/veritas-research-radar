@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-08-29T21:10:22.759Z",
+  "refreshed_at": "2026-08-30T05:37:43.385Z",
   "employer_count": 547,
   "ats_enabled_employer_count": 530,
-  "job_count": 26965,
-  "active_job_count": 17931,
-  "closed_job_count": 9034,
-  "newly_closed_count": 16,
-  "errored_employers": 1,
+  "job_count": 26808,
+  "active_job_count": 17885,
+  "closed_job_count": 8923,
+  "newly_closed_count": 63,
+  "errored_employers": 48,
   "recall_anomalies": [],
   "prefilter_anomalies": [
     {
@@ -98,22 +98,6 @@
       "fetched_jobs": 2
     },
     {
-      "employer_id": "bergen-community-college",
-      "name": "Bergen Community College",
-      "ats_provider": "adp",
-      "prefiltered_count": 27,
-      "prefilter_survived_count": 0,
-      "fetched_jobs": 0
-    },
-    {
-      "employer_id": "porter-chester-institute-of-hamden",
-      "name": "Porter & Chester Institute of Hamden",
-      "ats_provider": "adp",
-      "prefiltered_count": 53,
-      "prefilter_survived_count": 0,
-      "fetched_jobs": 0
-    },
-    {
       "employer_id": "brookdale-community-college",
       "name": "Brookdale Community College",
       "ats_provider": "icims",
@@ -146,7 +130,12 @@
       "fetched_jobs": 1
     }
   ],
-  "provider_circuits": [],
+  "provider_circuits": [
+    {
+      "provider": "adp",
+      "signature": "non-json"
+    }
+  ],
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
@@ -230,7 +219,7 @@
       "ats_provider": "workday",
       "ats_token": "stjude",
       "fetched_jobs": 111,
-      "prefiltered_count": 72,
+      "prefiltered_count": 71,
       "prefilter_survived_count": 111,
       "skipped": false,
       "error": null,
@@ -253,12 +242,12 @@
       "name": "Baylor College of Medicine",
       "ats_provider": "successfactors",
       "ats_token": "bcm",
-      "fetched_jobs": 292,
-      "prefiltered_count": 169,
-      "prefilter_survived_count": 292,
+      "fetched_jobs": 289,
+      "prefiltered_count": 165,
+      "prefilter_survived_count": 289,
       "skipped": false,
       "error": null,
-      "closed_jobs": 139
+      "closed_jobs": 128
     },
     {
       "employer_id": "university-of-chicago",
@@ -289,9 +278,9 @@
       "name": "Stanford University",
       "ats_provider": "oracle",
       "ats_token": "stanford",
-      "fetched_jobs": 184,
+      "fetched_jobs": 185,
       "prefiltered_count": 232,
-      "prefilter_survived_count": 184,
+      "prefilter_survived_count": 185,
       "skipped": false,
       "error": null,
       "closed_jobs": 117
@@ -314,7 +303,7 @@
       "ats_provider": "eightfold",
       "ats_token": "jhu",
       "fetched_jobs": 232,
-      "prefiltered_count": 388,
+      "prefiltered_count": 390,
       "prefilter_survived_count": 232,
       "skipped": false,
       "error": null,
@@ -355,7 +344,7 @@
       "skipped": false,
       "error": null,
       "scouted_jobs": 2,
-      "closed_jobs": 15
+      "closed_jobs": 10
     },
     {
       "employer_id": "university-of-washington",
@@ -501,7 +490,7 @@
       "ats_provider": "oracle",
       "ats_token": "loma-linda-university",
       "fetched_jobs": 9,
-      "prefiltered_count": 421,
+      "prefiltered_count": 418,
       "prefilter_survived_count": 23,
       "skipped": false,
       "error": null,
@@ -597,7 +586,7 @@
       "ats_provider": "workday",
       "ats_token": "msk",
       "fetched_jobs": 22,
-      "prefiltered_count": 66,
+      "prefiltered_count": 64,
       "prefilter_survived_count": 22,
       "skipped": false,
       "error": null,
@@ -609,7 +598,7 @@
       "ats_provider": "oracle",
       "ats_token": "mayo",
       "fetched_jobs": 231,
-      "prefiltered_count": 1137,
+      "prefiltered_count": 1136,
       "prefilter_survived_count": 232,
       "skipped": false,
       "error": null,
@@ -650,7 +639,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 790
+      "closed_jobs": 773
     },
     {
       "employer_id": "washington-university-in-st-louis",
@@ -729,9 +718,9 @@
       "name": "University of Rochester",
       "ats_provider": "workday",
       "ats_token": "rochester",
-      "fetched_jobs": 454,
-      "prefiltered_count": 899,
-      "prefilter_survived_count": 101,
+      "fetched_jobs": 453,
+      "prefiltered_count": 900,
+      "prefilter_survived_count": 100,
       "skipped": false,
       "error": null,
       "feeds": [
@@ -741,7 +730,7 @@
           "ok": true,
           "skipped": false,
           "error": null,
-          "fetchedCount": 101
+          "fetchedCount": 100
         },
         {
           "ats_provider": "interfolio",
@@ -794,7 +783,7 @@
           "fetchedCount": 49
         }
       ],
-      "closed_jobs": 22
+      "closed_jobs": 20
     },
     {
       "employer_id": "medical-college-of-wisconsin",
@@ -813,12 +802,12 @@
       "name": "University of Arkansas for Medical Sciences",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 43,
-      "prefiltered_count": 278,
-      "prefilter_survived_count": 43,
+      "fetched_jobs": 35,
+      "prefiltered_count": 273,
+      "prefilter_survived_count": 35,
       "skipped": false,
       "error": null,
-      "closed_jobs": 42
+      "closed_jobs": 50
     },
     {
       "employer_id": "thomas-jefferson-university",
@@ -926,7 +915,7 @@
       "prefilter_survived_count": 35,
       "skipped": false,
       "error": null,
-      "closed_jobs": 11
+      "closed_jobs": 10
     },
     {
       "employer_id": "colorado-school-of-mines",
@@ -1108,7 +1097,7 @@
       "ats_provider": "workday",
       "ats_token": "ivytech",
       "fetched_jobs": 271,
-      "prefiltered_count": 253,
+      "prefiltered_count": 250,
       "prefilter_survived_count": 272,
       "skipped": false,
       "error": null,
@@ -1252,7 +1241,7 @@
       "ats_provider": "workday",
       "ats_token": "tamus",
       "fetched_jobs": 27,
-      "prefiltered_count": 47,
+      "prefiltered_count": 46,
       "prefilter_survived_count": 27,
       "skipped": false,
       "error": null,
@@ -1312,7 +1301,7 @@
       "ats_provider": "workday",
       "ats_token": "dickinson",
       "fetched_jobs": 1,
-      "prefiltered_count": 32,
+      "prefiltered_count": 31,
       "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
@@ -1496,7 +1485,7 @@
       "prefilter_survived_count": 20,
       "skipped": false,
       "error": null,
-      "closed_jobs": 2
+      "closed_jobs": 1
     },
     {
       "employer_id": "university-of-wisconsin-whitewater",
@@ -1972,7 +1961,7 @@
       "ats_provider": "workday",
       "ats_token": "tamus",
       "fetched_jobs": 2,
-      "prefiltered_count": 22,
+      "prefiltered_count": 20,
       "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
@@ -2104,7 +2093,7 @@
       "ats_provider": "peopleadmin",
       "ats_token": "uab",
       "fetched_jobs": 471,
-      "prefiltered_count": 243,
+      "prefiltered_count": 242,
       "prefilter_survived_count": 79,
       "skipped": false,
       "error": null,
@@ -2133,12 +2122,12 @@
       "name": "University of North Carolina at Chapel Hill",
       "ats_provider": "peopleadmin",
       "ats_token": "unc",
-      "fetched_jobs": 439,
+      "fetched_jobs": 436,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 590
+      "closed_jobs": 571
     },
     {
       "employer_id": "the-university-of-texas-at-arlington",
@@ -2162,7 +2151,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 21
+      "closed_jobs": 19
     },
     {
       "employer_id": "marshall-university",
@@ -2181,24 +2170,24 @@
       "name": "The University of Texas Rio Grande Valley",
       "ats_provider": "peopleadmin",
       "ats_token": "utrgv-sb",
-      "fetched_jobs": 129,
+      "fetched_jobs": 128,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 0
+      "closed_jobs": 1
     },
     {
       "employer_id": "george-washington-university",
       "name": "George Washington University",
       "ats_provider": "peopleadmin",
       "ats_token": "gwu-studentemployment",
-      "fetched_jobs": 28,
+      "fetched_jobs": 27,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 18
+      "closed_jobs": 19
     },
     {
       "employer_id": "university-of-idaho",
@@ -2210,7 +2199,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 70
+      "closed_jobs": 69
     },
     {
       "employer_id": "sam-houston-state-university",
@@ -2270,7 +2259,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 26
+      "closed_jobs": 25
     },
     {
       "employer_id": "tuskegee-university",
@@ -2492,7 +2481,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 53
+      "closed_jobs": 43
     },
     {
       "employer_id": "northeast-iowa-community-college",
@@ -2571,12 +2560,12 @@
       "name": "University of Kentucky",
       "ats_provider": "peopleadmin",
       "ats_token": "ukjobs.uky.edu",
-      "fetched_jobs": 859,
+      "fetched_jobs": 858,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1482
+      "closed_jobs": 1440
     },
     {
       "employer_id": "oregon-state-university",
@@ -2600,7 +2589,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 57
+      "closed_jobs": 56
     },
     {
       "employer_id": "south-dakota-state-university",
@@ -2648,7 +2637,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 82
+      "closed_jobs": 81
     },
     {
       "employer_id": "university-of-memphis",
@@ -2684,7 +2673,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 24
+      "closed_jobs": 23
     },
     {
       "employer_id": "marquette-university",
@@ -2739,7 +2728,7 @@
       "name": "Central Michigan University",
       "ats_provider": "peopleadmin",
       "ats_token": "www.jobs.cmich.edu",
-      "fetched_jobs": 59,
+      "fetched_jobs": 60,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -2816,7 +2805,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 38
+      "closed_jobs": 37
     },
     {
       "employer_id": "morehouse-school-of-medicine",
@@ -3088,7 +3077,7 @@
       "ats_provider": "workday",
       "ats_token": "msk",
       "fetched_jobs": 17,
-      "prefiltered_count": 66,
+      "prefiltered_count": 64,
       "prefilter_survived_count": 22,
       "skipped": false,
       "error": null,
@@ -3160,7 +3149,7 @@
       "ats_provider": "workday",
       "ats_token": "nationwidechildrens",
       "fetched_jobs": 67,
-      "prefiltered_count": 522,
+      "prefiltered_count": 521,
       "prefilter_survived_count": 83,
       "skipped": false,
       "error": null,
@@ -3254,7 +3243,7 @@
           "fetchedCount": 170
         }
       ],
-      "closed_jobs": 128
+      "closed_jobs": 118
     },
     {
       "employer_id": "oregon-health-science-university",
@@ -3284,7 +3273,7 @@
           "fetchedCount": 170
         }
       ],
-      "closed_jobs": 72
+      "closed_jobs": 70
     },
     {
       "employer_id": "auburn-university",
@@ -3345,7 +3334,7 @@
       "prefilter_survived_count": 6,
       "skipped": false,
       "error": null,
-      "closed_jobs": 18
+      "closed_jobs": 16
     },
     {
       "employer_id": "norfolk-state-university",
@@ -3365,7 +3354,7 @@
       "ats_provider": "oracle",
       "ats_token": "usf",
       "fetched_jobs": 140,
-      "prefiltered_count": 101,
+      "prefiltered_count": 100,
       "prefilter_survived_count": 140,
       "skipped": false,
       "error": null,
@@ -3508,12 +3497,12 @@
       "name": "Icahn School of Medicine at Mount Sinai",
       "ats_provider": "oracle",
       "ats_token": "icahn-school-of-medicine-at-mount-sinai",
-      "fetched_jobs": 164,
-      "prefiltered_count": 1248,
-      "prefilter_survived_count": 251,
+      "fetched_jobs": 162,
+      "prefiltered_count": 1249,
+      "prefilter_survived_count": 250,
       "skipped": false,
       "error": null,
-      "closed_jobs": 59
+      "closed_jobs": 61
     },
     {
       "employer_id": "university-of-wyoming",
@@ -3593,7 +3582,7 @@
       "ats_provider": "oracle",
       "ats_token": "the-university-of-tennessee-health-science-center",
       "fetched_jobs": 75,
-      "prefiltered_count": 265,
+      "prefiltered_count": 264,
       "prefilter_survived_count": 242,
       "skipped": false,
       "error": null,
@@ -4155,7 +4144,7 @@
       "ats_provider": "workday",
       "ats_token": "nus",
       "fetched_jobs": 8,
-      "prefiltered_count": 21,
+      "prefiltered_count": 20,
       "prefilter_survived_count": 34,
       "skipped": false,
       "error": null,
@@ -4479,8 +4468,8 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ysu",
       "fetched_jobs": 9,
-      "prefiltered_count": 35,
-      "prefilter_survived_count": 96,
+      "prefiltered_count": 34,
+      "prefilter_survived_count": 98,
       "skipped": false,
       "error": null,
       "closed_jobs": 2
@@ -4695,7 +4684,7 @@
       "ats_provider": "workday",
       "ats_token": "isu",
       "fetched_jobs": 21,
-      "prefiltered_count": 43,
+      "prefiltered_count": 42,
       "prefilter_survived_count": 35,
       "skipped": false,
       "error": null,
@@ -5140,10 +5129,10 @@
       "ats_provider": "adp",
       "ats_token": "df6f93d4-2277-4999-ac63-88a55668ffd3",
       "fetched_jobs": 0,
-      "prefiltered_count": 12,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "non-JSON response (content-type text/html) from workforcenow.adp.com",
       "closed_jobs": 0
     },
     {
@@ -5151,11 +5140,11 @@
       "name": "Augustana University",
       "ats_provider": "adp",
       "ats_token": "026eaaee-2102-4004-840c-8e8ad42d78b1",
-      "fetched_jobs": 2,
-      "prefiltered_count": 15,
-      "prefilter_survived_count": 4,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "non-JSON response (content-type text/html) from workforcenow.adp.com",
       "closed_jobs": 0
     },
     {
@@ -5164,10 +5153,10 @@
       "ats_provider": "adp",
       "ats_token": "77bf9053-07ed-47ba-b601-d78b61854199",
       "fetched_jobs": 0,
-      "prefiltered_count": 16,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "non-JSON response (content-type text/html) from workforcenow.adp.com",
       "closed_jobs": 0
     },
     {
@@ -5176,10 +5165,10 @@
       "ats_provider": "adp",
       "ats_token": "ced18917-a7d8-4729-8bf3-9b2aa345c933",
       "fetched_jobs": 0,
-      "prefiltered_count": 16,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "non-JSON response (content-type text/html) from workforcenow.adp.com",
       "closed_jobs": 0
     },
     {
@@ -5187,11 +5176,11 @@
       "name": "Kentucky State University",
       "ats_provider": "adp",
       "ats_token": "20a5f81e-e1b1-4bfa-95e5-0dd898080de7",
-      "fetched_jobs": 11,
-      "prefiltered_count": 109,
-      "prefilter_survived_count": 25,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "non-JSON response (content-type text/html) from workforcenow.adp.com",
       "closed_jobs": 1
     },
     {
@@ -5199,11 +5188,11 @@
       "name": "Rosalind Franklin University of Medicine and Science",
       "ats_provider": "adp",
       "ats_token": "395a4546-652f-4dd9-832f-b02e894ced6e",
-      "fetched_jobs": 9,
-      "prefiltered_count": 22,
-      "prefilter_survived_count": 13,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -5212,10 +5201,10 @@
       "ats_provider": "adp",
       "ats_token": "42c57bd5-6043-4b07-a424-fa124627e8d0",
       "fetched_jobs": 0,
-      "prefiltered_count": 8,
-      "prefilter_survived_count": 2,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5224,10 +5213,10 @@
       "ats_provider": "adp",
       "ats_token": "b598cb69-0393-4ebc-902c-696995eb5395",
       "fetched_jobs": 0,
-      "prefiltered_count": 8,
-      "prefilter_survived_count": 3,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5236,10 +5225,10 @@
       "ats_provider": "adp",
       "ats_token": "47560b19-b691-4f4c-9de8-ff510ff2a256",
       "fetched_jobs": 0,
-      "prefiltered_count": 5,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5247,11 +5236,11 @@
       "name": "Heidelberg University",
       "ats_provider": "adp",
       "ats_token": "e95d68be-1e4e-4259-96d9-6c28cf64c801",
-      "fetched_jobs": 2,
-      "prefiltered_count": 13,
-      "prefilter_survived_count": 3,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5260,10 +5249,10 @@
       "ats_provider": "adp",
       "ats_token": "70cb71c1-96f8-4956-8cce-ce625b0b2943",
       "fetched_jobs": 0,
-      "prefiltered_count": 8,
-      "prefilter_survived_count": 5,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5271,11 +5260,11 @@
       "name": "Brenau University",
       "ats_provider": "adp",
       "ats_token": "3f4d8b79-e717-4293-ae26-578741f6ef88",
-      "fetched_jobs": 1,
-      "prefiltered_count": 17,
-      "prefilter_survived_count": 17,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5284,10 +5273,10 @@
       "ats_provider": "adp",
       "ats_token": "7b7a7621-2d08-46ed-a694-79735466f015",
       "fetched_jobs": 0,
-      "prefiltered_count": 3,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5296,10 +5285,10 @@
       "ats_provider": "adp",
       "ats_token": "9553338f-c93c-40ce-9a23-04b38f1294de",
       "fetched_jobs": 0,
-      "prefiltered_count": 10,
-      "prefilter_survived_count": 2,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5308,10 +5297,10 @@
       "ats_provider": "adp",
       "ats_token": "59905f81-b547-48d2-925f-01b13cefe77a",
       "fetched_jobs": 0,
-      "prefiltered_count": 40,
-      "prefilter_survived_count": 17,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5319,11 +5308,11 @@
       "name": "Fuller Theological Seminary",
       "ats_provider": "adp",
       "ats_token": "13be2684-36b2-47da-8d06-44b4fbf9a5fc",
-      "fetched_jobs": 2,
-      "prefiltered_count": 11,
-      "prefilter_survived_count": 3,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -5331,11 +5320,11 @@
       "name": "Palo Alto University",
       "ats_provider": "adp",
       "ats_token": "fe07b94e-47ca-4fa8-9f26-ee001f1b6bbd",
-      "fetched_jobs": 3,
-      "prefiltered_count": 100,
-      "prefilter_survived_count": 9,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5344,10 +5333,10 @@
       "ats_provider": "adp",
       "ats_token": "9a5d9078-a7f4-44dd-ab39-0a99d4ed592e",
       "fetched_jobs": 0,
-      "prefiltered_count": 1,
-      "prefilter_survived_count": 2,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5356,10 +5345,10 @@
       "ats_provider": "adp",
       "ats_token": "c02b7fd0-ab7b-4f25-9f07-99605238e453",
       "fetched_jobs": 0,
-      "prefiltered_count": 2,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5368,10 +5357,10 @@
       "ats_provider": "adp",
       "ats_token": "6e5262c5-1aaf-4346-9e79-a476a84dc88c",
       "fetched_jobs": 0,
-      "prefiltered_count": 13,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5380,10 +5369,10 @@
       "ats_provider": "adp",
       "ats_token": "010bf3a6-6a65-40e6-867b-0fdaf8595884",
       "fetched_jobs": 0,
-      "prefiltered_count": 27,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -5392,10 +5381,10 @@
       "ats_provider": "adp",
       "ats_token": "78334d6d-1342-4b7f-9674-a7916c71caa7",
       "fetched_jobs": 0,
-      "prefiltered_count": 2,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5404,10 +5393,10 @@
       "ats_provider": "adp",
       "ats_token": "31cd0b73-92c3-4ed2-84f8-5a6de61f8f2c",
       "fetched_jobs": 0,
-      "prefiltered_count": 1,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5416,10 +5405,10 @@
       "ats_provider": "adp",
       "ats_token": "29ee31bb-d8c5-4350-a136-327f9d9a68bc",
       "fetched_jobs": 0,
-      "prefiltered_count": 1,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -5428,10 +5417,10 @@
       "ats_provider": "adp",
       "ats_token": "166ed05b-9235-4bfe-b7dd-f1e4871fea3b",
       "fetched_jobs": 0,
-      "prefiltered_count": 1,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 2
     },
     {
@@ -5439,11 +5428,11 @@
       "name": "SETI INSTITUTE",
       "ats_provider": "adp",
       "ats_token": "00a1b65c-cc0d-4122-b885-a8f7012f8acf",
-      "fetched_jobs": 2,
-      "prefiltered_count": 2,
-      "prefilter_survived_count": 2,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5451,11 +5440,11 @@
       "name": "Jefferson Regional School of Nursing",
       "ats_provider": "adp",
       "ats_token": "542f7b59-1156-4a17-a729-f8cd9337acf6",
-      "fetched_jobs": 1,
-      "prefiltered_count": 79,
-      "prefilter_survived_count": 3,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -5464,10 +5453,10 @@
       "ats_provider": "adp",
       "ats_token": "ef4a1cba-c43a-4ac4-8e51-edaf8b2b7297",
       "fetched_jobs": 0,
-      "prefiltered_count": 10,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5476,10 +5465,10 @@
       "ats_provider": "adp",
       "ats_token": "a9401484-8017-4771-aac5-f519238232c4",
       "fetched_jobs": 0,
-      "prefiltered_count": 53,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5488,10 +5477,10 @@
       "ats_provider": "adp",
       "ats_token": "bee412bd-0d97-43fc-8dc2-ad0f168f5548",
       "fetched_jobs": 0,
-      "prefiltered_count": 3,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5500,10 +5489,10 @@
       "ats_provider": "adp",
       "ats_token": "a1f9fed4-6d14-468e-b3ee-266b22902534",
       "fetched_jobs": 0,
-      "prefiltered_count": 7,
-      "prefilter_survived_count": 3,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5511,11 +5500,11 @@
       "name": "Huntington University",
       "ats_provider": "adp",
       "ats_token": "7353b4b0-47be-41c8-bcb3-dc2ae3843581",
-      "fetched_jobs": 2,
-      "prefiltered_count": 9,
-      "prefilter_survived_count": 3,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5523,11 +5512,11 @@
       "name": "Manchester University",
       "ats_provider": "adp",
       "ats_token": "c01330c8-9bdc-4d7b-b355-90630c559bae",
-      "fetched_jobs": 1,
-      "prefiltered_count": 4,
-      "prefilter_survived_count": 10,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5536,10 +5525,10 @@
       "ats_provider": "adp",
       "ats_token": "344db3fd-5cc3-4294-87d6-0fabda1a171b",
       "fetched_jobs": 0,
-      "prefiltered_count": 3,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5548,10 +5537,10 @@
       "ats_provider": "adp",
       "ats_token": "e2fb3536-f8be-437c-9f7d-7fc0a8bdb42a",
       "fetched_jobs": 0,
-      "prefiltered_count": 22,
-      "prefilter_survived_count": 2,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5559,11 +5548,11 @@
       "name": "Thomas More University",
       "ats_provider": "adp",
       "ats_token": "4f8993d7-7486-4f03-a125-59b813eb0331",
-      "fetched_jobs": 1,
-      "prefiltered_count": 11,
-      "prefilter_survived_count": 1,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5572,10 +5561,10 @@
       "ats_provider": "adp",
       "ats_token": "b563585e-4b32-4676-929e-04a18c048656",
       "fetched_jobs": 0,
-      "prefiltered_count": 8,
-      "prefilter_survived_count": 2,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5583,11 +5572,11 @@
       "name": "Saint Joseph's College of Maine",
       "ats_provider": "adp",
       "ats_token": "f2ec343d-85b4-4d7e-8b95-cb8f7884af77",
-      "fetched_jobs": 2,
-      "prefiltered_count": 8,
-      "prefilter_survived_count": 4,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -5596,10 +5585,10 @@
       "ats_provider": "adp",
       "ats_token": "199260cf-4b15-410c-9970-1d94a408c2d5",
       "fetched_jobs": 0,
-      "prefiltered_count": 3,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5608,10 +5597,10 @@
       "ats_provider": "adp",
       "ats_token": "ac3ea3a3-1795-4ceb-80c1-668296dbec35",
       "fetched_jobs": 0,
-      "prefiltered_count": 12,
-      "prefilter_survived_count": 9,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -5620,10 +5609,10 @@
       "ats_provider": "adp",
       "ats_token": "ac3ea3a3-1795-4ceb-80c1-668296dbec35",
       "fetched_jobs": 0,
-      "prefiltered_count": 12,
-      "prefilter_survived_count": 9,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5632,10 +5621,10 @@
       "ats_provider": "adp",
       "ats_token": "cd7fd3ba-ab98-4fed-8213-0ef9271a00f5",
       "fetched_jobs": 0,
-      "prefiltered_count": 3,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5644,10 +5633,10 @@
       "ats_provider": "adp",
       "ats_token": "40dab9cd-14a1-4d29-b356-da8c9cb6fb6f",
       "fetched_jobs": 0,
-      "prefiltered_count": 4,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5656,10 +5645,10 @@
       "ats_provider": "adp",
       "ats_token": "9ff918ed-5037-44ba-897d-e7fabbcca51b",
       "fetched_jobs": 0,
-      "prefiltered_count": 2,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5667,11 +5656,11 @@
       "name": "Aquinas College",
       "ats_provider": "adp",
       "ats_token": "0d6a119c-4b29-473d-aa54-b44806014631",
-      "fetched_jobs": 1,
-      "prefiltered_count": 12,
-      "prefilter_survived_count": 3,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5680,10 +5669,10 @@
       "ats_provider": "adp",
       "ats_token": "4ec54663-0058-4347-9828-d4720a7524f4",
       "fetched_jobs": 0,
-      "prefiltered_count": 6,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5692,7 +5681,7 @@
       "ats_provider": "oracle",
       "ats_token": "fa-ewlq-saasfaprod1.fa.ocs.oraclecloud.com",
       "fetched_jobs": 242,
-      "prefiltered_count": 265,
+      "prefiltered_count": 264,
       "prefilter_survived_count": 242,
       "skipped": false,
       "error": null,
@@ -5728,7 +5717,7 @@
       "ats_provider": "csod",
       "ats_token": "sanjac",
       "fetched_jobs": 235,
-      "prefiltered_count": 8,
+      "prefiltered_count": 7,
       "prefilter_survived_count": 235,
       "skipped": false,
       "error": null,
@@ -5848,7 +5837,7 @@
       "ats_provider": "csod",
       "ats_token": "bc",
       "fetched_jobs": 8,
-      "prefiltered_count": 70,
+      "prefiltered_count": 69,
       "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
@@ -6147,12 +6136,12 @@
       "name": "Alabama A and M University",
       "ats_provider": "governmentjobs",
       "ats_token": "aamu",
-      "fetched_jobs": 48,
+      "fetched_jobs": 49,
       "prefiltered_count": 115,
-      "prefilter_survived_count": 48,
+      "prefilter_survived_count": 49,
       "skipped": false,
       "error": null,
-      "closed_jobs": 16
+      "closed_jobs": 15
     },
     {
       "employer_id": "alabama-state-university",
@@ -6160,7 +6149,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "alasu",
       "fetched_jobs": 2,
-      "prefiltered_count": 15,
+      "prefiltered_count": 14,
       "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
@@ -6231,12 +6220,12 @@
       "name": "Chapman University",
       "ats_provider": "peopleadmin",
       "ats_token": "chapman",
-      "fetched_jobs": 192,
+      "fetched_jobs": 189,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 191
+      "closed_jobs": 194
     },
     {
       "employer_id": "cold-spring-harbor-laboratory",
@@ -6315,12 +6304,12 @@
       "name": "Governors State University",
       "ats_provider": "governmentjobs",
       "ats_token": "govst",
-      "fetched_jobs": 44,
-      "prefiltered_count": 18,
-      "prefilter_survived_count": 44,
+      "fetched_jobs": 39,
+      "prefiltered_count": 17,
+      "prefilter_survived_count": 39,
       "skipped": false,
       "error": null,
-      "closed_jobs": 2
+      "closed_jobs": 7
     },
     {
       "employer_id": "jackson-state-university",
@@ -6328,7 +6317,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "jsums",
       "fetched_jobs": 26,
-      "prefiltered_count": 58,
+      "prefiltered_count": 60,
       "prefilter_survived_count": 26,
       "skipped": false,
       "error": null,
@@ -6364,7 +6353,7 @@
       "ats_provider": "workday",
       "ats_token": "lmu",
       "fetched_jobs": 44,
-      "prefiltered_count": 77,
+      "prefiltered_count": 78,
       "prefilter_survived_count": 44,
       "skipped": false,
       "error": null,
@@ -6375,12 +6364,12 @@
       "name": "Mcneese State University",
       "ats_provider": "governmentjobs",
       "ats_token": "louisiana",
-      "fetched_jobs": 52,
-      "prefiltered_count": 451,
-      "prefilter_survived_count": 52,
+      "fetched_jobs": 37,
+      "prefiltered_count": 416,
+      "prefilter_survived_count": 37,
       "skipped": false,
       "error": null,
-      "closed_jobs": 76
+      "closed_jobs": 91
     },
     {
       "employer_id": "mercer-university",
@@ -6423,12 +6412,12 @@
       "name": "Rider University",
       "ats_provider": "governmentjobs",
       "ats_token": "rideru",
-      "fetched_jobs": 10,
-      "prefiltered_count": 14,
-      "prefilter_survived_count": 10,
+      "fetched_jobs": 8,
+      "prefiltered_count": 13,
+      "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
-      "closed_jobs": 7
+      "closed_jobs": 9
     },
     {
       "employer_id": "sage-bionetworks",
@@ -6592,7 +6581,7 @@
       "ats_provider": "icims",
       "ats_token": "careers-uuhc",
       "fetched_jobs": 19,
-      "prefiltered_count": 500,
+      "prefiltered_count": 499,
       "prefilter_survived_count": 19,
       "skipped": false,
       "error": null,
@@ -6603,12 +6592,12 @@
       "name": "Utah Valley University",
       "ats_provider": "governmentjobs",
       "ats_token": "uvu",
-      "fetched_jobs": 12,
-      "prefiltered_count": 85,
-      "prefilter_survived_count": 12,
+      "fetched_jobs": 13,
+      "prefiltered_count": 84,
+      "prefilter_survived_count": 13,
       "skipped": false,
       "error": null,
-      "closed_jobs": 12
+      "closed_jobs": 11
     },
     {
       "employer_id": "villanova-university",
@@ -6675,12 +6664,12 @@
       "name": "West Virginia University",
       "ats_provider": "taleo",
       "ats_token": "wvu",
-      "fetched_jobs": 65,
+      "fetched_jobs": 64,
       "prefiltered_count": 142,
-      "prefilter_survived_count": 65,
+      "prefilter_survived_count": 64,
       "skipped": false,
       "error": null,
-      "closed_jobs": 18
+      "closed_jobs": 19
     },
     {
       "employer_id": "temple-university",
@@ -6712,7 +6701,7 @@
       "ats_provider": "taleo",
       "ats_token": "tcnj",
       "fetched_jobs": 3,
-      "prefiltered_count": 52,
+      "prefiltered_count": 51,
       "prefilter_survived_count": 3,
       "skipped": false,
       "error": null,
@@ -6735,24 +6724,24 @@
       "name": "University of Pittsburgh-Pittsburgh Campus",
       "ats_provider": "taleo",
       "ats_token": "cfopitt",
-      "fetched_jobs": 223,
+      "fetched_jobs": 221,
       "prefiltered_count": 177,
-      "prefilter_survived_count": 223,
+      "prefilter_survived_count": 221,
       "skipped": false,
       "error": null,
-      "closed_jobs": 91
+      "closed_jobs": 93
     },
     {
       "employer_id": "university-of-texas-southwestern-medical-center",
       "name": "University of Texas Southwestern Medical Center",
       "ats_provider": "taleo",
       "ats_token": "utsw",
-      "fetched_jobs": 64,
-      "prefiltered_count": 426,
-      "prefilter_survived_count": 74,
+      "fetched_jobs": 62,
+      "prefiltered_count": 422,
+      "prefilter_survived_count": 72,
       "skipped": false,
       "error": null,
-      "closed_jobs": 55
+      "closed_jobs": 57
     },
     {
       "employer_id": "pew-research-center",
@@ -6807,11 +6796,11 @@
       "name": "Minneapolis Heart Institute Foundation",
       "ats_provider": "adp",
       "ats_token": "39263a55-c11d-480c-b3b1-4599b9d7ad64",
-      "fetched_jobs": 3,
-      "prefiltered_count": 1,
-      "prefilter_survived_count": 3,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "adp circuit open (non-json from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 3
     },
     {
@@ -6901,10 +6890,10 @@
   ],
   "supabase_sync": {
     "mode": "diff",
-    "upserted": 381,
-    "deleted": 90,
-    "unchanged": 26584,
-    "total": 26965
+    "upserted": 648,
+    "deleted": 164,
+    "unchanged": 26160,
+    "total": 26808
   },
   "supabase_sync_status": "ok"
 }
