@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T09:33:33.359Z",
+  "generated_at": "2026-09-01T11:56:20.061Z",
   "sources": {
     "ipeds": {
       "year": 2024,
@@ -7,7 +7,7 @@
     },
     "irs_eo_bmf": {
       "files_loaded": 4,
-      "kept_rows": 19463
+      "kept_rows": 22389
     },
     "uscis": {
       "years": [
@@ -19,29 +19,22 @@
     },
     "dol": {
       "signals_file": true,
-      "raw_files": 0
+      "raw_files": 1
     }
   },
   "registry": {
-    "employer_count": 239,
-    "ipeds_matched": 216,
-    "irs_matched": 232,
-    "with_uscis_activity": 224,
+    "employer_count": 547,
+    "ipeds_matched": 501,
+    "irs_matched": 522,
+    "with_uscis_activity": 386,
     "with_dol_signal": 181,
-    "verified_suggested": 231
+    "verified_suggested": 536
   },
   "weak_matches": [
     {
-      "employer_id": "ivy-tech-community-college",
+      "employer_id": "scripps-research",
       "source": "irs_eo_bmf",
-      "candidate_name": "COLLEGE & COMMUNITY INC",
-      "strategy": "token_overlap",
-      "confidence": 0.6
-    },
-    {
-      "employer_id": "texas-a-m-university-texarkana",
-      "source": "irs_eo_bmf",
-      "candidate_name": "ASSOCIATION OF TEXAS PROFESSIONAL EDUCATORS",
+      "candidate_name": "SCRIPPS LEAGUE NEWSPAPERS EDUCATION AND RESEARCH FUND",
       "strategy": "token_overlap",
       "confidence": 0.6
     },
@@ -49,6 +42,69 @@
       "employer_id": "south-dakota-school-of-mines-and-technology",
       "source": "irs_eo_bmf",
       "candidate_name": "LUTHERAN CAMPUS MINISTRY AT SOUTH DAKOTA SCHOOL OF MINES & TECH",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    },
+    {
+      "employer_id": "delaware-technical-community-college-terry",
+      "source": "irs_eo_bmf",
+      "candidate_name": "DELAWARE TECHNICAL & COMMUNITY COLLEGE EDUCATIONAL FOUNDATION 866",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    },
+    {
+      "employer_id": "university-of-maryland-global-campus",
+      "source": "irs_eo_bmf",
+      "candidate_name": "GLOBAL UNIVERSITY",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    },
+    {
+      "employer_id": "prince-george-s-community-college",
+      "source": "irs_eo_bmf",
+      "candidate_name": "COMMUNITY MINISTRY OF PRINCE GEORGE S COUNTY MARYLAND",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    },
+    {
+      "employer_id": "anoka-technical-college",
+      "source": "irs_eo_bmf",
+      "candidate_name": "ANOKA-HENNEPIN TECHNICAL COLLEGE FOUNDATION",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    },
+    {
+      "employer_id": "san-jacinto-college",
+      "source": "ipeds",
+      "candidate_name": "Mt San Jacinto Community College District",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    },
+    {
+      "employer_id": "alamo-colleges-district",
+      "source": "irs_eo_bmf",
+      "candidate_name": "TEXAS FEDERATION OF WOMENS CLUBS",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    },
+    {
+      "employer_id": "los-angeles-community-college-district",
+      "source": "irs_eo_bmf",
+      "candidate_name": "ARTS DISTRICT COMMUNITY COUNCIL LOS ANGELES",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    },
+    {
+      "employer_id": "greenville-technical-college",
+      "source": "irs_eo_bmf",
+      "candidate_name": "GREENVILLE COLLEGE",
+      "strategy": "token_overlap",
+      "confidence": 0.6
+    },
+    {
+      "employer_id": "university-of-texas-southwestern-medical-center",
+      "source": "irs_eo_bmf",
+      "candidate_name": "PHI DELTA EPSILON AT UNIVERSITY OF TEXAS SOUTHWESTERN MEDICAL SCHOOL",
       "strategy": "token_overlap",
       "confidence": 0.6
     }
@@ -83,6 +139,96 @@
       "employer_id": "uw-madison",
       "missing_sources": [
         "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "liberty-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "new-jersey-institute-of-technology",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "santa-clara-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "wentworth-institute-of-technology",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "albany-medical-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "baylor-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "champlain-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "depaul-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "east-tennessee-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "loma-linda-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "st-olaf-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "tennessee-technological-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-maine",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-tulsa",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "vanderbilt-university",
+      "missing_sources": [
         "dol"
       ]
     },
@@ -394,13 +540,6 @@
       ]
     },
     {
-      "employer_id": "dana-farber-cancer-institute",
-      "missing_sources": [
-        "irs_eo_bmf",
-        "dol"
-      ]
-    },
-    {
       "employer_id": "howard-hughes-medical-institute",
       "missing_sources": [
         "irs_eo_bmf",
@@ -469,6 +608,1918 @@
     },
     {
       "employer_id": "touro-university-nevada",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "norfolk-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-south-florida",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "monmouth-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "cornell-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "school-of-the-art-institute-of-chicago",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "ecpi-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-redlands",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "hood-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "lipscomb-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "adler-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "charles-r-drew-university-of-medicine-and-science",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "scripps-research-institute",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "northern-california-institute-for-research-and-education",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "icahn-school-of-medicine-at-mount-sinai",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-wyoming",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "creighton-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "the-university-of-texas-health-science-center-at-san-antonio",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-california-san-francisco",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "texas-woman-s-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "saint-michael-s-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "the-university-of-tennessee-health-science-center",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "ithaca-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "wagner-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "butler-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "pittsburg-state-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "messiah-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "hult-international-business-school",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "bank-street-college-of-education",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "davidson-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "allegheny-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "faulkner-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "dordt-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-california-los-angeles",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-california-irvine",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "the-rockefeller-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "san-diego-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "eastern-virginia-medical-school",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "new-york-institute-of-technology",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "hackensack-meridian-school-of-medicine",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "sri-international",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "american-enterprise-institute-for-public-policy-",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "lovelace-biomedical-research-institute",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "athens-state-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "auburn-university-at-montgomery",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "arizona-state-university-campus-immersion",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "embry-riddle-aeronautical-university-prescott",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "arkansas-state-university-beebe",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-detroit-mercy",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "tiffin-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "new-england-college-of-optometry",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "elizabethtown-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "northwest-nazarene-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "midwestern-baptist-theological-seminary",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "keuka-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "baim-institute-for-clinical-research-inc",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "academy-of-art-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "chabot-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "citrus-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "contra-costa-community-college-district-office",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "life-pacific-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "lake-tahoe-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "lassen-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "miracosta-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "middlebury-institute-of-international-studies-at",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "mt-san-antonio-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "national-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "north-orange-county-community-college-district",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "palomar-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "point-loma-nazarene-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "san-diego-city-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "san-francisco-conservatory-of-music",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "san-jose-evergreen-community-college-district",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "saybrook-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "the-colleges-of-law-at-ventura",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "west-valley-mission-community-college-district-o",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "yosemite-community-college-district-office",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "aims-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "case-western-reserve-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "the-university-of-montana",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-oklahoma-health-sciences-center",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "albion-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "american-institute-west-hartford",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "delaware-technical-community-college-terry",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "strayer-university-district-of-columbia",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "barry-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "full-sail-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "palm-beach-state-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "pensacola-state-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "danville-area-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "elmhurst-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "hebrew-theological-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "joliet-junior-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "youngstown-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "susquehanna-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "kishwaukee-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "college-of-lake-county",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "lincoln-land-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "moraine-valley-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "prairie-state-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "richland-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-st-francis",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "st-john-s-college-department-of-nursing",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "southern-illinois-university-edwardsville",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "triton-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "calumet-college-of-saint-joseph",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "concordia-theological-seminary",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "indiana-university-northwest",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "valparaiso-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "eastern-iowa-community-college-district",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "grinnell-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "iowa-state-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "centre-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-the-cumberlands",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "louisiana-state-university-and-agricultural-mech",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "thomas-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "bowie-state-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "coppin-state-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "frederick-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "frostburg-state-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "harford-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "loyola-university-maryland",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-maryland-global-campus",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "morgan-state-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "prince-george-s-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "salisbury-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "stevenson-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "amherst-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "assumption-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "smith-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "mott-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "dorsey-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "kalamazoo-valley-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "schoolcraft-community-college-district",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "southwestern-michigan-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "anoka-technical-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "hamline-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "hazelden-betty-ford-graduate-school",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "minneapolis-college-of-art-and-design",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "mississippi-valley-state-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "stephens-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "kansas-city-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "great-falls-college-montana-state-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "nebraska-methodist-college-of-nursing-allied-hea",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "metropolitan-community-college-area",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "mid-plains-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "southeast-community-college-area",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "new-england-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "bradley-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "augustana-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "jacksonville-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "knox-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "kentucky-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "rosalind-franklin-university-of-medicine-and-sci",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "lake-forest-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "briar-cliff-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "hastings-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "heidelberg-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "ave-maria-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "brenau-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-providence",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "mount-saint-mary-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "gardner-webb-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "fuller-theological-seminary",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "palo-alto-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "illinois-college-of-optometry",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "holy-cross-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "gordon-conwell-theological-seminary",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "bergen-community-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "universidad-del-sagrado-corazon",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-the-west",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "woodwell-climate-research-center",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "j-craig-venter-institute-inc",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "seti-institute",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "jefferson-regional-school-of-nursing",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "american-jewish-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "porter-chester-institute-of-hamden",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "carl-sandburg-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "spoon-river-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "huntington-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "manchester-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "saint-meinrad-school-of-theology",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-saint-mary",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "thomas-more-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "dillard-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "saint-joseph-s-college-of-maine",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "capitol-technology-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "notre-dame-of-maryland-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "maryland-university-of-integrative-health",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "longy-school-of-music-of-bard-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "william-james-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "montserrat-college-of-art",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "aquinas-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "rochester-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-tennessee-system",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-new-mexico",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-arizona",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "san-jacinto-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "alamo-colleges-district",
+      "missing_sources": [
+        "ipeds",
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "east-stroudsburg-university-of-pennsylvania",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "wayne-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-maine-system",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "harper-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "community-college-of-allegheny-county",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-southern-mississippi",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "college-of-dupage",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "brookdale-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "boston-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-northern-colorado",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "concordia-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "blinn-college-district",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "los-angeles-community-college-district",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "idaho-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "massachusetts-bay-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "arizona-western-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "touro-university-california",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-illinois-springfield",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "greenville-technical-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "benedictine-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "southwestern-oklahoma-state-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "mohawk-valley-community-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-louisiana-at-lafayette",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "northeastern-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "graceland-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "moraine-park-technical-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "southeastern-oklahoma-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "rose-hulman-institute-of-technology",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "artcenter-college-of-design",
+      "missing_sources": [
+        "ipeds",
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "seton-hill-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "north-iowa-area-community-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "canisius-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "parkland-college",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "alabama-a-and-m-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "alabama-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "appalachian-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "austin-peay-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "babson-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "brandeis-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "central-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "chapman-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "cold-spring-harbor-laboratory",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "colgate-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "college-of-charleston",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "college-of-holy-cross",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "fordham-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "fort-hays-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "governors-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "jackson-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "john-carroll-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "louisiana-tech-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "loyola-marymount-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "mcneese-state-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "mercer-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "oberlin-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "rhode-island-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "rider-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "sage-bionetworks",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "saint-louis-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "southern-utah-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "suffolk-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "syracuse-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "trinity-college",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-central-missouri",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-guam",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-new-orleans",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-north-carolina-wilmington",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-pennsylvania",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-scranton",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-texas-at-austin",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-utah",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "utah-valley-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "villanova-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "west-texas-a-and-m-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "western-carolina-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "western-michigan-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "xavier-university-of-louisiana",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "west-virginia-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "temple-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "southern-methodist-university",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "the-college-of-new-jersey",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "towson-university",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-pittsburgh-pittsburgh-campus",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "university-of-texas-southwestern-medical-center",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "pew-research-center",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "allen-institute-for-ai-ai2",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "benaroya-research-institute-at-virginia-mason",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "brookings-institution",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "minneapolis-heart-institute-foundation",
+      "missing_sources": [
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "altarum-institute",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "american-type-culture-collection-atcc",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "draper-laboratory",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "model-evaluation-and-threat-research-metr",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "riverside-research-institute",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "medical-university-of-south-carolina",
+      "missing_sources": [
+        "uscis",
+        "dol"
+      ]
+    },
+    {
+      "employer_id": "michael-j-fox-foundation-for-parkinson-s-researc",
       "missing_sources": [
         "dol"
       ]
