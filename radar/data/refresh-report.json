@@ -1,61 +1,29 @@
 {
-  "refreshed_at": "2026-09-03T16:42:25.761Z",
+  "refreshed_at": "2026-09-03T21:13:37.868Z",
   "employer_count": 547,
   "ats_enabled_employer_count": 530,
-  "job_count": 27551,
-  "active_job_count": 17554,
-  "closed_job_count": 9997,
-  "newly_closed_count": 116,
-  "errored_employers": 13,
+  "job_count": 27781,
+  "active_job_count": 17665,
+  "closed_job_count": 10116,
+  "newly_closed_count": 142,
+  "errored_employers": 73,
   "recall_anomalies": [],
   "prefilter_anomalies": [
     {
       "employer_id": "emerson-college",
       "name": "Emerson College",
       "ats_provider": "workday",
-      "prefiltered_count": 40,
+      "prefiltered_count": 38,
       "prefilter_survived_count": 1,
-      "fetched_jobs": 0
-    },
-    {
-      "employer_id": "university-of-wisconsin-milwaukee",
-      "name": "University of Wisconsin-Milwaukee",
-      "ats_provider": "workday",
-      "prefiltered_count": 28,
-      "prefilter_survived_count": 0,
-      "fetched_jobs": 0
-    },
-    {
-      "employer_id": "san-juan-college",
-      "name": "San Juan College",
-      "ats_provider": "workday",
-      "prefiltered_count": 27,
-      "prefilter_survived_count": 0,
       "fetched_jobs": 0
     },
     {
       "employer_id": "hackensack-meridian-school-of-medicine",
       "name": "Hackensack Meridian School of Medicine",
       "ats_provider": "icims",
-      "prefiltered_count": 1549,
-      "prefilter_survived_count": 33,
+      "prefiltered_count": 1544,
+      "prefilter_survived_count": 34,
       "fetched_jobs": 14
-    },
-    {
-      "employer_id": "palm-beach-state-college",
-      "name": "Palm Beach State College",
-      "ats_provider": "workday",
-      "prefiltered_count": 255,
-      "prefilter_survived_count": 3,
-      "fetched_jobs": 0
-    },
-    {
-      "employer_id": "dorsey-college",
-      "name": "Dorsey College",
-      "ats_provider": "workday",
-      "prefiltered_count": 63,
-      "prefilter_survived_count": 0,
-      "fetched_jobs": 0
     },
     {
       "employer_id": "stephens-college",
@@ -64,30 +32,6 @@
       "prefiltered_count": 35,
       "prefilter_survived_count": 1,
       "fetched_jobs": 0
-    },
-    {
-      "employer_id": "nebraska-methodist-college-of-nursing-allied-hea",
-      "name": "Nebraska Methodist College of Nursing & Allied Health",
-      "ats_provider": "workday",
-      "prefiltered_count": 263,
-      "prefilter_survived_count": 5,
-      "fetched_jobs": 4
-    },
-    {
-      "employer_id": "metropolitan-community-college-area",
-      "name": "Metropolitan Community College Area",
-      "ats_provider": "workday",
-      "prefiltered_count": 69,
-      "prefilter_survived_count": 1,
-      "fetched_jobs": 0
-    },
-    {
-      "employer_id": "mid-plains-community-college",
-      "name": "Mid-Plains Community College",
-      "ats_provider": "workday",
-      "prefiltered_count": 112,
-      "prefilter_survived_count": 3,
-      "fetched_jobs": 2
     },
     {
       "employer_id": "bergen-community-college",
@@ -117,7 +61,7 @@
       "employer_id": "blinn-college-district",
       "name": "Blinn College District",
       "ats_provider": "csod",
-      "prefiltered_count": 71,
+      "prefiltered_count": 69,
       "prefilter_survived_count": 2,
       "fetched_jobs": 2
     },
@@ -138,7 +82,12 @@
       "fetched_jobs": 1
     }
   ],
-  "provider_circuits": [],
+  "provider_circuits": [
+    {
+      "provider": "workday",
+      "signature": "http:429"
+    }
+  ],
   "sources": {
     "greenhouse": "https://developers.greenhouse.io/job-board.html",
     "lever": "https://github.com/lever/postings-api",
@@ -222,11 +171,11 @@
       "ats_provider": "workday",
       "ats_token": "stjude",
       "fetched_jobs": 110,
-      "prefiltered_count": 75,
+      "prefiltered_count": 76,
       "prefilter_survived_count": 110,
       "skipped": false,
       "error": null,
-      "closed_jobs": 45
+      "closed_jobs": 47
     },
     {
       "employer_id": "scripps-research",
@@ -245,12 +194,12 @@
       "name": "Baylor College of Medicine",
       "ats_provider": "successfactors",
       "ats_token": "bcm",
-      "fetched_jobs": 281,
-      "prefiltered_count": 157,
-      "prefilter_survived_count": 281,
+      "fetched_jobs": 285,
+      "prefiltered_count": 155,
+      "prefilter_survived_count": 285,
       "skipped": false,
       "error": null,
-      "closed_jobs": 131
+      "closed_jobs": 132
     },
     {
       "employer_id": "university-of-chicago",
@@ -258,7 +207,7 @@
       "ats_provider": "workday",
       "ats_token": "uchicago",
       "fetched_jobs": 137,
-      "prefiltered_count": 275,
+      "prefiltered_count": 274,
       "prefilter_survived_count": 137,
       "skipped": false,
       "error": null,
@@ -281,12 +230,12 @@
       "name": "Stanford University",
       "ats_provider": "oracle",
       "ats_token": "stanford",
-      "fetched_jobs": 170,
-      "prefiltered_count": 223,
-      "prefilter_survived_count": 170,
+      "fetched_jobs": 171,
+      "prefiltered_count": 226,
+      "prefilter_survived_count": 171,
       "skipped": false,
       "error": null,
-      "closed_jobs": 130
+      "closed_jobs": 129
     },
     {
       "employer_id": "harvard-university",
@@ -305,12 +254,12 @@
       "name": "Johns Hopkins University",
       "ats_provider": "eightfold",
       "ats_token": "jhu",
-      "fetched_jobs": 229,
-      "prefiltered_count": 396,
-      "prefilter_survived_count": 229,
+      "fetched_jobs": 225,
+      "prefiltered_count": 395,
+      "prefilter_survived_count": 225,
       "skipped": false,
       "error": null,
-      "closed_jobs": 111
+      "closed_jobs": 115
     },
     {
       "employer_id": "ucsf",
@@ -354,12 +303,12 @@
       "name": "University of Washington",
       "ats_provider": "workday",
       "ats_token": "uw",
-      "fetched_jobs": 109,
-      "prefiltered_count": 445,
-      "prefilter_survived_count": 109,
+      "fetched_jobs": 112,
+      "prefiltered_count": 450,
+      "prefilter_survived_count": 112,
       "skipped": false,
       "error": null,
-      "closed_jobs": 103
+      "closed_jobs": 104
     },
     {
       "employer_id": "liberty-university",
@@ -392,7 +341,7 @@
       "ats_token": "scu",
       "fetched_jobs": 4,
       "prefiltered_count": 41,
-      "prefilter_survived_count": 54,
+      "prefilter_survived_count": 53,
       "skipped": false,
       "error": null,
       "closed_jobs": 2
@@ -457,7 +406,7 @@
       "ats_provider": "oracle",
       "ats_token": "champlain-college",
       "fetched_jobs": 0,
-      "prefiltered_count": 10,
+      "prefiltered_count": 11,
       "prefilter_survived_count": 1,
       "skipped": false,
       "error": null,
@@ -481,7 +430,7 @@
       "ats_provider": "oracle",
       "ats_token": "east-tennessee-state-university",
       "fetched_jobs": 15,
-      "prefiltered_count": 101,
+      "prefiltered_count": 100,
       "prefilter_survived_count": 51,
       "skipped": false,
       "error": null,
@@ -493,7 +442,7 @@
       "ats_provider": "oracle",
       "ats_token": "loma-linda-university",
       "fetched_jobs": 8,
-      "prefiltered_count": 415,
+      "prefiltered_count": 413,
       "prefilter_survived_count": 21,
       "skipped": false,
       "error": null,
@@ -517,8 +466,8 @@
       "ats_provider": "oracle",
       "ats_token": "tennessee-technological-university",
       "fetched_jobs": 7,
-      "prefiltered_count": 26,
-      "prefilter_survived_count": 22,
+      "prefiltered_count": 28,
+      "prefilter_survived_count": 21,
       "skipped": false,
       "error": null,
       "closed_jobs": 0
@@ -528,9 +477,9 @@
       "name": "University of Maine",
       "ats_provider": "oracle",
       "ats_token": "university-of-maine",
-      "fetched_jobs": 14,
-      "prefiltered_count": 73,
-      "prefilter_survived_count": 49,
+      "fetched_jobs": 15,
+      "prefiltered_count": 72,
+      "prefilter_survived_count": 51,
       "skipped": false,
       "error": null,
       "closed_jobs": 11
@@ -589,7 +538,7 @@
       "ats_provider": "workday",
       "ats_token": "msk",
       "fetched_jobs": 17,
-      "prefiltered_count": 63,
+      "prefiltered_count": 69,
       "prefilter_survived_count": 17,
       "skipped": false,
       "error": null,
@@ -600,12 +549,12 @@
       "name": "Mayo Clinic",
       "ats_provider": "oracle",
       "ats_token": "mayo",
-      "fetched_jobs": 239,
-      "prefiltered_count": 1116,
-      "prefilter_survived_count": 240,
+      "fetched_jobs": 241,
+      "prefiltered_count": 1119,
+      "prefilter_survived_count": 242,
       "skipped": false,
       "error": null,
-      "closed_jobs": 166
+      "closed_jobs": 168
     },
     {
       "employer_id": "cleveland-clinic",
@@ -625,9 +574,9 @@
       "name": "Howard Hughes Medical Institute",
       "ats_provider": "workday",
       "ats_token": "hhmi",
-      "fetched_jobs": 32,
-      "prefiltered_count": 13,
-      "prefilter_survived_count": 32,
+      "fetched_jobs": 33,
+      "prefiltered_count": 14,
+      "prefilter_survived_count": 33,
       "skipped": false,
       "error": null,
       "closed_jobs": 9
@@ -642,19 +591,19 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 764
+      "closed_jobs": 771
     },
     {
       "employer_id": "washington-university-in-st-louis",
       "name": "Washington University in St Louis",
       "ats_provider": "workday",
       "ats_token": "wustl",
-      "fetched_jobs": 184,
-      "prefiltered_count": 464,
-      "prefilter_survived_count": 199,
+      "fetched_jobs": 185,
+      "prefiltered_count": 467,
+      "prefilter_survived_count": 200,
       "skipped": false,
       "error": null,
-      "closed_jobs": 106
+      "closed_jobs": 109
     },
     {
       "employer_id": "cornell-university",
@@ -662,7 +611,7 @@
       "ats_provider": "workday",
       "ats_token": "cornell",
       "fetched_jobs": 18,
-      "prefiltered_count": 145,
+      "prefiltered_count": 146,
       "prefilter_survived_count": 19,
       "skipped": false,
       "error": null,
@@ -673,9 +622,9 @@
       "name": "Northeastern University",
       "ats_provider": "workday",
       "ats_token": "northeastern",
-      "fetched_jobs": 224,
+      "fetched_jobs": 225,
       "prefiltered_count": 150,
-      "prefilter_survived_count": 224,
+      "prefilter_survived_count": 225,
       "skipped": false,
       "error": null,
       "closed_jobs": 39
@@ -697,9 +646,9 @@
       "name": "University of Miami",
       "ats_provider": "workday",
       "ats_token": "umiami",
-      "fetched_jobs": 257,
+      "fetched_jobs": 258,
       "prefiltered_count": 25,
-      "prefilter_survived_count": 257,
+      "prefilter_survived_count": 258,
       "skipped": false,
       "error": null,
       "closed_jobs": 25
@@ -722,8 +671,8 @@
       "ats_provider": "workday",
       "ats_token": "rochester",
       "fetched_jobs": 449,
-      "prefiltered_count": 897,
-      "prefilter_survived_count": 103,
+      "prefiltered_count": 898,
+      "prefilter_survived_count": 101,
       "skipped": false,
       "error": null,
       "feeds": [
@@ -733,7 +682,7 @@
           "ok": true,
           "skipped": false,
           "error": null,
-          "fetchedCount": 103
+          "fetchedCount": 101
         },
         {
           "ats_provider": "interfolio",
@@ -741,19 +690,19 @@
           "ok": true,
           "skipped": false,
           "error": null,
-          "fetchedCount": 346
+          "fetchedCount": 348
         }
       ],
-      "closed_jobs": 109
+      "closed_jobs": 111
     },
     {
       "employer_id": "university-of-nevada-reno",
       "name": "University of Nevada-Reno",
       "ats_provider": "workday",
       "ats_token": "nshe",
-      "fetched_jobs": 31,
-      "prefiltered_count": 91,
-      "prefilter_survived_count": 31,
+      "fetched_jobs": 34,
+      "prefiltered_count": 93,
+      "prefilter_survived_count": 34,
       "skipped": false,
       "error": null,
       "closed_jobs": 9
@@ -764,7 +713,7 @@
       "ats_provider": "workday",
       "ats_token": "georgetown",
       "fetched_jobs": 77,
-      "prefiltered_count": 113,
+      "prefiltered_count": 112,
       "prefilter_survived_count": 23,
       "skipped": false,
       "error": null,
@@ -793,21 +742,21 @@
       "name": "Medical College of Wisconsin",
       "ats_provider": "workday",
       "ats_token": "mcw",
-      "fetched_jobs": 220,
-      "prefiltered_count": 126,
-      "prefilter_survived_count": 220,
+      "fetched_jobs": 221,
+      "prefiltered_count": 127,
+      "prefilter_survived_count": 221,
       "skipped": false,
       "error": null,
-      "closed_jobs": 40
+      "closed_jobs": 41
     },
     {
       "employer_id": "university-of-arkansas-for-medical-sciences",
       "name": "University of Arkansas for Medical Sciences",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 37,
-      "prefiltered_count": 288,
-      "prefilter_survived_count": 37,
+      "fetched_jobs": 39,
+      "prefiltered_count": 291,
+      "prefilter_survived_count": 39,
       "skipped": false,
       "error": null,
       "closed_jobs": 48
@@ -817,12 +766,12 @@
       "name": "Thomas Jefferson University",
       "ats_provider": "workday",
       "ats_token": "jeffersonhealth",
-      "fetched_jobs": 73,
-      "prefiltered_count": 927,
-      "prefilter_survived_count": 73,
+      "fetched_jobs": 87,
+      "prefiltered_count": 913,
+      "prefilter_survived_count": 87,
       "skipped": false,
       "error": null,
-      "closed_jobs": 107
+      "closed_jobs": 113
     },
     {
       "employer_id": "university-of-louisville",
@@ -842,7 +791,7 @@
       "ats_provider": "workday",
       "ats_token": "uasys",
       "fetched_jobs": 33,
-      "prefiltered_count": 52,
+      "prefiltered_count": 53,
       "prefilter_survived_count": 33,
       "skipped": false,
       "error": null,
@@ -854,7 +803,7 @@
       "ats_provider": "workday",
       "ats_token": "olemiss",
       "fetched_jobs": 8,
-      "prefiltered_count": 37,
+      "prefiltered_count": 38,
       "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
@@ -878,7 +827,7 @@
       "ats_provider": "workday",
       "ats_token": "ucf",
       "fetched_jobs": 18,
-      "prefiltered_count": 34,
+      "prefiltered_count": 38,
       "prefilter_survived_count": 19,
       "skipped": false,
       "error": null,
@@ -913,9 +862,9 @@
       "name": "Howard University",
       "ats_provider": "workday",
       "ats_token": "howard",
-      "fetched_jobs": 31,
-      "prefiltered_count": 117,
-      "prefilter_survived_count": 35,
+      "fetched_jobs": 32,
+      "prefiltered_count": 116,
+      "prefilter_survived_count": 36,
       "skipped": false,
       "error": null,
       "closed_jobs": 9
@@ -926,7 +875,7 @@
       "ats_provider": "workday",
       "ats_token": "mines",
       "fetched_jobs": 7,
-      "prefiltered_count": 11,
+      "prefiltered_count": 10,
       "prefilter_survived_count": 7,
       "skipped": false,
       "error": null,
@@ -937,12 +886,12 @@
       "name": "Western Governors University",
       "ats_provider": "workday",
       "ats_token": "wgu",
-      "fetched_jobs": 32,
-      "prefiltered_count": 79,
-      "prefilter_survived_count": 32,
+      "fetched_jobs": 34,
+      "prefiltered_count": 84,
+      "prefilter_survived_count": 34,
       "skipped": false,
       "error": null,
-      "closed_jobs": 39
+      "closed_jobs": 38
     },
     {
       "employer_id": "university-of-maryland-college-park",
@@ -974,7 +923,7 @@
       "ats_provider": "workday",
       "ats_token": "clemson",
       "fetched_jobs": 4,
-      "prefiltered_count": 59,
+      "prefiltered_count": 61,
       "prefilter_survived_count": 6,
       "skipped": false,
       "error": null,
@@ -986,7 +935,7 @@
       "ats_provider": "workday",
       "ats_token": "kean",
       "fetched_jobs": 41,
-      "prefiltered_count": 8,
+      "prefiltered_count": 9,
       "prefilter_survived_count": 41,
       "skipped": false,
       "error": null,
@@ -998,7 +947,7 @@
       "ats_provider": "workday",
       "ats_token": "floridatech",
       "fetched_jobs": 8,
-      "prefiltered_count": 32,
+      "prefiltered_count": 33,
       "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
@@ -1010,7 +959,7 @@
       "ats_provider": "workday",
       "ats_token": "colby",
       "fetched_jobs": 1,
-      "prefiltered_count": 22,
+      "prefiltered_count": 21,
       "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
@@ -1022,7 +971,7 @@
       "ats_provider": "workday",
       "ats_token": "wfu",
       "fetched_jobs": 16,
-      "prefiltered_count": 67,
+      "prefiltered_count": 66,
       "prefilter_survived_count": 4,
       "skipped": false,
       "error": null,
@@ -1064,7 +1013,7 @@
       "ats_provider": "workday",
       "ats_token": "bsu",
       "fetched_jobs": 14,
-      "prefiltered_count": 36,
+      "prefiltered_count": 38,
       "prefilter_survived_count": 14,
       "skipped": false,
       "error": null,
@@ -1088,7 +1037,7 @@
       "ats_provider": "workday",
       "ats_token": "kean",
       "fetched_jobs": 41,
-      "prefiltered_count": 8,
+      "prefiltered_count": 9,
       "prefilter_survived_count": 41,
       "skipped": false,
       "error": null,
@@ -1099,12 +1048,12 @@
       "name": "Ivy Tech Community College",
       "ats_provider": "workday",
       "ats_token": "ivytech",
-      "fetched_jobs": 276,
+      "fetched_jobs": 268,
       "prefiltered_count": 254,
       "prefilter_survived_count": 277,
       "skipped": false,
       "error": null,
-      "closed_jobs": 66
+      "closed_jobs": 75
     },
     {
       "employer_id": "bentley-university",
@@ -1124,7 +1073,7 @@
       "ats_provider": "workday",
       "ats_token": "wesleyan",
       "fetched_jobs": 7,
-      "prefiltered_count": 14,
+      "prefiltered_count": 13,
       "prefilter_survived_count": 9,
       "skipped": false,
       "error": null,
@@ -1135,12 +1084,12 @@
       "name": "The New School",
       "ats_provider": "workday",
       "ats_token": "newschool",
-      "fetched_jobs": 10,
-      "prefiltered_count": 161,
-      "prefilter_survived_count": 12,
+      "fetched_jobs": 12,
+      "prefiltered_count": 166,
+      "prefilter_survived_count": 14,
       "skipped": false,
       "error": null,
-      "closed_jobs": 7
+      "closed_jobs": 8
     },
     {
       "employer_id": "seattle-pacific-university",
@@ -1160,7 +1109,7 @@
       "ats_provider": "workday",
       "ats_token": "tamus",
       "fetched_jobs": 11,
-      "prefiltered_count": 13,
+      "prefiltered_count": 14,
       "prefilter_survived_count": 11,
       "skipped": false,
       "error": null,
@@ -1171,12 +1120,12 @@
       "name": "University of North Florida",
       "ats_provider": "workday",
       "ats_token": "unf",
-      "fetched_jobs": 18,
-      "prefiltered_count": 86,
-      "prefilter_survived_count": 20,
+      "fetched_jobs": 17,
+      "prefiltered_count": 79,
+      "prefilter_survived_count": 19,
       "skipped": false,
       "error": null,
-      "closed_jobs": 8
+      "closed_jobs": 9
     },
     {
       "employer_id": "northwest-missouri-state-university",
@@ -1208,7 +1157,7 @@
       "ats_provider": "workday",
       "ats_token": "ulsselu",
       "fetched_jobs": 6,
-      "prefiltered_count": 11,
+      "prefiltered_count": 12,
       "prefilter_survived_count": 6,
       "skipped": false,
       "error": null,
@@ -1244,7 +1193,7 @@
       "ats_provider": "workday",
       "ats_token": "tamus",
       "fetched_jobs": 28,
-      "prefiltered_count": 44,
+      "prefiltered_count": 47,
       "prefilter_survived_count": 29,
       "skipped": false,
       "error": null,
@@ -1255,9 +1204,9 @@
       "name": "University of San Francisco",
       "ats_provider": "workday",
       "ats_token": "usfca",
-      "fetched_jobs": 5,
+      "fetched_jobs": 6,
       "prefiltered_count": 0,
-      "prefilter_survived_count": 5,
+      "prefilter_survived_count": 6,
       "skipped": false,
       "error": null,
       "closed_jobs": 4
@@ -1267,9 +1216,9 @@
       "name": "Fairfield University",
       "ats_provider": "workday",
       "ats_token": "ffd",
-      "fetched_jobs": 11,
+      "fetched_jobs": 12,
       "prefiltered_count": 37,
-      "prefilter_survived_count": 12,
+      "prefilter_survived_count": 13,
       "skipped": false,
       "error": null,
       "closed_jobs": 4
@@ -1292,7 +1241,7 @@
       "ats_provider": "workday",
       "ats_token": "mtholyoke",
       "fetched_jobs": 4,
-      "prefiltered_count": 15,
+      "prefiltered_count": 16,
       "prefilter_survived_count": 4,
       "skipped": false,
       "error": null,
@@ -1304,7 +1253,7 @@
       "ats_provider": "workday",
       "ats_token": "dickinson",
       "fetched_jobs": 1,
-      "prefiltered_count": 30,
+      "prefiltered_count": 28,
       "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
@@ -1328,7 +1277,7 @@
       "ats_provider": "workday",
       "ats_token": "neiu",
       "fetched_jobs": 0,
-      "prefiltered_count": 11,
+      "prefiltered_count": 12,
       "prefilter_survived_count": 0,
       "skipped": false,
       "error": null,
@@ -1340,7 +1289,7 @@
       "ats_provider": "workday",
       "ats_token": "wsu",
       "fetched_jobs": 23,
-      "prefiltered_count": 31,
+      "prefiltered_count": 34,
       "prefilter_survived_count": 23,
       "skipped": false,
       "error": null,
@@ -1364,7 +1313,7 @@
       "ats_provider": "workday",
       "ats_token": "nku",
       "fetched_jobs": 20,
-      "prefiltered_count": 50,
+      "prefiltered_count": 51,
       "prefilter_survived_count": 21,
       "skipped": false,
       "error": null,
@@ -1436,7 +1385,7 @@
       "ats_provider": "workday",
       "ats_token": "tamus",
       "fetched_jobs": 6,
-      "prefiltered_count": 2,
+      "prefiltered_count": 5,
       "prefilter_survived_count": 6,
       "skipped": false,
       "error": null,
@@ -1460,7 +1409,7 @@
       "ats_provider": "workday",
       "ats_token": "berklee",
       "fetched_jobs": 1,
-      "prefiltered_count": 52,
+      "prefiltered_count": 51,
       "prefilter_survived_count": 7,
       "skipped": false,
       "error": null,
@@ -1495,9 +1444,9 @@
       "name": "University of Wisconsin-Whitewater",
       "ats_provider": "workday",
       "ats_token": "wisconsin",
-      "fetched_jobs": 78,
-      "prefiltered_count": 243,
-      "prefilter_survived_count": 81,
+      "fetched_jobs": 80,
+      "prefiltered_count": 242,
+      "prefilter_survived_count": 83,
       "skipped": false,
       "error": null,
       "closed_jobs": 22
@@ -1556,7 +1505,7 @@
       "ats_provider": "workday",
       "ats_token": "coloradomesa",
       "fetched_jobs": 1,
-      "prefiltered_count": 17,
+      "prefiltered_count": 19,
       "prefilter_survived_count": 7,
       "skipped": false,
       "error": null,
@@ -1567,9 +1516,9 @@
       "name": "Metropolitan State University of Denver",
       "ats_provider": "workday",
       "ats_token": "msudenver",
-      "fetched_jobs": 6,
-      "prefiltered_count": 107,
-      "prefilter_survived_count": 6,
+      "fetched_jobs": 9,
+      "prefiltered_count": 109,
+      "prefilter_survived_count": 9,
       "skipped": false,
       "error": null,
       "closed_jobs": 4
@@ -1580,7 +1529,7 @@
       "ats_provider": "workday",
       "ats_token": "emerson",
       "fetched_jobs": 0,
-      "prefiltered_count": 40,
+      "prefiltered_count": 38,
       "prefilter_survived_count": 1,
       "skipped": false,
       "error": null,
@@ -1592,7 +1541,7 @@
       "ats_provider": "workday",
       "ats_token": "park",
       "fetched_jobs": 0,
-      "prefiltered_count": 8,
+      "prefiltered_count": 7,
       "prefilter_survived_count": 0,
       "skipped": false,
       "error": null,
@@ -1604,7 +1553,7 @@
       "ats_provider": "workday",
       "ats_token": "tamus",
       "fetched_jobs": 21,
-      "prefiltered_count": 27,
+      "prefiltered_count": 28,
       "prefilter_survived_count": 21,
       "skipped": false,
       "error": null,
@@ -1688,7 +1637,7 @@
       "ats_provider": "workday",
       "ats_token": "saintleo",
       "fetched_jobs": 4,
-      "prefiltered_count": 78,
+      "prefiltered_count": 79,
       "prefilter_survived_count": 5,
       "skipped": false,
       "error": null,
@@ -1700,7 +1649,7 @@
       "ats_provider": "workday",
       "ats_token": "mica",
       "fetched_jobs": 2,
-      "prefiltered_count": 36,
+      "prefiltered_count": 35,
       "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
@@ -1724,7 +1673,7 @@
       "ats_provider": "workday",
       "ats_token": "anselm",
       "fetched_jobs": 1,
-      "prefiltered_count": 3,
+      "prefiltered_count": 5,
       "prefilter_survived_count": 1,
       "skipped": false,
       "error": null,
@@ -1784,7 +1733,7 @@
       "ats_provider": "workday",
       "ats_token": "theclaremontcolleges",
       "fetched_jobs": 0,
-      "prefiltered_count": 21,
+      "prefiltered_count": 22,
       "prefilter_survived_count": 1,
       "skipped": false,
       "error": null,
@@ -1927,12 +1876,12 @@
       "name": "Anderson University",
       "ats_provider": "workday",
       "ats_token": "andersonuniversity",
-      "fetched_jobs": 20,
+      "fetched_jobs": 15,
       "prefiltered_count": 19,
       "prefilter_survived_count": 21,
       "skipped": false,
       "error": null,
-      "closed_jobs": 4
+      "closed_jobs": 9
     },
     {
       "employer_id": "the-university-of-findlay",
@@ -1963,23 +1912,23 @@
       "name": "Texas A & M University-Corpus Christi",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 2,
+      "fetched_jobs": 1,
       "prefiltered_count": 20,
       "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
-      "closed_jobs": 5
+      "closed_jobs": 6
     },
     {
       "employer_id": "texas-a-m-university-texarkana",
       "name": "Texas A&M University-Texarkana",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 1,
-      "prefiltered_count": 37,
-      "prefilter_survived_count": 5,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 429 Too Many Requests",
       "closed_jobs": 3
     },
     {
@@ -1988,10 +1937,10 @@
       "ats_provider": "workday",
       "ats_token": "wisconsin",
       "fetched_jobs": 0,
-      "prefiltered_count": 28,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 429 Too Many Requests",
       "closed_jobs": 1
     },
     {
@@ -1999,11 +1948,11 @@
       "name": "Claremont Graduate University",
       "ats_provider": "workday",
       "ats_token": "theclaremontcolleges",
-      "fetched_jobs": 1,
-      "prefiltered_count": 3,
-      "prefilter_survived_count": 1,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 429 Too Many Requests",
       "closed_jobs": 0
     },
     {
@@ -2011,11 +1960,11 @@
       "name": "Samuel Merritt University",
       "ats_provider": "workday",
       "ats_token": "samuelmerritt",
-      "fetched_jobs": 1,
-      "prefiltered_count": 22,
-      "prefilter_survived_count": 29,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 429 Too Many Requests",
       "closed_jobs": 1
     },
     {
@@ -2035,11 +1984,11 @@
       "name": "Montgomery College",
       "ats_provider": "workday",
       "ats_token": "mc",
-      "fetched_jobs": 4,
-      "prefiltered_count": 30,
-      "prefilter_survived_count": 10,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 429 Too Many Requests",
       "closed_jobs": 2
     },
     {
@@ -2048,10 +1997,10 @@
       "ats_provider": "workday",
       "ats_token": "endicott",
       "fetched_jobs": 0,
-      "prefiltered_count": 24,
-      "prefilter_survived_count": 5,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 429 Too Many Requests",
       "closed_jobs": 0
     },
     {
@@ -2060,10 +2009,10 @@
       "ats_provider": "workday",
       "ats_token": "dunwoody",
       "fetched_jobs": 0,
-      "prefiltered_count": 21,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -2071,11 +2020,11 @@
       "name": "Clarkson College",
       "ats_provider": "workday",
       "ats_token": "nebraskamed",
-      "fetched_jobs": 1,
-      "prefiltered_count": 8,
-      "prefilter_survived_count": 2,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -2084,10 +2033,10 @@
       "ats_provider": "workday",
       "ats_token": "chess",
       "fetched_jobs": 0,
-      "prefiltered_count": 27,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -2095,9 +2044,9 @@
       "name": "University of Alabama at Birmingham",
       "ats_provider": "peopleadmin",
       "ats_token": "uab",
-      "fetched_jobs": 471,
-      "prefiltered_count": 242,
-      "prefilter_survived_count": 80,
+      "fetched_jobs": 474,
+      "prefiltered_count": 244,
+      "prefilter_survived_count": 82,
       "skipped": false,
       "error": null,
       "feeds": [
@@ -2107,7 +2056,7 @@
           "ok": true,
           "skipped": false,
           "error": null,
-          "fetchedCount": 391
+          "fetchedCount": 392
         },
         {
           "ats_provider": "taleo",
@@ -2115,22 +2064,22 @@
           "ok": true,
           "skipped": false,
           "error": null,
-          "fetchedCount": 80
+          "fetchedCount": 82
         }
       ],
-      "closed_jobs": 69
+      "closed_jobs": 71
     },
     {
       "employer_id": "university-of-north-carolina-at-chapel-hill",
       "name": "University of North Carolina at Chapel Hill",
       "ats_provider": "peopleadmin",
       "ats_token": "unc",
-      "fetched_jobs": 436,
+      "fetched_jobs": 446,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 603
+      "closed_jobs": 606
     },
     {
       "employer_id": "the-university-of-texas-at-arlington",
@@ -2166,7 +2115,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 43
+      "closed_jobs": 44
     },
     {
       "employer_id": "the-university-of-texas-rio-grande-valley",
@@ -2197,36 +2146,36 @@
       "name": "University of Idaho",
       "ats_provider": "peopleadmin",
       "ats_token": "uidaho",
-      "fetched_jobs": 98,
+      "fetched_jobs": 100,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 71
+      "closed_jobs": 72
     },
     {
       "employer_id": "sam-houston-state-university",
       "name": "Sam Houston State University",
       "ats_provider": "peopleadmin",
       "ats_token": "shsu",
-      "fetched_jobs": 128,
+      "fetched_jobs": 130,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 37
+      "closed_jobs": 38
     },
     {
       "employer_id": "university-of-south-alabama",
       "name": "University of South Alabama",
       "ats_provider": "peopleadmin",
       "ats_token": "southalabama",
-      "fetched_jobs": 8,
+      "fetched_jobs": 7,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 7
+      "closed_jobs": 8
     },
     {
       "employer_id": "university-of-hartford",
@@ -2298,7 +2247,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 76
+      "closed_jobs": 78
     },
     {
       "employer_id": "spelman-college",
@@ -2563,12 +2512,12 @@
       "name": "University of Kentucky",
       "ats_provider": "peopleadmin",
       "ats_token": "ukjobs.uky.edu",
-      "fetched_jobs": 821,
+      "fetched_jobs": 857,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1612
+      "closed_jobs": 1616
     },
     {
       "employer_id": "oregon-state-university",
@@ -2587,12 +2536,12 @@
       "name": "The University of Texas at Dallas",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.utdallas.edu",
-      "fetched_jobs": 99,
+      "fetched_jobs": 98,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 69
+      "closed_jobs": 70
     },
     {
       "employer_id": "south-dakota-state-university",
@@ -2604,43 +2553,43 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 35
+      "closed_jobs": 36
     },
     {
       "employer_id": "university-of-vermont",
       "name": "University of Vermont",
       "ats_provider": "peopleadmin",
       "ats_token": "www.uvmjobs.com",
-      "fetched_jobs": 94,
+      "fetched_jobs": 93,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 87
+      "closed_jobs": 93
     },
     {
       "employer_id": "montana-state-university",
       "name": "Montana State University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.montana.edu",
-      "fetched_jobs": 146,
+      "fetched_jobs": 144,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 124
+      "closed_jobs": 128
     },
     {
       "employer_id": "dartmouth-college",
       "name": "Dartmouth College",
       "ats_provider": "peopleadmin",
       "ats_token": "searchjobs.dartmouth.edu",
-      "fetched_jobs": 118,
+      "fetched_jobs": 120,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 87
+      "closed_jobs": 88
     },
     {
       "employer_id": "university-of-memphis",
@@ -2676,7 +2625,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 23
+      "closed_jobs": 24
     },
     {
       "employer_id": "marquette-university",
@@ -2695,19 +2644,19 @@
       "name": "Loyola University Chicago",
       "ats_provider": "peopleadmin",
       "ats_token": "www.careers.luc.edu",
-      "fetched_jobs": 43,
+      "fetched_jobs": 42,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 30
+      "closed_jobs": 31
     },
     {
       "employer_id": "northern-illinois-university",
       "name": "Northern Illinois University",
       "ats_provider": "peopleadmin",
       "ats_token": "employment.niu.edu",
-      "fetched_jobs": 44,
+      "fetched_jobs": 45,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -2724,7 +2673,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 74
+      "closed_jobs": 75
     },
     {
       "employer_id": "central-michigan-university",
@@ -2736,7 +2685,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 97
+      "closed_jobs": 99
     },
     {
       "employer_id": "portland-state-university",
@@ -2784,7 +2733,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 9
+      "closed_jobs": 11
     },
     {
       "employer_id": "troy-university",
@@ -2808,7 +2757,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 44
+      "closed_jobs": 45
     },
     {
       "employer_id": "morehouse-school-of-medicine",
@@ -2839,7 +2788,7 @@
       "name": "Lewis University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.lewisu.edu",
-      "fetched_jobs": 59,
+      "fetched_jobs": 60,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -2851,7 +2800,7 @@
       "name": "Slippery Rock University of Pennsylvania",
       "ats_provider": "peopleadmin",
       "ats_token": "careers.sru.edu",
-      "fetched_jobs": 2,
+      "fetched_jobs": 3,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -2935,7 +2884,7 @@
       "name": "South Dakota School of Mines and Technology",
       "ats_provider": "peopleadmin",
       "ats_token": "yourfuture.sdbor.edu",
-      "fetched_jobs": 121,
+      "fetched_jobs": 122,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -2947,7 +2896,7 @@
       "name": "Western University of Health Sciences",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.westernu.edu",
-      "fetched_jobs": 49,
+      "fetched_jobs": 50,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -3055,12 +3004,12 @@
       "name": "Roosevelt University",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.roosevelt.edu",
-      "fetched_jobs": 5,
+      "fetched_jobs": 4,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1
+      "closed_jobs": 2
     },
     {
       "employer_id": "bridgewater-state-university",
@@ -3072,18 +3021,18 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 5
+      "closed_jobs": 6
     },
     {
       "employer_id": "memorial-sloan-kettering-cancer-center",
       "name": "MEMORIAL SLOAN-KETTERING CANCER CENTER",
       "ats_provider": "workday",
       "ats_token": "msk",
-      "fetched_jobs": 12,
-      "prefiltered_count": 63,
-      "prefilter_survived_count": 17,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -3091,11 +3040,11 @@
       "name": "Dana-Farber Cancer Institute",
       "ats_provider": "workday",
       "ats_token": "danafarber",
-      "fetched_jobs": 85,
-      "prefiltered_count": 286,
-      "prefilter_survived_count": 85,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 59
     },
     {
@@ -3103,11 +3052,11 @@
       "name": "HOWARD HUGHES MEDICAL INSTITUTE",
       "ats_provider": "workday",
       "ats_token": "hhmi",
-      "fetched_jobs": 32,
-      "prefiltered_count": 13,
-      "prefilter_survived_count": 32,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -3115,11 +3064,11 @@
       "name": "JACKSON LABORATORY",
       "ats_provider": "workday",
       "ats_token": "thejacksonlaboratory",
-      "fetched_jobs": 18,
-      "prefiltered_count": 28,
-      "prefilter_survived_count": 18,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 12
     },
     {
@@ -3127,11 +3076,11 @@
       "name": "VAN ANDEL RESEARCH INSTITUTE",
       "ats_provider": "workday",
       "ats_token": "vai",
-      "fetched_jobs": 13,
-      "prefiltered_count": 5,
-      "prefilter_survived_count": 13,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 7
     },
     {
@@ -3139,11 +3088,11 @@
       "name": "J DAVID GLADSTONE INSTITUTES",
       "ats_provider": "workday",
       "ats_token": "gladstone",
-      "fetched_jobs": 4,
-      "prefiltered_count": 4,
-      "prefilter_survived_count": 6,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 5
     },
     {
@@ -3151,11 +3100,11 @@
       "name": "NATIONWIDE CHILDRENS HOSPITAL INC",
       "ats_provider": "workday",
       "ats_token": "nationwidechildrens",
-      "fetched_jobs": 65,
-      "prefiltered_count": 521,
-      "prefilter_survived_count": 79,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 45
     },
     {
@@ -3163,11 +3112,11 @@
       "name": "URBAN INSTITUTE",
       "ats_provider": "workday",
       "ats_token": "urban",
-      "fetched_jobs": 3,
-      "prefiltered_count": 2,
-      "prefilter_survived_count": 3,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 2
     },
     {
@@ -3187,11 +3136,11 @@
       "name": "WOODS HOLE OCEANOGRAPHIC INSTITUTION",
       "ats_provider": "workday",
       "ats_token": "whoi",
-      "fetched_jobs": 5,
-      "prefiltered_count": 11,
-      "prefilter_survived_count": 8,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 6
     },
     {
@@ -3211,21 +3160,21 @@
       "name": "CONVERGENT RESEARCH INC",
       "ats_provider": "lever",
       "ats_token": "convergentresearch",
-      "fetched_jobs": 7,
+      "fetched_jobs": 11,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 2
+      "closed_jobs": 1
     },
     {
       "employer_id": "emory-university",
       "name": "Emory University",
       "ats_provider": "icims",
       "ats_token": "faculty-emory",
-      "fetched_jobs": 195,
-      "prefiltered_count": 295,
-      "prefilter_survived_count": 328,
+      "fetched_jobs": 191,
+      "prefiltered_count": 298,
+      "prefilter_survived_count": 323,
       "skipped": false,
       "error": null,
       "feeds": [
@@ -3235,7 +3184,7 @@
           "ok": true,
           "skipped": false,
           "error": null,
-          "fetchedCount": 161
+          "fetchedCount": 162
         },
         {
           "ats_provider": "icims",
@@ -3243,18 +3192,18 @@
           "ok": true,
           "skipped": false,
           "error": null,
-          "fetchedCount": 167
+          "fetchedCount": 161
         }
       ],
-      "closed_jobs": 126
+      "closed_jobs": 130
     },
     {
       "employer_id": "oregon-health-science-university",
       "name": "Oregon Health & Science University",
       "ats_provider": "icims",
       "ats_token": "facultycareers-ohsu",
-      "fetched_jobs": 75,
-      "prefiltered_count": 417,
+      "fetched_jobs": 74,
+      "prefiltered_count": 420,
       "prefilter_survived_count": 291,
       "skipped": false,
       "error": null,
@@ -3265,7 +3214,7 @@
           "ok": true,
           "skipped": false,
           "error": null,
-          "fetchedCount": 112
+          "fetchedCount": 113
         },
         {
           "ats_provider": "icims",
@@ -3273,10 +3222,10 @@
           "ok": true,
           "skipped": false,
           "error": null,
-          "fetchedCount": 179
+          "fetchedCount": 178
         }
       ],
-      "closed_jobs": 65
+      "closed_jobs": 67
     },
     {
       "employer_id": "auburn-university",
@@ -3321,7 +3270,7 @@
       "ats_provider": "icims",
       "ats_token": "tcnycareers-touro",
       "fetched_jobs": 19,
-      "prefiltered_count": 150,
+      "prefiltered_count": 149,
       "prefilter_survived_count": 92,
       "skipped": false,
       "error": null,
@@ -3345,10 +3294,10 @@
       "ats_provider": "workday",
       "ats_token": "nsu",
       "fetched_jobs": 0,
-      "prefiltered_count": 24,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -3357,11 +3306,11 @@
       "ats_provider": "oracle",
       "ats_token": "usf",
       "fetched_jobs": 134,
-      "prefiltered_count": 92,
+      "prefiltered_count": 94,
       "prefilter_survived_count": 134,
       "skipped": false,
       "error": null,
-      "closed_jobs": 70
+      "closed_jobs": 71
     },
     {
       "employer_id": "monmouth-university",
@@ -3501,8 +3450,8 @@
       "ats_provider": "oracle",
       "ats_token": "icahn-school-of-medicine-at-mount-sinai",
       "fetched_jobs": 162,
-      "prefiltered_count": 1254,
-      "prefilter_survived_count": 245,
+      "prefiltered_count": 1256,
+      "prefilter_survived_count": 243,
       "skipped": false,
       "error": null,
       "closed_jobs": 72
@@ -3512,9 +3461,9 @@
       "name": "University of Wyoming",
       "ats_provider": "oracle",
       "ats_token": "university-of-wyoming",
-      "fetched_jobs": 9,
-      "prefiltered_count": 195,
-      "prefilter_survived_count": 28,
+      "fetched_jobs": 10,
+      "prefiltered_count": 208,
+      "prefilter_survived_count": 29,
       "skipped": false,
       "error": null,
       "closed_jobs": 11
@@ -3524,12 +3473,12 @@
       "name": "Creighton University",
       "ats_provider": "oracle",
       "ats_token": "creighton-university",
-      "fetched_jobs": 6,
+      "fetched_jobs": 5,
       "prefiltered_count": 42,
-      "prefilter_survived_count": 9,
+      "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
-      "closed_jobs": 8
+      "closed_jobs": 9
     },
     {
       "employer_id": "the-university-of-texas-health-science-center-at-san-antonio",
@@ -3537,8 +3486,8 @@
       "ats_provider": "oracle",
       "ats_token": "the-university-of-texas-health-science-center-at-san-antonio",
       "fetched_jobs": 26,
-      "prefiltered_count": 205,
-      "prefilter_survived_count": 35,
+      "prefiltered_count": 209,
+      "prefilter_survived_count": 34,
       "skipped": false,
       "error": null,
       "closed_jobs": 32
@@ -3548,12 +3497,12 @@
       "name": "University of California-San Francisco",
       "ats_provider": "oracle",
       "ats_token": "university-of-california-san-francisco",
-      "fetched_jobs": 111,
-      "prefiltered_count": 674,
-      "prefilter_survived_count": 158,
+      "fetched_jobs": 110,
+      "prefiltered_count": 678,
+      "prefilter_survived_count": 155,
       "skipped": false,
       "error": null,
-      "closed_jobs": 80
+      "closed_jobs": 82
     },
     {
       "employer_id": "texas-woman-s-university",
@@ -3561,7 +3510,7 @@
       "ats_provider": "oracle",
       "ats_token": "texas-woman-s-university",
       "fetched_jobs": 7,
-      "prefiltered_count": 75,
+      "prefiltered_count": 76,
       "prefilter_survived_count": 44,
       "skipped": false,
       "error": null,
@@ -3573,7 +3522,7 @@
       "ats_provider": "oracle",
       "ats_token": "saint-michael-s-college",
       "fetched_jobs": 0,
-      "prefiltered_count": 13,
+      "prefiltered_count": 12,
       "prefilter_survived_count": 0,
       "skipped": false,
       "error": null,
@@ -3584,9 +3533,9 @@
       "name": "The University of Tennessee Health Science Center",
       "ats_provider": "oracle",
       "ats_token": "the-university-of-tennessee-health-science-center",
-      "fetched_jobs": 75,
-      "prefiltered_count": 258,
-      "prefilter_survived_count": 237,
+      "fetched_jobs": 78,
+      "prefiltered_count": 259,
+      "prefilter_survived_count": 241,
       "skipped": false,
       "error": null,
       "closed_jobs": 54
@@ -3621,7 +3570,7 @@
       "ats_provider": "oracle",
       "ats_token": "butler-university",
       "fetched_jobs": 0,
-      "prefiltered_count": 16,
+      "prefiltered_count": 14,
       "prefilter_survived_count": 9,
       "skipped": false,
       "error": null,
@@ -3645,7 +3594,7 @@
       "ats_provider": "oracle",
       "ats_token": "messiah-university",
       "fetched_jobs": 1,
-      "prefiltered_count": 20,
+      "prefiltered_count": 19,
       "prefilter_survived_count": 1,
       "skipped": false,
       "error": null,
@@ -3681,7 +3630,7 @@
       "ats_provider": "oracle",
       "ats_token": "davidson-college",
       "fetched_jobs": 1,
-      "prefiltered_count": 43,
+      "prefiltered_count": 42,
       "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
@@ -3797,9 +3746,9 @@
       "name": "Eastern Virginia Medical School",
       "ats_provider": "icims",
       "ats_token": "careers-evms",
-      "fetched_jobs": 4,
-      "prefiltered_count": 42,
-      "prefilter_survived_count": 15,
+      "fetched_jobs": 5,
+      "prefiltered_count": 50,
+      "prefilter_survived_count": 16,
       "skipped": false,
       "error": null,
       "closed_jobs": 1
@@ -3811,7 +3760,7 @@
       "ats_token": "careers-nyit",
       "fetched_jobs": 9,
       "prefiltered_count": 35,
-      "prefilter_survived_count": 29,
+      "prefilter_survived_count": 28,
       "skipped": false,
       "error": null,
       "closed_jobs": 0
@@ -3822,8 +3771,8 @@
       "ats_provider": "icims",
       "ats_token": "careers-hackensackmeridianhealth",
       "fetched_jobs": 14,
-      "prefiltered_count": 1549,
-      "prefilter_survived_count": 33,
+      "prefiltered_count": 1544,
+      "prefilter_survived_count": 34,
       "skipped": false,
       "error": null,
       "closed_jobs": 16
@@ -3835,7 +3784,7 @@
       "ats_token": "careers-sri",
       "fetched_jobs": 15,
       "prefiltered_count": 24,
-      "prefilter_survived_count": 17,
+      "prefilter_survived_count": 16,
       "skipped": false,
       "error": null,
       "closed_jobs": 4
@@ -3894,11 +3843,11 @@
       "name": "Arizona State University Campus Immersion",
       "ats_provider": "workday",
       "ats_token": "asu",
-      "fetched_jobs": 6,
-      "prefiltered_count": 106,
-      "prefilter_survived_count": 13,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 11
     },
     {
@@ -3906,11 +3855,11 @@
       "name": "Embry-Riddle Aeronautical University-Prescott",
       "ats_provider": "workday",
       "ats_token": "embryriddle",
-      "fetched_jobs": 18,
-      "prefiltered_count": 86,
-      "prefilter_survived_count": 41,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 2
     },
     {
@@ -3943,8 +3892,8 @@
       "ats_provider": "paylocity",
       "ats_token": "tiffin-university",
       "fetched_jobs": 0,
-      "prefiltered_count": 15,
-      "prefilter_survived_count": 0,
+      "prefiltered_count": 14,
+      "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
       "closed_jobs": 0
@@ -3979,7 +3928,7 @@
       "ats_provider": "paylocity",
       "ats_token": "northwest-nazarene-university",
       "fetched_jobs": 0,
-      "prefiltered_count": 6,
+      "prefiltered_count": 5,
       "prefilter_survived_count": 3,
       "skipped": false,
       "error": null,
@@ -4027,10 +3976,10 @@
       "ats_provider": "workday",
       "ats_token": "academyofartuniversity",
       "fetched_jobs": 0,
-      "prefiltered_count": 14,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4146,11 +4095,11 @@
       "name": "National University",
       "ats_provider": "workday",
       "ats_token": "nus",
-      "fetched_jobs": 8,
-      "prefiltered_count": 15,
-      "prefilter_survived_count": 32,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 7
     },
     {
@@ -4182,11 +4131,11 @@
       "name": "Point Loma Nazarene University",
       "ats_provider": "workday",
       "ats_token": "pointloma",
-      "fetched_jobs": 1,
-      "prefiltered_count": 39,
-      "prefilter_survived_count": 3,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4207,7 +4156,7 @@
       "ats_provider": "paylocity",
       "ats_token": "san-francisco-conservatory-of-music",
       "fetched_jobs": 0,
-      "prefiltered_count": 7,
+      "prefiltered_count": 8,
       "prefilter_survived_count": 1,
       "skipped": false,
       "error": null,
@@ -4231,10 +4180,10 @@
       "ats_provider": "workday",
       "ats_token": "tcsedsystem",
       "fetched_jobs": 0,
-      "prefiltered_count": 3,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4243,10 +4192,10 @@
       "ats_provider": "workday",
       "ats_token": "tcsedsystem",
       "fetched_jobs": 0,
-      "prefiltered_count": 2,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4266,7 +4215,7 @@
       "name": "Yosemite Community College District Office",
       "ats_provider": "peopleadmin",
       "ats_token": "yosemite",
-      "fetched_jobs": 0,
+      "fetched_jobs": 1,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -4279,10 +4228,10 @@
       "ats_provider": "workday",
       "ats_token": "aims",
       "fetched_jobs": 0,
-      "prefiltered_count": 22,
-      "prefilter_survived_count": 28,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4290,7 +4239,7 @@
       "name": "Case Western Reserve University",
       "ats_provider": "interfolio",
       "ats_token": "case-western-reserve-university",
-      "fetched_jobs": 49,
+      "fetched_jobs": 50,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -4319,7 +4268,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 3
+      "closed_jobs": 4
     },
     {
       "employer_id": "albion-college",
@@ -4363,10 +4312,10 @@
       "ats_provider": "workday",
       "ats_token": "strayer",
       "fetched_jobs": 0,
-      "prefiltered_count": 1,
-      "prefilter_survived_count": 5,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -4374,11 +4323,11 @@
       "name": "Barry University",
       "ats_provider": "workday",
       "ats_token": "barryu",
-      "fetched_jobs": 1,
-      "prefiltered_count": 32,
-      "prefilter_survived_count": 26,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 2
     },
     {
@@ -4386,11 +4335,11 @@
       "name": "Full Sail University",
       "ats_provider": "workday",
       "ats_token": "fullsail",
-      "fetched_jobs": 4,
-      "prefiltered_count": 38,
-      "prefilter_survived_count": 27,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4399,10 +4348,10 @@
       "ats_provider": "workday",
       "ats_token": "palmbeachstate",
       "fetched_jobs": 0,
-      "prefiltered_count": 255,
-      "prefilter_survived_count": 3,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4411,10 +4360,10 @@
       "ats_provider": "workday",
       "ats_token": "pensacolastate",
       "fetched_jobs": 0,
-      "prefiltered_count": 15,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4458,11 +4407,11 @@
       "name": "Joliet Junior College",
       "ats_provider": "workday",
       "ats_token": "jjc",
-      "fetched_jobs": 2,
-      "prefiltered_count": 49,
-      "prefilter_survived_count": 5,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4470,11 +4419,11 @@
       "name": "Youngstown State University",
       "ats_provider": "governmentjobs",
       "ats_token": "ysu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 10,
+      "prefiltered_count": 32,
+      "prefilter_survived_count": 99,
       "skipped": false,
-      "error": "fetch failed",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -4483,10 +4432,10 @@
       "ats_provider": "governmentjobs",
       "ats_token": "susqu",
       "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "prefiltered_count": 8,
+      "prefilter_survived_count": 2,
       "skipped": false,
-      "error": "fetch failed",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -4506,11 +4455,11 @@
       "name": "College of Lake County",
       "ats_provider": "workday",
       "ats_token": "clc",
-      "fetched_jobs": 1,
-      "prefiltered_count": 20,
-      "prefilter_survived_count": 21,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -4578,11 +4527,11 @@
       "name": "St. John's College-Department of Nursing",
       "ats_provider": "workday",
       "ats_token": "hshs",
-      "fetched_jobs": 11,
-      "prefiltered_count": 355,
-      "prefilter_survived_count": 12,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 9
     },
     {
@@ -4643,7 +4592,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 47
+      "closed_jobs": 48
     },
     {
       "employer_id": "valparaiso-university",
@@ -4686,11 +4635,11 @@
       "name": "Iowa State University",
       "ats_provider": "workday",
       "ats_token": "isu",
-      "fetched_jobs": 20,
-      "prefiltered_count": 42,
-      "prefilter_survived_count": 35,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 20
     },
     {
@@ -4699,10 +4648,10 @@
       "ats_provider": "workday",
       "ats_token": "centrecollege",
       "fetched_jobs": 0,
-      "prefiltered_count": 1,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4710,11 +4659,11 @@
       "name": "University of the Cumberlands",
       "ats_provider": "workday",
       "ats_token": "ucumberlands",
-      "fetched_jobs": 2,
-      "prefiltered_count": 22,
-      "prefilter_survived_count": 6,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4722,11 +4671,11 @@
       "name": "Louisiana State University and Agricultural & Mechanical College",
       "ats_provider": "workday",
       "ats_token": "lsu",
-      "fetched_jobs": 46,
-      "prefiltered_count": 187,
-      "prefilter_survived_count": 86,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 33
     },
     {
@@ -4746,11 +4695,11 @@
       "name": "Bowie State University",
       "ats_provider": "workday",
       "ats_token": "marylandconnect",
-      "fetched_jobs": 6,
-      "prefiltered_count": 30,
-      "prefilter_survived_count": 14,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4759,10 +4708,10 @@
       "ats_provider": "workday",
       "ats_token": "marylandconnect",
       "fetched_jobs": 0,
-      "prefiltered_count": 6,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4782,11 +4731,11 @@
       "name": "Frostburg State University",
       "ats_provider": "workday",
       "ats_token": "marylandconnect",
-      "fetched_jobs": 1,
-      "prefiltered_count": 20,
-      "prefilter_survived_count": 6,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4806,11 +4755,11 @@
       "name": "Loyola University Maryland",
       "ats_provider": "workday",
       "ats_token": "loyola",
-      "fetched_jobs": 1,
-      "prefiltered_count": 45,
-      "prefilter_survived_count": 8,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 5
     },
     {
@@ -4818,11 +4767,11 @@
       "name": "University of Maryland Global Campus",
       "ats_provider": "workday",
       "ats_token": "umgc",
-      "fetched_jobs": 1,
-      "prefiltered_count": 19,
-      "prefilter_survived_count": 156,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -4854,11 +4803,11 @@
       "name": "Salisbury University",
       "ats_provider": "workday",
       "ats_token": "marylandconnect",
-      "fetched_jobs": 2,
-      "prefiltered_count": 21,
-      "prefilter_survived_count": 8,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4878,11 +4827,11 @@
       "name": "Amherst College",
       "ats_provider": "workday",
       "ats_token": "amherst",
-      "fetched_jobs": 2,
-      "prefiltered_count": 47,
-      "prefilter_survived_count": 4,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -4902,11 +4851,11 @@
       "name": "Smith College",
       "ats_provider": "workday",
       "ats_token": "smithcollege",
-      "fetched_jobs": 1,
-      "prefiltered_count": 26,
-      "prefilter_survived_count": 4,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4927,10 +4876,10 @@
       "ats_provider": "workday",
       "ats_token": "lindenwood",
       "fetched_jobs": 0,
-      "prefiltered_count": 63,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -4987,10 +4936,10 @@
       "ats_provider": "workday",
       "ats_token": "hamline",
       "fetched_jobs": 0,
-      "prefiltered_count": 6,
+      "prefiltered_count": 0,
       "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5047,11 +4996,11 @@
       "name": "Kansas City University",
       "ats_provider": "workday",
       "ats_token": "kansascity",
-      "fetched_jobs": 1,
-      "prefiltered_count": 21,
-      "prefilter_survived_count": 17,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5071,11 +5020,11 @@
       "name": "Nebraska Methodist College of Nursing & Allied Health",
       "ats_provider": "workday",
       "ats_token": "bestcare",
-      "fetched_jobs": 4,
-      "prefiltered_count": 263,
-      "prefilter_survived_count": 5,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 4
     },
     {
@@ -5084,10 +5033,10 @@
       "ats_provider": "workday",
       "ats_token": "mccneb",
       "fetched_jobs": 0,
-      "prefiltered_count": 69,
-      "prefilter_survived_count": 1,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -5095,11 +5044,11 @@
       "name": "Mid-Plains Community College",
       "ats_provider": "workday",
       "ats_token": "gphealth",
-      "fetched_jobs": 2,
-      "prefiltered_count": 112,
-      "prefilter_survived_count": 3,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -5168,7 +5117,7 @@
       "ats_provider": "adp",
       "ats_token": "ced18917-a7d8-4729-8bf3-9b2aa345c933",
       "fetched_jobs": 0,
-      "prefiltered_count": 15,
+      "prefiltered_count": 14,
       "prefilter_survived_count": 0,
       "skipped": false,
       "error": null,
@@ -5191,12 +5140,12 @@
       "name": "Rosalind Franklin University of Medicine and Science",
       "ats_provider": "adp",
       "ats_token": "395a4546-652f-4dd9-832f-b02e894ced6e",
-      "fetched_jobs": 8,
+      "fetched_jobs": 6,
       "prefiltered_count": 21,
-      "prefilter_survived_count": 12,
+      "prefilter_survived_count": 10,
       "skipped": false,
       "error": null,
-      "closed_jobs": 2
+      "closed_jobs": 4
     },
     {
       "employer_id": "lake-forest-college",
@@ -5288,7 +5237,7 @@
       "ats_provider": "adp",
       "ats_token": "9553338f-c93c-40ce-9a23-04b38f1294de",
       "fetched_jobs": 0,
-      "prefiltered_count": 7,
+      "prefiltered_count": 8,
       "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
@@ -5444,7 +5393,7 @@
       "ats_provider": "adp",
       "ats_token": "542f7b59-1156-4a17-a729-f8cd9337acf6",
       "fetched_jobs": 1,
-      "prefiltered_count": 68,
+      "prefiltered_count": 74,
       "prefilter_survived_count": 3,
       "skipped": false,
       "error": null,
@@ -5683,9 +5632,9 @@
       "name": "University of Tennessee System",
       "ats_provider": "oracle",
       "ats_token": "fa-ewlq-saasfaprod1.fa.ocs.oraclecloud.com",
-      "fetched_jobs": 237,
-      "prefiltered_count": 258,
-      "prefilter_survived_count": 237,
+      "fetched_jobs": 241,
+      "prefiltered_count": 259,
+      "prefilter_survived_count": 241,
       "skipped": false,
       "error": null,
       "closed_jobs": 68
@@ -5696,7 +5645,7 @@
       "ats_provider": "csod",
       "ats_token": "unm",
       "fetched_jobs": 158,
-      "prefiltered_count": 196,
+      "prefiltered_count": 197,
       "prefilter_survived_count": 158,
       "skipped": false,
       "error": null,
@@ -5707,9 +5656,9 @@
       "name": "University of Arizona",
       "ats_provider": "csod",
       "ats_token": "arizona",
-      "fetched_jobs": 153,
-      "prefiltered_count": 160,
-      "prefilter_survived_count": 153,
+      "fetched_jobs": 156,
+      "prefiltered_count": 164,
+      "prefilter_survived_count": 156,
       "skipped": false,
       "error": null,
       "closed_jobs": 81
@@ -5719,12 +5668,12 @@
       "name": "San Jacinto College",
       "ats_provider": "csod",
       "ats_token": "sanjac",
-      "fetched_jobs": 4,
-      "prefiltered_count": 8,
-      "prefilter_survived_count": 4,
+      "fetched_jobs": 5,
+      "prefiltered_count": 9,
+      "prefilter_survived_count": 5,
       "skipped": false,
       "error": null,
-      "closed_jobs": 236
+      "closed_jobs": 235
     },
     {
       "employer_id": "alamo-colleges-district",
@@ -5743,12 +5692,12 @@
       "name": "East Stroudsburg University of Pennsylvania",
       "ats_provider": "csod",
       "ats_token": "ESU",
-      "fetched_jobs": 28,
+      "fetched_jobs": 26,
       "prefiltered_count": 135,
-      "prefilter_survived_count": 29,
+      "prefilter_survived_count": 27,
       "skipped": false,
       "error": null,
-      "closed_jobs": 3
+      "closed_jobs": 5
     },
     {
       "employer_id": "wayne-state-university",
@@ -5756,7 +5705,7 @@
       "ats_provider": "csod",
       "ats_token": "waynetalent",
       "fetched_jobs": 78,
-      "prefiltered_count": 77,
+      "prefiltered_count": 81,
       "prefilter_survived_count": 78,
       "skipped": false,
       "error": null,
@@ -5767,9 +5716,9 @@
       "name": "University of Maine System",
       "ats_provider": "oracle",
       "ats_token": "fa-ewca-saasfaprod1.fa.ocs.oraclecloud.com",
-      "fetched_jobs": 49,
-      "prefiltered_count": 73,
-      "prefilter_survived_count": 49,
+      "fetched_jobs": 51,
+      "prefiltered_count": 72,
+      "prefilter_survived_count": 51,
       "skipped": false,
       "error": null,
       "closed_jobs": 35
@@ -5779,12 +5728,12 @@
       "name": "Harper College",
       "ats_provider": "oracle",
       "ats_token": "fa-eneh-saasfaprod1.fa.ocs.oraclecloud.com",
-      "fetched_jobs": 45,
+      "fetched_jobs": 44,
       "prefiltered_count": 74,
-      "prefilter_survived_count": 50,
+      "prefilter_survived_count": 49,
       "skipped": false,
       "error": null,
-      "closed_jobs": 7
+      "closed_jobs": 8
     },
     {
       "employer_id": "community-college-of-allegheny-county",
@@ -5792,7 +5741,7 @@
       "ats_provider": "csod",
       "ats_token": "ccac",
       "fetched_jobs": 4,
-      "prefiltered_count": 122,
+      "prefiltered_count": 121,
       "prefilter_survived_count": 4,
       "skipped": false,
       "error": null,
@@ -5804,7 +5753,7 @@
       "ats_provider": "csod",
       "ats_token": "usm",
       "fetched_jobs": 47,
-      "prefiltered_count": 87,
+      "prefiltered_count": 85,
       "prefilter_survived_count": 47,
       "skipped": false,
       "error": null,
@@ -5864,7 +5813,7 @@
       "ats_provider": "csod",
       "ats_token": "concordiacollege",
       "fetched_jobs": 3,
-      "prefiltered_count": 45,
+      "prefiltered_count": 46,
       "prefilter_survived_count": 3,
       "skipped": false,
       "error": null,
@@ -5876,7 +5825,7 @@
       "ats_provider": "csod",
       "ats_token": "blinn",
       "fetched_jobs": 2,
-      "prefiltered_count": 71,
+      "prefiltered_count": 69,
       "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
@@ -5912,7 +5861,7 @@
       "ats_provider": "csod",
       "ats_token": "mbcc-mass",
       "fetched_jobs": 29,
-      "prefiltered_count": 17,
+      "prefiltered_count": 16,
       "prefilter_survived_count": 29,
       "skipped": false,
       "error": null,
@@ -5924,7 +5873,7 @@
       "ats_provider": "csod",
       "ats_token": "azwestern",
       "fetched_jobs": 31,
-      "prefiltered_count": 15,
+      "prefiltered_count": 14,
       "prefilter_survived_count": 31,
       "skipped": false,
       "error": null,
@@ -5936,7 +5885,7 @@
       "ats_provider": "icims",
       "ats_token": "tuccareers-touro",
       "fetched_jobs": 17,
-      "prefiltered_count": 23,
+      "prefiltered_count": 22,
       "prefilter_survived_count": 17,
       "skipped": false,
       "error": null,
@@ -5960,7 +5909,7 @@
       "ats_provider": "csod",
       "ats_token": "gvltec",
       "fetched_jobs": 4,
-      "prefiltered_count": 27,
+      "prefiltered_count": 28,
       "prefilter_survived_count": 4,
       "skipped": false,
       "error": null,
@@ -5983,9 +5932,9 @@
       "name": "Southwestern Oklahoma State University",
       "ats_provider": "csod",
       "ats_token": "swosu",
-      "fetched_jobs": 1,
-      "prefiltered_count": 15,
-      "prefilter_survived_count": 1,
+      "fetched_jobs": 2,
+      "prefiltered_count": 16,
+      "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
       "closed_jobs": 0
@@ -6020,7 +5969,7 @@
       "ats_provider": "csod",
       "ats_token": "nsuok",
       "fetched_jobs": 8,
-      "prefiltered_count": 10,
+      "prefiltered_count": 12,
       "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
@@ -6092,7 +6041,7 @@
       "ats_provider": "oracle",
       "ats_token": "setonhill-ibtwjb.fa.ocs.oraclecloud.com",
       "fetched_jobs": 1,
-      "prefiltered_count": 6,
+      "prefiltered_count": 4,
       "prefilter_survived_count": 1,
       "skipped": false,
       "error": null,
@@ -6139,45 +6088,45 @@
       "name": "Alabama A and M University",
       "ats_provider": "governmentjobs",
       "ats_token": "aamu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 48,
+      "prefiltered_count": 114,
+      "prefilter_survived_count": 48,
       "skipped": false,
-      "error": "fetch failed",
-      "closed_jobs": 15
+      "error": null,
+      "closed_jobs": 16
     },
     {
       "employer_id": "alabama-state-university",
       "name": "Alabama State University",
       "ats_provider": "governmentjobs",
       "ats_token": "alasu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 2,
+      "prefiltered_count": 11,
+      "prefilter_survived_count": 2,
       "skipped": false,
-      "error": "fetch failed",
-      "closed_jobs": 3
+      "error": null,
+      "closed_jobs": 1
     },
     {
       "employer_id": "appalachian-state-university",
       "name": "Appalachian State University",
       "ats_provider": "peopleadmin",
       "ats_token": "appstate",
-      "fetched_jobs": 113,
+      "fetched_jobs": 114,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 89
+      "closed_jobs": 90
     },
     {
       "employer_id": "austin-peay-state-university",
       "name": "Austin Peay State University",
       "ats_provider": "oracle",
       "ats_token": "ibqzjb.fa.ocs.oraclecloud.com",
-      "fetched_jobs": 10,
-      "prefiltered_count": 58,
-      "prefilter_survived_count": 10,
+      "fetched_jobs": 13,
+      "prefiltered_count": 62,
+      "prefilter_survived_count": 13,
       "skipped": false,
       "error": null,
       "closed_jobs": 1
@@ -6187,11 +6136,11 @@
       "name": "Babson College",
       "ats_provider": "workday",
       "ats_token": "babson",
-      "fetched_jobs": 8,
-      "prefiltered_count": 1,
-      "prefilter_survived_count": 9,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -6199,11 +6148,11 @@
       "name": "Brandeis University",
       "ats_provider": "workday",
       "ats_token": "brandeis",
-      "fetched_jobs": 21,
-      "prefiltered_count": 67,
-      "prefilter_survived_count": 21,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 9
     },
     {
@@ -6223,23 +6172,23 @@
       "name": "Chapman University",
       "ats_provider": "peopleadmin",
       "ats_token": "chapman",
-      "fetched_jobs": 193,
+      "fetched_jobs": 192,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 271
+      "closed_jobs": 273
     },
     {
       "employer_id": "cold-spring-harbor-laboratory",
       "name": "Cold Spring Harbor Laboratory",
       "ats_provider": "governmentjobs",
       "ats_token": "cshl",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 9,
+      "prefiltered_count": 24,
+      "prefilter_survived_count": 9,
       "skipped": false,
-      "error": "fetch failed",
+      "error": null,
       "closed_jobs": 1
     },
     {
@@ -6259,7 +6208,7 @@
       "name": "College of Charleston",
       "ats_provider": "peopleadmin",
       "ats_token": "cofc",
-      "fetched_jobs": 40,
+      "fetched_jobs": 41,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -6271,11 +6220,11 @@
       "name": "College of Holy Cross",
       "ats_provider": "workday",
       "ats_token": "holycross",
-      "fetched_jobs": 3,
-      "prefiltered_count": 49,
-      "prefilter_survived_count": 3,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -6283,23 +6232,23 @@
       "name": "Fordham University",
       "ats_provider": "peopleadmin",
       "ats_token": "fordham",
-      "fetched_jobs": 67,
+      "fetched_jobs": 65,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 51
+      "closed_jobs": 55
     },
     {
       "employer_id": "fort-hays-state-university",
       "name": "Fort Hays State University",
       "ats_provider": "workday",
       "ats_token": "fhsu",
-      "fetched_jobs": 7,
-      "prefiltered_count": 5,
-      "prefilter_survived_count": 7,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 3
     },
     {
@@ -6307,11 +6256,11 @@
       "name": "Governors State University",
       "ats_provider": "governmentjobs",
       "ats_token": "govst",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 40,
+      "prefiltered_count": 16,
+      "prefilter_survived_count": 40,
       "skipped": false,
-      "error": "fetch failed",
+      "error": null,
       "closed_jobs": 6
     },
     {
@@ -6319,11 +6268,11 @@
       "name": "Jackson State University",
       "ats_provider": "governmentjobs",
       "ats_token": "jsums",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 26,
+      "prefiltered_count": 51,
+      "prefilter_survived_count": 26,
       "skipped": false,
-      "error": "fetch failed",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -6343,11 +6292,11 @@
       "name": "Louisiana Tech University",
       "ats_provider": "workday",
       "ats_token": "ulsltu",
-      "fetched_jobs": 12,
-      "prefiltered_count": 14,
-      "prefilter_survived_count": 12,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 4
     },
     {
@@ -6355,11 +6304,11 @@
       "name": "Loyola Marymount University",
       "ats_provider": "workday",
       "ats_token": "lmu",
-      "fetched_jobs": 43,
-      "prefiltered_count": 79,
-      "prefilter_survived_count": 43,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 3
     },
     {
@@ -6367,11 +6316,11 @@
       "name": "Mcneese State University",
       "ats_provider": "governmentjobs",
       "ats_token": "louisiana",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 53,
+      "prefiltered_count": 458,
+      "prefilter_survived_count": 53,
       "skipped": false,
-      "error": "fetch failed",
+      "error": null,
       "closed_jobs": 97
     },
     {
@@ -6379,11 +6328,11 @@
       "name": "Mercer University",
       "ats_provider": "workday",
       "ats_token": "merceruniversity",
-      "fetched_jobs": 34,
-      "prefiltered_count": 51,
-      "prefilter_survived_count": 34,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 10
     },
     {
@@ -6391,12 +6340,12 @@
       "name": "Oberlin College",
       "ats_provider": "peopleadmin",
       "ats_token": "oberlin",
-      "fetched_jobs": 69,
+      "fetched_jobs": 68,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 37
+      "closed_jobs": 39
     },
     {
       "employer_id": "rhode-island-college",
@@ -6415,11 +6364,11 @@
       "name": "Rider University",
       "ats_provider": "governmentjobs",
       "ats_token": "rideru",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 6,
+      "prefiltered_count": 15,
+      "prefilter_survived_count": 6,
       "skipped": false,
-      "error": "fetch failed",
+      "error": null,
       "closed_jobs": 11
     },
     {
@@ -6427,11 +6376,11 @@
       "name": "Sage Bionetworks",
       "ats_provider": "greenhouse",
       "ats_token": "sagebionetworks",
-      "fetched_jobs": 4,
+      "fetched_jobs": 0,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 406 Not Acceptable",
       "closed_jobs": 0
     },
     {
@@ -6439,11 +6388,11 @@
       "name": "Saint Louis University",
       "ats_provider": "workday",
       "ats_token": "slu",
-      "fetched_jobs": 26,
-      "prefiltered_count": 41,
-      "prefilter_survived_count": 26,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 19
     },
     {
@@ -6451,11 +6400,11 @@
       "name": "Southern Utah University",
       "ats_provider": "governmentjobs",
       "ats_token": "suu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 4,
+      "prefiltered_count": 20,
+      "prefilter_survived_count": 4,
       "skipped": false,
-      "error": "fetch failed",
+      "error": null,
       "closed_jobs": 2
     },
     {
@@ -6463,11 +6412,11 @@
       "name": "Suffolk University",
       "ats_provider": "workday",
       "ats_token": "suffolk",
-      "fetched_jobs": 7,
-      "prefiltered_count": 18,
-      "prefilter_survived_count": 7,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 1
     },
     {
@@ -6475,12 +6424,12 @@
       "name": "Syracuse University",
       "ats_provider": "peopleadmin",
       "ats_token": "sujobopps",
-      "fetched_jobs": 233,
+      "fetched_jobs": 232,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 224
+      "closed_jobs": 226
     },
     {
       "employer_id": "trinity-college",
@@ -6499,12 +6448,12 @@
       "name": "University of Central Missouri",
       "ats_provider": "governmentjobs",
       "ats_token": "ucmo",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 5,
+      "prefiltered_count": 76,
+      "prefilter_survived_count": 5,
       "skipped": false,
-      "error": "fetch failed",
-      "closed_jobs": 1
+      "error": null,
+      "closed_jobs": 2
     },
     {
       "employer_id": "university-of-guam",
@@ -6523,11 +6472,11 @@
       "name": "University of New Orleans",
       "ats_provider": "workday",
       "ats_token": "ulsuno",
-      "fetched_jobs": 21,
-      "prefiltered_count": 81,
-      "prefilter_survived_count": 21,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 3
     },
     {
@@ -6540,18 +6489,18 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 97
+      "closed_jobs": 99
     },
     {
       "employer_id": "university-of-pennsylvania",
       "name": "University of Pennsylvania",
       "ats_provider": "workday",
       "ats_token": "upenn",
-      "fetched_jobs": 187,
-      "prefiltered_count": 272,
-      "prefilter_survived_count": 187,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 46
     },
     {
@@ -6559,7 +6508,7 @@
       "name": "University of Scranton",
       "ats_provider": "peopleadmin",
       "ats_token": "universityofscrantonjobs",
-      "fetched_jobs": 38,
+      "fetched_jobs": 42,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -6571,11 +6520,11 @@
       "name": "University of Texas at Austin",
       "ats_provider": "workday",
       "ats_token": "utaustin",
-      "fetched_jobs": 180,
-      "prefiltered_count": 397,
-      "prefilter_survived_count": 180,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 52
     },
     {
@@ -6583,23 +6532,23 @@
       "name": "University of Utah",
       "ats_provider": "icims",
       "ats_token": "careers-uuhc",
-      "fetched_jobs": 18,
+      "fetched_jobs": 17,
       "prefiltered_count": 510,
-      "prefilter_survived_count": 18,
+      "prefilter_survived_count": 17,
       "skipped": false,
       "error": null,
-      "closed_jobs": 11
+      "closed_jobs": 12
     },
     {
       "employer_id": "utah-valley-university",
       "name": "Utah Valley University",
       "ats_provider": "governmentjobs",
       "ats_token": "uvu",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 7,
+      "prefiltered_count": 68,
+      "prefilter_survived_count": 7,
       "skipped": false,
-      "error": "fetch failed",
+      "error": null,
       "closed_jobs": 17
     },
     {
@@ -6607,7 +6556,7 @@
       "name": "Villanova University",
       "ats_provider": "peopleadmin",
       "ats_token": "villanova",
-      "fetched_jobs": 331,
+      "fetched_jobs": 333,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -6619,11 +6568,11 @@
       "name": "West Texas A and M University",
       "ats_provider": "workday",
       "ats_token": "tamus",
-      "fetched_jobs": 7,
-      "prefiltered_count": 17,
-      "prefilter_survived_count": 7,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 2
     },
     {
@@ -6631,19 +6580,19 @@
       "name": "Western Carolina University",
       "ats_provider": "peopleadmin",
       "ats_token": "wcu",
-      "fetched_jobs": 109,
+      "fetched_jobs": 111,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 37
+      "closed_jobs": 40
     },
     {
       "employer_id": "western-michigan-university",
       "name": "Western Michigan University",
       "ats_provider": "peopleadmin",
       "ats_token": "wmujobs",
-      "fetched_jobs": 32,
+      "fetched_jobs": 33,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -6667,21 +6616,21 @@
       "name": "West Virginia University",
       "ats_provider": "taleo",
       "ats_token": "wvu",
-      "fetched_jobs": 67,
-      "prefiltered_count": 138,
-      "prefilter_survived_count": 67,
+      "fetched_jobs": 65,
+      "prefiltered_count": 136,
+      "prefilter_survived_count": 65,
       "skipped": false,
       "error": null,
-      "closed_jobs": 21
+      "closed_jobs": 23
     },
     {
       "employer_id": "temple-university",
       "name": "Temple University",
       "ats_provider": "taleo",
       "ats_token": "temple",
-      "fetched_jobs": 28,
+      "fetched_jobs": 29,
       "prefiltered_count": 69,
-      "prefilter_survived_count": 28,
+      "prefilter_survived_count": 29,
       "skipped": false,
       "error": null,
       "closed_jobs": 13
@@ -6692,7 +6641,7 @@
       "ats_provider": "taleo",
       "ats_token": "smu",
       "fetched_jobs": 11,
-      "prefiltered_count": 33,
+      "prefiltered_count": 34,
       "prefilter_survived_count": 11,
       "skipped": false,
       "error": null,
@@ -6727,35 +6676,35 @@
       "name": "University of Pittsburgh-Pittsburgh Campus",
       "ats_provider": "taleo",
       "ats_token": "cfopitt",
-      "fetched_jobs": 218,
-      "prefiltered_count": 166,
-      "prefilter_survived_count": 218,
+      "fetched_jobs": 220,
+      "prefiltered_count": 169,
+      "prefilter_survived_count": 220,
       "skipped": false,
       "error": null,
-      "closed_jobs": 118
+      "closed_jobs": 120
     },
     {
       "employer_id": "university-of-texas-southwestern-medical-center",
       "name": "University of Texas Southwestern Medical Center",
       "ats_provider": "taleo",
       "ats_token": "utsw",
-      "fetched_jobs": 60,
+      "fetched_jobs": 62,
       "prefiltered_count": 425,
-      "prefilter_survived_count": 69,
+      "prefilter_survived_count": 71,
       "skipped": false,
       "error": null,
-      "closed_jobs": 72
+      "closed_jobs": 70
     },
     {
       "employer_id": "pew-research-center",
       "name": "Pew Research Center",
       "ats_provider": "workday",
       "ats_token": "pewtrusts",
-      "fetched_jobs": 3,
-      "prefiltered_count": 2,
-      "prefilter_survived_count": 3,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 0
     },
     {
@@ -6763,11 +6712,11 @@
       "name": "Allen Institute for AI (Ai2)",
       "ats_provider": "greenhouse",
       "ats_token": "thealleninstitute",
-      "fetched_jobs": 21,
+      "fetched_jobs": 0,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 406 Not Acceptable",
       "closed_jobs": 13
     },
     {
@@ -6799,9 +6748,9 @@
       "name": "Minneapolis Heart Institute Foundation",
       "ats_provider": "adp",
       "ats_token": "39263a55-c11d-480c-b3b1-4599b9d7ad64",
-      "fetched_jobs": 2,
+      "fetched_jobs": 3,
       "prefiltered_count": 1,
-      "prefilter_survived_count": 2,
+      "prefilter_survived_count": 3,
       "skipped": false,
       "error": null,
       "closed_jobs": 4
@@ -6811,7 +6760,7 @@
       "name": "Altarum Institute",
       "ats_provider": "lever",
       "ats_token": "altarum",
-      "fetched_jobs": 5,
+      "fetched_jobs": 9,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -6835,11 +6784,11 @@
       "name": "Draper Laboratory",
       "ats_provider": "workday",
       "ats_token": "draper",
-      "fetched_jobs": 25,
-      "prefiltered_count": 184,
-      "prefilter_survived_count": 25,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 6
     },
     {
@@ -6860,7 +6809,7 @@
       "ats_provider": "icims",
       "ats_token": "careers-riversideresearch",
       "fetched_jobs": 18,
-      "prefiltered_count": 30,
+      "prefiltered_count": 28,
       "prefilter_survived_count": 18,
       "skipped": false,
       "error": null,
@@ -6871,11 +6820,11 @@
       "name": "Medical University of South Carolina",
       "ats_provider": "workday",
       "ats_token": "musc",
-      "fetched_jobs": 74,
-      "prefiltered_count": 926,
-      "prefilter_survived_count": 74,
+      "fetched_jobs": 0,
+      "prefiltered_count": 0,
+      "prefilter_survived_count": 0,
       "skipped": false,
-      "error": null,
+      "error": "workday circuit open (http:429 from multiple tenants) — not queried; previous jobs carried forward",
       "closed_jobs": 62
     },
     {
@@ -6883,20 +6832,20 @@
       "name": "Michael J. Fox Foundation for Parkinson's Research",
       "ats_provider": "greenhouse",
       "ats_token": "themichaeljfoxfoundation",
-      "fetched_jobs": 7,
+      "fetched_jobs": 0,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "HTTP 406 Not Acceptable",
       "closed_jobs": 7
     }
   ],
   "supabase_sync": {
     "mode": "diff",
-    "upserted": 583,
+    "upserted": 755,
     "deleted": 0,
-    "unchanged": 26968,
-    "total": 27551
+    "unchanged": 27026,
+    "total": 27781
   },
   "supabase_sync_status": "ok"
 }
