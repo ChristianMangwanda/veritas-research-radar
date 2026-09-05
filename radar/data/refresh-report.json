@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-09-05T10:48:09.419Z",
+  "refreshed_at": "2026-09-05T15:28:23.524Z",
   "employer_count": 547,
   "ats_enabled_employer_count": 530,
-  "job_count": 27646,
-  "active_job_count": 17745,
-  "closed_job_count": 9901,
-  "newly_closed_count": 31,
-  "errored_employers": 2,
+  "job_count": 27648,
+  "active_job_count": 17740,
+  "closed_job_count": 9908,
+  "newly_closed_count": 21,
+  "errored_employers": 1,
   "recall_anomalies": [],
   "prefilter_anomalies": [
     {
@@ -609,7 +609,7 @@
       "ats_provider": "oracle",
       "ats_token": "mayo",
       "fetched_jobs": 247,
-      "prefiltered_count": 1116,
+      "prefiltered_count": 1118,
       "prefilter_survived_count": 248,
       "skipped": false,
       "error": null,
@@ -1647,11 +1647,11 @@
       "name": "Guilford College",
       "ats_provider": "workday",
       "ats_token": "guilford",
-      "fetched_jobs": 0,
-      "prefiltered_count": 0,
-      "prefilter_survived_count": null,
+      "fetched_jobs": 1,
+      "prefiltered_count": 14,
+      "prefilter_survived_count": 1,
       "skipped": false,
-      "error": "This operation was aborted",
+      "error": null,
       "closed_jobs": 0
     },
     {
@@ -2775,7 +2775,7 @@
       "name": "Cleveland State University",
       "ats_provider": "peopleadmin",
       "ats_token": "hrjobs.csuohio.edu",
-      "fetched_jobs": 54,
+      "fetched_jobs": 55,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -3100,7 +3100,7 @@
       "ats_provider": "workday",
       "ats_token": "danafarber",
       "fetched_jobs": 87,
-      "prefiltered_count": 278,
+      "prefiltered_count": 277,
       "prefilter_survived_count": 87,
       "skipped": false,
       "error": null,
@@ -4478,12 +4478,12 @@
       "name": "Youngstown State University",
       "ats_provider": "governmentjobs",
       "ats_token": "ysu",
-      "fetched_jobs": 10,
-      "prefiltered_count": 35,
-      "prefilter_survived_count": 91,
+      "fetched_jobs": 9,
+      "prefiltered_count": 32,
+      "prefilter_survived_count": 92,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1
+      "closed_jobs": 2
     },
     {
       "employer_id": "susquehanna-university",
@@ -6148,7 +6148,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "aamu",
       "fetched_jobs": 49,
-      "prefiltered_count": 114,
+      "prefiltered_count": 112,
       "prefilter_survived_count": 49,
       "skipped": false,
       "error": null,
@@ -6315,24 +6315,24 @@
       "name": "Governors State University",
       "ats_provider": "governmentjobs",
       "ats_token": "govst",
-      "fetched_jobs": 43,
+      "fetched_jobs": 39,
       "prefiltered_count": 16,
-      "prefilter_survived_count": 43,
+      "prefilter_survived_count": 39,
       "skipped": false,
       "error": null,
-      "closed_jobs": 3
+      "closed_jobs": 7
     },
     {
       "employer_id": "jackson-state-university",
       "name": "Jackson State University",
       "ats_provider": "governmentjobs",
       "ats_token": "jsums",
-      "fetched_jobs": 26,
-      "prefiltered_count": 49,
-      "prefilter_survived_count": 26,
+      "fetched_jobs": 25,
+      "prefiltered_count": 48,
+      "prefilter_survived_count": 25,
       "skipped": false,
       "error": null,
-      "closed_jobs": 2
+      "closed_jobs": 3
     },
     {
       "employer_id": "john-carroll-university",
@@ -6375,12 +6375,12 @@
       "name": "Mcneese State University",
       "ats_provider": "governmentjobs",
       "ats_token": "louisiana",
-      "fetched_jobs": 46,
-      "prefiltered_count": 455,
-      "prefilter_survived_count": 46,
+      "fetched_jobs": 47,
+      "prefiltered_count": 456,
+      "prefilter_survived_count": 47,
       "skipped": false,
       "error": null,
-      "closed_jobs": 109
+      "closed_jobs": 108
     },
     {
       "employer_id": "mercer-university",
@@ -6488,7 +6488,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 229
+      "closed_jobs": 230
     },
     {
       "employer_id": "trinity-college",
@@ -6508,7 +6508,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ucmo",
       "fetched_jobs": 5,
-      "prefiltered_count": 76,
+      "prefiltered_count": 75,
       "prefilter_survived_count": 5,
       "skipped": false,
       "error": null,
@@ -6604,7 +6604,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "uvu",
       "fetched_jobs": 6,
-      "prefiltered_count": 62,
+      "prefiltered_count": 61,
       "prefilter_survived_count": 6,
       "skipped": false,
       "error": null,
@@ -6879,12 +6879,12 @@
       "name": "Medical University of South Carolina",
       "ats_provider": "workday",
       "ats_token": "musc",
-      "fetched_jobs": 72,
-      "prefiltered_count": 928,
-      "prefilter_survived_count": 72,
+      "fetched_jobs": 71,
+      "prefiltered_count": 929,
+      "prefilter_survived_count": 71,
       "skipped": false,
       "error": null,
-      "closed_jobs": 67
+      "closed_jobs": 68
     },
     {
       "employer_id": "michael-j-fox-foundation-for-parkinson-s-researc",
@@ -6901,10 +6901,10 @@
   ],
   "supabase_sync": {
     "mode": "diff",
-    "upserted": 384,
-    "deleted": 102,
-    "unchanged": 27262,
-    "total": 27646
+    "upserted": 314,
+    "deleted": 0,
+    "unchanged": 27334,
+    "total": 27648
   },
   "supabase_sync_status": "ok"
 }
