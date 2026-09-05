@@ -1,12 +1,12 @@
 {
-  "refreshed_at": "2026-09-05T15:28:23.524Z",
+  "refreshed_at": "2026-09-05T20:34:00.074Z",
   "employer_count": 547,
   "ats_enabled_employer_count": 530,
-  "job_count": 27648,
-  "active_job_count": 17740,
-  "closed_job_count": 9908,
-  "newly_closed_count": 21,
-  "errored_employers": 1,
+  "job_count": 27649,
+  "active_job_count": 17737,
+  "closed_job_count": 9912,
+  "newly_closed_count": 22,
+  "errored_employers": 2,
   "recall_anomalies": [],
   "prefilter_anomalies": [
     {
@@ -37,7 +37,7 @@
       "employer_id": "hackensack-meridian-school-of-medicine",
       "name": "Hackensack Meridian School of Medicine",
       "ats_provider": "icims",
-      "prefiltered_count": 1532,
+      "prefiltered_count": 1531,
       "prefilter_survived_count": 30,
       "fetched_jobs": 16
     },
@@ -400,7 +400,7 @@
       "ats_token": "scu",
       "fetched_jobs": 4,
       "prefiltered_count": 43,
-      "prefilter_survived_count": 54,
+      "prefilter_survived_count": 55,
       "skipped": false,
       "error": null,
       "closed_jobs": 2
@@ -501,7 +501,7 @@
       "ats_provider": "oracle",
       "ats_token": "loma-linda-university",
       "fetched_jobs": 10,
-      "prefiltered_count": 433,
+      "prefiltered_count": 429,
       "prefilter_survived_count": 23,
       "skipped": false,
       "error": null,
@@ -3830,7 +3830,7 @@
       "ats_provider": "icims",
       "ats_token": "careers-hackensackmeridianhealth",
       "fetched_jobs": 16,
-      "prefiltered_count": 1532,
+      "prefiltered_count": 1531,
       "prefilter_survived_count": 30,
       "skipped": false,
       "error": null,
@@ -4479,7 +4479,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ysu",
       "fetched_jobs": 9,
-      "prefiltered_count": 32,
+      "prefiltered_count": 33,
       "prefilter_survived_count": 92,
       "skipped": false,
       "error": null,
@@ -4651,7 +4651,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 46
+      "closed_jobs": 47
     },
     {
       "employer_id": "valparaiso-university",
@@ -4695,7 +4695,7 @@
       "ats_provider": "workday",
       "ats_token": "isu",
       "fetched_jobs": 22,
-      "prefiltered_count": 42,
+      "prefiltered_count": 43,
       "prefilter_survived_count": 37,
       "skipped": false,
       "error": null,
@@ -5716,7 +5716,7 @@
       "ats_provider": "csod",
       "ats_token": "arizona",
       "fetched_jobs": 164,
-      "prefiltered_count": 165,
+      "prefiltered_count": 164,
       "prefilter_survived_count": 164,
       "skipped": false,
       "error": null,
@@ -6148,7 +6148,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "aamu",
       "fetched_jobs": 49,
-      "prefiltered_count": 112,
+      "prefiltered_count": 114,
       "prefilter_survived_count": 49,
       "skipped": false,
       "error": null,
@@ -6315,12 +6315,12 @@
       "name": "Governors State University",
       "ats_provider": "governmentjobs",
       "ats_token": "govst",
-      "fetched_jobs": 39,
+      "fetched_jobs": 45,
       "prefiltered_count": 16,
-      "prefilter_survived_count": 39,
+      "prefilter_survived_count": 45,
       "skipped": false,
       "error": null,
-      "closed_jobs": 7
+      "closed_jobs": 1
     },
     {
       "employer_id": "jackson-state-university",
@@ -6328,7 +6328,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "jsums",
       "fetched_jobs": 25,
-      "prefiltered_count": 48,
+      "prefiltered_count": 49,
       "prefilter_survived_count": 25,
       "skipped": false,
       "error": null,
@@ -6375,12 +6375,12 @@
       "name": "Mcneese State University",
       "ats_provider": "governmentjobs",
       "ats_token": "louisiana",
-      "fetched_jobs": 47,
-      "prefiltered_count": 456,
-      "prefilter_survived_count": 47,
+      "fetched_jobs": 42,
+      "prefiltered_count": 425,
+      "prefilter_survived_count": 42,
       "skipped": false,
       "error": null,
-      "closed_jobs": 108
+      "closed_jobs": 113
     },
     {
       "employer_id": "mercer-university",
@@ -6399,11 +6399,11 @@
       "name": "Oberlin College",
       "ats_provider": "peopleadmin",
       "ats_token": "oberlin",
-      "fetched_jobs": 67,
+      "fetched_jobs": 0,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
-      "error": null,
+      "error": "fetch failed",
       "closed_jobs": 43
     },
     {
@@ -6448,7 +6448,7 @@
       "ats_provider": "workday",
       "ats_token": "slu",
       "fetched_jobs": 27,
-      "prefiltered_count": 40,
+      "prefiltered_count": 41,
       "prefilter_survived_count": 27,
       "skipped": false,
       "error": null,
@@ -6508,7 +6508,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ucmo",
       "fetched_jobs": 5,
-      "prefiltered_count": 75,
+      "prefiltered_count": 77,
       "prefilter_survived_count": 5,
       "skipped": false,
       "error": null,
@@ -6604,7 +6604,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "uvu",
       "fetched_jobs": 6,
-      "prefiltered_count": 61,
+      "prefiltered_count": 60,
       "prefilter_survived_count": 6,
       "skipped": false,
       "error": null,
@@ -6901,10 +6901,10 @@
   ],
   "supabase_sync": {
     "mode": "diff",
-    "upserted": 314,
+    "upserted": 374,
     "deleted": 0,
-    "unchanged": 27334,
-    "total": 27648
+    "unchanged": 27275,
+    "total": 27649
   },
   "supabase_sync_status": "ok"
 }
