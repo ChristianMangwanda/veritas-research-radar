@@ -19,7 +19,7 @@
  * a hidden job produces no error and no complaint.
  */
 
-const DEFAULT_MODEL = process.env.RADAR_MATCH_MODEL || 'gpt-5.6-luna';
+const DEFAULT_MODEL = process.env.RADAR_MATCH_MODEL || require('../../public/matching.js').DEFAULT_MODEL;
 const ENDPOINT = 'https://api.openai.com/v1/chat/completions';
 const MAX_ATTEMPTS = 6;
 

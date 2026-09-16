@@ -7,7 +7,10 @@ const state = {
   routeCache: null,   // retired; kept so scoreAll's signature stays honest
   profileError: null, // validation message when the document does not parse
   matches: {},        // jobId -> judged match
-  matchesByHash: {},  // jobContentHash -> judged match, as stored
+  matchesByHash: {},  // complete posting fingerprint -> judged match
+  judgmentProfileHash: null,
+  judgmentError: null,
+  judgeModel: null,
   judgmentCursor: null, // newest judged_at seen, so polls fetch only what is new
   matchPending: 0,      // qualified postings with no judgment yet
   matchAvailable: false, // true once judgments have been read (i.e. signed in)
@@ -392,6 +395,7 @@ async function loadDescriptions(onPage) {
       // they answer for a job that no longer exists.
       job._searchBlob = undefined;
       job._contentHash = undefined;
+      job._judgmentHash = undefined;
       touched.push(job);
     }
     await onPage(touched);
@@ -406,7 +410,7 @@ async function loadDescriptions(onPage) {
 const store = (typeof RadarJobStore !== 'undefined') ? RadarJobStore : null;
 
 const RUNTIME_KEYS = new Set([
-  'description_text', '_descPending', '_searchBlob', '_contentHash', 'fit'
+  'description_text', '_descPending', '_searchBlob', '_contentHash', '_judgmentHash', 'fit'
 ]);
 
 function rowFor(job) {
@@ -933,7 +937,6 @@ async function saveProfileDocument() {
     DOM.profileSave.disabled = false;
   }
 
-  const previousHash = state.compiled?.hash;
   state.profileText = content;
   state.profileError = null;
   applyProfile(parsed, null);
@@ -943,12 +946,8 @@ async function saveProfileDocument() {
    * every cached verdict unaddressable — not lost, but not read either. The
    * 6-hourly job re-judges under the new hash; say so rather than letting the
    * Possible tab look mysteriously empty. */
-  if (previousHash && state.compiled?.hash !== previousHash) {
-    state.matches = {};
-    state.matchesByHash = {};
-    state.judgmentCursor = null;
-    await loadJudgments();
-  }
+  resetJudgments();
+  await loadJudgments();
   render();
 }
 
@@ -1004,9 +1003,7 @@ async function handleSignOut() {
   state.profile = null;
   state.compiled = null;
   state.profileText = '';
-  state.matches = {};
-  state.matchesByHash = {};
-  state.judgmentCursor = null;
+  resetJudgments();
   state.local = { version: 1, triage: {}, ignored_employers: [] };
   RadarScoring.scoreAll(state.jobs, null, null);
   renderAuthSection();
@@ -1171,31 +1168,66 @@ function serializeMatch(task) {
   return next;
 }
 
-/* A posting's judgment is found by content, not by id.
- *
- * Two postings with identical text share a verdict, and a posting whose text
- * was edited needs a new one — which is exactly what hashing title, department
- * and body gives. Computed once per job and kept, because resolving the whole
- * pool runs on every judgment load. */
+function resetJudgments() {
+  state.matches = {};
+  state.matchesByHash = {};
+  state.judgmentCursor = null;
+  state.judgmentProfileHash = null;
+  state.judgmentError = null;
+  state.matchAvailable = false;
+  matchRequested.clear();
+}
+
+// Configuration comes from the same endpoint that pays for new judgments.
+// A model override on Vercel must not silently reuse another model's results.
+let judgeConfig = null;
+let judgeConfigAt = 0;
+async function ensureJudgmentContext() {
+  const profile = state.profile;
+  if (!profile || !auth.signedIn()) return false;
+  if (!judgeConfig || Date.now() - judgeConfigAt > 30000) {
+    const response = await fetch(`${JUDGE_ORIGIN}/api/judge`, {
+      signal: AbortSignal.timeout(10000), cache: 'no-store'
+    });
+    if (!response.ok) throw new Error('Judging configuration is unavailable.');
+    const config = await response.json();
+    if (config.judgment_version !== RadarMatching.JUDGMENT_VERSION || !config.model
+        || config.judgment_contract !== await RadarMatching.contractFingerprint(config.model)) {
+      resetJudgments();
+      render();
+      throw new Error('The dashboard has changed. Reload to update matching.');
+    }
+    judgeConfig = config;
+    judgeConfigAt = Date.now();
+  }
+  const hash = await RadarMatching.profileFingerprint(profile, judgeConfig.model);
+  if (profile !== state.profile || !auth.signedIn()) return false;
+  if (hash !== state.judgmentProfileHash) {
+    resetJudgments();
+    state.judgmentProfileHash = hash;
+  }
+  state.judgeModel = judgeConfig.model;
+  await RadarMatching.prepareJobs(state.jobs);
+  return hash === state.judgmentProfileHash && auth.signedIn();
+}
+
 function jobHash(job) {
-  // Not knowable until the description lands. Returning a provisional value
-  // here is precisely what would poison the memo for the rest of the session:
-  // fnv1a(title \0 dept \0 '') matches nothing in match_cache, and pumpMatches
-  // would then pay to re-judge ~7,900 postings already bought.
-  if (job._descPending) return null;
-  return (job._contentHash ??= RadarScoring.jobContentHash(job));
+  return job._descPending ? null : job._judgmentHash || null;
 }
 
 function resolveJudgments() {
-  if (!state.compiled) return 0;
-  let resolved = 0;
+  if (!state.compiled || !state.judgmentProfileHash) return 0;
+  let changed = 0;
   for (const job of state.jobs) {
-    const hash = jobHash(job);
-    if (!hash) continue;
-    const record = state.matchesByHash[hash];
-    if (record && !state.matches[job.id]) { state.matches[job.id] = record; resolved += 1; }
+    const record = state.matchesByHash[jobHash(job)];
+    if (record && record.model === state.judgeModel) {
+      if (state.matches[job.id] !== record) { state.matches[job.id] = record; changed += 1; }
+    } else if (state.matches[job.id]) {
+      delete state.matches[job.id];
+      changed += 1;
+    }
   }
-  return resolved;
+  return changed;
 }
 
 /**
@@ -1207,8 +1239,16 @@ function resolveJudgments() {
  */
 async function loadJudgments() {
   if (!auth.signedIn() || !state.compiled) return;
+  try { if (!await ensureJudgmentContext()) return; } catch (error) {
+    state.matchAvailable = false;
+    state.judgmentError = error.message;
+    console.warn('could not prepare judgments:', error.message);
+    render();
+    return;
+  }
+  const profileHash = state.judgmentProfileHash;
   const PAGE = 1000;
-  const base = `/match_cache?profile_hash=eq.${encodeURIComponent(state.compiled.hash)}`
+  const base = `/match_cache?profile_hash=eq.${encodeURIComponent(profileHash)}`
     + '&select=job_hash,verdict,different_profession,meets_requirements,matches_preferences,'
     + 'role_summary,reasons,gaps,judged_at,model';
   const cursor = state.judgmentCursor;
@@ -1218,6 +1258,7 @@ async function loadJudgments() {
       const rows = await authedGet(
         `${base}${cursor ? `&judged_at=gt.${encodeURIComponent(cursor)}` : ''}`
         + `&order=judged_at.asc&limit=${PAGE}&offset=${offset}`);
+      if (profileHash !== state.judgmentProfileHash || !auth.signedIn()) return;
       if (!rows || !rows.length) break;
       for (const row of rows) {
         const { job_hash: hash, ...record } = row;
@@ -1232,6 +1273,7 @@ async function loadJudgments() {
   }
   state.judgmentCursor = newest;
   state.matchAvailable = true;
+  state.judgmentError = null;
   if (resolveJudgments()) render();
 }
 
@@ -1251,19 +1293,24 @@ async function requestJudgments(jobs) {
   if (!token) return;
   const batch = jobs.slice(0, JUDGE_BATCH);
   try {
+    if (!await ensureJudgmentContext()) return;
+    const profileHash = state.judgmentProfileHash;
     const response = await fetch(`${JUDGE_ORIGIN}/api/judge`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
-      body: JSON.stringify({ ids: batch.map((job) => job.id) })
+      body: JSON.stringify({ ids: batch.map((job) => job.id), profile_hash: profileHash })
     });
     if (!response.ok) throw new Error(String(response.status));
     const result = await response.json();
+    if (!auth.signedIn() || result.profile_hash !== state.judgmentProfileHash
+        || profileHash !== state.judgmentProfileHash || result.model !== state.judgeModel) return;
     let fresh = 0;
     for (const [id, record] of Object.entries(result.judgments || {})) {
+      const job = state.jobsById.get(id);
+      if (!job || result.job_hashes?.[id] !== jobHash(job)) continue;
       if (!state.matches[id]) fresh += 1;
       state.matches[id] = record;
-      const job = state.jobs.find((candidate) => candidate.id === id);
-      if (job) state.matchesByHash[jobHash(job)] = record;
+      state.matchesByHash[jobHash(job)] = record;
     }
     // Re-render only when something actually arrived, so the list doesn't
     // flicker under the user while they read.
@@ -1283,7 +1330,7 @@ async function requestJudgments(jobs) {
  * a posting appearing and the next scheduled run. */
 function pumpMatches() {
   if (viewMode !== 'possible' || !state.compiled || !state.visible.length) return;
-  if (!auth.signedIn()) return;
+  if (!auth.signedIn() || !state.judgmentProfileHash || !state.matchAvailable) return;
   // Never spend money on a ranking that is still filling in: "the top twelve"
   // is not a meaningful set until every description has landed.
   if (state.loading.phase !== 'idle') return;
@@ -1291,7 +1338,7 @@ function pumpMatches() {
   const prefetch = state.visible.slice(12, 40).filter((job) => !state.matches[job.id]);
   const batch = (onScreen.length ? onScreen : prefetch).slice(0, JUDGE_BATCH);
   if (!batch.length) return;
-  const key = batch.map((job) => job.id).join(',');
+  const key = state.judgmentProfileHash + ':' + batch.map((job) => jobHash(job)).join(',');
   if (matchRequested.has(key)) return;
   matchRequested.add(key);
   serializeMatch(() => requestJudgments(batch));
@@ -1701,8 +1748,10 @@ function renderLoadBanner() {
 
 async function reloadData() {
   state.jobs = await loadJobs();
+  state.jobsById = new Map(state.jobs.map((job) => [job.id, job]));
   RadarScoring.applyJobClassifications(state.jobs, state.classifyCache);
   RadarScoring.scoreAll(state.jobs, state.compiled, state.routeCache);
+  await loadJudgments();
   render();
   lastLoadAt = Date.now();
 }
@@ -2022,7 +2071,7 @@ const INSTRUMENTS = [
   { id: 'firehose', label: 'Aggregator firehose', cadence: '2× daily' },
   { id: 'scout', label: 'Employer scout', cadence: 'weekly' },
   { id: 'enrich', label: 'Enrichment', cadence: 'monthly · IPEDS/IRS' },
-  { id: 'pages', label: 'Deploy to Pages', cadence: 'every 6h' },
+  { id: 'hosting', label: 'Website', cadence: 'Vercel · on release' },
   { id: 'digest', label: 'Daily digest', cadence: 'needs NTFY_TOPIC' },
   { id: 'deadman', label: 'Dead-man switch', cadence: 'every 2h' }
 ];
@@ -2064,9 +2113,10 @@ function renderStatusPanel() {
     } else if (instrument.id === 'scout' && state.discovery?.candidates?.length) {
       detailText = `${instrument.cadence} · +${state.discovery.candidates.length} found`;
     } else if (instrument.id === 'deadman') {
-      const alarms = (report?.recall_anomalies || []).length;
-      const errored = (report?.employers || []).filter((employer) => employer.error).length;
-      detailText = alarms || errored ? `every 2h · ALARM` : 'every 2h · quiet';
+      const alarms = (report?.recall_anomalies || []).length + RadarFeedHealth.persistentFailures(report).length;
+      const errored = RadarFeedHealth.failures(report).length;
+      detailText = alarms || errored >= 10 ? 'every 2h · attention required'
+        : errored ? `every 2h · ${errored} source warnings` : 'every 2h · quiet';
       if (alarms || errored) tile.classList.add('is-alarm');
     }
     detail.textContent = detailText;
@@ -2098,6 +2148,10 @@ function renderStatusPanel() {
  * in front of you counting. Absent entirely on the hosted dashboard, which
  * has no model behind it. */
 function renderJudgeProgress() {
+  if (state.judgmentError) {
+    DOM.statusRefresh.append(el('p', 'profile-error', state.judgmentError));
+    return;
+  }
   if (!state.matchAvailable || !state.compiled) return;
   const qualified = state.jobs.filter((job) => RadarScoring.isQualified(job));
   const read = qualified.filter((job) => state.matches[job.id]).length;
@@ -2559,6 +2613,13 @@ function maybeNudgeApply(job) {
 
 function renderDetailAlerts(job) {
   DOM.detailAlerts.replaceChildren();
+  const failedFeed = RadarFeedHealth.forJob(job, state.report);
+  if (failedFeed && !isClosed(job)) {
+    const checked = failedFeed.last_success_at || job.last_seen_at;
+    DOM.detailAlerts.append(el('div', 'alert alert-warn',
+      `This source could not be refreshed. Last verified: ${checked ? new Date(checked).toLocaleString() : 'unknown'}. Check the employer's posting before applying.`));
+  }
+
   if (applyNudgeJobId === job.id && NUDGE_STATES.has(triageFor(job))) {
     const nudge = el('div', 'alert alert-info apply-nudge');
     nudge.append(el('span', '', 'Opened the posting — did you apply?'));
@@ -3087,11 +3148,11 @@ function renderRefreshStatus(report) {
   }
   renderRefreshMetaLine();
 
-  const errored = (report.employers || []).filter((employer) => employer.error);
+  const errored = RadarFeedHealth.failures(report);
   DOM.errorsList.hidden = errored.length === 0;
   DOM.errorsList.replaceChildren();
   for (const employer of errored) {
-    DOM.errorsList.append(el('li', '', `${employer.name} (${employer.ats_provider}) — ${employer.error}`));
+    DOM.errorsList.append(el('li', '', `${employer.name} (${employer.ats_provider}) — ${employer.error || 'source still unavailable'}${employer.consecutive_failures ? ` · ${employer.consecutive_failures} failed refreshes` : ''}${employer.last_success_at ? ` · last success ${new Date(employer.last_success_at).toLocaleString()}` : ''}`));
   }
   renderStatusPanel();
   renderHealthDot();
@@ -3393,8 +3454,7 @@ async function init() {
             const dropped = await sweepDeleted(db);
             if (dropped) render();
           }
-          await loadTriagedIntoPool();
-          render();
+          await finishAccountLoad();
           return;
         }
       }
@@ -3463,7 +3523,12 @@ async function init() {
   /* Your half of the data, after the public half is already drawn. Then a
    * quiet poll: the 6-hourly job writes judgments while nothing is open, and
    * a tab left up all day should notice without being reloaded. */
+  await finishAccountLoad();
+}
+
+async function finishAccountLoad() {
   await loadAuthedState();
+  await loadTriagedIntoPool();
   render();
   setInterval(() => { loadJudgments(); }, 60000);
   document.addEventListener('visibilitychange', () => {

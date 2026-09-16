@@ -1,4 +1,9 @@
+import sys
+import types
+
+import radar_scout.jobs_scout as jobs_scout
 from radar_scout.jobs_scout import (
+    JobsScoutTarget,
     build_snapshot,
     filter_job_links,
     find_board_links,
@@ -89,3 +94,109 @@ def test_build_snapshot_schema():
     assert snapshot["jobs"] == []
     assert snapshot["skipped_reason"] == "bot_wall"
     assert snapshot["scouted_at"].endswith("Z")
+
+
+def test_icims_frame_error_is_reported():
+    class Link:
+        def get_attribute(self, _name):
+            return "https://example.icims.com/jobs/1/research/job"
+
+        def inner_text(self):
+            return "Research role"
+
+    class GoodFrame:
+        def query_selector_all(self, _selector):
+            return [Link()]
+
+    class BadFrame:
+        def query_selector_all(self, _selector):
+            raise RuntimeError("detached frame")
+
+    links, had_error = jobs_scout._frame_links(
+        types.SimpleNamespace(frames=[GoodFrame(), BadFrame()])
+    )
+    assert len(links) == 1
+    assert had_error is True
+
+
+def test_partial_detail_failure_is_non_authoritative(monkeypatch):
+    class Element:
+        def __init__(self, href=None, text=""):
+            self.href = href
+            self.text = text
+
+        def get_attribute(self, _name):
+            return self.href
+
+        def inner_text(self):
+            return self.text
+
+    class Response:
+        status = 200
+
+    class Page:
+        def __init__(self):
+            self.url = ""
+
+        def goto(self, url, **_kwargs):
+            if url.endswith("/jobs/2"):
+                raise RuntimeError("transient detail failure")
+            self.url = url
+            return Response()
+
+        def inner_text(self, _selector):
+            if "/jobs/" in self.url:
+                return "Research role. Responsibilities. Qualifications. Apply now. Job ID 1."
+            return "Careers"
+
+        def title(self):
+            return "Research Scientist"
+
+        def query_selector_all(self, _selector):
+            if self.url.endswith("/careers"):
+                return [
+                    Element("/jobs/1", "Research Scientist"),
+                    Element("/jobs/2", "Research Associate"),
+                ]
+            return []
+
+        def query_selector(self, selector):
+            return Element(text="Research Scientist") if selector == "h1" else None
+
+        def content(self):
+            return "<main>Research role. Apply now.</main>"
+
+    page = Page()
+
+    class Browser:
+        def new_context(self, **_kwargs):
+            return types.SimpleNamespace(new_page=lambda: page)
+
+        def close(self):
+            pass
+
+    class Playwright:
+        chromium = types.SimpleNamespace(launch=lambda **_kwargs: Browser())
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+    sync_api = types.ModuleType("playwright.sync_api")
+    sync_api.sync_playwright = lambda: Playwright()
+    playwright = types.ModuleType("playwright")
+    playwright.sync_api = sync_api
+    monkeypatch.setitem(sys.modules, "playwright", playwright)
+    monkeypatch.setitem(sys.modules, "playwright.sync_api", sync_api)
+    monkeypatch.setattr(jobs_scout, "robots_allows", lambda _url: True)
+    monkeypatch.setattr(jobs_scout, "throttle", lambda *_args: None)
+
+    snapshot = jobs_scout.scout_employer(
+        JobsScoutTarget("example", "https://careers.example.org/careers"),
+        budget=5,
+    )
+
+    assert len(snapshot["jobs"]) == 1
+    assert snapshot["skipped_reason"] == "detail_fetch_failed"

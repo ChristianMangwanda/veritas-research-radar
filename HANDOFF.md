@@ -3,7 +3,30 @@
 Two products in one repo: the Veritas Chrome extension, and a two-layer
 cap-exempt research jobs instrument.
 
-## Pick up here (2026-08-07)
+## Current work (2026-09-16)
+
+The current architecture and release state are in [PROJECT-MAP.md](PROJECT-MAP.md).
+Older dated sections below record historical decisions and counts.
+The active dashboard runs on Vercel. Private account data lives in Supabase.
+
+The pending reliability release contains these changes:
+
+- Shared SHA-256 judgment fingerprints include the profile, job details, prompt, schema, and model.
+- Profile frontmatter constraints accompany the authored prose in the AI input.
+- Late responses cannot replace judgments for newer profile or posting inputs.
+- Feed health records persistent failures and the last successful refresh.
+- Carnegie Mellon's Workday host is corrected. Eastern Washington still needs a verified automated replacement.
+- Existing pending changes preserve failed-import data, publish current reports, and add CI and database target checks.
+
+The new fingerprints retain old cache rows but require fresh judgments under the existing $5 scheduled-run limit.
+The database columns already support the new keys. The cache change needs no schema migration.
+
+Release checks found one Auth user and one matching profile owner in `nawbdsujjysugaisczta`.
+Public signups remain enabled, and the owner allowlist table is absent.
+The pending owner guard requires `RADAR_OWNER_USER_ID`, which is absent from GitHub and Vercel.
+The production security gate below applies before release.
+
+## Historical snapshot (2026-08-07)
 
 **The laptop is out of the loop. The dashboard lives at
 https://veritas-research-radar.vercel.app and everything private lives in
@@ -226,7 +249,7 @@ forces a refresh; `git push` and `gh` hang in the sandbox and need it disabled.
 ```
 GITHUB ACTIONS  (every 6h)              VERCEL
   refresh.js                              static dashboard (radar/public)
-   16 ATS drivers -> Supabase.jobs        api/judge.js — reads on demand
+   ATS adapters -> Supabase.jobs        api/judge.js — reads on demand
    + aggregator firehose (2x/day)           (holds OPENAI_API_KEY)
    + scouted-jobs merge (14-day TTL)
    + employer-enrichment overlay         SUPABASE
@@ -242,18 +265,9 @@ MONTHLY (GitHub Action)                    user_state           ┘
    -> enrichment-report.json              auth.js     — GoTrue, hand-rolled
 ```
 
-Three files are shared verbatim between the browser and Node — `scoring.js`,
-`profile-doc.js`, `pipeline.js` — and that is load-bearing rather than tidy.
-The cache key is a hash of the profile and the posting; if the browser and the
-judge computed it differently, every judgment already paid for would become
-unreadable. One implementation, both runtimes.
-
-Registry: **547 cap-exempt employers** across 16 wired ATS systems
-(peopleadmin, workday, oracle, csod, governmentjobs, icims, taleo, adp,
-ultipro, paylocity, interfolio, greenhouse, lever, successfactors, eightfold,
-usajobs, plus the aggregator firehose). 500 colleges, 46 non-college research
-organisations, 1 federal. Dataset **18,038 active jobs**; new employers fold in
-on the next 6-hourly refresh. Full orientation in **`PROJECT-MAP.md`**.
+The browser and Node share `scoring.js`, `profile-doc.js`, `pipeline.js`,
+`matching.js`, and `feed-health.js`. `matching.js` owns the AI prompt and fingerprints.
+The registry contains 547 employers. The dashboard and refresh report provide current job counts.
 
 ## Commands
 
@@ -321,7 +335,7 @@ you write about yourself, and the document is the only input.
 1. **Write the profile.** `radar/PROFILE-PROMPT.md` is the guide. Frontmatter
    carries the deterministic gates (degrees, work authorization, locations,
    salary floor, an `avoid` list that gates on posting titles); the prose
-   sections are what the model reads. Edit it in the dashboard under
+   sections and frontmatter constraints are what the model reads. Edit it in the dashboard under
    **Status → Edit profile** — it validates before it saves, because a document
    that does not parse would leave every posting judged against nothing while
    the UI looked fine.
@@ -342,7 +356,7 @@ you write about yourself, and the document is the only input.
 3. **Stage two: gpt-5.6-luna reads every survivor.** In CI after each refresh
    (`judge-jobs.js`, capped at $5/run), and on demand for anything on screen
    that has not been read yet (`api/judge.js`). Judgments live in `match_cache`,
-   keyed by `1:<jobContentHash>:<profileHash>:in-profile`.
+   keyed by the posting and profile fingerprints from `matching.js`.
 
    - Model choice was measured on 789 postings a local 14b had already judged:
      gpt-5-nano agreed 75% and buried **32 strong matches**; gpt-5-mini agreed
@@ -361,13 +375,12 @@ you write about yourself, and the document is the only input.
    - An unparseable answer is recorded as *unjudged*, never as "no". A verdict
      nobody wrote would hide a job with no stated reason.
 
-4. **What invalidates a judgment.** Only the posting's title, department and
-   body, or the profile's capability list and "Who I am" summary. Editing
-   "What I want", the salary floor, locations or degrees changes the prompt or
-   the deterministic gates **without** moving the hash — a real gap, left alone
-   deliberately, because changing the hash recipe would orphan every judgment
-   already paid for. After a profile edit the next 6-hourly run re-judges under
-   the new hash.
+4. **What invalidates a judgment.** A change to profile constraints,
+   preferences, or capabilities changes the profile fingerprint.
+   Model, prompt, schema, and judgment-version changes also invalidate the judgment.
+   Posting fingerprints include title, department, body, employer, location,
+   remote status, and salary. Bookkeeping timestamps do not change the fingerprint.
+   Old rows remain in storage. The browser does not treat them as current.
 
 5. Rows carry the deterministic fit score as a hint (a compressed keyword
    count, not a percentage) and ⚠ flags for hard gates. **Gates demote — they
@@ -416,9 +429,9 @@ Three places, and each one is a different failure if it is wrong.
 
 | where | names | what breaks without it |
 |---|---|---|
-| **Vercel** env vars (Production) | `SUPABASE_URL`, `SUPABASE_SECRET_KEY` *or* `SUPABASE_SERVICE_KEY`, `OPENAI_API_KEY` | `/api/judge` 500s; reading existing judgments still works |
-| **GitHub** repo secrets | the same three, plus `USAJOBS_*` and `NTFY_TOPIC` | the 6-hourly judge step does nothing; the crawl still runs |
-| **`.env`** (gitignored, local) | the same three | the hand-run scripts (`seed-supabase.js`, `judge-jobs.js`) refuse to start |
+| **Vercel** env vars (Production) | `SUPABASE_URL`, `SUPABASE_SECRET_KEY` *or* `SUPABASE_SERVICE_KEY`, `OPENAI_API_KEY`, `RADAR_OWNER_USER_ID` | `/api/judge` returns an error. Reading existing judgments still works. |
+| **GitHub** repo secrets | `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `OPENAI_API_KEY`, `RADAR_OWNER_USER_ID`, plus `USAJOBS_*` and `NTFY_TOPIC` | The scheduled judge step stops. The crawl still runs. |
+| **`.env`** (gitignored, local) | the Vercel names above | The manual scripts stop before they use a service key. |
 
 Two traps, both hit for real during the migration:
 
@@ -429,12 +442,55 @@ Two traps, both hit for real during the migration:
   empty project in the same account will authenticate happily and hold none of
   the data. The key and the URL must come from the same project.
 
+`RADAR_OWNER_USER_ID` is the Auth user UUID from project `nawbdsujjysugaisczta`.
+Get this UUID from **Authentication > Users** in that project.
+Make sure that the UUID owns the only row in `profile_documents`.
+Do not copy a UUID from another Supabase project, even if both projects use the same email address.
+Set only one of `SUPABASE_SERVICE_KEY` and `SUPABASE_SECRET_KEY`.
+The application stops if both names contain different keys.
+
+Before a manual Supabase CLI operation:
+
+1. Use the local `~/.claude/skills/supabase-switch/` procedure to select the correct account.
+2. Export `SUPABASE_URL=https://nawbdsujjysugaisczta.supabase.co` in the current shell.
+3. Run `npm run supabase:verify:operation`.
+
+The account-switch procedure controls account selection. The command stops if
+the CLI organization, project, active branch, or URL does not match the
+production target manifest.
+The shorter `npm run supabase:verify` command stops for an unlinked checkout.
+
 `api/judge.js` and `supabaseEnv()` both accept the secret key under either
 name, because Supabase's dashboard issues it as SECRET while CI holds it as
 SERVICE. `supabaseEnv()` reads the environment and never a file, deliberately:
 `syncJobs` deletes every row it did not just write, so a local run that
 silently adopted a `.env` could mutate production. Scripts meant to be run by
 hand opt in with `lib/env-file.js`.
+
+### Production security gate
+
+Do not deploy or run a remote migration until all these checks pass in project
+`nawbdsujjysugaisczta`:
+
+1. New Auth signups are disabled, and **Authentication > Users** contains only
+   the intended account.
+2. `profile_documents` contains exactly one row. Its `user_id` is the same
+   UUID as `RADAR_OWNER_USER_ID` in Vercel and GitHub.
+3. Run `npm run supabase:verify:operation` from the shell that will run the
+   remote command.
+4. Apply `radar/supabase/owner-rls.sql`. The transaction stops if the owner is
+   ambiguous. It replaces the bootstrap policies in `auth.sql` with an
+   owner-only allowlist.
+5. Test the live policies with the anon key, the owner account, and a temporary
+   non-owner account. The owner must have the intended access. Anon and the
+   non-owner must not read private rows or write triage. Confirm that
+   `radar_owners` contains exactly one row, then remove the temporary account.
+6. Set the Vercel variables for Production and redeploy. Set the GitHub secrets
+   separately. GitHub uses `SUPABASE_SERVICE_KEY`; Vercel can use either key
+   name, but do not set both names to different values.
+
+The repository checks cannot prove the live Auth, RLS, or secret state. Verify
+those items in the Supabase, Vercel, and GitHub dashboards before release.
 
 ## Setup the automation needs
 
@@ -519,7 +575,7 @@ nothing is open, and no part of it depends on a laptop being awake.
   `prefilter_anomalies` — an employer whose title-matching regex is silently
   excluding almost everything gets caught automatically instead of by luck.
 
-## Pick-up state — steady state, nothing pending (2026-08-03)
+## Historical state (2026-08-03)
 
 The setup checklist is empty. The daily digest is armed locally (see
 Notifications above). Two former checklist items were **deliberately

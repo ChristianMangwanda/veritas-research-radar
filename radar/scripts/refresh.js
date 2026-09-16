@@ -2,6 +2,7 @@
 
 const fs = require('fs/promises');
 const path = require('path');
+const FeedHealth = require('../public/feed-health.js');
 const { analyzeText } = require('../../scripts/keywords.js');
 const { classifyTitle, classLabel } = require('./lib/title-class.js');
 const { parseSalary } = require('./lib/salary.js');
@@ -346,7 +347,7 @@ function hostOf(url) {
 function isRetryableFetchError(error) {
   // Network failures and timeouts carry no HTTP status; 429/5xx are transient.
   // Other 4xx (e.g. 404 for a wrong board token) are deterministic — do not retry.
-  return error.status === undefined || error.status === 429 || error.status >= 500;
+  return error.status === undefined || error.status === 429 || error.status === 408 || error.status >= 500;
 }
 
 async function fetchJson(url, options = {}) {
@@ -370,6 +371,7 @@ async function fetchJson(url, options = {}) {
       if (!response.ok) {
         const error = new Error(`HTTP ${response.status} ${response.statusText}`);
         error.status = response.status;
+        error.retryAfter = response.headers?.get?.('retry-after');
         throw error;
       }
       try {
@@ -389,7 +391,7 @@ async function fetchJson(url, options = {}) {
     } catch (error) {
       lastError = error;
       if (attempt < retries && isRetryableFetchError(error)) {
-        await sleep(retryDelayMs * (attempt + 1));
+        await sleep(FeedHealth.retryDelay(error, attempt, retryDelayMs));
         continue;
       }
       throw error;
@@ -562,6 +564,13 @@ function activeScoutedJobs(store, now, ttlDays = SCOUTED_TTL_DAYS) {
     const scoutedAt = Date.parse(job.last_scouted_at || '');
     return Number.isFinite(scoutedAt) && scoutedAt >= cutoffMs;
   });
+}
+
+function aggregatedOutcomeForSources(sourceIds, snapshots) {
+  const sources = [...sourceIds];
+  const authoritative = sources.length > 0
+    && sources.every((source) => snapshots?.[source] && !snapshots[source].skipped_reason);
+  return { attempted: authoritative, ok: authoritative };
 }
 
 const CLOSED_RETENTION_DAYS = 30;
@@ -1484,13 +1493,14 @@ async function fetchText(url, options = {}) {
       if (!response.ok) {
         const error = new Error(`HTTP ${response.status} ${response.statusText}`);
         error.status = response.status;
+        error.retryAfter = response.headers?.get?.('retry-after');
         throw error;
       }
       return await response.text();
     } catch (error) {
       lastError = error;
       if (attempt < retries && isRetryableFetchError(error)) {
-        await sleep(retryDelayMs * (attempt + 1));
+        await sleep(FeedHealth.retryDelay(error, attempt, retryDelayMs));
         continue;
       }
       throw error;
@@ -2855,6 +2865,7 @@ function createProviderBreaker({ threshold = 5 } = {}) {
 }
 
 async function runRefresh() {
+  const previousReport = await readJson(process.env.RADAR_PREVIOUS_REPORT_PATH || REPORT_PATH, null);
   const registryEmployers = await readJson(EMPLOYERS_PATH, []);
   const enrichment = await readJson(ENRICHMENT_PATH, null);
   const employers = applyEnrichmentOverlay(registryEmployers, enrichment);
@@ -3010,6 +3021,7 @@ async function runRefresh() {
   for (const job of aggregatedStore.jobs || []) {
     if (!job.url || !job.title) continue;
     const snapshot = (aggregatedStore.snapshots || {})[job.source];
+    if (snapshot?.skipped_reason) continue;
     const scoutedAt = Date.parse(snapshot?.scouted_at || '');
     if (!Number.isFinite(scoutedAt) || Date.parse(now) - scoutedAt > aggregatedTtlMs) continue;
     const pseudoEmployer = {
@@ -3042,16 +3054,25 @@ async function runRefresh() {
     fetchedJobs.push(enrichedJob);
     aggregatedMerged += 1;
   }
-  // Outcomes: every pseudo-employer whose source has a snapshot gets ok, so
-  // vanished/expired aggregated jobs close instead of dangling
-  const aggregatedEmployerIds = new Set((aggregatedStore.jobs || []).map((job) => job.employer_id));
+  // Close vanished jobs only when every source for the pseudo-employer is
+  // authoritative. One failed source makes missing rows carry forward.
+  const aggregatedEmployerSources = new Map();
+  const addAggregatedSource = (employerId, source) => {
+    if (!employerId || !source) return;
+    if (!aggregatedEmployerSources.has(employerId)) aggregatedEmployerSources.set(employerId, new Set());
+    aggregatedEmployerSources.get(employerId).add(source);
+  };
+  for (const job of aggregatedStore.jobs || []) addAggregatedSource(job.employer_id, job.source);
   for (const previous of previousJobs) {
     if (String(previous.employer_id || '').startsWith('agg:') && aggregatedSources.has(previous.source)) {
-      aggregatedEmployerIds.add(previous.employer_id);
+      addAggregatedSource(previous.employer_id, previous.source);
     }
   }
-  for (const employerId of aggregatedEmployerIds) {
-    employerOutcomes.set(employerId, { attempted: true, ok: true });
+  for (const [employerId, sourceIds] of aggregatedEmployerSources) {
+    employerOutcomes.set(
+      employerId,
+      aggregatedOutcomeForSources(sourceIds, aggregatedStore.snapshots || {})
+    );
   }
   if (aggregatedMerged > 0) {
     console.log(`Merged ${aggregatedMerged} aggregated cap-exempt jobs from ${aggregatedSources.size} sources`);
@@ -3088,6 +3109,7 @@ async function runRefresh() {
   // No previous-state dependency, so this runs unconditionally.
   const prefilterAnomalies = detectPrefilterAnomalies({ employerReports });
 
+  FeedHealth.updateFeedHealth(employerReports, previousReport, now);
   const report = {
     refreshed_at: now,
     employer_count: employers.length,
@@ -3220,11 +3242,44 @@ async function runRefresh() {
   return report;
 }
 
+function criticalRefreshProblems(report, { maxErrored = 10 } = {}) {
+  const problems = [];
+  // Persistent individual outages alarm in deadman-check.js and the dashboard.
+  // They must not prevent judging fresh jobs from the other healthy sources.
+  if (Number(report?.errored_employers || 0) >= maxErrored) {
+    problems.push(`${report.errored_employers} employers errored (>= ${maxErrored})`);
+  }
+  if (Array.isArray(report?.recall_anomalies) && report.recall_anomalies.length) {
+    problems.push(`${report.recall_anomalies.length} zero-job recall anomaly(ies)`);
+  }
+  if (Array.isArray(report?.provider_circuits) && report.provider_circuits.length) {
+    const providers = report.provider_circuits
+      .map((entry) => entry?.provider || 'unknown provider')
+      .join(', ');
+    problems.push(`provider circuit(s) opened: ${providers}`);
+  }
+  if (report?.supabase_sync_aborted) {
+    problems.push(`Supabase sync aborted: ${report.supabase_sync_aborted}`);
+  }
+  if (report?.supabase_sync_status === 'failed') {
+    problems.push(`Supabase sync failed: ${report.supabase_sync_error || 'no reason recorded'}`);
+  }
+  return problems;
+}
+
 if (require.main === module) {
-  runRefresh().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  });
+  runRefresh()
+    .then((report) => {
+      const problems = criticalRefreshProblems(report);
+      if (problems.length) {
+        console.error(`Refresh completed in a degraded state:\n- ${problems.join('\n- ')}`);
+        process.exitCode = 1;
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exitCode = 1;
+    });
 }
 
 module.exports = {
@@ -3286,6 +3341,7 @@ module.exports = {
   detectPrefilterAnomalies,
   filterResearchRelevant,
   activeScoutedJobs,
+  aggregatedOutcomeForSources,
   applyEnrichmentOverlay,
   fetchGreenhouseJobs,
   fetchLeverJobs,
@@ -3320,5 +3376,6 @@ module.exports = {
   fetchEmployerJobs,
   validateEmployer,
   ATS_FETCHERS,
+  criticalRefreshProblems,
   runRefresh
 };

@@ -39,11 +39,14 @@ radar/data/scouted/<employer-id>.json
 
 - `title` and `url` are **required** per job; `url` must be absolute http(s),
   exactly as observed on the page. Everything else is optional.
-- A file is a **full snapshot**: importing it replaces all previously scouted
-  jobs for that employer. Jobs missing from the new snapshot will be
-  tombstoned by the normal refresh lifecycle.
-- If the page could not be scouted, emit `"jobs": []` with a `skipped_reason`
-  (`"bot_wall"`, `"robots_disallow"`, `"no_listings_found"`, ...).
+- A file with `"skipped_reason": null` is a **full snapshot**.
+  The importer replaces all previous scout jobs for that employer.
+- If a required page fails, set `skipped_reason` to a short error code.
+  Keep all jobs that the crawl observed before the failure.
+- If the crawl finds no reliable listings, emit `"jobs": []` with a `skipped_reason`.
+  Examples include `"bot_wall"`, `"no_listings_found"`, and `"budget_exhausted"`.
+- The importer does not replace employer data from an incomplete snapshot.
+  The failed workflow publishes safe results from other employers and remains red.
 
 ## Producer rules (non-negotiable)
 

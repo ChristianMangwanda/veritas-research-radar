@@ -6,23 +6,38 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
+
+# Serialize complete enrichment runs without blocking the six-hour refresh.
+# Only the short publisher takes the shared radar-data lock.
+concurrency:
+  group: radar-enrichment-run
+  cancel-in-progress: false
+  queue: max
 
 jobs:
   enrich:
     runs-on: ubuntu-latest
-    # Shares the radar-data group: enrichment commits different files, but a
-    # push race with the refresh workflows would still fail non-fast-forward.
-    # Declared per job, matching the other workflows.
-    concurrency:
-      group: radar-data-${{ github.ref }}
-      cancel-in-progress: false
+    timeout-minutes: 330
+    outputs:
+      has_output: ${{ steps.output.outputs.publish }}
+      artifact_id: ${{ steps.artifact.outputs.artifact-id }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Remove checked-out enrichment outputs
+        run: |
+          rm -f \
+            radar/data/employer-enrichment.json \
+            radar/data/discovery-candidates.json \
+            radar/data/enrichment-report.json \
+            radar/data/cap-exempt-directory.json
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.11"
       # DOL was the missing quarter of the picture. enrich.js reads LCA CSVs
@@ -49,41 +64,126 @@ jobs:
       # reliable step in this workflow. A month where it 403s should cost the
       # DOL column, not the IPEDS/IRS/USCIS joins that make up the rest of the
       # directory. enrich.js already treats an empty dol-raw as "no DOL data".
+      - name: Record degraded DOL coverage
+        if: ${{ steps.dol.outcome != 'success' }}
+        run: |
+          echo "::warning::DOL data was unavailable. Enrichment will continue without DOL title evidence."
+          echo "- DOL coverage: unavailable; other enrichment sources continued." >> "$GITHUB_STEP_SUMMARY"
       - name: Run monthly enrichment (IPEDS + IRS EO BMF + USCIS + DOL joins)
+        id: enrich
         run: npm run radar:enrich -- --force
-      - name: Sync to latest main (this run's outputs win)
-        # if: always() -- same real bug found 2026-08-04 in radar-firehose.yml
-        # (confirmed live: a run cancelled after 2h48m committed nothing at
-        # all, because every step after the cancelled one was skipped by
-        # default). This job has no timeout-minutes set (GitHub's 6h default
-        # applies) and downloads/joins large IPEDS/IRS/USCIS datasets, so a
-        # slow month is just as exposed.
-        #
-        # checkout pins github.sha from queue time, so commits that landed while
-        # this run was pending/running would make a rebase conflict on shared
-        # report files. Runs in the radar-data group are serialized, so this
-        # run's outputs are always the freshest — save, reset, restore.
-        if: always()
+      - name: Validate current-run enrichment outputs
+        id: output
+        if: ${{ steps.enrich.outcome == 'success' }}
+        run: |
+          node -e 'const fs=require("fs"); for (const file of process.argv.slice(1)) { const value=JSON.parse(fs.readFileSync(file,"utf8")); if (!Number.isFinite(Date.parse(value.generated_at||""))) throw new Error(`${file}: missing generated_at`); }' \
+            radar/data/employer-enrichment.json \
+            radar/data/discovery-candidates.json \
+            radar/data/enrichment-report.json \
+            radar/data/cap-exempt-directory.json
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+      - name: Save enrichment outputs
+        id: artifact
+        if: ${{ steps.output.outputs.publish == 'true' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: enrichment-data-${{ github.run_id }}
+          path: |
+            radar/data/employer-enrichment.json
+            radar/data/discovery-candidates.json
+            radar/data/enrichment-report.json
+            radar/data/cap-exempt-directory.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 7
+
+  publish:
+    needs: enrich
+    if: ${{ always() && !cancelled() && needs.enrich.outputs.has_output == 'true' && needs.enrich.outputs.artifact_id != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    concurrency:
+      group: radar-data-main
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+      - name: Sync to latest main
         run: |
           set -euo pipefail
-          tmp=$(mktemp -d)
-          cp radar/data/employer-enrichment.json radar/data/discovery-candidates.json radar/data/enrichment-report.json radar/data/cap-exempt-directory.json "$tmp"/
           git fetch origin main
           git reset --hard origin/main
-          cp "$tmp"/* radar/data/
+      - name: Restore current-run enrichment outputs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.enrich.outputs.artifact_id }}
+          path: ${{ runner.temp }}/enrichment-artifact
+      - name: Validate and install enrichment outputs
+        run: |
+          set -euo pipefail
+          files=(
+            employer-enrichment.json
+            discovery-candidates.json
+            enrichment-report.json
+            cap-exempt-directory.json
+          )
+          paths=()
+          for file in "${files[@]}"; do
+            paths+=("$RUNNER_TEMP/enrichment-artifact/$file")
+          done
+          node - radar/data "${paths[@]}" <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const currentDirectory = process.argv[2];
+          const incomingPaths = process.argv.slice(3);
+          const incomingTimes = new Set();
+          for (const file of incomingPaths) {
+            const value = JSON.parse(fs.readFileSync(file, 'utf8'));
+            const generatedAt = Date.parse(value.generated_at || '');
+            if (!Number.isFinite(generatedAt) || generatedAt > Date.now() + 5 * 60 * 1000) {
+              throw new Error(`${file}: invalid generated_at`);
+            }
+            incomingTimes.add(generatedAt);
+          }
+          if (incomingTimes.size !== 1) throw new Error('enrichment artifact timestamps disagree');
+          const incomingAt = [...incomingTimes][0];
+          for (const file of incomingPaths) {
+            const currentPath = path.join(currentDirectory, path.basename(file));
+            if (!fs.existsSync(currentPath)) continue;
+            const current = JSON.parse(fs.readFileSync(currentPath, 'utf8'));
+            const currentAt = Date.parse(current.generated_at || '');
+            if (Number.isFinite(currentAt) && incomingAt < currentAt) {
+              throw new Error(`refusing enrichment rollback: ${path.basename(file)} is newer on main`);
+            }
+          }
+          NODE
+          cp "${paths[@]}" radar/data/
       - name: Commit enrichment outputs
-        if: always()
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
         with:
           commit_message: "Update employer enrichment, discovery, and cap-exempt directory"
           file_pattern: "radar/data/employer-enrichment.json radar/data/discovery-candidates.json radar/data/enrichment-report.json radar/data/cap-exempt-directory.json"
+
+  notify:
+    needs: [enrich, publish]
+    if: ${{ always() && (needs.enrich.result != 'success' || (needs.enrich.outputs.has_output == 'true' && needs.publish.result != 'success')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
       - name: Alert on failure
-        if: failure() || cancelled()
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REF_NAME: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           [ -z "$NTFY_TOPIC" ] && { echo "NTFY_TOPIC not set; skipping alert"; exit 0; }
-          curl -sS -H "Title: ${{ github.workflow }} failed" \
+          curl -sS -H "Title: $WORKFLOW_NAME failed" \
             -H "Tags: rotating_light" \
-            -d "Workflow '${{ github.workflow }}' failed on ${{ github.ref_name }}. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "Workflow '$WORKFLOW_NAME' failed on $REF_NAME. Run: $RUN_URL" \
             "https://ntfy.sh/$NTFY_TOPIC" || true

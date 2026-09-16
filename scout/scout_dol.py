@@ -57,14 +57,21 @@ def xlsx_to_csv(xlsx_path: Path, csv_path: Path) -> int:
     wb = load_workbook(filename=str(xlsx_path), read_only=True, data_only=True)
     ws = wb.active
     rows = 0
-    with csv_path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.writer(fh)
-        for row in ws.iter_rows(values_only=True):
-            writer.writerow(["" if v is None else v for v in row])
-            rows += 1
-            if rows % 100000 == 0:
-                log.info("converting", rows=rows)
-    wb.close()
+    temporary_path = csv_path.with_suffix(f"{csv_path.suffix}.tmp")
+    try:
+        with temporary_path.open("w", newline="", encoding="utf-8") as fh:
+            writer = csv.writer(fh)
+            for row in ws.iter_rows(values_only=True):
+                writer.writerow(["" if v is None else v for v in row])
+                rows += 1
+                if rows % 100000 == 0:
+                    log.info("converting", rows=rows)
+        temporary_path.replace(csv_path)
+    except Exception:
+        temporary_path.unlink(missing_ok=True)
+        raise
+    finally:
+        wb.close()
     return rows
 
 

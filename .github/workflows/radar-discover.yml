@@ -14,12 +14,14 @@ name: Radar Employer Discovery
 # one commit. Runners are free on public repos, so N is limited by politeness
 # and the merge, not by budget.
 #
-# Scheduled monthly, a few hours after the monthly enrichment run (which is
-# what actually adds freshly-discovered candidate employers to crawl) —
-# enrichment finishes first, then this run sees the newest candidate list.
+# Triggered after the scheduled monthly enrichment completes successfully (that
+# is what adds new candidate employers). This avoids a fixed-time race with a
+# slow or queued enrichment run. Manual discovery remains an explicit action;
+# manually re-running enrichment does not unexpectedly start a full crawl.
 on:
-  schedule:
-    - cron: "30 9 1 * *"
+  workflow_run:
+    workflows: ["Radar Enrichment"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       shards:
@@ -34,17 +36,38 @@ on:
         default: ""
 
 permissions:
-  contents: write
+  contents: read
+
+# A later crawl must start after the prior crawl publishes its census update.
+# Other radar writers remain free until this workflow reaches its merge job.
+concurrency:
+  group: radar-discovery-run
+  cancel-in-progress: false
+  queue: max
 
 # The radar-data group is taken by the MERGE job only (see below). The plan job
 # and the 330-minute shard matrix touch nothing shared, and holding the group
 # across them displaced the 6-hourly refresh for the length of the crawl.
 jobs:
+  upstream_failure:
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.event == 'schedule' && github.event.workflow_run.conclusion != 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Report failed scheduled enrichment
+        run: |
+          echo "::error::Scheduled enrichment did not succeed, so discovery cannot use a current candidate directory."
+          exit 1
+
   # A matrix cannot be a plain expression, so the shard list is computed here
   # and consumed via fromJSON. This is what lets the shard count be a dispatch
   # input instead of a number baked into the file.
   plan:
+    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'schedule') }}
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
       count: ${{ steps.plan.outputs.count }}
@@ -75,8 +98,11 @@ jobs:
       matrix:
         shard: ${{ fromJSON(needs.plan.outputs.shards) }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.11"
       - name: Install scout deps
@@ -92,51 +118,120 @@ jobs:
         # runner from slow websites after the fact.
         env:
           PYTHONUNBUFFERED: "1"
+          LIMIT: ${{ inputs.limit }}
         run: |
           set -euo pipefail
           mkdir -p shards
-          args=(--all --shard "${{ matrix.shard }}/${{ needs.plan.outputs.count }}"
-                --out "shards/shard-${{ matrix.shard }}.json")
-          if [ -n "${{ inputs.limit }}" ]; then
-            args+=(--limit "${{ inputs.limit }}")
+          out="shards/shard-${{ matrix.shard }}.json"
+          shard="${{ matrix.shard }}/${{ needs.plan.outputs.count }}"
+          # The path is absent from checkout. Seed a valid, current-run empty
+          # result so a successful no-work shard still has an artifact, while a
+          # setup failure before this step cannot upload a stale repository file.
+          scout/.venv/bin/python -c 'import datetime,json,sys; print(json.dumps({"schema_version":1,"generated_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"shard":sys.argv[1],"employers":{}}))' "$shard" > "$out"
+          args=(--all --shard "$shard" --out "$out")
+          if [[ -n "$LIMIT" && ! "$LIMIT" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::limit must be a positive integer"
+            exit 2
+          fi
+          if [ -n "$LIMIT" ]; then
+            args+=(--limit "$LIMIT")
           fi
           scout/.venv/bin/python scout/scout_discover.py "${args[@]}"
-      # always(): a shard cancelled at the timeout has still crawled for hours,
-      # and the script checkpoints through SIGTERM specifically so that work
-      # survives. Skipping the upload would throw away exactly what the
-      # checkpointing exists to protect.
+      # Preserve checkpoints from failed shards, but an explicit workflow
+      # cancellation must not create artifacts that a publisher could consume.
       - name: Upload shard results
-        if: always()
-        uses: actions/upload-artifact@v4
+        if: ${{ always() && !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: discovery-shard-${{ matrix.shard }}
+          name: discovery-shard-${{ matrix.shard }}-${{ github.run_id }}
           path: shards/shard-${{ matrix.shard }}.json
-          if-no-files-found: warn
+          if-no-files-found: error
+          overwrite: true
           retention-days: 7
 
   merge:
     needs: [plan, crawl]
     # Runs even when some shards failed or timed out — a partial crawl is
     # progress, and discarding it would mean the backlog never shrinks.
-    if: always()
+    if: ${{ always() && !cancelled() && (github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'schedule')) }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    permissions:
+      contents: write
     # This is the only job here that commits, so it is the only one that needs
     # to serialize against the other radar workflows.
     concurrency:
-      group: radar-data-${{ github.ref }}
+      group: radar-data-main
       cancel-in-progress: false
+      queue: max
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # This job starts only after it acquires the shared writer lock. Checkout
+      # current main here, then merge shards into it; never round-trip a census
+      # copied from the workflow's older queue-time SHA.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24"
       - name: Download every shard that produced results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          pattern: discovery-shard-*
+          pattern: discovery-shard-*-${{ github.run_id }}
           path: shards
           merge-multiple: true
+      - name: Verify shard artifact coverage
+        id: shard_health
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(shards/shard-*.json)
+          expected="${{ needs.plan.outputs.count }}"
+          received="${#files[@]}"
+          complete=false
+          if [ -n "$expected" ] && [ "$received" -eq "$expected" ]; then
+            complete=true
+          fi
+          node - "$expected" "${files[@]}" <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const expected = Number(process.argv[2]);
+          const files = process.argv.slice(3);
+          if (!Number.isInteger(expected) || expected < 1) throw new Error('invalid expected shard count');
+          const seen = new Set();
+          for (const file of files) {
+            const match = /^shard-(\d+)\.json$/.exec(path.basename(file));
+            if (!match) throw new Error(`${file}: invalid shard filename`);
+            const index = Number(match[1]);
+            if (!Number.isInteger(index) || index < 0 || index >= expected || seen.has(index)) {
+              throw new Error(`${file}: invalid or duplicate shard index`);
+            }
+            seen.add(index);
+            const value = JSON.parse(fs.readFileSync(file, 'utf8'));
+            if (value.schema_version !== 1) throw new Error(`${file}: invalid schema_version`);
+            if (value.shard !== `${index}/${expected}`) throw new Error(`${file}: wrong shard identity ${value.shard}`);
+            const generatedAt = Date.parse(value.generated_at || '');
+            if (!Number.isFinite(generatedAt) || generatedAt > Date.now() + 5 * 60 * 1000
+                || Date.now() - generatedAt > 8 * 24 * 60 * 60 * 1000) {
+              throw new Error(`${file}: generated_at is outside the artifact window`);
+            }
+            if (!value.employers || typeof value.employers !== 'object' || Array.isArray(value.employers)) {
+              throw new Error(`${file}: invalid employers object`);
+            }
+          }
+          NODE
+          echo "complete=$complete" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Discovery shard health"
+            echo
+            echo "- Matrix result: ${{ needs.crawl.result }}"
+            echo "- Expected artifacts: ${expected:-unknown}"
+            echo "- Received artifacts: $received"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$received" -eq 0 ]; then
+            echo "::error::No discovery shard artifacts were produced."
+            exit 1
+          fi
       - name: Merge shards into the census
         run: |
           set -euo pipefail
@@ -147,30 +242,26 @@ jobs:
             exit 0
           fi
           node radar/scripts/merge-discovery.js "${files[@]}"
-      - name: Sync to latest main (this run's output wins)
-        # checkout pins github.sha from queue time, so commits that landed
-        # while this run was pending/running would make a rebase conflict.
-        # Runs in the radar-data group are serialized, so this run's output
-        # is always the freshest — save, reset, restore.
-        run: |
-          set -euo pipefail
-          tmp=$(mktemp -d)
-          cp radar/data/ats-discovery.json "$tmp"/
-          git fetch origin main
-          git reset --hard origin/main
-          cp "$tmp"/* radar/data/
       - name: Commit discovery data
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
         with:
           commit_message: "Update ATS discovery crawl data"
           file_pattern: "radar/data/ats-discovery.json"
+      - name: Mark partial discovery as degraded
+        if: ${{ always() && (needs.crawl.result != 'success' || steps.shard_health.outputs.complete != 'true') }}
+        run: |
+          echo "::error::Discovery published only validated partial progress; one or more shards failed or were missing."
+          exit 1
       - name: Alert on failure
-        if: failure()
+        if: ${{ failure() || cancelled() || needs.crawl.result != 'success' }}
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REF_NAME: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           [ -z "$NTFY_TOPIC" ] && { echo "NTFY_TOPIC not set; skipping alert"; exit 0; }
-          curl -sS -H "Title: ${{ github.workflow }} failed" \
+          curl -sS -H "Title: $WORKFLOW_NAME failed" \
             -H "Tags: rotating_light" \
-            -d "Workflow '${{ github.workflow }}' failed on ${{ github.ref_name }}. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "Workflow '$WORKFLOW_NAME' failed on $REF_NAME. Run: $RUN_URL" \
             "https://ntfy.sh/$NTFY_TOPIC" || true

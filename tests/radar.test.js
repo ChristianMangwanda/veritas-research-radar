@@ -54,6 +54,7 @@ const {
   detectPrefilterAnomalies,
   filterResearchRelevant,
   activeScoutedJobs,
+  aggregatedOutcomeForSources,
   applyEnrichmentOverlay,
   fetchEmployerJobs,
   runPooled,
@@ -81,7 +82,8 @@ const {
   icimsCleanPosting,
   icimsJobPathsFromHtml,
   icimsPrefilterTitle,
-  fetchIcimsJobs
+  fetchIcimsJobs,
+  criticalRefreshProblems
 } = require('../radar/scripts/refresh.js');
 const {
   parseIpedsCsv,
@@ -90,8 +92,16 @@ const {
   buildDiscoveryCandidates
 } = require('../radar/scripts/enrich.js');
 const { createResolver: createEnrichResolver } = require('../radar/scripts/lib/entity-resolution.js');
-const { validateScoutedFile, scoutedJobId, canonicalUrl, normalizeScoutedJob } = require('../radar/scripts/import-scouted.js');
-const { resolveAggregatedJob, directoryLookup, pseudoEmployerId } = require('../radar/scripts/import-aggregated.js');
+const {
+  validateScoutedFile,
+  scoutedJobId,
+  canonicalUrl,
+  normalizeScoutedJob,
+  applyScoutedSnapshot
+} = require('../radar/scripts/import-scouted.js');
+const {
+  resolveAggregatedJob, directoryLookup, pseudoEmployerId, applyAggregatedSnapshot
+} = require('../radar/scripts/import-aggregated.js');
 const { extractZipEntry, listZipEntries } = require('../radar/scripts/lib/zip.js');
 const zlib = require('zlib');
 const { normalizeName, parseCsvLine, annualWage, median } = require('../radar/scripts/import-dol-lca.js');
@@ -103,6 +113,7 @@ const { parsePeopleAdminAtom, mapPeopleAdminEntry } = require('../radar/scripts/
 const { jobRow, supabaseEnv, rehydrateJob } = require('../radar/scripts/lib/supabase.js');
 const { createResolver, significantTokens } = require('../radar/scripts/lib/entity-resolution.js');
 const { CLASS_LABELS } = require('../radar/scripts/lib/title-class.js');
+const { loadDigestJobs } = require('../radar/scripts/digest.js');
 const RadarScoring = require('../radar/public/scoring.js');
 const RadarPipeline = require('../radar/public/pipeline.js');
 
@@ -339,11 +350,31 @@ function testSupabaseSink() {
   // Sink stays dormant without credentials — refresh must not need Supabase
   const savedUrl = process.env.SUPABASE_URL;
   const savedKey = process.env.SUPABASE_SERVICE_KEY;
+  const savedSecret = process.env.SUPABASE_SECRET_KEY;
   delete process.env.SUPABASE_URL;
   delete process.env.SUPABASE_SERVICE_KEY;
+  delete process.env.SUPABASE_SECRET_KEY;
   assert.strictEqual(supabaseEnv(), null);
+
+  const { loadTargetManifest } = require('../radar/scripts/lib/supabase-target.js');
+  const targetUrl = loadTargetManifest().project_url;
+  process.env.SUPABASE_URL = targetUrl;
+  process.env.SUPABASE_SERVICE_KEY = 'service-key';
+  assert.deepStrictEqual(supabaseEnv(), { url: targetUrl, key: 'service-key' });
+  process.env.SUPABASE_SECRET_KEY = 'different-key';
+  assert.throws(() => supabaseEnv(), /disagree.*set only one service key/,
+    'a stale key name must not mask a different current key');
+  delete process.env.SUPABASE_SECRET_KEY;
+  process.env.SUPABASE_URL = 'https://cmvhimireghzpyzxzyjs.supabase.co';
+  assert.throws(() => supabaseEnv(), /must target exactly.*nawbdsujjysugaisczta/,
+    'service credentials must never be sent to a different Supabase project');
+
   if (savedUrl) process.env.SUPABASE_URL = savedUrl;
+  else delete process.env.SUPABASE_URL;
   if (savedKey) process.env.SUPABASE_SERVICE_KEY = savedKey;
+  else delete process.env.SUPABASE_SERVICE_KEY;
+  if (savedSecret) process.env.SUPABASE_SECRET_KEY = savedSecret;
+  else delete process.env.SUPABASE_SECRET_KEY;
 
   const row = jobRow({
     id: 'lever:ucsf:1', employer_id: 'ucsf', employer_name: 'UCSF',
@@ -483,10 +514,13 @@ function testSyncDiff() {
 
 async function testSyncJobsWrites() {
   const { syncJobs } = require('../radar/scripts/lib/supabase.js');
+  const { loadTargetManifest } = require('../radar/scripts/lib/supabase-target.js');
   const savedUrl = process.env.SUPABASE_URL;
   const savedKey = process.env.SUPABASE_SERVICE_KEY;
-  process.env.SUPABASE_URL = 'https://x.supabase.co';
+  const savedSecret = process.env.SUPABASE_SECRET_KEY;
+  process.env.SUPABASE_URL = loadTargetManifest().project_url;
   process.env.SUPABASE_SERVICE_KEY = 'service-key';
+  delete process.env.SUPABASE_SECRET_KEY;
   const originalFetch = globalThis.fetch;
 
   const job = (id, over = {}) => ({
@@ -559,20 +593,23 @@ async function testSyncJobsWrites() {
     // No credentials: dormant, never a partial write.
     delete process.env.SUPABASE_URL;
     delete process.env.SUPABASE_SERVICE_KEY;
+    delete process.env.SUPABASE_SECRET_KEY;
     const skipped = await syncJobs([job('a')], null);
     assert.strictEqual(skipped.synced, false);
   } finally {
     globalThis.fetch = originalFetch;
     if (savedUrl) process.env.SUPABASE_URL = savedUrl; else delete process.env.SUPABASE_URL;
     if (savedKey) process.env.SUPABASE_SERVICE_KEY = savedKey; else delete process.env.SUPABASE_SERVICE_KEY;
+    if (savedSecret) process.env.SUPABASE_SECRET_KEY = savedSecret; else delete process.env.SUPABASE_SECRET_KEY;
   }
 }
 
 async function testFetchAllJobsKeyset() {
   const { fetchAllJobs } = require('../radar/scripts/lib/supabase.js');
+  const { loadTargetManifest } = require('../radar/scripts/lib/supabase-target.js');
   const savedUrl = process.env.SUPABASE_URL;
   const savedKey = process.env.SUPABASE_SERVICE_KEY;
-  process.env.SUPABASE_URL = 'https://x.supabase.co';
+  process.env.SUPABASE_URL = loadTargetManifest().project_url;
   process.env.SUPABASE_SERVICE_KEY = 'service-key';
   const originalFetch = globalThis.fetch;
   const paths = [];
@@ -1646,12 +1683,48 @@ function testScoutedImporter() {
 
   assert.strictEqual(validateScoutedFile({ schema_version: 2 }, employersById).fileError.includes('schema_version'), true);
   assert.strictEqual(validateScoutedFile({ schema_version: 1, employer_id: 'nope', scouted_at: '2026-07-04T00:00:00Z', jobs: [] }, employersById).fileError.includes('unknown employer_id'), true);
+  assert.match(validateScoutedFile({
+    schema_version: 1,
+    employer_id: 'fred-hutch',
+    scouted_at: '2026-07-04T00:00:00Z',
+    jobs: [],
+    skipped_reason: false
+  }, employersById).fileError, /skipped_reason/);
 
   const normalized = normalizeScoutedJob(result.accepted[0], payload);
   assert.strictEqual(normalized.source, 'agent_scout');
   assert.strictEqual(normalized.employer_id, 'fred-hutch');
   assert.strictEqual(normalized.last_scouted_at, '2026-07-04T00:00:00Z');
   assert(normalized.id.startsWith('scout:fred-hutch:'));
+
+  const prior = {
+    id: 'scout:fred-hutch:prior',
+    employer_id: 'fred-hutch',
+    title: 'Prior job'
+  };
+  const partialStore = { jobs: [prior], snapshots: {} };
+  const partialPayload = {
+    ...payload,
+    jobs: [{ title: 'Newly observed job', url: 'https://careers.example.org/jobs/9' }],
+    skipped_reason: 'detail_fetch_failed'
+  };
+  const partialValidation = validateScoutedFile(partialPayload, employersById);
+  const partial = applyScoutedSnapshot(partialStore, partialPayload, partialValidation);
+  assert.strictEqual(partial.authoritative, false);
+  assert.deepStrictEqual(partialStore.jobs, [prior], 'partial crawls must preserve every prior employer job');
+  assert.strictEqual(partialStore.snapshots['fred-hutch'].preserved_previous, true);
+
+  const completePayload = {
+    ...partialPayload,
+    scouted_at: '2026-07-05T00:00:00Z',
+    skipped_reason: null
+  };
+  const completeValidation = validateScoutedFile(completePayload, employersById);
+  const complete = applyScoutedSnapshot(partialStore, completePayload, completeValidation);
+  assert.strictEqual(complete.authoritative, true);
+  assert.strictEqual(partialStore.jobs.length, 1);
+  assert.strictEqual(partialStore.jobs[0].title, 'Newly observed job');
+  assert.strictEqual(partialStore.snapshots['fred-hutch'].preserved_previous, false);
 
   // TTL: fresh snapshots survive, stale ones drop
   const store = { jobs: [
@@ -1696,6 +1769,55 @@ function testAggregatedImporter() {
   assert.strictEqual(dupe.reason, 'covered_by_live_ats');
 
   assert.strictEqual(pseudoEmployerId('Yale University'), 'agg:yale-university');
+
+  const priorJob = { id: 'agg:nature:old', source: 'nature-careers', employer_id: 'agg:yale' };
+  const store = {
+    snapshots: { 'nature-careers': { scouted_at: '2026-08-29T00:00:00Z' } },
+    jobs: [priorJob]
+  };
+  const skipped = applyAggregatedSnapshot(store, {
+    source: 'nature-careers',
+    scouted_at: '2026-08-30T00:00:00Z',
+    jobs: [],
+    skipped_reason: 'list_page_1_failed'
+  }, ctx);
+  assert.strictEqual(skipped.skipped, true);
+  assert.deepStrictEqual(store.jobs, [priorJob], 'a failed source must preserve its prior snapshot jobs');
+  assert.strictEqual(store.snapshots['nature-careers'].preserved_previous, true);
+  assert.strictEqual(store.snapshots['nature-careers'].scouted_at, '2026-08-29T00:00:00Z',
+    'a failed attempt must not renew the last authoritative observation');
+  assert.strictEqual(store.snapshots['nature-careers'].attempted_at, '2026-08-30T00:00:00Z');
+
+  const rejected = applyAggregatedSnapshot(store, {
+    source: 'nature-careers',
+    scouted_at: '2026-08-30T01:00:00Z',
+    jobs: [{ title: '', employer_name: 'Yale University', url: 'not-a-url' }],
+    skipped_reason: null
+  }, ctx);
+  assert.strictEqual(rejected.skipped, true);
+  assert.strictEqual(rejected.reason, 'validation_rejected');
+  assert.deepStrictEqual(store.jobs, [priorJob], 'invalid parser rows must not make a snapshot authoritative');
+
+  const authoritativeEmpty = applyAggregatedSnapshot(store, {
+    source: 'nature-careers',
+    scouted_at: '2026-08-31T00:00:00Z',
+    jobs: [],
+    skipped_reason: null
+  }, ctx);
+  assert.strictEqual(authoritativeEmpty.skipped, false);
+  assert.deepStrictEqual(store.jobs, [], 'only an explicitly authoritative snapshot may replace with empty');
+
+  assert.deepStrictEqual(aggregatedOutcomeForSources(
+    new Set(['nature-careers']),
+    { 'nature-careers': { scouted_at: '2026-08-31T00:00:00Z', skipped_reason: null } }
+  ), { attempted: true, ok: true });
+  assert.deepStrictEqual(aggregatedOutcomeForSources(
+    new Set(['nature-careers', 'science-careers']),
+    {
+      'nature-careers': { scouted_at: '2026-08-31T00:00:00Z', skipped_reason: null },
+      'science-careers': { scouted_at: '2026-08-29T00:00:00Z', skipped_reason: 'pagination_failed' }
+    }
+  ), { attempted: false, ok: false }, 'one failed source must carry shared pseudo-employer jobs forward');
 }
 
 function testEnrichPipeline() {
@@ -2447,7 +2569,12 @@ function testSeedCacheKeys() {
 
 async function testJudgeFunction() {
   const handler = require('../api/judge.js');
-  const { inList, MAX_IDS } = handler;
+  const { inList, MAX_IDS, requireOwnerUserId } = handler;
+  const { assertSupabaseTargetUrl, loadTargetManifest } = require('../radar/scripts/lib/supabase-target.js');
+  const target = loadTargetManifest();
+  const targetUrl = target.project_url;
+  const ownerId = '11111111-1111-4111-8111-111111111111';
+  const otherId = '22222222-2222-4222-8222-222222222222';
 
   /* Job ids are colon-composed, and a bare colon ends a PostgREST value. An
    * unquoted list does not error — it matches nothing, which reads as "no
@@ -2470,47 +2597,204 @@ async function testJudgeFunction() {
     return captured;
   };
 
-  assert.strictEqual((await call({ method: 'GET' })).status, 405, 'GET is not a judging verb');
+  assert.strictEqual((await call({ method: 'GET' })).status, 200, 'GET exposes only judging configuration');
   assert.strictEqual((await call({ method: 'OPTIONS' })).status, 204, 'preflight is answered');
 
   const saved = {
     url: process.env.SUPABASE_URL,
     service: process.env.SUPABASE_SERVICE_KEY,
     secret: process.env.SUPABASE_SECRET_KEY,
-    openai: process.env.OPENAI_API_KEY
+    openai: process.env.OPENAI_API_KEY,
+    owner: process.env.RADAR_OWNER_USER_ID
   };
+  const originalFetch = globalThis.fetch;
   const restore = () => {
     for (const [name, value] of [['SUPABASE_URL', saved.url], ['SUPABASE_SERVICE_KEY', saved.service],
-      ['SUPABASE_SECRET_KEY', saved.secret], ['OPENAI_API_KEY', saved.openai]]) {
+      ['SUPABASE_SECRET_KEY', saved.secret], ['OPENAI_API_KEY', saved.openai],
+      ['RADAR_OWNER_USER_ID', saved.owner]]) {
       if (value === undefined) delete process.env[name]; else process.env[name] = value;
     }
+    globalThis.fetch = originalFetch;
   };
-  for (const name of ['SUPABASE_URL', 'SUPABASE_SERVICE_KEY', 'SUPABASE_SECRET_KEY', 'OPENAI_API_KEY']) {
-    delete process.env[name];
+  try {
+    for (const name of ['SUPABASE_URL', 'SUPABASE_SERVICE_KEY', 'SUPABASE_SECRET_KEY',
+      'OPENAI_API_KEY', 'RADAR_OWNER_USER_ID']) {
+      delete process.env[name];
+    }
+
+    const unconfigured = await call({ method: 'POST', body: { ids: ['x'] } });
+    assert.strictEqual(unconfigured.status, 500);
+    // The 500 must NAME what is missing. A generic "not configured" cost a live
+    // deployment's worth of guessing about which variable was wrong.
+    assert.match(unconfigured.body.error, /SUPABASE_URL/);
+    assert.match(unconfigured.body.error, /OPENAI_API_KEY/);
+    assert.match(unconfigured.body.error, /RADAR_OWNER_USER_ID/);
+
+    assert.strictEqual(assertSupabaseTargetUrl(`${targetUrl}/`, target), targetUrl);
+    assert.strictEqual(requireOwnerUserId(ownerId.toUpperCase()), ownerId);
+    assert.strictEqual(
+      requireOwnerUserId('018f47f2-9b21-7cc4-98ee-123456789abc'),
+      '018f47f2-9b21-7cc4-98ee-123456789abc',
+      'RFC 9562 UUIDv7 owner ids are valid PostgreSQL UUIDs'
+    );
+    assert.throws(() => assertSupabaseTargetUrl('https://cmvhimireghzpyzxzyjs.supabase.co', target),
+      /nawbdsujjysugaisczta/);
+    assert.throws(() => requireOwnerUserId('not-a-uuid'), /valid user UUID/);
+    assert.throws(() => requireOwnerUserId('00000000-0000-0000-0000-000000000000'), /valid user UUID/);
+
+    /* Supabase's dashboard issues the key as SUPABASE_SECRET_KEY now, while CI
+     * holds it as SUPABASE_SERVICE_KEY. Both must satisfy the check — the name a
+     * key happened to be pasted under is not a reason for judging to be down. */
+    process.env.SUPABASE_URL = targetUrl;
+    process.env.RADAR_OWNER_USER_ID = ownerId;
+    process.env.OPENAI_API_KEY = 'sk-test';
+    process.env.SUPABASE_SECRET_KEY = 'sb_secret_test';
+    // 401 rather than 500 is the signal: the config check passed and it moved on
+    // to wanting a token.
+    const withSecretName = await call({ method: 'POST', body: { ids: [] } });
+    assert.strictEqual(withSecretName.status, 401, 'SUPABASE_SECRET_KEY satisfies the config check');
+    delete process.env.SUPABASE_SECRET_KEY;
+    process.env.SUPABASE_SERVICE_KEY = 'sb_secret_test';
+    const withServiceName = await call({ method: 'POST', body: { ids: [] } });
+    assert.strictEqual(withServiceName.status, 401, 'and so does the CI name');
+    process.env.SUPABASE_SECRET_KEY = 'different-key';
+    const conflictingKeyNames = await call({ method: 'POST', body: { ids: [] } });
+    assert.strictEqual(conflictingKeyNames.status, 500);
+    assert.match(conflictingKeyNames.body.error, /set only one service key/);
+    delete process.env.SUPABASE_SECRET_KEY;
+
+    let requests = [];
+    globalThis.fetch = async (url) => {
+      requests.push(String(url));
+      throw new Error('wrong project config must fail before fetch');
+    };
+    process.env.SUPABASE_URL = 'https://cmvhimireghzpyzxzyjs.supabase.co';
+    const wrongTarget = await call({
+      method: 'POST', headers: { authorization: 'Bearer valid-looking' }, body: { ids: ['x'] }
+    });
+    assert.strictEqual(wrongTarget.status, 500);
+    assert.match(wrongTarget.body.error, /nawbdsujjysugaisczta/);
+    assert.deepStrictEqual(requests, [], 'wrong target is rejected before any credential-bearing request');
+
+    process.env.SUPABASE_URL = targetUrl;
+    globalThis.fetch = async (url) => {
+      requests.push(String(url));
+      return { ok: false };
+    };
+    requests = [];
+    const invalid = await call({
+      method: 'POST', headers: { authorization: 'Bearer invalid' }, body: { ids: ['x'] }
+    });
+    assert.strictEqual(invalid.status, 401, 'an invalid Supabase token is unauthenticated');
+    assert.strictEqual(requests.length, 1);
+
+    requests = [];
+    globalThis.fetch = async (url) => {
+      requests.push(String(url));
+      return { ok: true, json: async () => ({ id: otherId }) };
+    };
+    const nonOwner = await call({
+      method: 'POST', headers: { authorization: 'Bearer valid-non-owner' }, body: { ids: ['x'] }
+    });
+    assert.strictEqual(nonOwner.status, 403, 'a valid non-owner is authenticated but forbidden');
+    assert.deepStrictEqual(requests, [`${targetUrl}/auth/v1/user`],
+      'non-owner stops after token verification: no profile, cache, jobs, or OpenAI work');
+
+    requests = [];
+    globalThis.fetch = async (url) => {
+      requests.push(String(url));
+      if (String(url).endsWith('/auth/v1/user')) {
+        return { ok: true, json: async () => ({ id: ownerId }) };
+      }
+      return { ok: true, text: async () => '[]' };
+    };
+    const ownerWithoutProfile = await call({
+      method: 'POST', headers: { authorization: 'Bearer owner' }, body: { ids: ['x'] }
+    });
+    assert.strictEqual(ownerWithoutProfile.status, 409);
+    assert.strictEqual(requests.length, 2);
+    assert.match(requests[1], new RegExp(`/profile_documents\\?user_id=eq\\.${ownerId}`));
+    assert.match(requests[1], /select=user_id,content/);
+
+    const profileContent = [
+      '---',
+      'years_experience: 2',
+      'career_stage: student',
+      'salary_floor: null',
+      'locations: [remote]',
+      'degrees:',
+      '  - level: masters',
+      '    field: Applied Data Science',
+      '    status: in_progress',
+      'avoid: []',
+      '---',
+      '',
+      '## Who I am',
+      'A data scientist who studies biological data.',
+      '',
+      '## What I can do',
+      'Python, machine learning, genomics',
+      '',
+      '## What I want',
+      'Research data roles.'
+    ].join('\n');
+    const parsedProfile = require('../radar/public/profile-doc.js').parseProfileDocument(profileContent);
+    assert.strictEqual(RadarScoring.validateProfile(parsedProfile), null);
+    const cachedJob = {
+      id: 'test:owner:1',
+      employer_id: 'example-research',
+      employer_name: 'Example Research Institute',
+      title: 'Research Data Scientist',
+      department: 'Genomics',
+      location: 'Remote',
+      url: 'https://careers.example.org/jobs/1',
+      description_text: 'Analyze genomic data with Python and machine learning.',
+      source: 'test'
+    };
+    const matching = require('../radar/public/matching.js');
+    const cachedJobHash = await matching.jobFingerprint(cachedJob);
+    const cachedProfileHash = await matching.profileFingerprint(parsedProfile, require('../radar/scripts/lib/openai.js').DEFAULT_MODEL);
+    const cachedJudgment = {
+      job_hash: cachedJobHash,
+      verdict: 'MATCH',
+      different_profession: false,
+      meets_requirements: true,
+      matches_preferences: true,
+      role_summary: 'Research data role.',
+      reasons: ['Uses the stated skills.'],
+      gaps: [],
+      judged_at: '2026-08-30T00:00:00Z',
+      model: 'cached-test-model'
+    };
+    requests = [];
+    globalThis.fetch = async (url) => {
+      const requestUrl = String(url);
+      requests.push(requestUrl);
+      if (requestUrl.endsWith('/auth/v1/user')) {
+        return { ok: true, json: async () => ({ id: ownerId }) };
+      }
+      const payload = requestUrl.includes('/profile_documents?')
+        ? [{ user_id: ownerId, content: profileContent }]
+        : requestUrl.includes('/jobs?')
+          ? [{ payload: { ...cachedJob, description_text: undefined }, description_text: cachedJob.description_text }]
+          : requestUrl.includes('/match_cache?')
+            ? [cachedJudgment]
+            : null;
+      if (payload === null) throw new Error(`unexpected owner request: ${requestUrl}`);
+      return { ok: true, text: async () => JSON.stringify(payload) };
+    };
+    const cachedOwner = await call({
+      method: 'POST', headers: { authorization: 'Bearer owner' }, body: { ids: [cachedJob.id] }
+    });
+    assert.strictEqual(cachedOwner.status, 200, 'the configured owner can complete a cached request');
+    assert.strictEqual(cachedOwner.body.profile_hash, cachedProfileHash);
+    assert.strictEqual(cachedOwner.body.judgments[cachedJob.id].verdict, 'MATCH');
+    assert.deepStrictEqual(cachedOwner.body.unjudged, []);
+    assert.strictEqual(cachedOwner.body.spend, 0);
+    assert.strictEqual(requests.length, 4, 'cached owner path uses auth, profile, jobs, and cache only');
+  } finally {
+    restore();
   }
-
-  const unconfigured = await call({ method: 'POST', body: { ids: ['x'] } });
-  assert.strictEqual(unconfigured.status, 500);
-  // The 500 must NAME what is missing. A generic "not configured" cost a live
-  // deployment's worth of guessing about which of three variables was wrong.
-  assert.match(unconfigured.body.error, /SUPABASE_URL/);
-  assert.match(unconfigured.body.error, /OPENAI_API_KEY/);
-
-  /* Supabase's dashboard issues the key as SUPABASE_SECRET_KEY now, while CI
-   * holds it as SUPABASE_SERVICE_KEY. Both must satisfy the check — the name a
-   * key happened to be pasted under is not a reason for judging to be down. */
-  process.env.SUPABASE_URL = 'https://x.supabase.co';
-  process.env.OPENAI_API_KEY = 'sk-test';
-  process.env.SUPABASE_SECRET_KEY = 'sb_secret_test';
-  // 401 rather than 500 is the signal: the config check passed and it moved on
-  // to wanting a token.
-  const withSecretName = await call({ method: 'POST', body: { ids: [] } });
-  assert.strictEqual(withSecretName.status, 401, 'SUPABASE_SECRET_KEY satisfies the config check');
-  delete process.env.SUPABASE_SECRET_KEY;
-  process.env.SUPABASE_SERVICE_KEY = 'sb_secret_test';
-  const withServiceName = await call({ method: 'POST', body: { ids: [] } });
-  assert.strictEqual(withServiceName.status, 401, 'and so does the CI name');
-  restore();
 
   assert(MAX_IDS <= 20, 'a batch has to finish inside the function timeout');
 }
@@ -2601,6 +2885,11 @@ async function testBatchWrite() {
   assert.strictEqual(isTransientPostgrestError(new Error('supabase POST /jobs: 429 slow down')), true);
   assert.strictEqual(isTransientPostgrestError(Object.assign(new Error('x'), { name: 'AbortError' })), true);
   assert.strictEqual(isTransientPostgrestError(new Error('fetch failed')), true);
+  const resetCause = Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' });
+  assert.strictEqual(isTransientPostgrestError(Object.assign(new TypeError('terminated'), { cause: resetCause })), true,
+    'Node fetch reports a reset while reading the response body as terminated with an ECONNRESET cause');
+  assert.strictEqual(isTransientPostgrestError(new Error('400: request was terminated by policy')), false,
+    'an ordinary server error containing the word terminated is not automatically transient');
   // A duplicate key or a malformed row fails identically however small the
   // batch is; retrying or splitting it only buys the same error again.
   assert.strictEqual(isTransientPostgrestError(new Error('POST /match_cache → 400: 21000 cannot affect row a second time')), false);
@@ -2764,8 +3053,12 @@ async function testOpenAiCooldown() {
 }
 
 function testJudgeJobsScript() {
-  const { parseArgs, diffMisses, rowFromJudgment } = require('../radar/scripts/judge-jobs.js');
+  const {
+    parseArgs, diffMisses, rowFromJudgment, requireOwnerUserId,
+    ownerProfilePath, assertSoleOwnerProfile
+  } = require('../radar/scripts/judge-jobs.js');
   const { deriveVerdict } = require('../radar/scripts/lib/match.js');
+  const ownerId = '11111111-1111-4111-8111-111111111111';
 
   // The spend cap has to default to something, because CI runs this unattended
   // on a schedule and an uncapped loop over a fresh pool is a real bill.
@@ -2777,6 +3070,23 @@ function testJudgeJobsScript() {
 
   const custom = parseArgs(['--dry-run', '--max-spend', '0.5', '--limit', '10', '--prune-stale-profiles']);
   assert.deepStrictEqual(custom, { dryRun: true, maxSpend: 0.5, limit: 10, pruneStaleProfiles: true });
+
+  // The unattended job must name one canonical Auth user before it can read a
+  // service-role profile or buy judgments. The profile query carries that UUID
+  // rather than taking whichever row PostgREST happens to return first.
+  assert.strictEqual(requireOwnerUserId(ownerId.toUpperCase()), ownerId);
+  assert.throws(() => requireOwnerUserId(''), /RADAR_OWNER_USER_ID/);
+  assert.strictEqual(ownerProfilePath(ownerId),
+    `/profile_documents?user_id=eq.${ownerId}&select=user_id,content&limit=1`);
+
+  assert.doesNotThrow(() => assertSoleOwnerProfile([{ user_id: ownerId }], ownerId));
+  assert.throws(() => assertSoleOwnerProfile([], ownerId), /refusing to prune/);
+  assert.throws(() => assertSoleOwnerProfile([
+    { user_id: ownerId }, { user_id: '22222222-2222-4222-8222-222222222222' }
+  ], ownerId), /refusing to prune/, 'a second profile makes table-wide cache pruning unsafe');
+  assert.throws(() => assertSoleOwnerProfile([
+    { user_id: '22222222-2222-4222-8222-222222222222' }
+  ], ownerId), /refusing to prune/);
 
   // Only postings with no judgment under THIS profile are worth paying for.
   const pool = [{ job: { id: 'a' }, hash: 'fnv1a:1' }, { job: { id: 'b' }, hash: 'fnv1a:2' }];
@@ -2810,6 +3120,89 @@ function testJudgeJobsScript() {
   const sparse = rowFromJudgment({ id: 'j' }, 'h', 'p', { ...judgment, reasons: undefined, gaps: null }, 'm', 'now');
   assert.deepStrictEqual(sparse.reasons, []);
   assert.deepStrictEqual(sparse.gaps, []);
+}
+
+async function testJudgeSupabaseClient() {
+  const { makeClient } = require('../radar/scripts/judge-jobs.js');
+  const noSleep = async () => {};
+  const warnings = [];
+  let calls = 0;
+
+  // This is the exact Node/Undici failure shape from Research Job Radar #231:
+  // the response starts, then its body terminates because the socket resets.
+  const client = makeClient({
+    url: 'https://target.supabase.co',
+    key: 'service-secret',
+    attempts: 3,
+    timeoutMs: 1000,
+    sleepFn: noSleep,
+    warn: (message) => warnings.push(message),
+    fetchFn: async (_url, options) => {
+      calls += 1;
+      assert(options.signal, 'every request has an abort signal');
+      if (calls === 1) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () => {
+            const cause = Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' });
+            throw Object.assign(new TypeError('terminated'), { cause });
+          }
+        };
+      }
+      return { ok: true, status: 200, text: async () => '[{"job_hash":"h"}]' };
+    }
+  });
+  assert.deepStrictEqual(await client.request('GET', '/match_cache?select=job_hash'), [{ job_hash: 'h' }]);
+  assert.strictEqual(calls, 2, 'a reset response body is retried once and recovered');
+  assert.strictEqual(warnings.length, 1);
+  assert(!warnings[0].includes('service-secret'), 'retry logs must never print the service key');
+
+  // Credentials and malformed requests are deterministic. Retrying them would
+  // only delay the useful failure and make configuration mistakes harder to see.
+  let authCalls = 0;
+  const denied = makeClient({
+    url: 'https://target.supabase.co',
+    key: 'bad-key',
+    sleepFn: noSleep,
+    fetchFn: async () => {
+      authCalls += 1;
+      return { ok: false, status: 401, text: async () => 'invalid key' };
+    }
+  });
+  await assert.rejects(() => denied.request('GET', '/profile_documents'), /401: invalid key/);
+  assert.strictEqual(authCalls, 1, '401 fails immediately without retrying');
+
+  // Cache writes already have a three-attempt outer policy. The client must not
+  // nest another three attempts inside it and turn one outage into nine calls.
+  let postCalls = 0;
+  const failedWrite = makeClient({
+    url: 'https://target.supabase.co',
+    key: 'service-secret',
+    attempts: 3,
+    sleepFn: noSleep,
+    fetchFn: async () => {
+      postCalls += 1;
+      throw new Error('fetch failed');
+    }
+  });
+  await assert.rejects(() => failedWrite.request('POST', '/match_cache', { body: [] }), /fetch failed/);
+  assert.strictEqual(postCalls, 1, 'POST retrying belongs to the cache writer, not the HTTP client');
+
+  // A request that never settles is aborted by the client instead of consuming
+  // most of the workflow timeout before the retry policy can act.
+  const hanging = makeClient({
+    url: 'https://target.supabase.co',
+    key: 'service-secret',
+    attempts: 1,
+    timeoutMs: 5,
+    fetchFn: async (_url, { signal }) => new Promise((_resolve, reject) => {
+      signal.addEventListener('abort', () => {
+        reject(Object.assign(new Error('request aborted'), { name: 'AbortError' }));
+      }, { once: true });
+    })
+  });
+  await assert.rejects(() => hanging.request('GET', '/match_cache'), /request aborted/);
 }
 
 function testJudgedMatch() {
@@ -2873,11 +3266,10 @@ function testJudgedMatch() {
   assert.deepStrictEqual([...rows].sort(compareJudged).map((row) => row.id), ['c', 'b', 'a']);
   assert(VERDICT_RANK.strong < VERDICT_RANK.no);
 
-  // The authored document IS the brief, passed through verbatim. That is the
-  // point: editing profile.md changes the judging with nothing in between to
-  // reinterpret it, and no seven-variant summary rides on every posting.
+  // Keep authored prose intact and include structured constraints in the prompt.
   const prose = '## Who I am\nML person.\n\n## What I want\nHealth data research.';
-  assert.strictEqual(candidateBrief({ core: {}, variants: [], prose }), prose);
+  assert.strictEqual(candidateBrief({ core: {}, variants: [], prose }),
+    `PROFILE FACTS AND CONSTRAINTS:\n{}\n\n${prose}`);
 
   // A legacy profile.json still judges rather than yielding an empty brief.
   const legacy = candidateBrief({
@@ -4346,6 +4738,9 @@ function testDeadmanExitContract() {
     path.resolve(__dirname, '../radar/scripts/deadman-check.js'),
     path.join(scriptDir, 'deadman-check.js')
   );
+  fs.mkdirSync(path.join(root, 'radar', 'public'), { recursive: true });
+  fs.copyFileSync(path.resolve(__dirname, '../radar/public/feed-health.js'),
+    path.join(root, 'radar', 'public', 'feed-health.js'));
 
   const reportPath = path.join(root, 'radar', 'data', 'refresh-report.json');
   const writeReport = (patch) => fs.writeFileSync(reportPath, JSON.stringify({
@@ -4364,15 +4759,26 @@ function testDeadmanExitContract() {
   writeReport();
   assert.strictEqual(run().status, 0, 'a healthy pipeline must exit 0');
 
+  writeReport({ employers: [{ employer_id: 'one', name: 'One university',
+    feed_health: [{ ats_provider: 'workday', error: 'HTTP 503',
+      consecutive_failures: 3, persistent_failure: true }] }] });
+  assert.strictEqual(run().status, 1, 'one persistently broken feed must fail the check');
+
   // The live 2026-08-04 case: stale, no ntfy topic, nowhere to send the alert.
   writeReport({ refreshed_at: new Date(Date.now() - 13 * 60 * 60 * 1000).toISOString() });
-  const stale = run();
+  const outputPath = path.join(root, 'deadman-output.txt');
+  const stale = run({ GITHUB_OUTPUT: outputPath });
   assert.strictEqual(stale.status, 1, 'a stale pipeline with no delivery channel must FAIL the run');
   assert(/12\.\d+h ago|1[23]\.\d+h ago/.test(stale.stderr + stale.stdout), 'the reason must be logged');
+  assert.match(fs.readFileSync(outputPath, 'utf8'), /notification_delivered=false/,
+    'the workflow fallback must know that the detailed alert was not delivered');
 
   // A recall anomaly is equally undeliverable, and equally must not read green.
   writeReport({ recall_anomalies: [{ name: 'Somewhere University' }] });
   assert.strictEqual(run().status, 1, 'a recall anomaly with no delivery channel must fail the run');
+
+  writeReport({ provider_circuits: [{ provider: 'workday', signature: 'HTTP 503' }] });
+  assert.strictEqual(run().status, 1, 'an open provider circuit must fail the dead-man check');
 
   // A sync that FAILED partway leaves a report that looks perfectly healthy —
   // fresh timestamp, no errors, no anomalies — while the dataset of record is
@@ -4401,6 +4807,48 @@ function testDeadmanExitContract() {
   assert.strictEqual(run().status, 1, 'an unreadable report must fail the run');
 
   fs.rmSync(root, { recursive: true, force: true });
+}
+
+function testRefreshHealthGate() {
+  const healthy = {
+    errored_employers: 1,
+    recall_anomalies: [],
+    provider_circuits: [],
+    supabase_sync_status: 'ok'
+  };
+  assert.deepStrictEqual(criticalRefreshProblems(healthy), []);
+  assert(criticalRefreshProblems({ ...healthy, errored_employers: 10 })[0].includes('10 employers'));
+  assert(criticalRefreshProblems({
+    ...healthy, provider_circuits: [{ provider: 'workday', signature: 'HTTP 503' }]
+  }).some((problem) => problem.includes('workday')));
+  assert(criticalRefreshProblems({
+    ...healthy, recall_anomalies: [{ name: 'Example University' }]
+  }).some((problem) => problem.includes('recall')));
+  assert(criticalRefreshProblems({
+    ...healthy, supabase_sync_aborted: 'untrusted baseline'
+  }).some((problem) => problem.includes('aborted')));
+  assert(criticalRefreshProblems({
+    ...healthy, supabase_sync_status: 'failed', supabase_sync_error: 'statement timeout'
+  }).some((problem) => problem.includes('statement timeout')));
+}
+
+async function testDigestRequiresSupabaseInProduction() {
+  await assert.rejects(
+    () => loadDigestJobs({
+      requireSupabase: true,
+      fetchJobs: async () => { throw new Error('network down'); }
+    }),
+    /Supabase digest read failed: network down/
+  );
+  await assert.rejects(
+    () => loadDigestJobs({ requireSupabase: true, fetchJobs: async () => null }),
+    /returned no jobs/
+  );
+  const fallback = await loadDigestJobs({
+    fetchJobs: async () => { throw new Error('offline'); },
+    readFile: async () => JSON.stringify([{ id: 'local-job' }])
+  });
+  assert.deepStrictEqual(fallback, [{ id: 'local-job' }]);
 }
 
 /* The cache's decisions, all of which fail invisibly until data goes missing.
@@ -4518,6 +4966,7 @@ async function main() {
   await testMatchCacheWriter();
   await testOpenAiCooldown();
   testJudgeJobsScript();
+  await testJudgeSupabaseClient();
   testJudgedMatch();
   testManifestSync();
   testFitAudit();
@@ -4550,6 +4999,8 @@ async function main() {
   await testIcimsSitemapFallback();
   testRegistryValidates();
   testDeadmanExitContract();
+  testRefreshHealthGate();
+  await testDigestRequiresSupabaseInProduction();
   await testAdpPagingContract();
 
   console.log('Radar tests passed');

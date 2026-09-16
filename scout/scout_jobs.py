@@ -17,7 +17,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import yaml
 
-from radar_scout.jobs_scout import DEFAULT_FETCH_BUDGET, load_targets, scout_employer, write_snapshot
+from radar_scout.jobs_scout import (
+    DEFAULT_FETCH_BUDGET,
+    build_snapshot,
+    load_targets,
+    scout_employer,
+    write_snapshot,
+)
 from radar_scout.logging_utils import configure_logging, get_logger
 
 log = get_logger("scout_jobs")
@@ -47,9 +53,27 @@ def main() -> int:
         log.warning("no_targets", requested=args.employer or "all")
         return 1
 
+    output_paths = []
+    failed_employers = []
     for target in targets:
-        snapshot = scout_employer(target, budget=args.budget)
+        try:
+            snapshot = scout_employer(target, budget=args.budget)
+        except Exception as error:
+            # Preserve the previous employer snapshot and keep scouting the
+            # remaining targets. The importer treats this as non-authoritative.
+            log.error("scout_crashed", employer=target.employer_id, error=str(error))
+            snapshot = build_snapshot(
+                target.employer_id,
+                target.listing_url,
+                [],
+                "scout_failed",
+            )
         out_path = write_snapshot(RADAR_PATH, snapshot)
+        output_paths.append(out_path)
+        if snapshot["skipped_reason"]:
+            failed_employers.append(
+                f"{target.employer_id}: {snapshot['skipped_reason']}"
+            )
         log.info(
             "snapshot_written",
             employer=target.employer_id,
@@ -58,9 +82,19 @@ def main() -> int:
             path=str(out_path),
         )
 
+    import_failed = False
     if args.run_import:
-        subprocess.run(["npm", "run", "radar:import-scouted"], cwd=RADAR_PATH, check=True)
-    return 0
+        # Import only files written by this invocation. Tracked snapshots from
+        # an older checkout must not be mistaken for current-run observations.
+        result = subprocess.run(
+            ["npm", "run", "radar:import-scouted", "--", *map(str, output_paths)],
+            cwd=RADAR_PATH,
+            check=False,
+        )
+        import_failed = result.returncode != 0
+    if failed_employers:
+        log.error("non_authoritative_employers", employers=failed_employers)
+    return 1 if failed_employers or import_failed else 0
 
 
 if __name__ == "__main__":

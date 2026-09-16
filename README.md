@@ -18,7 +18,7 @@ Veritas automatically scans job descriptions and displays a color-coded badge in
 - **Color-Coded Badge**: Instant visual feedback (RED / GREEN / GRAY)
 - **Keyword Highlighting**: Click badge to see matched phrases
 - **Dismissible**: X button to close badge when done
-- **Privacy-First**: 100% local processing, zero data collection
+- **Extension privacy**: The extension scans page text locally. The hosted Radar uses Supabase and OpenAI, as described below.
 - **Research Job Radar**: Fetches public ATS postings (Greenhouse, Lever, Ashby, SmartRecruiters, Workday) from curated likely cap-exempt research employers
 
 ### Smart Detection (120 Patterns)
@@ -124,7 +124,7 @@ Auto-scans on: LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter, Handshake, Si
 
 ### Privacy & Security
 - **Zero data collection**
-- **No external API calls from the extension** (the optional local Research Radar fetches public ATS job boards)
+- **No external API calls from the extension**. The separate Research Radar uses hosted services.
 - **Local processing only**
 - **Minimal permissions**: `activeTab`, `storage`, `scripting`
 - **Open source** (MIT License)
@@ -186,9 +186,8 @@ veritas/
 
 A single instrument for cap-exempt research roles, in three layers:
 
-- **The daily sourcer** (Node, every 6 hours): nine ATS adapters (Greenhouse,
-  Lever, Ashby, SmartRecruiters, Workday, Recruitee, Breezy, Workable, USAJOBS)
-  plus the aggregator firehose and per-employer scout snapshots. Every posting
+- **The daily sourcer** (Node, every 6 hours): public ATS adapters,
+  aggregator snapshots, and employer scout snapshots. Every posting
   runs through the Veritas analyzer; closed postings become tombstones.
 - **The enrichment layer** (monthly): manufactures the cap-exempt signal by
   joining four government datasets via entity resolution — DOL LCA disclosures
@@ -219,9 +218,17 @@ as of 2026-07 the scout treats robots.txt as advisory (logged, not enforced)
 by owner decision; it stays throttled and does not defeat CAPTCHAs.
 
 Data boundaries:
-- Public GitHub Actions data: `radar/employers.json`, `radar/data/jobs.json`, `radar/data/refresh-report.json`.
-- Local-only data: resume text, browser profile extraction, and `radar/data/local-state.json`.
-- The dashboard computes resume fit in the browser. Resume text is not written by the server and is not used by GitHub Actions.
+- Public data: employer registry, job postings, refresh reports, and discovery reports.
+- Supabase stores the public job database. `radar/data/jobs.json` is an ignored local mirror.
+- Private Supabase tables store the profile document, AI judgments, triage, and account state.
+- GitHub Actions and the Vercel function send the profile and posting text to OpenAI for matching.
+- The browser computes the preliminary score. It reads AI judgments after sign-in.
+- Local resume files, profile copies, API keys, and private caches stay outside Git history.
+
+The live dashboard runs on [Vercel](https://veritas-research-radar.vercel.app).
+It no longer depends on a running laptop or GitHub Pages.
+[PROJECT-MAP.md](PROJECT-MAP.md) describes the current architecture.
+[HANDOFF.md](HANDOFF.md#production-security-gate) contains the release requirements.
 
 DOL enrichment is an explicit local import step. Download an OFLC LCA disclosure file, convert it to CSV if needed, then run:
 

@@ -5,6 +5,9 @@
  */
 
 const { writeAllBatches } = require('./batch-write.js');
+const { assertSupabaseTargetUrl, loadTargetManifest } = require('./supabase-target.js');
+
+const SUPABASE_TARGET = loadTargetManifest();
 
 /* Upserts are batched small and written one after another. The old sink pushed
  * 500 rows a time and rewrote all ~25,000 every run — a mirror, not a sync —
@@ -38,11 +41,22 @@ function sleep(ms) {
  * SUPABASE_SERVICE_KEY as a repo secret, and Supabase now calls the same thing
  * a "secret key" (sb_secret_…) in the dashboard.
  */
+function resolveSupabaseServiceKey(environment = process.env) {
+  const serviceKey = environment.SUPABASE_SERVICE_KEY || '';
+  const secretKey = environment.SUPABASE_SECRET_KEY || '';
+  if (serviceKey && secretKey && serviceKey !== secretKey) {
+    throw new Error('SUPABASE_SERVICE_KEY and SUPABASE_SECRET_KEY disagree; set only one service key');
+  }
+  return serviceKey || secretKey;
+}
+
 function supabaseEnv() {
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SECRET_KEY;
+  const key = resolveSupabaseServiceKey();
   if (!url || !key) return null;
-  return { url: url.replace(/\/$/, ''), key };
+  // Service credentials bypass RLS. Refuse to pair them with any project
+  // except the one frozen in this repository's target manifest.
+  return { url: assertSupabaseTargetUrl(url, SUPABASE_TARGET), key };
 }
 
 async function request(env, method, pathname, { body, headers = {} } = {}) {
@@ -332,6 +346,6 @@ async function fetchAllJobs() {
 }
 
 module.exports = {
-  syncJobs, fetchAllJobs, supabaseEnv, jobRow, rehydrateJob, payloadWithoutDescription,
+  syncJobs, fetchAllJobs, supabaseEnv, resolveSupabaseServiceKey, jobRow, rehydrateJob, payloadWithoutDescription,
   diffJobs, comparableRow, stableStringify, inList
 };

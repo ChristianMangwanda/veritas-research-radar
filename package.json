@@ -4,7 +4,7 @@
   "private": true,
   "description": "Veritas browser extension plus local research job radar.",
   "scripts": {
-    "start": "git pull --rebase --autostash && node radar/scripts/server.js",
+    "start": "node radar/scripts/server.js",
     "radar:refresh": "node radar/scripts/refresh.js",
     "radar:serve": "node radar/scripts/server.js",
     "radar:import-dol": "node radar/scripts/import-dol-lca.js",
@@ -19,16 +19,15 @@
     "radar:websites": "node radar/scripts/fetch-nonprofit-websites.js",
     "radar:digest:local": "node radar/scripts/digest-local.js",
     "radar:fit-audit": "node radar/scripts/fit-audit.js",
-    "test": "node tests/radar.test.js",
+    "supabase:verify": "node radar/scripts/verify-supabase-target.js --require-link",
+    "supabase:verify:manifest": "node radar/scripts/verify-supabase-target.js",
+    "supabase:verify:operation": "node radar/scripts/verify-supabase-target.js --require-link --require-url",
+    "test": "node tests/radar.test.js && node tests/supabase-target.test.js && node --test tests/matching.test.js tests/feed-health.test.js tests/browser-matching.test.js",
     "app": "bash radar/scripts/launch.sh",
     "app:install": "bash radar/scripts/install-app.sh",
     "app:icon": "python3 radar/scripts/make-icon.py"
   },
   "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.110.0",
-    "pdf-parse": "^1.1.1"
+    "node": "24.x"
   }
 }

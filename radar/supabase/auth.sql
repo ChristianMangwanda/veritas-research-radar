@@ -16,11 +16,21 @@
 --   Authentication -> Sign In/Up -> enable Email, DISABLE new signups
 --   Authentication -> Users -> Add user (auto-confirm)
 --
--- SINGLE-USER ASSUMPTION: triage and match_cache use `using (true)` for the
--- authenticated role rather than an ownership predicate. That is safe only
--- while signups stay disabled and exactly one user exists. profile_documents
--- and user_state DO carry the ownership predicate — it costs nothing there and
--- means the two tables holding identity are correct by construction.
+-- CAUTION: This bootstrap file uses transitional authenticated-role policies
+-- for triage and match_cache. After the sole profile row exists, apply
+-- owner-rls.sql. That migration replaces these policies with a fail-closed
+-- owner allowlist. Keep new signups disabled during the bootstrap.
+
+-- Never let this bootstrap downgrade a database that already has the durable
+-- owner allowlist. The policy predicates below repeat this guard so a SQL
+-- runner that continues after an error still cannot reopen access.
+do $$
+begin
+  if pg_catalog.to_regclass('public.radar_owners') is not null then
+    raise exception 'auth.sql is bootstrap-only; owner RLS is already installed';
+  end if;
+end
+$$;
 
 -- ---------------------------------------------------------------------------
 -- 0. Remove the token design this replaces.
@@ -51,26 +61,38 @@ alter table public.profile_documents enable row level security;
 drop policy if exists "own profile select" on public.profile_documents;
 create policy "own profile select" on public.profile_documents
   for select to authenticated
-  using ((select auth.uid()) = user_id);
+  using (
+    (select pg_catalog.to_regclass('public.radar_owners') is null)
+    and (select auth.uid()) = user_id
+  );
 
 drop policy if exists "own profile insert" on public.profile_documents;
 create policy "own profile insert" on public.profile_documents
   for insert to authenticated
-  with check ((select auth.uid()) = user_id);
+  with check (
+    (select pg_catalog.to_regclass('public.radar_owners') is null)
+    and (select auth.uid()) = user_id
+  );
 
 -- UPDATE needs both USING (which rows may be updated) and WITH CHECK (what they
 -- may be updated to). With only USING, a rewrite of user_id would pass.
 drop policy if exists "own profile update" on public.profile_documents;
 create policy "own profile update" on public.profile_documents
   for update to authenticated
-  using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
+  using (
+    (select pg_catalog.to_regclass('public.radar_owners') is null)
+    and (select auth.uid()) = user_id
+  )
+  with check (
+    (select pg_catalog.to_regclass('public.radar_owners') is null)
+    and (select auth.uid()) = user_id
+  );
 
 -- ---------------------------------------------------------------------------
 -- 2. match_cache — judgments bought from the model.
 --    The primary key is the cache key that already exists on disk:
---    (job content hash, profile hash). Both are fnv1a strings computed by
---    radar/public/scoring.js in whichever runtime asks, so the browser, the
+--    (job content hash, profile hash). Current keys are versioned SHA-256
+--    strings computed by radar/public/matching.js, so the browser, the
 --    Vercel function and the Actions job all address the same row.
 --
 --    NO foreign key to jobs.id — deliberately. refresh's syncJobs deletes the
@@ -108,7 +130,7 @@ alter table public.match_cache enable row level security;
 drop policy if exists "authenticated read" on public.match_cache;
 create policy "authenticated read" on public.match_cache
   for select to authenticated
-  using (true);
+  using ((select pg_catalog.to_regclass('public.radar_owners') is null));
 
 -- No write policies. Judgments are written only by the service role — the
 -- Vercel function and the Actions job — because writing one means having spent
@@ -136,21 +158,26 @@ alter table public.triage enable row level security;
 
 drop policy if exists "authenticated select" on public.triage;
 create policy "authenticated select" on public.triage
-  for select to authenticated using (true);
+  for select to authenticated
+  using ((select pg_catalog.to_regclass('public.radar_owners') is null));
 
 drop policy if exists "authenticated insert" on public.triage;
 create policy "authenticated insert" on public.triage
-  for insert to authenticated with check (true);
+  for insert to authenticated
+  with check ((select pg_catalog.to_regclass('public.radar_owners') is null));
 
 drop policy if exists "authenticated update" on public.triage;
 create policy "authenticated update" on public.triage
-  for update to authenticated using (true) with check (true);
+  for update to authenticated
+  using ((select pg_catalog.to_regclass('public.radar_owners') is null))
+  with check ((select pg_catalog.to_regclass('public.radar_owners') is null));
 
 -- DELETE is needed for undo: restoring a job to "never triaged" is a different
 -- state from "triaged as new", and the row has to actually go.
 drop policy if exists "authenticated delete" on public.triage;
 create policy "authenticated delete" on public.triage
-  for delete to authenticated using (true);
+  for delete to authenticated
+  using ((select pg_catalog.to_regclass('public.radar_owners') is null));
 
 -- ---------------------------------------------------------------------------
 -- 4. user_state — the small per-user settings that are not triage.
@@ -167,36 +194,54 @@ alter table public.user_state enable row level security;
 drop policy if exists "own state select" on public.user_state;
 create policy "own state select" on public.user_state
   for select to authenticated
-  using ((select auth.uid()) = user_id);
+  using (
+    (select pg_catalog.to_regclass('public.radar_owners') is null)
+    and (select auth.uid()) = user_id
+  );
 
 drop policy if exists "own state insert" on public.user_state;
 create policy "own state insert" on public.user_state
   for insert to authenticated
-  with check ((select auth.uid()) = user_id);
+  with check (
+    (select pg_catalog.to_regclass('public.radar_owners') is null)
+    and (select auth.uid()) = user_id
+  );
 
 drop policy if exists "own state update" on public.user_state;
 create policy "own state update" on public.user_state
   for update to authenticated
-  using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
+  using (
+    (select pg_catalog.to_regclass('public.radar_owners') is null)
+    and (select auth.uid()) = user_id
+  )
+  with check (
+    (select pg_catalog.to_regclass('public.radar_owners') is null)
+    and (select auth.uid()) = user_id
+  );
 
 -- ---------------------------------------------------------------------------
 -- 5. Grants, stated explicitly.
---    schema.sql grants nothing and relies on the project's default privileges
---    for new tables in `public`, with RLS as the only real gate. That works,
---    but it means the security of these four tables would depend on a project
---    setting nobody in this repo can see. State it here instead.
+--    Keep these private-table grants explicit, as schema.sql does for the
+--    public tables. RLS does not replace SQL privileges, and service keys
+--    bypass RLS but still need the grants used by server-side scripts.
 -- ---------------------------------------------------------------------------
 
-revoke all on public.profile_documents from anon;
-revoke all on public.match_cache from anon;
-revoke all on public.triage from anon;
-revoke all on public.user_state from anon;
+revoke all on table public.profile_documents from public, anon, authenticated, service_role;
+revoke all on table public.match_cache from public, anon, authenticated, service_role;
+revoke all on table public.triage from public, anon, authenticated, service_role;
+revoke all on table public.user_state from public, anon, authenticated, service_role;
 
 grant select, insert, update on public.profile_documents to authenticated;
 grant select on public.match_cache to authenticated;
 grant select, insert, update, delete on public.triage to authenticated;
 grant select, insert, update on public.user_state to authenticated;
+
+-- Service keys bypass RLS, but they do not bypass SQL grants. These are the
+-- exact operations used by api/judge.js, judge-jobs.js and seed-supabase.js.
+grant select, insert, update on public.profile_documents to service_role;
+grant select, insert, update, delete on public.match_cache to service_role;
+grant select, insert, update on public.triage to service_role;
+grant select, insert, update on public.user_state to service_role;
 
 -- Verify after applying (expect permission denied for the anon key on all four,
 -- and rows for a signed-in user):

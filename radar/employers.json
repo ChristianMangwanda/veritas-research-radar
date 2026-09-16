@@ -979,7 +979,7 @@
     "ats_provider": "workday",
     "ats_token": "cmu",
     "ats_config": {
-      "host": "cmu.wd5.myworkdayjobs.com",
+      "host": "cmu.wd115.myworkdayjobs.com",
       "tenant": "cmu",
       "site": "CMU"
     },
@@ -4558,9 +4558,9 @@
     "ats_config": {
       "host": "jobs.hr.ewu.edu"
     },
-    "careers_url": "http://jobs.hr.ewu.edu/",
+    "careers_url": "https://jobs.ewu.edu/jobs/search",
     "research_areas": [],
-    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 25 live postings. USCIS 29 approvals / DOL 0 research LCAs (3y)."
+    "notes": "PeopleAdmin feed retired. As of 2026-09-16, jobs.ewu.edu uses PageUp. Its listings and descriptions work in a browser, but the real PageUp adapter receives empty HTTP 202 challenges. Manual careers link updated; automated replacement is not verified. Keep the failed feed visible and retain prior listings. USCIS 29 approvals / DOL 0 research LCAs (3y)."
   },
   {
     "id": "cleveland-state-university",
