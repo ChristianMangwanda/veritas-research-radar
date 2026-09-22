@@ -121,6 +121,9 @@ const DOM = {
   triageStateLine: null,
   triageLinks: null,
   detailNote: document.querySelector('#detail-note'),
+  detailConfirm: document.querySelector('#detail-confirm'),
+  detailConfirmation: document.querySelector('#detail-confirmation'),
+  detailConfirmHint: document.querySelector('#detail-confirm-hint'),
   detailAlerts: document.querySelector('#detail-alerts'),
   detailSignals: document.querySelector('#detail-signals'),
   detailFit: document.querySelector('#detail-fit'),
@@ -760,7 +763,9 @@ function triageRow(jobId, record) {
     applied_at: record.applied_at ?? null,
     variant_sent: record.variant_sent ?? null,
     updated_at: record.updated_at,
-    snapshot_at: record.snapshot_at ?? null
+    snapshot_at: record.snapshot_at ?? null,
+    applied_confirmation: record.applied_confirmation ?? null,
+    confirmed_at: record.confirmed_at ?? null
   };
   for (const field of SNAPSHOT_FIELDS) row[field] = record[field] ?? null;
   return row;
@@ -852,6 +857,8 @@ function withoutSnapshotColumns(row) {
   const bare = { ...row };
   for (const field of SNAPSHOT_FIELDS) delete bare[field];
   delete bare.snapshot_at;
+  delete bare.applied_confirmation;
+  delete bare.confirmed_at;
   return bare;
 }
 
@@ -1211,6 +1218,8 @@ async function loadTriageRows() {
     if (row.applied_at != null) record.applied_at = row.applied_at;
     if (row.variant_sent != null) record.variant_sent = row.variant_sent;
     if (row.snapshot_at != null) record.snapshot_at = row.snapshot_at;
+    if (row.applied_confirmation != null) record.applied_confirmation = row.applied_confirmation;
+    if (row.confirmed_at != null) record.confirmed_at = row.confirmed_at;
     for (const field of SNAPSHOT_FIELDS) {
       if (row[field] != null) record[field] = row[field];
     }
@@ -2444,6 +2453,11 @@ function buildRow(job) {
     && degreeGate?.required && !degreeGate.met && !degreeGate.softened) {
     addFlag(`${degreeGate.required} required`, 'flag-warn');
   }
+  /* An application you cannot prove you sent is the thing worth seeing at a
+     glance, so it is a flag rather than something buried in the detail pane. */
+  if (CONFIRMABLE.has(status) && !state.local.triage[job.id]?.applied_confirmation) {
+    addFlag('unconfirmed', 'flag-warn');
+  }
   const age = followupAgeDays(job);
   if (age !== null && age >= FOLLOWUP_STALE_DAYS) addFlag(`${age}d no update`, 'flag-red');
   if (isClosed(job)) {
@@ -2654,6 +2668,19 @@ function renderDetail() {
 
   renderTriageControls(job);
   // Don't clobber what the user is typing if the note field is focused mid-edit
+  if (DOM.detailConfirm) {
+    const stage = triageFor(job);
+    const record = state.local.triage[job.id] || {};
+    const proof = record.applied_confirmation || '';
+    DOM.detailConfirm.hidden = !CONFIRMABLE.has(stage);
+    if (document.activeElement !== DOM.detailConfirmation) {
+      DOM.detailConfirmation.value = proof;
+    }
+    DOM.detailConfirmHint.textContent = proof
+      ? `Confirmed${record.confirmed_at ? ` ${shortDate(record.confirmed_at)}` : ''}`
+      : 'No proof recorded — this is a stage you set, not one the employer confirmed.';
+    DOM.detailConfirmHint.classList.toggle('is-confirmed', Boolean(proof));
+  }
   if (DOM.detailNote && document.activeElement !== DOM.detailNote) {
     DOM.detailNote.value = noteFor(job);
   }
@@ -2793,6 +2820,21 @@ function buildDetailSkeleton() {
   links.append(ignoreEmp);
   controls.append(controlsLabel, stepper, stateLine, links);
 
+  /* Evidence, kept apart from the stage. "Applied" is what you told the app;
+     this is what the employer told you. See the migration for why the two are
+     not the same field. */
+  const confirm = el('section', 'detail-confirm');
+  confirm.id = 'detail-confirm';
+  const confirmLabel = el('label', 'field-label', 'Confirmation (proof you actually applied)');
+  confirmLabel.setAttribute('for', 'detail-confirmation');
+  const confirmInput = el('input', 'note-input');
+  confirmInput.id = 'detail-confirmation';
+  confirmInput.type = 'text';
+  confirmInput.placeholder = 'e.g. REQ-48213, or "receipt email 9/18"';
+  const confirmHint = el('p', 'confirm-hint');
+  confirmHint.id = 'detail-confirm-hint';
+  confirm.append(confirmLabel, confirmInput, confirmHint);
+
   const notes = el('section', 'detail-notes');
   const notesLabel = el('label', 'field-label', 'Notes (contact, next step)');
   notesLabel.setAttribute('for', 'detail-note');
@@ -2816,7 +2858,7 @@ function buildDetailSkeleton() {
   /* `fit` before `signals`: the model's verdict and the eligibility ledger are
    * what you opened the job to read. The sponsorship and institution signals
    * are context you check second, once you already believe the role fits. */
-  return [back, head, actions, controls, notes, alerts, fit, signals, description, disclaimer];
+  return [back, head, actions, controls, confirm, notes, alerts, fit, signals, description, disclaimer];
 }
 
 function rebindDetailRefs() {
@@ -2829,6 +2871,9 @@ function rebindDetailRefs() {
   DOM.triageStateLine = document.querySelector('#triage-state-line');
   DOM.triageLinks = document.querySelector('#triage-links');
   DOM.detailNote = document.querySelector('#detail-note');
+  DOM.detailConfirm = document.querySelector('#detail-confirm');
+  DOM.detailConfirmation = document.querySelector('#detail-confirmation');
+  DOM.detailConfirmHint = document.querySelector('#detail-confirm-hint');
   DOM.detailAlerts = document.querySelector('#detail-alerts');
   DOM.detailSignals = document.querySelector('#detail-signals');
   DOM.detailFit = document.querySelector('#detail-fit');
@@ -3231,6 +3276,38 @@ async function setNote(job, note) {
   await persistTriage(job.id);
 }
 
+/* Record the employer's confirmation. Stamps confirmed_at the first time
+   something is entered, and clears both when the field is emptied — an empty
+   confirmation is "no proof", not "proof of nothing". Never touches
+   updated_at: entering a reference is not a stage change and must not reset
+   the follow-up clock. */
+async function setConfirmation(job, value) {
+  const prev = state.local.triage[job.id] || { status: 'new' };
+  const record = {
+    ...prev,
+    status: prev.status || 'new',
+    updated_at: prev.updated_at || new Date().toISOString()
+  };
+  const text = (value || '').trim();
+  if (text) {
+    record.applied_confirmation = text;
+    if (!record.confirmed_at) record.confirmed_at = new Date().toISOString();
+  } else {
+    delete record.applied_confirmation;
+    delete record.confirmed_at;
+  }
+  state.local.triage[job.id] = withSnapshot(record, job);
+  await persistTriage(job.id);
+}
+
+/* The stages where "did you actually send it?" is a real question. Shortlist
+   and visa-check are before the act, so they are not asked. */
+const CONFIRMABLE = new Set(['applied', 'interview', 'offer', 'rejected', 'withdrawn']);
+
+function confirmationFor(job) {
+  return state.local.triage[job.id]?.applied_confirmation || '';
+}
+
 /* ------------------------------------------------------------------------ */
 /* Visa segmented control                                                    */
 
@@ -3466,6 +3543,23 @@ function bindDetailEvents() {
   document.querySelector('#ignore-employer').addEventListener('click', () => {
     const job = selectedJob();
     if (job) ignoreEmployer(job);
+  });
+
+  // Confirmation: same debounce-and-flush shape as notes below.
+  let confirmTimer = null;
+  DOM.detailConfirmation?.addEventListener('input', (event) => {
+    const job = selectedJob();
+    if (!job) return;
+    const value = event.target.value;
+    clearTimeout(confirmTimer);
+    confirmTimer = setTimeout(() => setConfirmation(job, value), 400);
+  });
+  DOM.detailConfirmation?.addEventListener('blur', async (event) => {
+    const job = selectedJob();
+    if (!job) return;
+    clearTimeout(confirmTimer);
+    await setConfirmation(job, event.target.value);
+    render();
   });
 
   // Notes: debounce while typing (don't persist every keystroke), flush on blur
