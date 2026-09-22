@@ -140,7 +140,8 @@ const DOM = {
     'detailScroll', 'detailBack', 'detailTitle', 'detailMeta', 'detailOpen',
     'triageControls', 'triageStepper', 'triageStateLine', 'triageLinks',
     'detailNote', 'detailAlerts', 'detailSignals', 'detailFit',
-    'detailDescription', 'detailDisclaimer'
+    'detailDescription', 'detailDisclaimer',
+    'detailConfirm', 'detailConfirmation', 'detailConfirmHint'
   ]);
   for (const [key, node] of Object.entries(DOM)) {
     if (node === null && !DETAIL_BOUND_LATER.has(key)) console.warn(`DOM cache miss: ${key}`);
@@ -812,8 +813,40 @@ async function persistTriageRecord(jobId) {
    reached. Not a count of jobs — a count of writes that did not land. */
 let offlineWrites = 0;
 
+/* Records this browser is holding that the account does not have.
+ *
+ * Not the same thing as offlineWrites, which only counts failures seen in THIS
+ * session. A browser can be sitting on triage from months ago — written while
+ * signed out, or written during a session that had quietly expired — and
+ * before this the only way to find out was to open devtools and read
+ * localStorage by hand. The app knows; it should say so.
+ *
+ * Counts only what the account is actually missing or has an older copy of, so
+ * a browser whose contents have already been carried up stays silent. */
+function strandedRecordCount() {
+  let stored;
+  try { stored = loadTriageFromBrowser().triage || {}; } catch { return 0; }
+  const account = state.local?.triage || {};
+  let stranded = 0;
+  for (const [jobId, record] of Object.entries(stored)) {
+    const mine = account[jobId];
+    if (!mine || String(record.updated_at || '') > String(mine.updated_at || '')) stranded += 1;
+  }
+  return stranded;
+}
+
 function renderOfflineNotice() {
   if (!DOM.offlineBar) return;
+  /* A signed-out browser holding triage is normal, not an alarm — that mode
+     has always worked. It is only worth surfacing once there is an account
+     for the records to be missing FROM. */
+  const stranded = auth.signedIn() ? strandedRecordCount() : 0;
+  if (!offlineWrites && stranded) {
+    DOM.offlineMsg.textContent = `${stranded} triage record${stranded === 1 ? '' : 's'} `
+      + `in this browser ${stranded === 1 ? 'is' : 'are'} not in your account yet.`;
+    DOM.offlineBar.hidden = false;
+    return;
+  }
   if (!offlineWrites) {
     DOM.offlineBar.hidden = true;
     return;
@@ -3876,6 +3909,9 @@ async function finishAccountLoad() {
   await loadAuthedState();
   await loadTriagedIntoPool();
   render();
+  // Now that the account's triage is in hand, say whether this browser is
+  // holding anything it does not have.
+  renderOfflineNotice();
   setInterval(() => { loadJudgments(); }, 60000);
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) loadJudgments();
