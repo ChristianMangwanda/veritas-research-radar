@@ -209,12 +209,15 @@ function comparableRow(job) {
  * they are never in that set — the deletions are expired tombstones and rows
  * belonging to employers dropped from the registry. That is the same set the
  * old timestamp sweep removed, enumerated instead of inferred.
+ *
+ * `keepIds` then holds back the one class that must never be swept: postings
+ * the user has acted on. See the block below the diff for why.
  */
-function diffJobs(previousJobs, nextJobs) {
+function diffJobs(previousJobs, nextJobs, { keepIds = null } = {}) {
   // Same-id duplicates in one upsert make Postgres reject the whole batch
   // ("cannot affect row a second time") — last occurrence wins.
   const next = [...new Map(nextJobs.map((job) => [job.id, job])).values()];
-  if (!previousJobs) return { upserts: next, deleteIds: [], unchanged: 0 };
+  if (!previousJobs) return { upserts: next, deleteIds: [], unchanged: 0, retained: 0 };
 
   const previousById = new Map(previousJobs.map((job) => [job.id, job]));
   const upserts = [];
@@ -226,8 +229,59 @@ function diffJobs(previousJobs, nextJobs) {
   }
 
   const nextIds = new Set(next.map((job) => job.id));
-  const deleteIds = [...previousById.keys()].filter((id) => !nextIds.has(id));
-  return { upserts, deleteIds, unchanged };
+  const departed = [...previousById.keys()].filter((id) => !nextIds.has(id));
+  /* A posting you have acted on is never swept.
+   *
+   * The lifecycle above is written for a job board: a posting closes, it is a
+   * tombstone for 30 days, then it is gone. That is right for discovery and
+   * wrong for the one case where the row has a second reader — the triage
+   * table. An application takes months to resolve and the ad comes down long
+   * before it does, so the sweep was deleting exactly the postings the user
+   * had committed to, leaving a triage row pointing at nothing.
+   *
+   * The dashboard now snapshots the job onto the triage row, so nothing is
+   * LOST without this. What this keeps is the rest of it: the description, the
+   * visa reading, the evidence and the judgment that was paid for, all of
+   * which a snapshot does not carry and none of which can be re-fetched once
+   * the posting is off the internet. */
+  const deleteIds = keepIds ? departed.filter((id) => !keepIds.has(id)) : departed;
+  return { upserts, deleteIds, unchanged, retained: departed.length - deleteIds.length };
+}
+
+/**
+ * Ids in the triage table — the postings the user has acted on.
+ *
+ * A read failure returns null, which syncJobs treats as "delete nothing this
+ * run". Skipping a sweep costs some stale rows the next run removes; guessing
+ * an empty set would delete an application's posting on the strength of a
+ * network blip, and that is not recoverable.
+ */
+async function fetchTriagedJobIds() {
+  const env = supabaseEnv();
+  if (!env) return null;
+  const ids = new Set();
+  const pageSize = 1000;
+  let cursor = null;
+  for (;;) {
+    const pathname = `/triage?select=job_id&order=job_id&limit=${pageSize}`
+      + (cursor === null ? '' : `&job_id=gt.${encodeURIComponent(cursor)}`);
+    let rows = null;
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        const response = await request(env, 'GET', pathname);
+        rows = await response.json();
+        break;
+      } catch {
+        if (attempt >= READ_RETRIES) return null;
+        await sleep(READ_RETRY_BASE_MS * (attempt + 1));
+      }
+    }
+    if (!Array.isArray(rows)) return null;
+    for (const row of rows) if (row?.job_id) ids.add(row.job_id);
+    if (rows.length < pageSize) break;
+    cursor = rows[rows.length - 1].job_id;
+  }
+  return ids;
 }
 
 /**
@@ -249,7 +303,13 @@ async function syncJobs(jobs, report, { previous = null } = {}) {
   if (!env) return { synced: false, reason: 'SUPABASE_URL / SUPABASE_SERVICE_KEY not set' };
 
   const syncedAt = new Date().toISOString();
-  const { upserts, deleteIds, unchanged } = diffJobs(previous, jobs);
+  /* Read the triage ids BEFORE computing the diff. A null (the read failed)
+   * means this run deletes nothing at all rather than risk sweeping a posting
+   * someone applied to — see fetchTriagedJobIds. */
+  const triagedIds = await fetchTriagedJobIds();
+  const { upserts, deleteIds, unchanged, retained } = triagedIds === null
+    ? { ...diffJobs(previous, jobs), deleteIds: [], retained: null }
+    : diffJobs(previous, jobs, { keepIds: triagedIds });
 
   await writeAllBatches(
     upserts.map((job) => jobRow(job, syncedAt)),
@@ -272,6 +332,9 @@ async function syncJobs(jobs, report, { previous = null } = {}) {
       mode: previous ? 'diff' : 'full',
       upserted: upserts.length,
       deleted: deleteIds.length,
+      // Postings kept past their retention because they are in the pipeline,
+      // and null when the triage read failed and the sweep was skipped whole.
+      retained_for_triage: retained,
       unchanged,
       total: jobs.length
     };
@@ -293,6 +356,7 @@ async function syncJobs(jobs, report, { previous = null } = {}) {
     count: jobs.length,
     upserted: upserts.length,
     deleted: deleteIds.length,
+    retained,
     unchanged
   };
 }
@@ -346,6 +410,6 @@ async function fetchAllJobs() {
 }
 
 module.exports = {
-  syncJobs, fetchAllJobs, supabaseEnv, resolveSupabaseServiceKey, jobRow, rehydrateJob, payloadWithoutDescription,
-  diffJobs, comparableRow, stableStringify, inList
+  syncJobs, fetchAllJobs, fetchTriagedJobIds, supabaseEnv, resolveSupabaseServiceKey, jobRow, rehydrateJob,
+  payloadWithoutDescription, diffJobs, comparableRow, stableStringify, inList
 };

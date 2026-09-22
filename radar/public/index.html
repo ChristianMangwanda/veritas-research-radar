@@ -237,6 +237,15 @@
       <button id="undo-btn" type="button">Undo <kbd>u</kbd></button>
     </div>
 
+    <!-- A triage write that could not reach the account falls back to this
+         browser. That used to happen behind a console.warn, so an expired
+         session looked exactly like a successful save. It says so now, and
+         stays up until the records are carried into the account. -->
+    <div id="offline-bar" class="offline-bar" role="status" hidden>
+      <span id="offline-msg" aria-live="polite"></span>
+      <button id="offline-retry" type="button">Retry</button>
+    </div>
+
     <script src="scoring.js"></script>
     <script src="matching.js"></script>
     <script src="feed-health.js"></script>

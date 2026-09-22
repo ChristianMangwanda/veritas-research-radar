@@ -101,6 +101,9 @@ const DOM = {
   undoBar: document.querySelector('#undo-bar'),
   undoMsg: document.querySelector('#undo-msg'),
   undoBtn: document.querySelector('#undo-btn'),
+  offlineBar: document.querySelector('#offline-bar'),
+  offlineMsg: document.querySelector('#offline-msg'),
+  offlineRetry: document.querySelector('#offline-retry'),
   blockedNote: document.querySelector('#blocked-note'),
   viewSeg: document.querySelector('#view-seg'),
   pipelineStats: document.querySelector('#pipeline-stats'),
@@ -201,9 +204,29 @@ const auth = RadarAuth.createAuthClient({
   storage: window.localStorage
 });
 
-async function authedFetch(pathname, init = {}) {
+/* A dead session is a READ returning nothing and a WRITE going nowhere, and
+ * those are not the same event. Returning null for both is what let a triage
+ * write vanish in silence: persistTriageRecord saw no exception, concluded the
+ * row had been stored, and did not even keep the browser copy. You marked a
+ * job applied, the stage chip moved, and nothing anywhere had recorded it.
+ *
+ * So a write says so. `required: true` throws on an expired session instead of
+ * resolving to null, which puts the caller in its catch where the fallback
+ * already lives. Reads keep the old shape — for a read, "nothing" is a usable
+ * answer and every caller already handles it. */
+class SessionExpiredError extends Error {
+  constructor(pathname) {
+    super(`not signed in (${pathname})`);
+    this.name = 'SessionExpiredError';
+  }
+}
+
+async function authedFetch(pathname, init = {}, { required = false } = {}) {
   const headers = await auth.headers();
-  if (!headers) return null;
+  if (!headers) {
+    if (required) throw new SessionExpiredError(pathname);
+    return null;
+  }
   const response = await fetch(`${SUPABASE_URL}/rest/v1${pathname}`, {
     ...init,
     headers: { 'content-type': 'application/json', ...headers, ...(init.headers || {}) }
@@ -212,6 +235,8 @@ async function authedFetch(pathname, init = {}) {
     // The session died under us. Say so once, rather than letting every
     // subsequent call fail in its own way.
     state.session = null;
+    renderAuthSection?.();
+    if (required) throw new SessionExpiredError(pathname);
     return null;
   }
   if (!response.ok) throw new Error(`supabase ${response.status} on ${pathname}`);
@@ -222,10 +247,13 @@ async function authedFetch(pathname, init = {}) {
 
 const authedGet = (pathname) => authedFetch(pathname);
 
-/** Upsert rows, merging on conflict — the same verb syncJobs uses server-side. */
+/** Upsert rows, merging on conflict — the same verb syncJobs uses server-side.
+ *  Always `required`: there is no caller for whom a silently dropped write is
+ *  the right outcome. */
 const authedUpsert = (table, rows, onConflict) => authedFetch(
   `/${table}?on_conflict=${onConflict}`,
-  { method: 'POST', body: JSON.stringify(rows), headers: { prefer: 'resolution=merge-duplicates,return=minimal' } }
+  { method: 'POST', body: JSON.stringify(rows), headers: { prefer: 'resolution=merge-duplicates,return=minimal' } },
+  { required: true }
 );
 
 async function tryJson(url) {
@@ -601,14 +629,41 @@ async function fillCache(db, jobs) {
  *  asks for ids the pool does not already hold. */
 async function loadTriagedIntoPool() {
   const recovered = await loadTriagedJobs();
-  if (!recovered.length) return 0;
-  RadarScoring.applyJobClassifications(recovered, state.classifyCache);
-  RadarScoring.scoreAll(recovered, state.compiled, state.routeCache);
-  for (const job of recovered) {
-    state.jobs.push(job);
-    state.jobsById.set(job.id, job);
+  if (recovered.length) {
+    RadarScoring.applyJobClassifications(recovered, state.classifyCache);
+    RadarScoring.scoreAll(recovered, state.compiled, state.routeCache);
+    for (const job of recovered) {
+      state.jobs.push(job);
+      state.jobsById.set(job.id, job);
+    }
   }
-  return recovered.length;
+  return recovered.length + adoptOrphanTriage();
+}
+
+/* Applications whose posting is not in this database at all.
+ *
+ * loadTriagedJobs() rescues a posting the server-side filter hid. It cannot
+ * rescue one that was DELETED — an expired tombstone, or a job belonging to an
+ * employer that left the registry — because there is no row left to ask for.
+ * Those were the applications that silently stopped appearing: the triage row
+ * was fine, and the pipeline had nothing to draw it against.
+ *
+ * The snapshot on the record is what draws it. A stub is a job-shaped object
+ * carrying only what you saw when you applied, flagged `_orphan` so the radar
+ * views can leave it out — it has no description, no visa reading and no
+ * score, and pretending otherwise would put an unjudged row in a ranked list.
+ * The pipeline shows it, which is the whole point: an application you made is
+ * not less real because the employer took the ad down. */
+function adoptOrphanTriage() {
+  // A record with no snapshot AND no posting is a row written before
+  // snapshots existed whose job has also gone. orphanJobs skips it: there is
+  // nothing to render and nothing worth inventing.
+  const stubs = RadarPipeline.orphanJobs(state.local?.triage, (id) => state.jobsById.has(id));
+  for (const stub of stubs) {
+    state.jobs.push(stub);
+    state.jobsById.set(stub.id, stub);
+  }
+  return stubs.length;
 }
 
 /** Postings you have acted on, which the server-side filter hides once they
@@ -692,15 +747,23 @@ function saveTriageToBrowser() {
   }));
 }
 
+/* Snapshot helpers live in pipeline.js so the tests and the page share one
+ * definition — same reason groupPipeline does. See the block there for why an
+ * application must not depend on its posting still existing. */
+const { SNAPSHOT_FIELDS, withSnapshot } = RadarPipeline;
+
 function triageRow(jobId, record) {
-  return {
+  const row = {
     job_id: jobId,
     status: record.status,
     note: record.note ?? null,
     applied_at: record.applied_at ?? null,
     variant_sent: record.variant_sent ?? null,
-    updated_at: record.updated_at
+    updated_at: record.updated_at,
+    snapshot_at: record.snapshot_at ?? null
   };
+  for (const field of SNAPSHOT_FIELDS) row[field] = record[field] ?? null;
+  return row;
 }
 
 /**
@@ -720,15 +783,100 @@ async function persistTriageRecord(jobId) {
       // Undo back to "never triaged". That is a different state from "triaged
       // as new", so the row has to actually go.
       await authedFetch(`/triage?job_id=eq.${encodeURIComponent(jobId)}`,
-        { method: 'DELETE', headers: { prefer: 'return=minimal' } });
+        { method: 'DELETE', headers: { prefer: 'return=minimal' } }, { required: true });
     } else {
-      await authedUpsert('triage', [triageRow(jobId, record)], 'job_id');
+      await upsertTriageRows([triageRow(jobId, record)]);
     }
   } catch (error) {
-    // Keep the change rather than losing it to a network blip; the next
-    // sign-in merge will carry it up.
+    /* Keep the change rather than losing it to a network blip; the next
+     * sign-in merge will carry it up (importBrowserTriage now actually runs
+     * again, which it did not before).
+     *
+     * And SAY so. This was a console.warn, which meant an expired session
+     * looked identical to a successful save: you marked a job applied, the
+     * stage chip moved, and the record went only into this browser. The bar
+     * stays up until the records reach the account. */
     console.warn('triage write failed, kept in this browser:', error.message);
     saveTriageToBrowser();
+    offlineWrites += 1;
+    renderOfflineNotice();
+  }
+}
+
+/* Triage changes written to this browser because the account could not be
+   reached. Not a count of jobs — a count of writes that did not land. */
+let offlineWrites = 0;
+
+function renderOfflineNotice() {
+  if (!DOM.offlineBar) return;
+  if (!offlineWrites) {
+    DOM.offlineBar.hidden = true;
+    return;
+  }
+  const plural = offlineWrites === 1 ? 'change is' : 'changes are';
+  DOM.offlineMsg.textContent = auth.signedIn()
+    ? `${offlineWrites} ${plural} saved in this browser only — your account could not be reached.`
+    : `${offlineWrites} ${plural} saved in this browser only — sign in to keep them.`;
+  DOM.offlineBar.hidden = false;
+}
+
+/* Push whatever is stranded in this browser at the account again. Reuses the
+   sign-in merge rather than a second write path: one carrier, one set of
+   last-write-wins rules. */
+async function retryOfflineWrites() {
+  if (!auth.signedIn()) {
+    openSignIn();
+    return;
+  }
+  DOM.offlineRetry.disabled = true;
+  try {
+    await importBrowserTriage();
+    render();
+  } catch (error) {
+    console.warn('retry failed, still held in this browser:', error.message);
+  } finally {
+    DOM.offlineRetry.disabled = false;
+  }
+}
+
+/* The snapshot columns arrive in a migration applied by hand, so for some
+ * window the deployed page can be newer than the database. Rather than make
+ * that window a period of total triage failure — which is the very thing all
+ * this is meant to stop — a schema complaint downgrades the write once and
+ * every later write in the session skips the snapshot fields. The stage, the
+ * note and applied_at still land; only the recognition data is missing, and
+ * it starts being recorded the moment the migration runs. */
+let triageSnapshotColumns = true;
+
+function withoutSnapshotColumns(row) {
+  const bare = { ...row };
+  for (const field of SNAPSHOT_FIELDS) delete bare[field];
+  delete bare.snapshot_at;
+  return bare;
+}
+
+/* PostgREST answers an unknown column with PGRST204 at status 400, and
+ * authedFetch throws with the status only — it does not read the body. So
+ * this matches the status, which also catches a genuinely malformed row. That
+ * is the right trade here: the retry without snapshot fields either succeeds
+ * (it was the columns) or throws again and reaches the fallback (it was not).
+ * Nothing is lost by guessing wrong. */
+function isMissingColumnError(error) {
+  return /supabase 400/.test(error?.message || '');
+}
+
+async function upsertTriageRows(rows) {
+  if (!triageSnapshotColumns) {
+    return authedUpsert('triage', rows.map(withoutSnapshotColumns), 'job_id');
+  }
+  try {
+    return await authedUpsert('triage', rows, 'job_id');
+  } catch (error) {
+    if (!isMissingColumnError(error)) throw error;
+    triageSnapshotColumns = false;
+    console.warn('triage snapshot columns are not in the database yet — '
+      + 'apply radar/supabase/triage-snapshot.sql. Writing stage and notes only until then.');
+    return authedUpsert('triage', rows.map(withoutSnapshotColumns), 'job_id');
   }
 }
 
@@ -1005,6 +1153,13 @@ async function handleSignOut() {
   state.profileText = '';
   resetJudgments();
   state.local = { version: 1, triage: {}, ignored_employers: [] };
+  /* Orphan stubs were built from the account's triage, so they go with it.
+   * They would otherwise sit inertly in the pool — filtered out of every view
+   * but still counted — until the next reload. */
+  state.jobs = state.jobs.filter((job) => !job._orphan);
+  state.jobsById = new Map(state.jobs.map((job) => [job.id, job]));
+  offlineWrites = 0;
+  renderOfflineNotice();
   RadarScoring.scoreAll(state.jobs, null, null);
   renderAuthSection();
   closeProfileEditor();
@@ -1025,7 +1180,17 @@ async function loadAuthedState() {
     ]);
     state.local.triage = triageRows;
     state.local.ignored_employers = stateRows?.[0]?.ignored_employers || [];
-    await importBrowserTriage();
+    /* Isolated: carrying the browser copy up is the least urgent thing here
+     * and must not cost you the profile and the judgments if it fails. It
+     * leaves the browser copy intact and the notice up, and retries on the
+     * next sign-in or from the Retry button. */
+    try {
+      await importBrowserTriage();
+    } catch (error) {
+      console.warn('could not carry this browser\'s triage into your account:', error.message);
+      offlineWrites = Math.max(offlineWrites, Object.keys(loadTriageFromBrowser().triage || {}).length);
+      renderOfflineNotice();
+    }
     applyProfile(profile, null);
     await loadJudgments();
   } catch (error) {
@@ -1045,42 +1210,77 @@ async function loadTriageRows() {
     if (row.note != null) record.note = row.note;
     if (row.applied_at != null) record.applied_at = row.applied_at;
     if (row.variant_sent != null) record.variant_sent = row.variant_sent;
+    if (row.snapshot_at != null) record.snapshot_at = row.snapshot_at;
+    for (const field of SNAPSHOT_FIELDS) {
+      if (row[field] != null) record[field] = row[field];
+    }
     triage[row.job_id] = record;
   }
   return triage;
 }
 
 /**
- * Carry triage made before signing in (or while signed out) into the account,
- * once. Uses the merge that has been sitting in pipeline.js since the sync was
- * removed — last-write-wins by updated_at, ties keeping what is already stored.
+ * Carry triage made while signed out — or while a write was failing — into the
+ * account. Last-write-wins by updated_at, ties keeping what is already stored.
+ *
+ * This used to run exactly once, guarded by a flag in localStorage, on the
+ * theory that the browser copy was a one-time migration from the pre-account
+ * era. It is not. persistTriageRecord() falls back to the browser whenever a
+ * write fails — an expired session, a dead network — so the browser copy fills
+ * up again long after that flag was set, and everything landing in it after
+ * the first sign-in was stranded there permanently. Marking a job applied on a
+ * lapsed session wrote it nowhere the app would ever read again.
+ *
+ * So the flag is gone and the import is idempotent instead: it runs on every
+ * sign-in, and each record it successfully carries up is REMOVED from the
+ * browser copy. The browser therefore holds only what has not been carried
+ * yet, which also stops it resurrecting a record you later undid in the
+ * account — the case the once-only flag was really protecting.
  */
 const TRIAGE_IMPORTED_KEY = 'veritas_radar_triage_imported';
 
 async function importBrowserTriage() {
-  if (localStorage.getItem(TRIAGE_IMPORTED_KEY)) return;
+  // The old flag has no meaning now; drop it so it cannot suppress anything
+  // if this logic is ever reverted onto a browser that still carries one.
+  try { localStorage.removeItem(TRIAGE_IMPORTED_KEY); } catch { /* fine */ }
+
   const stored = loadTriageFromBrowser();
   const localTriage = stored.triage || {};
-  if (!Object.keys(localTriage).length && !(stored.ignored_employers || []).length) {
-    localStorage.setItem(TRIAGE_IMPORTED_KEY, new Date().toISOString());
-    return;
-  }
+  if (!Object.keys(localTriage).length && !(stored.ignored_employers || []).length) return;
+
   const merged = RadarPipeline.mergeTriage(state.local.triage, localTriage);
   const changed = Object.entries(merged).filter(([jobId, record]) => {
     const existing = state.local.triage[jobId];
     return !existing || existing.updated_at !== record.updated_at || existing.status !== record.status;
   });
   if (changed.length) {
-    await authedUpsert('triage', changed.map(([jobId, record]) => triageRow(jobId, record)), 'job_id');
+    // On failure the browser copy is left completely alone and the next
+    // sign-in tries again. Half-clearing it would be the original bug.
+    await upsertTriageRows(changed.map(([jobId, record]) => triageRow(jobId, record)));
   }
   state.local.triage = merged;
+
   const employers = new Set([...(state.local.ignored_employers || []), ...(stored.ignored_employers || [])]);
-  if (employers.size !== (state.local.ignored_employers || []).length) {
+  const employersChanged = employers.size !== (state.local.ignored_employers || []).length;
+  if (employersChanged) {
     state.local.ignored_employers = [...employers];
     await persistIgnoredEmployers();
   }
-  localStorage.setItem(TRIAGE_IMPORTED_KEY, new Date().toISOString());
+
+  /* Everything above is now in the account, so the browser copy has done its
+   * job. Clearing it is what makes the next run cheap and non-resurrecting. */
+  clearBrowserTriage();
+  offlineWrites = 0;
+  renderOfflineNotice();
   if (changed.length) console.info(`carried ${changed.length} triage records into your account`);
+}
+
+function clearBrowserTriage() {
+  try {
+    localStorage.setItem(LOCAL_TRIAGE_KEY, JSON.stringify({
+      version: 1, triage: {}, ignored_employers: []
+    }));
+  } catch { /* nothing to clear */ }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1444,6 +1644,13 @@ function filterPredicates() {
   const ignored = ignoredEmployers();
 
   return {
+    /* A stub standing in for a deleted posting belongs in the pipeline and
+     * nowhere else. It has no description, no visa reading and no score, so
+     * it cannot honestly take a place in a ranked list of things to apply to
+     * — and it is not a discovery result in the first place, it is a record
+     * of something you already did. renderPipelineList() does not run these
+     * predicates, so the pipeline still shows every one of them. */
+    orphan: (job) => !job._orphan,
     // Ignored employers vanish from discovery — but never a job you already
     // acted on (demote-never-hide: the pipeline is sacred).
     ignoredEmployer: (job) => {
@@ -2474,6 +2681,13 @@ function renderTriageControls(job) {
     button.classList.toggle('is-done', !terminal && index < currentIndex);
   }
   for (const button of DOM.triageLinks.querySelectorAll('button')) {
+    /* `new` is the absence of a stage, so it is never "active" — highlighting
+       it would light up on every untriaged job — and there is nothing to
+       clear when you are already there, so it hides instead. */
+    if (button.dataset.value === 'new') {
+      button.hidden = current === 'new';
+      continue;
+    }
     button.classList.toggle('is-active', button.dataset.value === current);
   }
   if (terminal) {
@@ -2491,10 +2705,27 @@ function renderTriageControls(job) {
   }
 }
 
+/* "New" is NOT a step, and rendering it as one cost real data.
+ *
+ * The stepper used to draw a button for every entry in STEPPER_ORDER, so
+ * `New` sat in the same row as `Applied`, four buttons away, wired to the
+ * same delegation. One stray click silently reset the stage — and the live
+ * table showed exactly that: a row with applied_at stamped, status back to
+ * `new` six seconds later. An application you made is not a stage you can
+ * fall out of by missing a click target.
+ *
+ * So the ORDER keeps `new` (the progress maths and the terminal check both
+ * index into it, and `new` is genuinely position zero), while the BUTTONS
+ * leave it out. A job at `new` simply has no active step, which is what "not
+ * triaged yet" should look like. Clearing a stage on purpose is still
+ * possible — it moved to the links row with the other leave-the-pipeline
+ * actions, where a click is a decision rather than a slip.
+ */
 // The stepper shows the forward path of an application; terminal outcomes
 // (rejected/withdrawn/ignore) are demoted to links below it — they are exits,
 // not stages you progress through.
 const STEPPER_ORDER = ['new', 'shortlist', 'emailed_lab', 'needs_visa_check', 'applied', 'interview', 'offer'];
+const STEPPER_BUTTONS = STEPPER_ORDER.filter((stage) => stage !== 'new');
 const STEPPER_LABELS = {
   new: 'New',
   shortlist: 'Shortlist',
@@ -2504,7 +2735,12 @@ const STEPPER_LABELS = {
   interview: 'Interview',
   offer: 'Offer'
 };
-const TRIAGE_LINK_LABELS = { rejected: 'Reject', withdrawn: 'Withdraw', ignore: 'Ignore' };
+/* Leaving the forward path, all in one place and visually apart from it.
+   `new` is here rather than in the stepper: clearing a stage is a decision,
+   not a step you walk back onto by accident. */
+const TRIAGE_LINK_LABELS = {
+  rejected: 'Reject', withdrawn: 'Withdraw', ignore: 'Ignore', new: 'Clear stage'
+};
 
 function buildDetailSkeleton() {
   const back = el('button', 'link-button detail-back');
@@ -2532,7 +2768,7 @@ function buildDetailSkeleton() {
   stepper.id = 'triage-stepper';
   stepper.setAttribute('role', 'group');
   stepper.setAttribute('aria-label', 'Application stage');
-  for (const value of STEPPER_ORDER) {
+  for (const value of STEPPER_BUTTONS) {
     const button = el('button', '', STEPPER_LABELS[value]);
     button.type = 'button';
     button.dataset.value = value;
@@ -2638,7 +2874,17 @@ function renderDetailAlerts(job) {
     nudge.append(mark, dismiss);
     DOM.detailAlerts.append(nudge);
   }
-  if (isClosed(job)) {
+  /* An orphan is not merely closed — the posting is not in the database at
+   * all, so there is no description to show and no signal to re-read. Say
+   * that plainly rather than letting an empty detail pane imply the record
+   * is broken, and say when the details below were captured. */
+  if (job._orphan) {
+    const record = state.local.triage[job.id] || {};
+    const when = record.snapshot_at ? ` Details below are as recorded on ${shortDate(record.snapshot_at)}.` : '';
+    DOM.detailAlerts.append(el('div', 'alert alert-warn',
+      `This posting is no longer published and has aged out of the radar, but your application is kept.${when}`));
+  }
+  if (isClosed(job) && !job._orphan) {
     const kind = PROTECTED_TRIAGE.has(triageFor(job)) ? 'alert-warn' : 'alert-warn';
     DOM.detailAlerts.append(el('div', `alert ${kind}`,
       PROTECTED_TRIAGE.has(triageFor(job))
@@ -2893,6 +3139,11 @@ const HIGHLIGHT_PHRASE_LIMIT = 200;
 
 function highlightDescription(job) {
   const source = job.description_text || '';
+  // "Open the posting" is not advice you can act on when the posting is gone.
+  if (!source && job._orphan) {
+    return '<p class="fit-skills">The description is not kept once a posting leaves the radar. '
+      + 'Your own note on this application is above.</p>';
+  }
   if (!source) return '<p class="fit-skills">No description text captured. Open the posting to read it at the source.</p>';
 
   const visaClass = job.veritas_state === 'RESTRICTED' ? 'm-restricted' : 'm-friendly';
@@ -2963,7 +3214,7 @@ async function setTriage(job, status) {
   // variant scored highest, which quietly recorded something you never did.
   // Pick it in the detail pane, or leave it blank.
   if (status === 'applied' && !record.applied_at) record.applied_at = now;
-  state.local.triage[job.id] = record;
+  state.local.triage[job.id] = withSnapshot(record, job);
   await persistTriage(job.id);
   render();
 }
@@ -2976,7 +3227,7 @@ async function setNote(job, note) {
   const record = { ...prev, status: prev.status || 'new', updated_at: prev.updated_at || new Date().toISOString() };
   if (note && note.trim()) record.note = note;
   else delete record.note;
-  state.local.triage[job.id] = record;
+  state.local.triage[job.id] = withSnapshot(record, job);
   await persistTriage(job.id);
 }
 
@@ -3267,6 +3518,7 @@ function bindEvents() {
 
   DOM.markSeen.addEventListener('click', markAllSeen);
   DOM.undoBtn.addEventListener('click', undoLast);
+  DOM.offlineRetry?.addEventListener('click', retryOfflineWrites);
 
   if (DOM.authForm) DOM.authForm.addEventListener('submit', handleSignIn);
   if (DOM.authSignout) DOM.authSignout.addEventListener('click', handleSignOut);

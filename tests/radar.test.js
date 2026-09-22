@@ -465,7 +465,7 @@ function testSyncDiff() {
     provenance: { job_source: 'lever', ats_provider: 'lever', fetched_at: '2026-08-15T00:00:00Z' }
   });
   assert.strictEqual(comparableRow(job()), comparableRow(reseen), 'being seen again is not a change');
-  assert.deepStrictEqual(diffJobs([job()], [reseen]), { upserts: [], deleteIds: [], unchanged: 1 });
+  assert.deepStrictEqual(diffJobs([job()], [reseen]), { upserts: [], deleteIds: [], unchanged: 1, retained: 0 });
 
   // Real content changes still write.
   for (const change of [{ description_text: 'Different body.' }, { title: 'Research Scientist' }, { status: 'closed', closed_at: '2026-08-10T00:00:00Z' }]) {
@@ -486,7 +486,7 @@ function testSyncDiff() {
   // runs, so neither rewritten nor deleted. Deleting it would resurrect the
   // posting as "new" on the next refresh.
   const tombstone = job({ status: 'closed', closed_at: '2026-08-01T00:00:00Z' });
-  assert.deepStrictEqual(diffJobs([tombstone], [tombstone]), { upserts: [], deleteIds: [], unchanged: 1 });
+  assert.deepStrictEqual(diffJobs([tombstone], [tombstone]), { upserts: [], deleteIds: [], unchanged: 1, retained: 0 });
 
   // Gone from the run's dataset entirely → deleted by id.
   const other = job({ id: 'lever:ucsf:2' });
@@ -560,7 +560,7 @@ async function testSyncJobsWrites() {
     const upserts = calls.filter((c) => c.method === 'POST' && c.url.includes('/jobs'));
     assert.deepStrictEqual(upserts.map((c) => c.size), [100, 100, 40]);
     assert.deepStrictEqual(report.supabase_sync,
-      { mode: 'diff', upserted: 240, deleted: 0, unchanged: 20, total: 260 });
+      { mode: 'diff', upserted: 240, deleted: 0, retained_for_triage: 0, unchanged: 20, total: 260 });
     // The old sweep is gone: nothing may delete by timestamp.
     assert(!calls.some((c) => /updated_at=lt/.test(c.url)), 'the timestamp sweep must not come back');
 
@@ -573,6 +573,48 @@ async function testSyncJobsWrites() {
     assert.strictEqual(deletes.length, 1);
     assert(/id=in\./.test(deletes[0].url), 'deletes go by id list');
     assert(/%22workday%3Acornell%3A2%22/.test(deletes[0].url), `colon-composed ids must be quoted (${deletes[0].url})`);
+
+    /* A posting you applied to is NEVER swept, however long ago it closed.
+     * This is the bug that made applications disappear: the retention sweep
+     * deleted the jobs row, the triage row was left pointing at nothing, and
+     * the pipeline — which renders off the feed — had nothing to draw. */
+    calls = [];
+    globalThis.fetch = async (url, init) => {
+      const target = String(url);
+      calls.push({ method: init.method, url: target });
+      if (target.includes('/triage')) {
+        return { ok: true, status: 200, text: async () => '', json: async () => [{ job_id: 'workday:cornell:2' }] };
+      }
+      return { ok: true, status: 200, text: async () => '', json: async () => [] };
+    };
+    const triaged = await syncJobs([job('workday:cornell:1')], null,
+      { previous: [job('workday:cornell:1'), job('workday:cornell:2'), job('workday:cornell:3')] });
+    assert.strictEqual(triaged.deleted, 1, 'an untriaged departed row is still swept');
+    assert.strictEqual(triaged.retained, 1, 'the triaged one is kept');
+    const triagedDeletes = calls.filter((c) => c.method === 'DELETE');
+    assert.strictEqual(triagedDeletes.length, 1);
+    assert(/cornell%3A3/.test(triagedDeletes[0].url), 'the untriaged row goes');
+    assert(!/cornell%3A2/.test(triagedDeletes[0].url), 'the applied-to posting must never be in a delete list');
+
+    /* And when the triage read itself fails, NOTHING is deleted. A skipped
+     * sweep costs some stale rows the next run clears; an empty-set guess
+     * would delete an application's posting on a network blip. */
+    calls = [];
+    globalThis.fetch = async (url, init) => {
+      const target = String(url);
+      calls.push({ method: init.method, url: target });
+      if (target.includes('/triage')) return { ok: false, status: 500, text: async () => 'nope' };
+      return { ok: true, status: 200, text: async () => '', json: async () => [] };
+    };
+    const blind = await syncJobs([job('a')], null, { previous: [job('a'), job('b')] });
+    assert.strictEqual(blind.deleted, 0, 'an unreadable triage table means delete nothing');
+    assert.strictEqual(blind.retained, null, 'and the report says the sweep was skipped, not that it found nothing');
+    assert(!calls.some((c) => c.method === 'DELETE'), 'no DELETE may be issued at all');
+
+    globalThis.fetch = async (url, init) => {
+      calls.push({ method: init.method, url: String(url) });
+      return { ok: true, status: 200, text: async () => '', json: async () => [] };
+    };
 
     // Telemetry is not data. If the refresh_runs insert fails after the jobs
     // are correct, the sync still succeeded — failing here would skip judging
@@ -3944,6 +3986,84 @@ function testPipelineGrouping() {
   assert.deepStrictEqual(groupPipeline([], triage), []);
 }
 
+/* The bug this exists to prevent: an application whose posting has been
+ * deleted rendering nowhere, because the pipeline draws off the job feed and
+ * a triage row on its own carried no job facts at all. */
+function testTriageSnapshots() {
+  const { withSnapshot, jobSnapshot, orphanStub, orphanJobs, SNAPSHOT_FIELDS, groupPipeline } = RadarPipeline;
+
+  const job = {
+    id: 'workday:cornell:1',
+    employer_id: 'cornell',
+    employer_name: 'Cornell University',
+    title: 'Research Associate',
+    url: 'https://example.org/1',
+    location: 'Ithaca, NY',
+    description_text: 'Genomics lab.',
+    veritas_state: 'FRIENDLY'
+  };
+
+  // The snapshot carries recognition, not the whole posting.
+  assert.deepStrictEqual(jobSnapshot(job), {
+    employer_id: 'cornell',
+    employer_name: 'Cornell University',
+    title: 'Research Associate',
+    url: 'https://example.org/1',
+    location: 'Ithaca, NY'
+  });
+  assert.deepStrictEqual(Object.keys(jobSnapshot(job)).sort(), [...SNAPSHOT_FIELDS].sort());
+  assert.strictEqual(jobSnapshot(null), null);
+
+  // Stamped on the first write...
+  const first = withSnapshot({ status: 'applied', updated_at: '2026-08-01T00:00:00Z' }, job);
+  assert.strictEqual(first.title, 'Research Associate');
+  assert.ok(first.snapshot_at, 'the first write records when it was captured');
+
+  // ...and NEVER re-stamped. By the time you mark an offer the ad may read
+  // differently or be gone; the snapshot is the job as you applied to it.
+  const later = withSnapshot({ ...first, status: 'offer' }, { ...job, title: 'Retitled Role' });
+  assert.strictEqual(later.title, 'Research Associate', 'a later stage change must not overwrite the snapshot');
+  assert.strictEqual(later.snapshot_at, first.snapshot_at);
+
+  // Nothing to snapshot against is not an error, it just leaves the record be.
+  const bare = { status: 'applied', updated_at: '2026-08-01T00:00:00Z' };
+  assert.strictEqual(withSnapshot(bare, null), bare);
+  assert.strictEqual(withSnapshot(bare, { id: 'x' }), bare, 'an empty job is not worth stamping');
+
+  // A record with a snapshot renders with no posting in the feed at all.
+  const stub = orphanStub('workday:cornell:1', first);
+  assert.strictEqual(stub.title, 'Research Associate');
+  assert.strictEqual(stub.employer_name, 'Cornell University');
+  assert.strictEqual(stub.url, 'https://example.org/1');
+  assert.strictEqual(stub._orphan, true, 'it must be flagged so the radar views can leave it out');
+  assert.strictEqual(stub.description_text, null, 'and it must not pretend to carry a description');
+  assert.strictEqual(stub.veritas_state, 'NEUTRAL', 'nor a visa reading it does not have');
+
+  // A pre-snapshot record whose posting is also gone cannot be recovered.
+  // There is nothing to render, and inventing a row would be worse.
+  assert.strictEqual(orphanStub('gone', { status: 'applied', updated_at: '2026-01-01T00:00:00Z' }), null);
+  assert.strictEqual(orphanStub('gone', null), null);
+
+  // Only records with no job in the pool become stubs.
+  const triage = {
+    'workday:cornell:1': first,
+    'workday:mit:2': { status: 'interview', updated_at: '2026-08-05T00:00:00Z', title: 'Postdoc', employer_name: 'MIT' },
+    'lever:ucsf:3': { status: 'applied', updated_at: '2026-08-06T00:00:00Z' }
+  };
+  const pool = new Set(['workday:cornell:1']);
+  const stubs = orphanJobs(triage, pool);
+  assert.deepStrictEqual(stubs.map((s) => s.id), ['workday:mit:2'],
+    'the live posting is left alone and the unsnapshotted record is skipped');
+  // A Map's has() and a plain predicate are both accepted.
+  assert.deepStrictEqual(orphanJobs(triage, (id) => pool.has(id)).map((s) => s.id), ['workday:mit:2']);
+  assert.deepStrictEqual(orphanJobs({}, pool), []);
+
+  // End to end: the stub groups into the pipeline exactly like a real job.
+  const groups = groupPipeline([...stubs], triage);
+  assert.deepStrictEqual(groups.map((g) => g.stage), ['interview']);
+  assert.strictEqual(groups[0].jobs[0].title, 'Postdoc');
+}
+
 function testVerdictRank() {
   const { verdictRank, VERDICT_TIERS } = RadarScoring;
   // Rank follows tier order: 0 = strong, worse tiers rank higher.
@@ -4984,6 +5104,7 @@ async function main() {
   testNextPullAt();
   testShortlistCsv();
   testPipelineGrouping();
+  testTriageSnapshots();
   testRoutingAmbiguity();
   testProfileV2();
   await testRefreshPool();
