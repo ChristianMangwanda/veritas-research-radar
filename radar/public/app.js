@@ -2739,6 +2739,15 @@ function renderTriageControls(job) {
     const index = STEPPER_ORDER.indexOf(button.dataset.value);
     button.classList.toggle('is-active', !terminal && index === currentIndex);
     button.classList.toggle('is-done', !terminal && index < currentIndex);
+    /* Steps that would undo an application are marked, not removed. Removing
+       them would strand a genuine mistake with nowhere to go; marking them
+       says the click is a real decision before it is made, and setTriage asks
+       to be sure when it is. */
+    const locked = isDemotion(current, button.dataset.value);
+    button.classList.toggle('is-locked', locked);
+    button.title = locked
+      ? `You already marked this ${TRIAGE_LABELS[current] || current} — going back will ask you to confirm`
+      : '';
   }
   for (const button of DOM.triageLinks.querySelectorAll('button')) {
     /* `new` is the absence of a stage, so it is never "active" — highlighting
@@ -2746,6 +2755,7 @@ function renderTriageControls(job) {
        clear when you are already there, so it hides instead. */
     if (button.dataset.value === 'new') {
       button.hidden = current === 'new';
+      button.classList.toggle('is-locked', isDemotion(current, 'new'));
       continue;
     }
     button.classList.toggle('is-active', button.dataset.value === current);
@@ -3277,7 +3287,46 @@ function renderDetailDescription(job) {
 /* ------------------------------------------------------------------------ */
 /* Triage                                                                    */
 
+/* Once you have applied, you have applied.
+ *
+ * Removing the stray "New" button stopped the specific mis-click that wiped an
+ * application, but it did not make the state stick: every earlier step was
+ * still one click away, and s / e / v / n still did it from the keyboard. An
+ * application is not a step in a funnel you can wander back down. It is a
+ * thing you DID, in the world, and the app's job is to remember that even when
+ * the mouse says otherwise.
+ *
+ * So leaving the committed set backwards is the one triage move that has to be
+ * meant. Forwards inside it (applied → interview → offer) is free. Rejected
+ * and withdrawn are free too — they are real outcomes OF having applied, not a
+ * denial that you applied. Only going back to a stage that says you never
+ * applied has to be confirmed, and applied_at survives it regardless, so even
+ * a confirmed mistake leaves the evidence behind. */
+const COMMITTED_TRIAGE = new Set(['applied', 'interview', 'offer']);
+const PRE_APPLICATION_TRIAGE = new Set(['new', 'shortlist', 'emailed_lab', 'needs_visa_check']);
+
+function isDemotion(from, to) {
+  return COMMITTED_TRIAGE.has(from) && PRE_APPLICATION_TRIAGE.has(to);
+}
+
+/* Split out so the stepper can ask the same question the keyboard does, and
+   so a test can drive it without a dialog. */
+function confirmDemotion(job, from, to) {
+  const record = state.local.triage[job.id] || {};
+  const when = record.applied_at ? ` on ${shortDate(record.applied_at)}` : '';
+  const proof = record.applied_confirmation
+    ? `\n\nYou recorded a confirmation for it: ${record.applied_confirmation}`
+    : '';
+  return window.confirm(
+    `You marked this ${TRIAGE_LABELS[from] || from}${when}.\n\n`
+    + `Move it back to "${TRIAGE_LABELS[to] || to}"? That says you have not applied.`
+    + proof
+  );
+}
+
 async function setTriage(job, status) {
+  const current = triageFor(job);
+  if (isDemotion(current, status) && !confirmDemotion(job, current, status)) return;
   const before = state.local.triage[job.id];
   pushUndo(
     { type: 'triage', jobId: job.id, prev: before ? { ...before } : undefined },
