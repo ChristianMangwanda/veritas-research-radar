@@ -1,31 +1,31 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-30T10:48:47.401Z",
+  "updated_at": "2026-09-30T21:05:08.309Z",
   "snapshots": {
     "nature-careers": {
-      "scouted_at": "2026-09-30T10:46:18.796197Z",
-      "job_count": 12,
+      "scouted_at": "2026-09-30T21:02:06.625860Z",
+      "job_count": 15,
       "scraped_count": 300,
       "dropped": {
-        "covered_by_live_ats": 67,
-        "not_cap_exempt": 221,
+        "covered_by_live_ats": 71,
+        "not_cap_exempt": 214,
         "invalid": 0
       },
       "skipped_reason": null
     },
     "science-careers": {
-      "scouted_at": "2026-09-30T10:48:40.986644Z",
-      "job_count": 59,
+      "scouted_at": "2026-09-30T21:05:01.794847Z",
+      "job_count": 57,
       "scraped_count": 300,
       "dropped": {
-        "covered_by_live_ats": 70,
-        "not_cap_exempt": 171,
+        "covered_by_live_ats": 82,
+        "not_cap_exempt": 161,
         "invalid": 0
       },
       "skipped_reason": null
     },
     "higheredjobs": {
-      "scouted_at": "2026-09-30T10:48:47.025460Z",
+      "scouted_at": "2026-09-30T21:05:07.758469Z",
       "job_count": 0,
       "scraped_count": 0,
       "dropped": {
@@ -59,7 +59,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "988ea5e0d205",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
     },
     {
       "id": "agg:nature-careers:29c2ace61a53",
@@ -83,7 +83,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "29c2ace61a53",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
     },
     {
       "id": "agg:nature-careers:c91ee3bb1d01",
@@ -101,7 +101,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "c91ee3bb1d01",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
     },
     {
       "id": "agg:nature-careers:8efabb3db281",
@@ -125,7 +125,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "8efabb3db281",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
     },
     {
       "id": "agg:nature-careers:be14ace9609d",
@@ -149,7 +149,67 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "be14ace9609d",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
+    },
+    {
+      "id": "agg:nature-careers:4f4a019643be",
+      "employer_id": "agg:university-of-michigan-department-of-human-genetics",
+      "employer_name": "University of Michigan - Department of Human Genetics",
+      "employer_kind": "registry",
+      "registry_employer_id": "university-of-michigan",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "Assistant Professor",
+      "department": "",
+      "location": "Ann Arbor, Michigan",
+      "url": "https://www.nature.com/naturecareers/job/12865221/assistant-professor/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "4f4a019643be",
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
+    },
+    {
+      "id": "agg:nature-careers:f13d0416d5fa",
+      "employer_id": "agg:northwestern-university-biomedical-engineering-department",
+      "employer_name": "Northwestern University Biomedical Engineering Department",
+      "employer_kind": "registry",
+      "registry_employer_id": "northwestern-university",
+      "directory_evidence": null,
+      "cap_exempt_score": 0,
+      "title": "Assistant or Associate Professor of Biomedical Engineering",
+      "department": "",
+      "location": "Evanston & Chicago Illinois",
+      "url": "https://www.nature.com/naturecareers/job/12865218/assistant-or-associate-professor-of-biomedical-engineering/",
+      "description_text": "",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "f13d0416d5fa",
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
+    },
+    {
+      "id": "agg:nature-careers:218149b3e3c0",
+      "employer_id": "agg:university-at-buffalo",
+      "employer_name": "University at Buffalo",
+      "employer_kind": "ipeds",
+      "registry_employer_id": null,
+      "directory_evidence": {
+        "unitid": "196088",
+        "ein": null,
+        "ntee_cd": null,
+        "uscis_approvals_3y": 0,
+        "dol_certified_3y": 0
+      },
+      "cap_exempt_score": 40,
+      "title": "Assistant or Associate Professor HS, Department of Biochemistry",
+      "department": "",
+      "location": "Buffalo, New York",
+      "url": "https://www.nature.com/naturecareers/job/12865213/assistant-or-associate-professor-hs-department-of-biochemistry/",
+      "description_text": "Assistant or Associate Professor HS, Department of Biochemistry - Employer - University at Buffalo - Location - Buffalo, New York - Salary - DOE - Closing date - 30 Oct 2026 View more categoriesView less categories - Discipline - Life Science - Job Type - Faculty Member - Employment - Hours - Full time - Duration - Permanent - Qualification - PhD - Sector - Academia Job Details Assistant/Associate Professor – Biochemistry University at Buffalo, The State University of New York (SUNY UB), Jacobs School of Medicine and Biomedical Sciences, Buffalo, NY, United States The Department of Biochemistry is seeking (2) faculty positions at the Assistant or Associate Professor level. We seek candidates who will develop a research program in understanding the molecular basis of disease, broadly defined. This includes, but is not limited to, expertise in genetics, genomics, bioinformatics, metabolism, developmental biology, neuroscience, regulation of gene expression, and protein structure/function. We are particularly interested in candidates who can contribute to teaching and training in metabolism approaches. The department has a strong culture of commitment to education and training at all levels. Candidates should have a Ph.D., M.D., or equivalent degree in a relevant field and have a strong record of research success as demonstrated by an impactful publication record and a clear vision of future work. The hired individual will be expected to maintain an extramurally funded and productive research program, participate in the teaching of undergraduate, graduate, and professional students, and contribute to the various administrative responsibilities of the department. The University at Buffalo is SUNY's most comprehensive public research university, and an outstanding place to work. UB amplifies ambition for faculty and staff by offering endless possibilities to achieve more. Here, people from all backgrounds and cultures challenge and inspire each other to discover, learn and succeed. Dedicated staff and engaged faculty collaborate to further knowledge and understanding and develop tenacious graduates who are valued for their talents and their impact on global society. Visit our website to learn more about the University at Buffalo. The Department of Biochemistry strives to create a welcoming, supportive and inclusive culture of excellence in research, education and engagement in which everyone thrives. We value and nurture a broad range of perspectives and experiences. The Department is committed to a policy of nondiscrimination and equal opportunity for all people regardless of race, national origin, gender identity, disability or religion. Further information about the Department and its research and educational missions is available at Biochemistry University at Buffalo is an affirmative action/equal opportunity employer and, in keeping with our commitment, welcomes all to apply including veterans and individuals with disabilities. Minimum qualifications Applicants must have a Ph.D., M.D., or equivalent degree in a relevant field. Preferred Qualifications extramural funding is preferred Special Instructions Summary All applications must be submitted through UB JOBS using the direct link to posting here: UB Jobs Application. Applications should include a cover letter, curriculum vitae, a research statement and a teaching statement. In addition, applicants should include names and contact information of three references. Required documents - Cover letter Curriculum vitae Research statement Teaching Statement Names and contact information of three references Copyright ©2025 Jobelephant.com Inc. All rights reserved. Posted by the FREE value-added recruitment advertising agency je-613b283e1a324858b0bb9ef618d2a101 Sign in to create job alerts Sign in or create an account to start creating job alerts and receive personalised job recommendations straight to your inbox. Create alert",
+      "posted_or_updated_at": null,
+      "source": "nature-careers",
+      "source_job_id": "218149b3e3c0",
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
     },
     {
       "id": "agg:nature-careers:fce0b889df9d",
@@ -167,7 +227,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "fce0b889df9d",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
     },
     {
       "id": "agg:nature-careers:ab689abaa547",
@@ -185,7 +245,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "ab689abaa547",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
     },
     {
       "id": "agg:nature-careers:889a08f6dd89",
@@ -209,7 +269,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "889a08f6dd89",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
     },
     {
       "id": "agg:nature-careers:2624edb9b769",
@@ -233,7 +293,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "2624edb9b769",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
     },
     {
       "id": "agg:nature-careers:ca8af66c3bce",
@@ -257,7 +317,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "ca8af66c3bce",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
     },
     {
       "id": "agg:nature-careers:b5d4c2621acd",
@@ -281,7 +341,7 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "b5d4c2621acd",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
     },
     {
       "id": "agg:nature-careers:eefaa1907404",
@@ -299,7 +359,79 @@
       "posted_or_updated_at": null,
       "source": "nature-careers",
       "source_job_id": "eefaa1907404",
-      "last_scouted_at": "2026-09-30T10:46:18.796197Z"
+      "last_scouted_at": "2026-09-30T21:02:06.625860Z"
+    },
+    {
+      "id": "agg:science-careers:654b2b42a4f2",
+      "employer_id": "agg:university-of-california-davis",
+      "employer_name": "University of California, Davis",
+      "employer_kind": "ipeds",
+      "registry_employer_id": null,
+      "directory_evidence": {
+        "unitid": "110644",
+        "ein": null,
+        "ntee_cd": null,
+        "uscis_approvals_3y": 330,
+        "dol_certified_3y": 3
+      },
+      "cap_exempt_score": 61,
+      "title": "Assistant Professor of Plant Pathology",
+      "department": "",
+      "location": "Davis",
+      "url": "https://jobs.sciencecareers.org/job/680459/assistant-professor-of-plant-pathology/",
+      "description_text": "Assistant Professor of Plant Pathology - Employer - University of California, Davis - Location - Davis - Salary - See job description. - Closing date - Oct 30, 2026 View more categoriesView less categories - Discipline - Life Sciences, Botany/Plant Science - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details Assistant Professor of Plant Pathology Position Overview: The salary range for this position is $106,800 - $130,700 (annual). \"Off-scale salaries\" and other components of pay, i.e., a salary that is higher than the published system-wide salary at the designated rank and step, are offered when necessary to meet competitive conditions, qualifications, and experience. The Department of Plant Pathology in the College of Agricultural and Environmental Sciences at the University of California, Davis is recruiting an Assistant Professor of Plant Pathology with an emphasis on plant health and microbiomes. This is an academic year (9-month), tenure-track Assistant Professor position that includes an appointment in the California Agricultural Experiment Station (AES), with responsibility for research and outreach relevant to the AES mission, as well as university service. The appointee is expected to establish a competitive, externally funded research program in plant microbiome science that addresses critical and emerging issues in plant pathology. The program should advance microbiome-informed approaches to the diagnosis, prediction, and/or management of plant diseases and develop science-based solutions to promote plant health. Research should generate fundamental and applied understanding of the composition, function, and/or dynamics of plant-associated microbial communities (including bacteria, fungi, oomycetes, viruses, and/or other microorganisms) and their interactions with plant hosts and each other. Areas of interest may include disease-suppressive microbiomes, dysbiosis and pathobiomes, host-microbiome-pathogen interactions, pathogen-pathogen and pathogen-nonpathogen interactions, disease complexes and multi-infections, microbiome engineering, synthetic communities, and the ecology and evolution of pathogens within the phytomicrobiome. Research may also address climate-driven changes in plant-microbiome interactions and emerging diseases, span model, agricultural, and/or natural plant systems, and should have a strong mechanistic and/or predictive foundation. The appointee will complement existing departmental strengths in plant-microbe interactions, disease epidemiology, and disease management, while expanding microbiome-informed approaches relevant to food security, agricultural sustainability, climate resilience, and the broader One Health framework. The appointee will be expected to teach GDB103: The Microbiome of People, Animals and Plants, a 3-unit, upper-division undergraduate course that serves Global Disease Biology (GDB) and other students. The appointee is also expected to contribute to required GDB courses, such as GDB90: Introduction to Global Disease Biology, GDB 187: Global Disease Biology Seminar, and PMI129Y: One Health: Human, Animal & Environment Interfaces, and will have opportunities to contribute to graduate courses such as PLP201B: Ecology and Epidemiology of Plant Pathogenic Organisms and PLP298: Microbial Ecology. Training and mentoring of graduate students, undergraduate student advising, curricular development, outreach, and departmental and university service are expected. The successful candidate will be an active member of the Plant Pathology Graduate Program and other graduate groups as appropriate and will have opportunities to collaborate with Cooperative Extension specialists and advisors, relevant industries, and other public stakeholders. This recruitment is conducted at the Assistant Professor rank, and the resulting appointment will be at that rank regardless of the appointee's qualifications. Initial review of applications will be conducted using anonymized versions of the Statement of Research Accomplishments and Interests. Applications demonstrating sufficient potential based on this review will advance to full review, at which time letters of recommendation will be requested and included in subsequent evaluations. UC Davis supports Family-friendly recruitments. UC Davis covers travel expenses for a second person to accompany an invited faculty recruitment candidate who is a mother (or single parent of either gender) of a breast or bottle-feeding child less than two years of age. Work Life UC Davis recognizes the necessity of supporting faculty with efforts to integrate work, family and other work-life considerations. To recruit and retain the best faculty, the campus sponsors a Work LifeProgram that provides programs and services that support faculty as they strive to honor their commitments to work, home and community. Academic Affairs The UC Davis Partner Opportunities Program (POP) and Capital Resource Network (CRN) are services designed to support departments and Deans' offices in the recruitment and retention of outstanding faculty. For information about POP, please visit Partner Opportunities Program (POP). For information about the CRN, please visit Capital Resource Network. Please note eligibility for these programs may be based on policy and funding availability. To apply, visit https://recruit.ucdavis.edu/JPF07904 Copyright ©2025 Jobelephant.com Inc. All rights reserved. Posted by the FREE value-added recruitment advertising agency je-19a08ebcd5d346d39a962eb0eafa0264 Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
+      "posted_or_updated_at": null,
+      "source": "science-careers",
+      "source_job_id": "654b2b42a4f2",
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
+    },
+    {
+      "id": "agg:science-careers:df9c7860b542",
+      "employer_id": "agg:university-of-california-santa-barbara",
+      "employer_name": "University of California, Santa Barbara",
+      "employer_kind": "ipeds",
+      "registry_employer_id": null,
+      "directory_evidence": {
+        "unitid": "110705",
+        "ein": null,
+        "ntee_cd": null,
+        "uscis_approvals_3y": 1,
+        "dol_certified_3y": 0
+      },
+      "cap_exempt_score": 42,
+      "title": "Quantum Faculty",
+      "department": "",
+      "location": "Santa Barbara",
+      "url": "https://jobs.sciencecareers.org/job/680453/quantum-faculty/",
+      "description_text": "Quantum Faculty - Employer - University of California, Santa Barbara - Location - Santa Barbara - Salary - See job description. - Closing date - Oct 29, 2026 View more categoriesView less categories - Discipline - Physical Sciences, Physics - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details The University of California, Santa Barbara invites pioneering researchers to join its growing quantum research community. Building on a rich history of scientific breakthroughs - highlighted by the 2025 Nobel Prize in Physics - this initiative brings together faculty across disciplines to advance the full spectrum of quantum science, from synthetic materials and superconducting qubits to quantum topology. Candidates will join a supportive, interdisciplinary ecosystem backed by premier facilities, including the NSF Quantum Foundry, the Eddleman Quantum Institute, and the Nanofabrication Facility, alongside strong connections to industry and national quantum initiatives. To support this next chapter of growth, UCSB invites applications for three faculty positions in the first phase of this strategic cluster hire: - a specialist in Quantum/Atomic, Molecular, and Optical (AMO) Experimental Physics - salary range $100,000 - $160,000, JPF03135 https://recruit.ap.ucsb.edu/JPF03135 - salary range $100,000 - $160,000, JPF03135 - a specialist in Quantum Topology & Quantum Computing in Mathematics - salary range $100,000 - $160,000, JPF03153 https://recruit.ap.ucsb.edu/JPF03153 - salary range $100,000 - $160,000, JPF03153 - a specialist in Experimental Quantum Physical Chemistry - salary range $100,000 - $160,000, JPF03152 https://recruit.ap.ucsb.edu/JPF03152 - salary range $100,000 - $160,000, JPF03152 To learn more about our existing faculty and research strengths, visit https://quantum.ucsb.edu/. For details and to apply for these individual recruitments, please visit: https://science.ucsb.edu/quantum/faculty-opportunities. The University of California is an Equal Opportunity Employer. All qualified applicants will receive consideration for employment without regard to race, color, religion, sex, sexual orientation, gender identity, national origin, disability, age, protected veteran status, or any other protected status under state or federal law. Copyright ©2025 Jobelephant.com Inc. All rights reserved. Posted by the FREE value-added recruitment advertising agency je-d0fcbc6e05a24a03b68b1b2bf17e7155 Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
+      "posted_or_updated_at": null,
+      "source": "science-careers",
+      "source_job_id": "df9c7860b542",
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
+    },
+    {
+      "id": "agg:science-careers:2faeeafc0f66",
+      "employer_id": "agg:university-of-florida",
+      "employer_name": "University of Florida",
+      "employer_kind": "ipeds",
+      "registry_employer_id": null,
+      "directory_evidence": {
+        "unitid": "134130",
+        "ein": null,
+        "ntee_cd": null,
+        "uscis_approvals_3y": 510,
+        "dol_certified_3y": 15
+      },
+      "cap_exempt_score": 67,
+      "title": "Postdoctoral Associate - Developmental Programming of Metabolic Disease",
+      "department": "",
+      "location": "University of Florida, Gainesville",
+      "url": "https://jobs.sciencecareers.org/job/680446/postdoctoral-associate-developmental-programming-of-metabolic-disease/",
+      "description_text": "Postdoctoral Associate - Developmental Programming of Metabolic Disease - Employer - University of Florida - Location - University of Florida, Gainesville - Salary - Annual salary range is $58,656 - $63,900 and is commensurate with qualifications and experience. - Closing date - Oct 28, 2026 View more categoriesView less categories - Discipline - Life Sciences, Biomedical Sciences, Virology - Position Type - Full Time - Job Type - Postdoc - Organization Type - Academia Job Details The Karst laboratory in the Department of Molecular Genetics and Microbiology at the University of Florida College of Medicine is seeking a highly motivated postdoctoral associate to join a newly funded NIH R01 project investigating how the early-life environment programs long-term metabolic health. Our laboratory recently discovered that maternal bile acids delivered during lactation act as developmental signals that regulate neonatal growth through the bile acid receptor TGR5. Remarkably, transient manipulation of this pathway during lactation has lasting consequences: offspring exposed to reduced maternal milk bile acids are protected from diet-induced obesity, insulin resistance, hyperinsulinemia, and fatty liver in adulthood. The successful candidate will investigate the cellular and molecular mechanisms underlying this developmental programming. Current studies focus on how bile acid signaling during early postnatal life establishes adipose tissue architecture and function, including effects on adipocyte progenitor populations and their developmental trajectories. Approaches will include mouse models, flow cytometry and cell sorting, lineage tracing, metabolic phenotyping, and single-cell genomic and epigenomic approaches. This is a new and rapidly developing research direction in the laboratory, providing substantial opportunity for the successful candidate to contribute intellectually to the project, develop independent questions, and shape its future direction. We are looking for a scientist who is curious, rigorous, collaborative, and interested in understanding how transient exposures during critical developmental windows can produce lifelong changes in physiology and disease susceptibility. To view more information regarding research in the Karst lab, please visit www.thekarstlab.com. PhD, MD/PhD, or equivalent doctoral degree in a relevant biomedical discipline. Candidates should have a strong background in biomedical or biological sciences and demonstrated experience conducting rigorous, hypothesis-driven research. Preferred applicants will have experience with molecular, cellular, or in vivo experimental approaches relevant to the project. This is a time-limited position and all applicants MUST apply through Careers at UF at https://jobs.ufl.edu/. Search for posting #541500. To be considered, you must upload references, research interests, and resume/CV. A Criminal Background check is required, and this is not a remote work position. It is located on the University of Florida main campus in Gainesville, FL. We Offer Exceptional Benefits: • Low-cost State Health Plans: Medical, Dental, and Vision Insurance • Life and Disability Insurance • Generous Retirement Options to secure your future • Comprehensive Paid Time Off Packages: (includes over 10 paid holidays, as well as paid family, sick and vacation leave) • Exceptional Personal and Professional Development Opportunities: Access to UF Training & Organizational Development programs, leadership development, LinkedIn Learning, and more • Tuition Assistance through the UF Employee Education Program • Public Service Loan Forgiveness (PSLF) Eligible Employer The University of Florida is an Equal Employment Opportunity Employer. To learn more about Gainesville and the surrounding areas, please visit the Guide to Greater Gainesville, which shares information about our neighborhoods, schools, zoning, culture, leisure, and more at https://guidetogreatergainesville.com/. Gainesville is a vibrant city with a low cost of living, diverse population, excellent public schools, Division I NCAA sports, and no state income tax. The area is known for its nature parks, bike trails, sporting events, museums, mild winters, and warm summers. Being centrally located, Gainesville is easily situated for a day trip to beautiful beaches along the Atlantic Ocean and the Gulf of Mexico, as well as to theme parks like Disney World. Other nearby cities include Orlando, Jacksonville, and Tampa. Learn more about what Gainesville has to offer at https://www.visitgainesville.com/. To learn more about the University of Florida (UF), please visit https://www.ufl.edu/. Interested applicants should submit a cover letter describing their research interests and career goals, CV, and contact information for three references to skarst@ufl.edu. If an accommodation due to a disability is needed to apply for this position, please call 352-392-2477 or the Florida Relay System at 800-955-8771 (TDD). Hiring is contingent upon eligibility to work in the US. Searches are conducted in accordance with Florida's Sunshine Law. Application must be submitted by 11:55 p.m. (EDT) of the posting end date. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
+      "posted_or_updated_at": null,
+      "source": "science-careers",
+      "source_job_id": "2faeeafc0f66",
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:80f9d8c8a593",
@@ -323,7 +455,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "80f9d8c8a593",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:2ff7a1d362c2",
@@ -341,7 +473,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "2ff7a1d362c2",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:8a2d29c32687",
@@ -365,7 +497,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "8a2d29c32687",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:a43ddd278f58",
@@ -389,7 +521,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "a43ddd278f58",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:5341de7b8b29",
@@ -413,7 +545,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "5341de7b8b29",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:960accf34762",
@@ -437,7 +569,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "960accf34762",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:5c2051ab4cd0",
@@ -461,7 +593,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "5c2051ab4cd0",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:6eb40b8d322f",
@@ -485,7 +617,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "6eb40b8d322f",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:be6712564b1c",
@@ -509,7 +641,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "be6712564b1c",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:5021011bb025",
@@ -533,7 +665,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "5021011bb025",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:78fd6e93b583",
@@ -557,7 +689,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "78fd6e93b583",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:997f2416b4bc",
@@ -581,7 +713,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "997f2416b4bc",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:3bb3d96e0ac7",
@@ -605,7 +737,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "3bb3d96e0ac7",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:bbaad1dabdeb",
@@ -629,7 +761,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "bbaad1dabdeb",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:efe73defff00",
@@ -653,7 +785,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "efe73defff00",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:87504356f634",
@@ -677,7 +809,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "87504356f634",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:8a502876f845",
@@ -695,7 +827,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "8a502876f845",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:24023e240839",
@@ -719,7 +851,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "24023e240839",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:572c1902e859",
@@ -743,7 +875,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "572c1902e859",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:25e5a49da24a",
@@ -767,7 +899,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "25e5a49da24a",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:dfb38e849e87",
@@ -791,7 +923,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "dfb38e849e87",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:bed7619783d7",
@@ -809,7 +941,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "bed7619783d7",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:954a3065fd71",
@@ -833,7 +965,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "954a3065fd71",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:c94e0c245c49",
@@ -857,7 +989,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "c94e0c245c49",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:ad28b481ed04",
@@ -881,7 +1013,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "ad28b481ed04",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:16b3456fed5d",
@@ -905,7 +1037,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "16b3456fed5d",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:318aa6f81aab",
@@ -929,7 +1061,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "318aa6f81aab",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:0bf360a47368",
@@ -953,7 +1085,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "0bf360a47368",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:c4e750cd24a9",
@@ -977,7 +1109,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "c4e750cd24a9",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:06e6987fc708",
@@ -1001,7 +1133,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "06e6987fc708",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:8bf29cf6cb1e",
@@ -1025,7 +1157,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "8bf29cf6cb1e",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:68941ee06610",
@@ -1049,7 +1181,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "68941ee06610",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:42e239d976aa",
@@ -1073,7 +1205,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "42e239d976aa",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:08fe52303a1c",
@@ -1097,7 +1229,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "08fe52303a1c",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:b1397dac5235",
@@ -1121,7 +1253,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "b1397dac5235",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:42ca5ad3aae9",
@@ -1145,7 +1277,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "42ca5ad3aae9",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:408628ea85e5",
@@ -1169,7 +1301,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "408628ea85e5",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:3f30c2af3307",
@@ -1193,7 +1325,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "3f30c2af3307",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:b5a701b63212",
@@ -1217,7 +1349,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "b5a701b63212",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:274e0f7d17ea",
@@ -1241,7 +1373,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "274e0f7d17ea",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:b7e440ca2e2c",
@@ -1265,7 +1397,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "b7e440ca2e2c",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:9e3dc43f6401",
@@ -1289,7 +1421,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "9e3dc43f6401",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:2d1b4888da79",
@@ -1307,7 +1439,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "2d1b4888da79",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:d6547a6271ab",
@@ -1331,7 +1463,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "d6547a6271ab",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:41aecc25759a",
@@ -1355,7 +1487,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "41aecc25759a",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:0d1762b93cfa",
@@ -1379,7 +1511,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "0d1762b93cfa",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:7f0d9bba8d67",
@@ -1403,7 +1535,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "7f0d9bba8d67",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:4cfbb45d6de6",
@@ -1421,7 +1553,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "4cfbb45d6de6",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:f3df7f558866",
@@ -1439,7 +1571,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "f3df7f558866",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:803c984884bf",
@@ -1463,7 +1595,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "803c984884bf",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:f3964166ec4d",
@@ -1487,7 +1619,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "f3964166ec4d",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:e3768568d8a7",
@@ -1511,7 +1643,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "e3768568d8a7",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:fe9f1dfb87e6",
@@ -1535,7 +1667,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "fe9f1dfb87e6",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     },
     {
       "id": "agg:science-careers:235d74443b9e",
@@ -1559,127 +1691,7 @@
       "posted_or_updated_at": null,
       "source": "science-careers",
       "source_job_id": "235d74443b9e",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
-    },
-    {
-      "id": "agg:science-careers:a58b3ec4213e",
-      "employer_id": "agg:university-of-california-merced",
-      "employer_name": "University of California, Merced",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "445188",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 44,
-        "dol_certified_3y": 0
-      },
-      "cap_exempt_score": 52,
-      "title": "2 Positions - Assistant, Associate, or Full Professor in Biochemistry",
-      "department": "",
-      "location": "Merced",
-      "url": "https://jobs.sciencecareers.org/job/680064/2-positions-assistant-associate-or-full-professor-in-biochemistry/",
-      "description_text": "2 Positions - Assistant, Associate, or Full Professor in Biochemistry - Employer - University of California, Merced - Location - Merced - Salary - See job description. - Closing date - Oct 8, 2026 View more categoriesView less categories - Discipline - Life Sciences, Biochemistry - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details 2 Positions - Assistant, Associate, or Full Professor in Biochemistry University of California Merced Position overview Position title: Assistant, Associate or Full Professor in Biochemistry Salary range: The posted UC salary scales set the minimum pay determined by rank and/or step at appointment. See Table 1. The salary range for this position is $84,100-$220,500. \"Off-scale salaries\" and other components of pay, i.e., a salary that is higher than the published system-wide salary at the designated rank and step, are offered when necessary to meet competitive conditions. Percent time: 100% Anticipated start: July 1, 2027 Position duration: Tenure- Track Positions Application Window Open date: August 18, 2026 Next review date: Thursday, Oct 1, 2026 at 11:59pm (Pacific Time) Apply by this date to ensure full consideration by the committee. Final date: Saturday, Nov 21, 2026 at 11:59pm (Pacific Time) Applications will continue to be accepted until this date, but those received after the review date will only be considered if the position has not yet been filled. Position description The Department of Chemistry and Biochemistry at the University of California, Merced invites applications for two tenure-track or tenured faculty positions in Biochemistry at the Assistant, Associate, or Full Professor level. The anticipated start date is July 1, 2027. One position is at the Assistant Professor level and the other position is open-rank (Assistant, Associate, or Full Professor level). We seek innovative scientists whose research addresses fundamental biochemical questions using experimental, computational, or interdisciplinary approaches. All areas of biochemistry will be considered, including (but not limited to) enzymology, structural biology, metabolic biochemistry, chemical biology, and biomolecular interactions. Candidates whose research complements and strengthens existing departmental expertise and fosters collaborative opportunities across campus are especially encouraged to apply. The successful candidate will be expected to: • Establish and maintain a robust, externally funded research program. • Teach undergraduate and graduate courses in biochemistry and related fields. • Mentor students at all levels and contribute to a diverse, inclusive academic environment. As the newest R1 university in the University of California system, UC Merced is committed to excellence in scholarship and teaching with global, state, and local impact. We seek faculty colleagues who share our dedication to advancing discovery, innovation, and academic excellence. UC Merced is the only R1 institution in California's Central Valley and is proud to support our community while advancing excellence in research, education, and service. Qualifications Basic qualifications • Ph.D. in Biochemistry, Chemistry, or a closely related field. • A record of research accomplishments and/or strong potential for research excellence, appropriate to rank. Preferred qualifications Postdoctoral training (for early-career candidates). Evidence of teaching effectiveness and commitment to inclusive pedagogy and mentorship. Application Requirements Document requirements Curriculum Vitae - Your most recently updated C.V. Cover Letter Statement of Research Authorization to Release Information Form - As a condition of employment, the finalist will be required to disclose if they are subject to any final administrative or judicial decisions within the last seven years determining that they committed any misconduct. \"Misconduct\" means any violation of the policies or laws governing conduct at the applicant's previous place of employment, including, but not limited to, violations of policies or laws prohibiting sexual harassment, sexual assault, or other forms of harassment or discrimination, as defined by the employer. Required Authorization of Information Release may be found at the linked page. Please complete, sign, and upload the required Authorization of Information Release to your application. Statement of Teaching Reference requirements - 3-6 letters of reference required Apply link: https://aprecruit.ucmerced.edu/JPF02218 Help contact: snspersonnel@ucmerced.edu About UC Merced As a condition of employment, the finalist will be required to disclose if they are subject to any final administrative or judicial decisions within the last seven years determining that they committed any misconduct. \"Misconduct\" means any violation of the policies or laws governing conduct at the applicant's previous place of employment, including, but not limited to, violations of policies or laws prohibiting sexual harassment, sexual assault, or other forms of harassment or discrimination, as defined by the employer. Please complete, sign, and upload the required Authorization of Information Release to your application: Required Authorization of Information Release Form. Candidates must possess valid authorization to work in the United States. UC Merced is not currently able to sponsor individuals residing outside the United States who would require a new H-1B visa for employment. Applicants who do not hold valid U.S. work authorization are presently ineligible for this position. Additional links: UC Sexual Violence and Sexual Harassment Policy, the UC Anti-Discrimination Policy, and APM 035: Affirmative Action and Nondiscrimination in Employment. The University of California, Merced, is the newest of the University of California system's 10 campuses. Ranked as one of the best public universities in the nation by U.S. News and World Report and recently designated as an R1 institution by Carnegie, UC Merced is committed to innovation and excellence in research. With over 9,000 undergraduate and graduate students (Center of Institutional Effectiveness), UC Merced provides outstanding, inclusive educational opportunities to highly qualified students from the heart of California, the nation, and abroad. The campus has special connections to nearby Yosemite National Park; is on the cutting edge of sustainability in construction and design; and supports the economic development of Central California. The University of California is an Equal Opportunity Employer. All qualified applicants will receive consideration for employment without regard to race, color, religion, sex, sexual orientation, gender identity, national origin, disability, age, protected veteran status, or other protected status under state or federal law. As a University employee, you will be required to comply with all applicable University policies and/or collective bargaining agreements, as may be amended from time to time. Federal, state, or local government directives may impose additional requirements. This includes the University of California Policy on Vaccination Programs. Job location Merced, CA To apply, please visit: https://aprecruit.ucmerced.edu/JPF02218 Copyright ©2025 Jobelephant.com Inc. All rights reserved. Posted by the FREE value-added recruitment advertising agency je-0395fc3e8e9b43d8ab6ea468e09a6e4f Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "a58b3ec4213e",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
-    },
-    {
-      "id": "agg:science-careers:2734e4256722",
-      "employer_id": "agg:yale-university",
-      "employer_name": "Yale University",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "130794",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 710,
-        "dol_certified_3y": 120
-      },
-      "cap_exempt_score": 75,
-      "title": "Assistant Professor, Synthetic Biology and Genomics",
-      "department": "",
-      "location": "New Haven, Connecticut (US)",
-      "url": "https://jobs.sciencecareers.org/job/680051/assistant-professor-synthetic-biology-and-genomics/",
-      "description_text": "Assistant Professor, Synthetic Biology and Genomics - Employer - Yale University - Location - New Haven, Connecticut (US) - Salary - Commensurate with experience and qualifications, conforming to Yale's 2027-28 minimum requirements. - Closing date - Nov 7, 2026 Job Details Yale University - Assistant Professor, Synthetic Biology and Genomics Department of Molecular, Cellular and Developmental Biology The Department of Molecular, Cellular and Developmental Biology (MCDB) at Yale University invites applications for a tenure-track position at the Assistant Professor level with an anticipated start date of July 1, 2027. The department is particularly interested in candidates whose biological research program resides within synthetic biology, genomics, or artificial intelligence. We also welcome applications from candidates in any area of molecular, cellular, or developmental biology, using any system, who will contribute to the excellence of our community of scholars. We expect the appointee to be a dynamic participant in the departmental mission of teaching at the undergraduate and graduate levels in subject areas such as molecular, cellular or developmental biology, biochemistry, genetics, genomics, systems or synthetic biology, plant biology, or neurobiology. Qualifications The selected candidate must have met the requirements for a Ph.D. or equivalent degree at the time of hire, as well as a proven record of outstanding research that demonstrates originality and self-motivation. Excellent communication skills for research and teaching are necessary. (NOTE: Interviews and talks will be part of a two-day symposium scheduled for January 7-8, 2027). Application Instructions Applicants should create a profile at http://apply.interfolio.com/192466 and upload a cover letter, curriculum vitae, statement of research plans (up to three pages), a teaching statement (one page), and up to five publications. Applicants should also arrange for submission of three letters of recommendation. Review of applications will begin on November 1, 2026. For questions about the position or application process please contact Mrs. Lucia DeMatteo, Academic Services Supervisor, at mcdb.businessoffice@yale.edu. Equal Employment Opportunity Statement The University is committed to basing judgments concerning the admission, education, and employment of individuals upon their qualifications and abilities and seeks to attract to its faculty, staff, and student body qualified persons from a broad range of backgrounds and perspectives. Additionally, in accordance with this Policy and as delineated by federal and Connecticut law, Yale does not discriminate in admissions, educational programs, or employment against any individual on account of that individual’s sex; sexual orientation; gender identity or expression; pregnancy, childbirth or related conditions; race; color; national or ethnic origin; religion; age; disability; protected veteran status, or other protected classes as set forth in federal and Connecticut law. Professional Conduct Review for New Faculty Hires The final candidate, upon acceptance of a contingent offer of employment/faculty appointment, may be required to disclose whether they are, or have been, the subject of any disciplinary proceeding (investigation, hearing, etc.) at previous institutions or employers, and may also be subject to a background screening. Candidates who materially misrepresent information on their resume or other application materials are ineligible for hire/appointment. Final candidates may also be required to sign a release to allow Yale to solicit information regarding any substantiated conduct violations from current and/or past employers. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "2734e4256722",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
-    },
-    {
-      "id": "agg:science-careers:a5b5f9053724",
-      "employer_id": "agg:university-of-maryland-baltimore",
-      "employer_name": "University of Maryland Baltimore",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "163259",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 0,
-        "dol_certified_3y": 31
-      },
-      "cap_exempt_score": 55,
-      "title": "Postdoctoral Fellow - Pulmonary, Critical Care and Sleep Medicine - (260000XS)",
-      "department": "",
-      "location": "Baltimore, Maryland (US)",
-      "url": "https://jobs.sciencecareers.org/job/680063/postdoctoral-fellow-pulmonary-critical-care-and-sleep-medicine-260000xs-/",
-      "description_text": "Postdoctoral Fellow - Pulmonary, Critical Care and Sleep Medicine - (260000XS) - Employer - University of Maryland Baltimore - Location - Baltimore, Maryland (US) - Salary - Commensurate with education and experience - Closing date - Nov 7, 2026 View more categoriesView less categories - Discipline - Health Sciences, Translational Research - Job Type - Postdoc Fellowship - Organization Type - Academia Job Details The Division of Pulmonary, Critical Care, and Sleep Medicine at the University of Maryland Baltimore, School of Medicine is looking for a talented postdoctoral fellow with strong analytical and problem-solving skills. This position offers an opportunity to work on translational research projects in the field of pulmonary fibrosis using animal and primary cell culture models, single-cell, and spatial transcriptomics approaches. The successful candidate will be expected to build a publication record in high-profile scientific journals and apply for internal and extramural funding that will facilitate his/her career development in an academic environment. Duties: Working with primary cell culture systems, 3D culture systems, small animal models of organ fibrosis, flow cytometry, immunofluorescent imaging, RT-qPCR, western blotting, gene silencing and overexpression, strong skills in troubleshooting experiments, data analysis, and interpretation are required. Basic knowledge of working and analyzing large data sets, such as bulk and single-cell transcriptomics, is highly desired. Others: Candidates, with strong publication record, will be prioritized. Prior experience in working with primary fibroblasts, 3D organoids and/or RNA biology is a plus. Education Required: Ph.D. or relevant advanced degree. Experience Required: None Required. Preferred Qualifications: Strong verbal and written communication skills, ability to prepare and present research findings at research meetings, ability to work both independently and within the team, strong skills in manuscript writing, and ability to work under stringent deadlines. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "a5b5f9053724",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
-    },
-    {
-      "id": "agg:science-careers:615c72e1a5da",
-      "employer_id": "agg:university-of-tennessee-knoxville",
-      "employer_name": "University of Tennessee Knoxville",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "221759",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 0,
-        "dol_certified_3y": 0
-      },
-      "cap_exempt_score": 40,
-      "title": "Assistant Professor of Computational Biology",
-      "department": "",
-      "location": "Knoxville, Tennessee",
-      "url": "https://jobs.sciencecareers.org/job/680062/assistant-professor-of-computational-biology/",
-      "description_text": "Assistant Professor of Computational Biology - Employer - University of Tennessee Knoxville - Location - Knoxville, Tennessee - Salary - Commensurate with education and experience - Closing date - Oct 8, 2026 View more categoriesView less categories - Discipline - Life Sciences, Bioinformatics, Computational Biology - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details The Department of Biochemistry & Cellular and Molecular Biology (BCMB) at the University of Tennessee Knoxville is soliciting applications for a tenure‐track position at the rank of Assistant Professor in the area of Computational Biology. Successful candidates will be expected to develop an innovative, nationally recognized, and externally funded research program that uses bioinformatics, computation, and/or modeling to address questions at the cutting edge of genomics, molecular, cellular, or systems biology. We are particularly interested in applicants that build on emerging areas in BCMB (https://bcmb.utk.edu), including nucleus organization, epigenetics, and gene regulation. The BCMB department spans many sub-disciplines, with existing areas of strength in molecular genetics, biophysics, and biochemistry, as well as cell, neuro-, cancer, and plant biology. BCMB is a dynamic, interdisciplinary, and collegial department. This position offers office and dry-lab research space in the modern Ken and Blaire Mossman Building, which houses high-level research and instructional space. Shared high-performance computing resources and data storage solutions are available through the university. While no wet lab facilities will be dedicated to this hire, extensive opportunities exist for collaboration with experimental colleagues who use shared, next generation sequencing, microscopy, and bioanalytical facilities. The successful candidate will have opportunities to participate in communities of scholars in membrane biology and inflammation, and a convergent research initiative in targeted radiotherapeutics. Interactions with nearby Oak Ridge National Lab are fostered by the UT-Oak Ridge Innovation Institute, including a graduate program in Genome Science and Technology. BCMB faculty also collaborate with colleagues at the UT Ag-Vet campus, the UT Medical Center, and the National Institute for Modeling Biological Systems. Applicants must have a doctorate (Ph.D. or equivalent) and postdoctoral experience in an appropriate discipline with evidence of high-quality research. The successful candidate will also show potential to contribute to teaching within the core departmental curriculum at the undergraduate and graduate levels. Teaching experience and experience applying for external funding is preferred. Applicants are to submit application materials to apply.interfolio.com/192058. Applications will require (i) a cover letter, (ii) a curriculum vitae with a complete list of publications, (iii) a 2–3-page statement of current and future research interests, (iv) a 1-page statement of teaching experience and interests, and (v) names and contact information of three references (Note: letters will be requested later and should not be uploaded at this time). The review of applications will begin on October 1. Please direct any inquiries regarding the posting to Dr. Rachel Patton McCord, committee chair, at rmccord@utk.edu. Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "615c72e1a5da",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
-    },
-    {
-      "id": "agg:science-careers:10565f129893",
-      "employer_id": "agg:university-of-texas-at-el-paso",
-      "employer_name": "University of Texas at El Paso",
-      "employer_kind": "ipeds",
-      "registry_employer_id": null,
-      "directory_evidence": {
-        "unitid": "228796",
-        "ein": null,
-        "ntee_cd": null,
-        "uscis_approvals_3y": 94,
-        "dol_certified_3y": 0
-      },
-      "cap_exempt_score": 55,
-      "title": "Assistant/Associate Professor of Organic Chemistry",
-      "department": "",
-      "location": "El Paso",
-      "url": "https://jobs.sciencecareers.org/job/680052/assistant-associate-professor-of-organic-chemistry/",
-      "description_text": "Assistant/Associate Professor of Organic Chemistry - Employer - University of Texas at El Paso - Location - El Paso - Salary - See job description. - Closing date - Oct 8, 2026 View more categoriesView less categories - Discipline - Physical Sciences, Organic Chemistry - Position Type - Full Time - Job Type - Faculty - Organization Type - Academia Job Details Assistant/Associate Professor of Organic Chemistry The Department of Chemistry and Biochemistry at UTEP invites applications for a faculty position in Organic Chemistry at the Assistant or Associate Professor level. The successful candidate is expected to establish and maintain an innovative, externally funded research program in organic chemistry, contribute to interdisciplinary research collaborations, and mentor and train undergraduate, M.S., and Ph.D. students. The faculty member will teach undergraduate and graduate courses in organic chemistry and participate in service activities that support the missions of the department, college, and university. Candidates with expertise in any area of organic chemistry are encouraged to apply. Preference will be given to candidates whose research programs involve hands-on experimental studies in organic chemistry. Areas of interest include, but are not limited to, synthetic organic chemistry, mechanistic organic chemistry, chemical biology, medicinal chemistry, catalysis, organometallic chemistry, materials chemistry, and related areas. The successful candidate will contribute to UTEP's mission through excellence in research, education, student success, and community engagement. Job Requirements: Required Qualifications: - Ph.D. in Chemistry or a closely related field. - Postdoctoral research experience or equivalent in organic chemistry or a closely related field. - Demonstrated research productivity in organic chemistry, as evidenced by peer-reviewed publications. Preferred Qualifications: - Research program involving hands-on experimental studies in organic chemistry. - Research interests that complement and expand existing departmental strengths in organic chemistry. - Research program that leverages and enhances the Department's shared instrumentation and core facilities, including NMR spectroscopy, mass spectrometry, X-ray crystallography, and related research infrastructure. - Interest in interdisciplinary research collaborations within chemistry and related STEM disciplines. - Experience mentoring undergraduate and/or graduate student researchers. Additional Information: In keeping with its access, excellence, and impact mission, The University of Texas at El Paso is committed to an open, diverse, and inclusive learning and working environment that honors the talents, respects the differences, and nurtures the growth and development of all. We seek to attract faculty and staff who share our commitment. The University of Texas at El Paso is an Equal Opportunity Employer. The University does not discriminate on the basis of race, color, national origin, sex, religion, age, disability, genetic information, veteran status, or sexual orientation and gender in employment or the provision of services in accordance with state and federal law. Discrimination on the basis of sex includes an employee's or prospective employee's right to be free from sexual harassment under Title IX of the Higher Education Amendments of 1972. Inquiries-including the filing of a Formal Complaint or reporting an incident-about the application of Title IX may be referred to the Title IX Coordinator, who can be reached by phone at (915) 747-8358, by email at titleix@utep.edu, or by mail at 500 W. University Ave., El Paso, TX, Kelly Hall, Room 312. For accommodation information for employees and applicants with disabilities, please contact UTEP's Equal Opportunity Office at eoaa@utep.edu. To the extent that this position involves research, work, or access to critical infrastructure as referenced in Executive Order GA-48, being hired for and continuing to be employed in this position requires the ability to maintain the security or integrity of the infrastructure. To apply, visit http://utep.interviewexchange.com/jobofferdetails.jsp?JOBID=204252 Copyright ©2025 Jobelephant.com Inc. All rights reserved. Posted by the FREE value-added recruitment advertising agency je-737625d4ca3d4ca8a52aaf89f00bdd28 Get job alerts Create a job alert and receive personalized job recommendations straight to your inbox. Create alert",
-      "posted_or_updated_at": null,
-      "source": "science-careers",
-      "source_job_id": "10565f129893",
-      "last_scouted_at": "2026-09-30T10:48:40.986644Z"
+      "last_scouted_at": "2026-09-30T21:05:01.794847Z"
     }
   ]
 }
