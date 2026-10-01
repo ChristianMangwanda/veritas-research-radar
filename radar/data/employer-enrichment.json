@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-01T11:56:20.061Z",
+  "generated_at": "2026-10-01T13:33:42.213Z",
   "sources": {
     "ipeds": {
       "year": 2024,
@@ -8,7 +8,7 @@
     },
     "irs_eo_bmf": {
       "files_loaded": 4,
-      "kept_rows": 22389
+      "kept_rows": 22463
     },
     "uscis": {
       "years": [
@@ -14568,27 +14568,16 @@
           "confidence": 1
         }
       },
-      "irs": {
-        "ein": "521010577",
-        "ntee_cd": "G9XP",
-        "subsection": "03",
-        "name": "MARYLAND UNIVERSITY OF INTEGRATIVE HEALTH INC",
-        "match": {
-          "strategy": "exact",
-          "confidence": 1
-        }
-      },
+      "irs": null,
       "uscis_approvals_3y": 0,
       "dol_certified_3y": 0,
-      "cap_exempt_score": 50,
+      "cap_exempt_score": 40,
       "score_components": {
-        "ipeds": 40,
-        "irs": 10
+        "ipeds": 40
       },
       "suggested_status": "verified",
       "evidence_tags": [
-        "ipeds:164085",
-        "irs_eo_bmf"
+        "ipeds:164085"
       ]
     },
     "longy-school-of-music-of-bard-college": {
