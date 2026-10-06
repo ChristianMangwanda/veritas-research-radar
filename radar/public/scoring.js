@@ -46,7 +46,10 @@
     // listing more technology names. Gates and avoid signals still scan the
     // full corpus — requirements and red flags often live deep in the text.
     SKILL_MATCH_WINDOW: 4000,
-    THIN_TEXT_CHARS: 500
+    THIN_TEXT_CHARS: 500,
+    // A posting whose lowest stated experience bar is above this is blocked.
+    // The owner's call (2026-10-06): 4+ years is out of reach, cut it.
+    MAX_REQUIRED_YEARS: 3
   };
   // Pre-penalty ceiling of one variant's score — the denominator for any UI
   // that renders variant scores as bars or heat (fit_score is post-penalty
@@ -534,9 +537,37 @@
   const CLEARANCE_PATTERN = /\b(security\s+clearance|top\s+secret|ts\/sci|secret\s+clearance|public\s+trust\s+clearance)\b/gi;
   const STUDENT_ONLY_PATTERN = /\b(currently\s+enrolled|must\s+be\s+a\s+(?:current\s+)?student|current\s+student\s+only|work[-\s]study|degree[-\s]seeking\s+student)\b/gi;
   const INTERNAL_ONLY_PATTERN = /\b(internal\s+(?:applicants?|candidates?|employees?)\s+only|current\s+employees\s+only|open\s+to\s+current\s+employees)\b/gi;
-  // "5+ years", "minimum of 7 years", "5-7 years of experience". The leading
-  // figure is the bar: a range asks for its floor, not its ceiling.
-  const YEARS_PATTERN = /\b(\d{1,2})\s*(?:[-–—]\s*\d{1,2}\s*)?\+?\s*(?:or\s+more\s+)?years?\b/gi;
+  // "5+ years", "minimum of 7 years", "5-7 years", "five (5) years", "three to
+  // five years". The leading figure is the bar: a range asks for its floor,
+  // not its ceiling.
+  const YEAR_WORDS = {
+    one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8,
+    nine: 9, ten: 10, eleven: 11, twelve: 12, fifteen: 15, twenty: 20
+  };
+  const YEAR_NUMBER = `(?:\\d{1,2}|${Object.keys(YEAR_WORDS).join('|')})`;
+  const YEAR_PAREN = '(?:\\s*\\(\\s*\\d{1,2}\\s*\\+?\\s*\\))?';
+  const YEARS_PATTERN = new RegExp(
+    `\\b(${YEAR_NUMBER})\\)?${YEAR_PAREN}\\s*(?:(?:[-–—]|to)\\s*${YEAR_NUMBER}${YEAR_PAREN}\\s*)?\\+?\\s*(?:or\\s+more\\s+)?(?:full[-\\s]time\\s+)?years?\\b`,
+    'gi'
+  );
+  // The figure has to be about experience: "5 years of relevant experience",
+  // "Experience: 5 years". Not "a 3 year appointment" or "a 10 year grant".
+  const YEARS_EXPERIENCE_AFTER = /^[^.;•]{0,50}?\b(experience|expertise|practice|background|working)\b/i;
+  const YEARS_EXPERIENCE_BEFORE = /\bexperience\b[^.;•]{0,25}$/i;
+  // "within the last 5 years", "up to 5 years": a window or a term, not a bar.
+  const YEARS_DURATION_BEFORE = /\b(last|past|previous|within|up\s+to|every|next)\s*$/i;
+  // How postings state a bar. Wider than REQUIREMENT_NEARBY, because "Bachelor's
+  // degree and 5 years of relevant experience" is a requirement that never uses
+  // the word, and the strict reading missed most of them.
+  const YEARS_REQUIREMENT_CUE = /\b(required|requires?|requirement|must|minimum|necessary|essential|at\s+least|qualifications?|need|should\s+have|you\s+(have|bring|possess|will\s+have)|looking\s+for|seeking)\b|\b(degree|diploma|bachelor'?s|master'?s|ph\.?\s?d\.?|equivalent)\s+(and|plus|with)\b|\bexperience\s*:/i;
+  // "Preferred" and its kin make a figure a wish. "Or equivalent" does NOT
+  // soften years: it qualifies the degree, the experience bar still stands.
+  const YEARS_SOFTENER = /\b(preferred|desirable|desired|optional|a\s+plus|nice\s+to\s+have|not\s+required|ideal(ly)?|bonus|helpful|beneficial)\b/i;
+  // Bullet lists put the cue in a heading ("Minimum Qualifications") and the
+  // figure in a bullet below it, so the nearest heading decides.
+  const YEARS_PREFERRED_HEADING = /\b(preferred|desired|desirable|nice\s+to\s+have|bonus|even\s+better|set\s+you\s+apart|additional)\b(?:\s+(qualifications|skills|experience|requirements))?/gi;
+  const YEARS_REQUIRED_HEADING = /\b((minimum|required|basic|essential)\s+(qualifications|requirements|education|experience)|requirements|qualifications|what\s+you('ll)?\s+(need|bring)|who\s+you\s+are|must\s+haves?)\b/gi;
+  const YEARS_HEADING_LOOKBACK = 600;
 
   function findRequirement(corpus, pattern, { context = null } = {}) {
     pattern.lastIndex = 0;
@@ -551,19 +582,54 @@
     return null;
   }
 
+  function lastMatchEnd(pattern, text) {
+    pattern.lastIndex = 0;
+    let end = -1;
+    let match;
+    while ((match = pattern.exec(text)) !== null) end = match.index + match[0].length;
+    return end;
+  }
+
+  // 'required' | 'preferred' | null: which kind of heading the figure sits under.
+  // "Preferred Qualifications" ends where its "Qualifications" does, so a tie
+  // goes to preferred.
+  function yearsHeading(corpus, index) {
+    const window = corpus.slice(Math.max(0, index - YEARS_HEADING_LOOKBACK), index);
+    const preferred = lastMatchEnd(YEARS_PREFERRED_HEADING, window);
+    const required = lastMatchEnd(YEARS_REQUIRED_HEADING, window);
+    if (preferred < 0 && required < 0) return null;
+    return preferred >= required ? 'preferred' : 'required';
+  }
+
   function parseYearsRequirement(corpus) {
     YEARS_PATTERN.lastIndex = 0;
     let match;
     // Name reflects the reading, not the arithmetic: the lowest stated bar.
     let strictest = null;
     while ((match = YEARS_PATTERN.exec(corpus)) !== null) {
-      const years = Number(match[1]);
+      const figure = match[1].toLowerCase();
+      const years = YEAR_WORDS[figure] || Number(figure);
       if (!Number.isFinite(years) || years <= 0 || years > 40) continue;
-      const clause = clauseAround(corpus, match.index, match[0].length);
-      if (SOFTENER.test(clause)) continue;
-      if (!REQUIREMENT_NEARBY.test(clause)) continue;
+      const end = match.index + match[0].length;
+      const before = corpus.slice(Math.max(0, match.index - 40), match.index);
+      const after = corpus.slice(end, end + 60);
+      if (YEARS_DURATION_BEFORE.test(before)) continue;
       // "years of experience", not "5 years of funding" or "3 year appointment"
-      if (!/\b(experience|expertise|background|practice|working)\b/i.test(clause)) continue;
+      if (!YEARS_EXPERIENCE_AFTER.test(after) && !YEARS_EXPERIENCE_BEFORE.test(before)) continue;
+      const clause = clauseAround(corpus, match.index, match[0].length);
+      if (YEARS_SOFTENER.test(clause)) continue;
+      // A clause that says "required" outright needs no heading; otherwise a
+      // figure under "Preferred Qualifications" is a wish, and one under
+      // "Minimum Qualifications" (or in a clause that states a bar) is not.
+      // A sentence or bullet that opens with the figure ("5+ years of
+      // experience in…") is how postings list a bar; mid-sentence ("our lab
+      // brings 20 years of experience") it needs a cue.
+      if (!REQUIREMENT_NEARBY.test(clause)) {
+        const heading = yearsHeading(corpus, match.index);
+        if (heading === 'preferred') continue;
+        const opensClause = !/[a-z0-9]/i.test(before.split(SENTENCE_BOUNDARY).pop());
+        if (heading !== 'required' && !opensClause && !YEARS_REQUIREMENT_CUE.test(clause)) continue;
+      }
       // Postings state alternative routes to the same job ("Bachelor's plus 8
       // years, Master's plus 6"). The lowest bar anywhere is the one that has
       // to be cleared, so the most permissive reading is also the correct one.
@@ -572,6 +638,78 @@
       }
     }
     return strictest;
+  }
+
+  /* Sponsorship: only a posting that says outright it will not sponsor.
+   *
+   * Deliberately NOT job.veritas_state === 'RESTRICTED'. That bucket also
+   * holds "must be authorized to work in the U.S." (OPT is authorization),
+   * export-control boilerplate, ITAR mentions and "green card holders
+   * preferred" — none of which says no. Those keep their score penalty and
+   * stay visible; only an explicit refusal hides a job. */
+  const VISA_WORDS = '(?:(?:visa|immigration|h-?1-?b|employment|employer|work|current|future|or|and|any|now|in|the)\\s+){0,5}';
+  const SPONSORSHIP_REFUSALS = [
+    // "Visa sponsorship is not available", "sponsorship will not be provided"
+    new RegExp('\\bsponsorship\\s+(?:is\\s+|will\\s+|can\\s*)?not\\s+(?:be\\s+)?(?:available|provided|offered|possible|supported)\\b', 'i'),
+    // "we will not sponsor", "does not provide visa sponsorship", "is not able to sponsor"
+    new RegExp(`\\b(?:will|does|do|can|could|is|are)\\s*(?:not|n['’]t)\\s+(?:be\\s+)?(?:able\\s+to\\s+|currently\\s+|presently\\s+|in\\s+a\\s+position\\s+to\\s+)?(?:provide\\s+|offer\\s+|support\\s+)?${VISA_WORDS}sponsor(?:ship)?\\b`, 'i'),
+    // "unable to sponsor", "cannot provide visa sponsorship"
+    new RegExp(`\\b(?:cannot|unable\\s+to|not\\s+able\\s+to)\\s+(?:provide\\s+|offer\\s+|support\\s+)?${VISA_WORDS}sponsor(?:ship)?\\b`, 'i'),
+    // "not sponsoring", "not offering visa sponsorship"
+    new RegExp(`\\bnot\\s+(?:currently\\s+)?(?:sponsoring|(?:offering|providing)\\s+${VISA_WORDS}sponsorship)\\b`, 'i'),
+    // "no visa sponsorship", "no current or future sponsorship" — but not
+    // "no sponsorship restrictions" or "no sponsorship is required"
+    new RegExp(`\\bno\\s+${VISA_WORDS}sponsorship\\b(?!\\s+(?:is\\s+)?(?:restrictions?|limitations?|required|needed|necessary))`, 'i'),
+    // "this position is not eligible for visa sponsorship"
+    new RegExp(`\\bnot\\s+(?:eligible|available|open)\\s+(?:for|to)\\s+${VISA_WORDS}sponsorship\\b`, 'i'),
+    // "candidates who require sponsorship will not be considered"
+    new RegExp(`\\b(?:require|need)\\w*\\s+${VISA_WORDS}sponsorship[^.;•]{0,40}\\b(?:will\\s+not|won['’]t|cannot)\\s+be\\s+considered\\b`, 'i'),
+    // "must be authorized to work in the U.S. without sponsorship"
+    new RegExp(`\\bwithout\\s+(?:the\\s+need\\s+for\\s+|requiring\\s+|needing\\s+)?${VISA_WORDS}sponsorship\\b`, 'i')
+  ];
+  // The "without sponsorship" form only refuses when it is about authorization.
+  const AUTHORIZATION_CONTEXT = /\b(authori[sz]|eligib|legally|permitted|able\s+to\s+work)/i;
+  // A refusal of one specific route (a green card, a J-1) is not a refusal of
+  // the H-1B, unless the sentence names the H-1B too.
+  // TN/E-3/O-1 need "visa" beside them, and a TN after a comma is a state:
+  // "Memphis, TN Visa sponsorship is not available" refuses the H-1B too.
+  const NARROW_VISA_ROUTE = /\b(permanent\s+residen\w*|green\s+cards?|perm|j-?1|(?:(?<!,\s?)tn|e-?3|o-?1)\s+(?:visas?|status))\b/i;
+  const H1B = /\bh-?1-?b\b/i;
+  const REFUSAL_NEGATED = /\b(regardless\s+of|even\s+if|whether\s+or\s+not)\b|\bwith\s+or\s*$/i;
+  // "Sponsorship is not available, but OPT candidates are welcome" still lets
+  // an OPT holder in, which is not an explicit no. Case-sensitive acronyms:
+  // lowercase "opt" is benefits text ("eligible staff may opt in").
+  const OPT_ACRONYM = /\b(?:STEM OPT|OPT|CPT|F-?1)\b/g;
+  const OPT_WELCOME_AFTER = /^[^.;•]{0,60}\b(welcome|eligible|encouraged|accepted|considered|may\s+apply)\b/i;
+
+  function optWelcome(corpus) {
+    OPT_ACRONYM.lastIndex = 0;
+    let match;
+    while ((match = OPT_ACRONYM.exec(corpus)) !== null) {
+      if (OPT_WELCOME_AFTER.test(corpus.slice(match.index + match[0].length, match.index + match[0].length + 80))) return true;
+    }
+    return false;
+  }
+
+  function parseSponsorshipRefusal(corpus) {
+    if (!/sponsor/i.test(corpus)) return null;
+    if (optWelcome(corpus)) return null;
+    for (const pattern of SPONSORSHIP_REFUSALS) {
+      const scan = new RegExp(pattern.source, 'gi');
+      let match;
+      while ((match = scan.exec(corpus)) !== null) {
+        const clause = clauseAround(corpus, match.index, match[0].length);
+        const before = corpus.slice(Math.max(0, match.index - 80), match.index).split(SENTENCE_BOUNDARY).pop();
+        if (REFUSAL_NEGATED.test(before)) continue;
+        if (NARROW_VISA_ROUTE.test(clause) && !H1B.test(clause)) continue;
+        // A fixed lookback, not the clause: "in the U.S. without sponsorship"
+        // would end the clause at the abbreviation's own full stops.
+        if (/^without/i.test(match[0])
+          && !AUTHORIZATION_CONTEXT.test(corpus.slice(Math.max(0, match.index - 120), match.index))) continue;
+        return { evidence: snippetAround(corpus, match.index, match[0].length) };
+      }
+    }
+    return null;
   }
 
   function parseLicenseRequirement(corpus) {
@@ -662,15 +800,22 @@
       else blockers.push(entry);
     }
 
-    /* A stated years-of-experience requirement is deliberately ignored here.
-     *
-     * Postings routinely overstate it, and turning it into a gate cost real
-     * jobs: at two years of experience it walled off every "5+ years" posting,
-     * including research associate roles that are a stretch rather than an
-     * impossibility. The judge model reads the requirement in the posting text
-     * anyway and can weigh it against everything else, which a subtraction
-     * cannot. parseYearsRequirement stays — it is still useful for reporting —
-     * it just no longer decides whether you get to see the job. */
+    /* Years of experience. This was ignored for a while — postings overstate
+     * it, and a gate keyed to the profile's own years walled off "5+ years"
+     * research associate roles. The owner reversed that on 2026-10-06: a
+     * stated bar of 4+ years is out, full stop. The threshold is absolute, not
+     * relative to the profile. Ranges take their floor and alternative routes
+     * take the lowest bar (see parseYearsRequirement), so "3-5 years" and
+     * "Master's plus 2 years, or Bachelor's plus 5" both stay visible. A
+     * local-model claim (classified_requirements.min_years) is still not
+     * acted on — it is not a sentence we can quote. */
+    const years = parseYearsRequirement(corpusRaw);
+    if (years && years.min_years > WEIGHTS.MAX_REQUIRED_YEARS) {
+      blockers.push({ type: 'experience', detail: years.min_years, evidence: years.evidence, source: 'text' });
+    }
+
+    const sponsorship = parseSponsorshipRefusal(corpusRaw);
+    if (sponsorship) blockers.push({ type: 'sponsorship', evidence: sponsorship.evidence, source: 'text' });
 
     const license = parseLicenseRequirement(corpusRaw);
     if (license) blockers.push({ type: 'license', detail: license.license, evidence: license.evidence, source: 'text' });
@@ -1005,6 +1150,7 @@
     resolveVariant,
     assessEligibility,
     parseYearsRequirement,
+    parseSponsorshipRefusal,
     parseLicenseRequirement,
     parseClearanceRequirement,
     parseStudentOnly,

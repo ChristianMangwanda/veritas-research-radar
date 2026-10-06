@@ -686,6 +686,28 @@ function testProviderMappers() {
   assert.strictEqual(lever.department, 'Science');
   assert.strictEqual(lever.posted_or_updated_at, new Date(1751500800000).toISOString());
   assert.strictEqual(lever.source, 'lever');
+  assert.strictEqual(lever.description_text, 'Single-cell analysis role');
+
+  // The intro is often a teaser; the requirements live in lists and the
+  // closing. Shape taken from Altarum's live feed (2026-10-06).
+  const leverFull = mapLeverJob({
+    id: 'def-456',
+    text: 'Business Technology Analyst',
+    categories: {},
+    descriptionPlain: 'Altarum is a nonprofit.',
+    lists: [
+      { text: "What You'll Bring", content: '<li>SQL</li><li>Python</li>' },
+      { text: 'Work Eligibility & Requirements', content: '<li><strong>Candidates must be currently eligible to work in the United States; sponsorship is not available.</strong></li>' }
+    ],
+    additionalPlain: 'Altarum is an equal opportunity employer.'
+  }, employer);
+  assert(leverFull.description_text.includes('sponsorship is not available'), 'list sections are stored');
+  assert(leverFull.description_text.includes("What You'll Bring: • SQL • Python"), 'list items stay separate clauses');
+  assert(leverFull.description_text.endsWith('equal opportunity employer.'), 'the closing section is stored');
+  assert(!/<[a-z]/i.test(leverFull.description_text), 'no markup survives');
+  // Some postings carry no intro at all — the text must not come back empty.
+  assert(mapLeverJob({ id: 'x', text: 'Lead', lists: [{ text: 'About', content: '<p>Platform work</p>' }] }, employer)
+    .description_text.includes('Platform work'));
 
   const ashby = mapAshbyJob({
     id: 'uuid-1',
@@ -1982,18 +2004,82 @@ function testEligibility() {
   assert.deepStrictEqual(clean.blockers, []);
   assert.strictEqual(clean.insufficient_text, false);
 
-  // Years of experience never gates. Postings overstate it, and walling off
-  // "5+ years" lost research associate roles that were a stretch rather than
-  // an impossibility; the judge model reads the requirement itself.
+  // Years of experience: a stated bar of 4+ years blocks (owner's call,
+  // 2026-10-06). The threshold is absolute, not the profile's own years.
   const tooSenior = assess(`${LONG} Minimum of 10 years of experience is required.`);
-  assert.strictEqual(tooSenior.verdict, 'clear');
-  assert.deepStrictEqual(tooSenior.blockers, []);
-  assert.deepStrictEqual(tooSenior.cautions, []);
-  assert.strictEqual(assess(`${LONG} Requires a minimum of 5 years of experience.`).verdict, 'clear');
-  assert.strictEqual(assess(`${LONG} 10 years of experience preferred.`).verdict, 'clear');
+  assert.strictEqual(tooSenior.verdict, 'blocked');
+  assert.strictEqual(tooSenior.blockers[0].type, 'experience');
+  assert.strictEqual(tooSenior.blockers[0].detail, 10);
+  assert.strictEqual(assess(`${LONG} Requires a minimum of 5 years of experience.`).verdict, 'blocked');
+  assert.strictEqual(assess(`${LONG} At least 4 years of experience in data analysis.`).verdict, 'blocked', '4 is the first number cut');
+  assert.strictEqual(assess(`${LONG} Requires 3 years of experience.`).verdict, 'clear', '3 stays');
+  assert.strictEqual(assess(`${LONG} Requires 3-5 years of experience.`).verdict, 'clear', 'a range asks for its floor');
+  assert.strictEqual(assess(`${LONG} 10 years of experience preferred.`).verdict, 'clear', 'preferred is a wish');
+  // The phrasings the strict reading missed (VERITAS_FIXES.md: 23 found, ~132 real).
+  for (const text of [
+    "Bachelor's degree and 5 years of relevant experience.",
+    'Five (5) years of progressively responsible experience in research administration.',
+    'Minimum Qualifications • Bachelor’s degree in a related field • 6 years of experience with SQL',
+    "You have 5+ years of experience building data pipelines.",
+    'Experience: 7 years in clinical data management.',
+    "Bachelor's degree or equivalent and 5 years of experience." // "or equivalent" qualifies the degree
+  ]) {
+    assert.strictEqual(assess(`${LONG} ${text}`).verdict, 'blocked', `should block: ${text}`);
+  }
+  // ...and the ones that must still not block.
+  for (const text of [
+    'Preferred Qualifications • 5 years of experience with cloud platforms',
+    'Experience with Python within the last 5 years of coursework is welcome.',
+    'Appointments are for up to 5 years of continued funding.',
+    'Our lab brings 20 years of experience in genomics to every project.',
+    "Master's degree plus 2 years of experience required, or Bachelor's degree plus 5 years of experience required."
+  ]) {
+    assert.notStrictEqual(assess(`${LONG} ${text}`).verdict, 'blocked', `should not block: ${text}`);
+  }
   // Years that aren't about experience must not count.
   assert.strictEqual(assess(`${LONG} The required grant runs for 10 years.`).verdict, 'clear');
   assert.strictEqual(parseYearsRequirement('a 3 year appointment is required'), null);
+  assert.strictEqual(parseYearsRequirement('Requires five (5) years of experience.').min_years, 5);
+
+  // Sponsorship: only an explicit refusal blocks. Cornell "CALS Programmer
+  // Analyst III", verbatim, was in Possible as eligibility "clear".
+  const cornell = assess(`${LONG} Visa sponsorship is not available for this position.`);
+  assert.strictEqual(cornell.verdict, 'blocked');
+  assert.strictEqual(cornell.blockers[0].type, 'sponsorship');
+  assert(/sponsorship is not available/i.test(cornell.blockers[0].evidence));
+  for (const text of [
+    'Candidates must be currently eligible to work in the United States; sponsorship is not available.', // Altarum
+    'The university will not sponsor H-1B visas for this position.',
+    'We are unable to provide visa sponsorship.',
+    'No visa sponsorship is available for this role.',
+    'This position is not eligible for visa sponsorship.',
+    'Applicants must be authorized to work in the U.S. without sponsorship now or in the future.',
+    'Candidates who require sponsorship will not be considered.',
+    'The lab does not sponsor visas.',
+    'Location: Memphis, TN Visa sponsorship is not available'
+  ]) {
+    assert.strictEqual(assess(`${LONG} ${text}`).verdict, 'blocked', `should block: ${text}`);
+  }
+  // Everything ambiguous, or silent, stays visible.
+  for (const text of [
+    'There are no sponsorship restrictions for this role.',
+    'Candidate must be authorized to work in the United States.',
+    'Applicants must have work authorization at the time of hire.',
+    'This research may involve technologies subject to export control regulations.',
+    'Green card holders preferred.',
+    'Visa sponsorship is available for qualified candidates.',
+    'Eligible to work in the U.S. with or without sponsorship.',
+    'Applicants who do not require sponsorship are also encouraged to apply.',
+    'Will you now or in the future require visa sponsorship?',
+    'Sponsorship for permanent residency is not available for this position.',
+    'J-1 sponsorship is not available.',
+    'Sponsorship is not available; however, OPT candidates are welcome to apply.',
+    'We will consider sponsorship regardless of whether we can not sponsor others.'
+  ]) {
+    assert.notStrictEqual(assess(`${LONG} ${text}`).verdict, 'blocked', `should not block: ${text}`);
+  }
+  // Lowercase "opt" is benefits text, not OPT — it must not cancel a refusal.
+  assert(RadarScoring.parseSponsorshipRefusal('Eligible staff may opt in to the plan if eligible. Sponsorship is not available.'));
 
   // Licences: real requirement blocks, a mention does not.
   const nurse = assess(`${LONG} A current Registered Nurse license is required.`);
@@ -2051,8 +2137,8 @@ function testEligibility() {
   }
 
   // A cached local-model reading supplies job-side facts only, and a claimed
-  // years requirement is not one the funnel acts on any more — not even as a
-  // caution. It reaches the judge as posting text like everything else.
+  // years requirement is not quotable, so the funnel does not act on it —
+  // only a figure read from the posting text blocks.
   const claimed = assess(LONG, { classified_requirements: { min_years: 12 } });
   assert.strictEqual(claimed.verdict, 'clear');
 
@@ -2067,16 +2153,15 @@ function testEligibility() {
 
   // Six University of Chicago postings, fits 27-44: a range asks for its
   // floor, and alternative routes mean the lowest bar is the real one.
-  // These no longer change the verdict — years are ignored by the funnel — but
-  // the reading itself still has to be right, since it is reported to the user.
   assert.strictEqual(parseYearsRequirement('requires 5-7 years of experience').min_years, 5,
     '5-7 years asks for 5, not 7');
   assert.strictEqual(
     parseYearsRequirement("Bachelor's degree plus 8 years experience required, Master's degree plus 6 years experience required.").min_years,
     6, 'the most permissive route is the bar');
+  // Since 2026-10-06 a floor of 4+ blocks, so this one is now cut.
   assert.strictEqual(
     assess(`${LONG} Minimum qualifications include knowledge and skills developed through 5-7 years of work experience.`).verdict,
-    'clear', 'and no amount of stated experience hides the job');
+    'blocked');
 }
 
 function testRoleTrack() {

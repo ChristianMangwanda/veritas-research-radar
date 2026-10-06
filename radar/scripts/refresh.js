@@ -708,6 +708,20 @@ function mapGreenhouseJob(job, employer) {
   };
 }
 
+// Lever splits a posting into an intro (description), titled list sections
+// ("What You'll Bring", "Work Eligibility & Requirements") and a closing
+// (additional). The intro alone is often a 300-character teaser — Altarum's
+// "sponsorship is not available" lived in a list — so all three are kept.
+// List items become "•" so the scorer still reads them as separate clauses.
+function leverPostingText(job) {
+  const bullet = (html) => String(html || '').replace(/<li\b[^>]*>/gi, ' • ');
+  const intro = job.descriptionPlain || job.description || '';
+  const lists = (job.lists || [])
+    .map((list) => `${list.text ? `${list.text}: ` : ''}${bullet(list.content)}`);
+  const closing = job.additionalPlain || job.additional || '';
+  return normalizeText([intro, ...lists, closing].filter(Boolean).join(' • '));
+}
+
 function mapLeverJob(job, employer) {
   const categories = job.categories || {};
   return {
@@ -717,7 +731,7 @@ function mapLeverJob(job, employer) {
     department: categories.team || '',
     location: categories.location || job.workplaceType || 'Unspecified',
     url: job.hostedUrl || job.applyUrl,
-    description_text: normalizeText(job.descriptionPlain || job.description || job.additionalPlain || ''),
+    description_text: leverPostingText(job),
     posted_or_updated_at: job.createdAt ? new Date(job.createdAt).toISOString() : null,
     source: 'lever',
     source_job_id: String(job.id || '')

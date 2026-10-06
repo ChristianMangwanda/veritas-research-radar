@@ -2140,7 +2140,8 @@ const BLOCKER_LABELS = {
   profession: 'different profession',
   clearance: 'clearance',
   student_only: 'students only',
-  internal_only: 'internal only'
+  internal_only: 'internal only',
+  sponsorship: 'no sponsorship'
 };
 
 // "+7 over ML/comp-bio" — how decisively the RECOMMENDED variant beats the
