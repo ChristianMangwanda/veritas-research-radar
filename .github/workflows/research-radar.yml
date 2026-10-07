@@ -69,6 +69,7 @@ jobs:
             echo "The failed refresh did not create a diagnostic report." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
+          # shellcheck disable=SC2016 # ${...} below is a JS template literal, not shell
           node -e 'const fs=require("fs"); const file="radar/data/refresh-report.json"; const report=JSON.parse(fs.readFileSync(file,"utf8")); const refreshed=Date.parse(report.refreshed_at||""); if (!Number.isFinite(refreshed) || Math.abs(Date.now()-refreshed)>3*60*60*1000) throw new Error(`${file}: refreshed_at is not from this run`);'
           echo "publish=true" >> "$GITHUB_OUTPUT"
       - name: Sync to latest main (this run's outputs win)

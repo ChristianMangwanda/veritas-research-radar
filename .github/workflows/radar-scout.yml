@@ -112,6 +112,7 @@ jobs:
           path: ${{ runner.temp }}/scout-artifact
       - name: Reject an older scout snapshot
         run: |
+          # shellcheck disable=SC2016 # ${...} below is a JS template literal, not shell
           node -e '
           const fs = require("fs");
           const incomingPath = process.argv[1];

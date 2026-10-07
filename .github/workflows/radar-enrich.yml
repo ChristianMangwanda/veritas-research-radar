@@ -76,6 +76,7 @@ jobs:
         id: output
         if: ${{ steps.enrich.outcome == 'success' }}
         run: |
+          # shellcheck disable=SC2016 # ${...} below is a JS template literal, not shell
           node -e 'const fs=require("fs"); for (const file of process.argv.slice(1)) { const value=JSON.parse(fs.readFileSync(file,"utf8")); if (!Number.isFinite(Date.parse(value.generated_at||""))) throw new Error(`${file}: missing generated_at`); }' \
             radar/data/employer-enrichment.json \
             radar/data/discovery-candidates.json \
