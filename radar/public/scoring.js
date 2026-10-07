@@ -555,14 +555,26 @@
   const YEARS_EXPERIENCE_AFTER = /^[^.;•]{0,50}?\b(experience|expertise|practice|background|working)\b/i;
   const YEARS_EXPERIENCE_BEFORE = /\bexperience\b[^.;•]{0,25}$/i;
   // "within the last 5 years", "up to 5 years": a window or a term, not a bar.
-  const YEARS_DURATION_BEFORE = /\b(last|past|previous|within|up\s+to|every|next)\s*$/i;
+  const YEARS_DURATION_BEFORE = /\b(last|past|previous|within|up\s+to|every|next)(\s+the)?(\s+(last|past|previous))?\s*$/i;
+  // "...within the five years immediately preceding the date of application"
+  const YEARS_DURATION_AFTER = /^\s*(immediately\s+)?(preceding|prior\s+to\s+the\s+date)\b/i;
   // How postings state a bar. Wider than REQUIREMENT_NEARBY, because "Bachelor's
   // degree and 5 years of relevant experience" is a requirement that never uses
   // the word, and the strict reading missed most of them.
   const YEARS_REQUIREMENT_CUE = /\b(required|requires?|requirement|must|minimum|necessary|essential|at\s+least|qualifications?|need|should\s+have|you\s+(have|bring|possess|will\s+have)|looking\s+for|seeking)\b|\b(degree|diploma|bachelor'?s|master'?s|ph\.?\s?d\.?|equivalent)\s+(and|plus|with)\b|\bexperience\s*:/i;
-  // "Preferred" and its kin make a figure a wish. "Or equivalent" does NOT
-  // soften years: it qualifies the degree, the experience bar still stands.
-  const YEARS_SOFTENER = /\b(preferred|desirable|desired|optional|a\s+plus|nice\s+to\s+have|not\s+required|ideal(ly)?|bonus|helpful|beneficial)\b/i;
+  // "Preferred" and its kin make a figure a wish.
+  const YEARS_SOFTENER = /\b(prefer(s|red)?|desirable|desired|optional|a\s+plus|nice\s+to\s+have|not\s+required|ideal(ly)?|bonus|helpful|beneficial)\b/i;
+  // An equivalency route ("Bachelor's or equivalent and 5 years", "or an
+  // equivalent combination of education and experience") keeps the job
+  // visible: the owner's call, 2026-10-06. It often sits in the next
+  // sentence, so this reads past the clause. Substitution is the same route
+  // ("four years of experience may substitute for the degree", "in lieu of a
+  // degree, 5 years"): there the years replace a degree, they are not a bar on
+  // top of one.
+  const YEARS_EQUIVALENCY = /\b(equivalen(t|cy)|substitut\w*|in\s+lieu\s+of)\b/i;
+  // The figure belongs to a route for people without a bachelor's ("or an
+  // associate's degree with 6 years"), which a degree holder does not take.
+  const YEARS_LOWER_DEGREE_ROUTE = /\b(associate'?s?|associates|high\s+school|ged|without\s+a\s+(bachelor|degree))\b/i;
   // Bullet lists put the cue in a heading ("Minimum Qualifications") and the
   // figure in a bullet below it, so the nearest heading decides.
   const YEARS_PREFERRED_HEADING = /\b(preferred|desired|desirable|nice\s+to\s+have|bonus|even\s+better|set\s+you\s+apart|additional)\b(?:\s+(qualifications|skills|experience|requirements))?/gi;
@@ -613,11 +625,13 @@
       const end = match.index + match[0].length;
       const before = corpus.slice(Math.max(0, match.index - 40), match.index);
       const after = corpus.slice(end, end + 60);
-      if (YEARS_DURATION_BEFORE.test(before)) continue;
+      if (YEARS_DURATION_BEFORE.test(before) || YEARS_DURATION_AFTER.test(after)) continue;
       // "years of experience", not "5 years of funding" or "3 year appointment"
       if (!YEARS_EXPERIENCE_AFTER.test(after) && !YEARS_EXPERIENCE_BEFORE.test(before)) continue;
       const clause = clauseAround(corpus, match.index, match[0].length);
       if (YEARS_SOFTENER.test(clause)) continue;
+      if (YEARS_EQUIVALENCY.test(corpus.slice(Math.max(0, match.index - 120), end + 160))) continue;
+      if (YEARS_LOWER_DEGREE_ROUTE.test(corpus.slice(Math.max(0, match.index - 60), match.index))) continue;
       // A clause that says "required" outright needs no heading; otherwise a
       // figure under "Preferred Qualifications" is a wish, and one under
       // "Minimum Qualifications" (or in a clause that states a bar) is not.
@@ -675,6 +689,11 @@
   // "Memphis, TN Visa sponsorship is not available" refuses the H-1B too.
   const NARROW_VISA_ROUTE = /\b(permanent\s+residen\w*|green\s+cards?|perm|j-?1|(?:(?<!,\s?)tn|e-?3|o-?1)\s+(?:visas?|status))\b/i;
   const H1B = /\bh-?1-?b\b/i;
+  // The bare verb has to be sponsoring a person or a visa: "UMGC does not
+  // sponsor logistical support for this role" is about something else. Read
+  // to the end of the sentence: the object is often a few words on ("unable
+  // to sponsor or take over sponsorship of an employment visa").
+  const SPONSOR_VERB_OBJECT = /\b(visas?|h-?1-?b|immigration|employment|work\s+authori[sz]|sponsorship|candidates?|applicants?|individuals?|employees?|petitions?|international|foreign|non-?citizens?)\b|^\s*for\s+(this|the)\s+(position|role|job|opportunity|vacancy)\b|^\s*$/i;
   const REFUSAL_NEGATED = /\b(regardless\s+of|even\s+if|whether\s+or\s+not)\b|\bwith\s+or\s*$/i;
   // "Sponsorship is not available, but OPT candidates are welcome" still lets
   // an OPT holder in, which is not an explicit no. Case-sensitive acronyms:
@@ -701,6 +720,9 @@
         const clause = clauseAround(corpus, match.index, match[0].length);
         const before = corpus.slice(Math.max(0, match.index - 80), match.index).split(SENTENCE_BOUNDARY).pop();
         if (REFUSAL_NEGATED.test(before)) continue;
+        if (/sponsor$/i.test(match[0])
+          && !SPONSOR_VERB_OBJECT.test(corpus.slice(match.index + match[0].length, match.index + match[0].length + 80)
+            .split(SENTENCE_BOUNDARY)[0])) continue;
         if (NARROW_VISA_ROUTE.test(clause) && !H1B.test(clause)) continue;
         // A fixed lookback, not the clause: "in the U.S. without sponsorship"
         // would end the clause at the abbreviation's own full stops.
@@ -809,7 +831,9 @@
      * "Master's plus 2 years, or Bachelor's plus 5" both stay visible. A
      * local-model claim (classified_requirements.min_years) is still not
      * acted on — it is not a sentence we can quote. */
-    const years = parseYearsRequirement(corpusRaw);
+    // Open-rank faculty postings state the bar per rank ("associate-level
+    // appointments require 5 years"); the entry rank usually states none.
+    const years = /\bopen[\s-]+rank\b/i.test(job.title || '') ? null : parseYearsRequirement(corpusRaw);
     if (years && years.min_years > WEIGHTS.MAX_REQUIRED_YEARS) {
       blockers.push({ type: 'experience', detail: years.min_years, evidence: years.evidence, source: 'text' });
     }

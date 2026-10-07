@@ -2021,8 +2021,7 @@ function testEligibility() {
     'Five (5) years of progressively responsible experience in research administration.',
     'Minimum Qualifications • Bachelor’s degree in a related field • 6 years of experience with SQL',
     "You have 5+ years of experience building data pipelines.",
-    'Experience: 7 years in clinical data management.',
-    "Bachelor's degree or equivalent and 5 years of experience." // "or equivalent" qualifies the degree
+    'Experience: 7 years in clinical data management.'
   ]) {
     assert.strictEqual(assess(`${LONG} ${text}`).verdict, 'blocked', `should block: ${text}`);
   }
@@ -2032,6 +2031,16 @@ function testEligibility() {
     'Experience with Python within the last 5 years of coursework is welcome.',
     'Appointments are for up to 5 years of continued funding.',
     'Our lab brings 20 years of experience in genomics to every project.',
+    // An equivalency route keeps the job visible (owner's call, 2026-10-06).
+    "Bachelor's degree or equivalent and 5 years of experience.",
+    "Bachelor's degree and 5 years of experience. An equivalent combination of education and experience will be considered.",
+    // From the first live review of these blocks (2026-10-06), verbatim.
+    "The position prefers a bachelor’s degree and 5 years of relevant experience.", // Dana-Farber
+    "Bachelor's degree in a Basic Science or related field. Four years of related experience may substitute for degree.", // Baylor
+    "Bachelor's degree in a related field, or in lieu of a degree with at least 5 year(s) of experience in supporting clinical operations.", // UT Austin
+    "Bachelor's degree in a relevant science, or an associates degree with 6 years of relevant laboratory experience.", // Mayo
+    "Bachelor's degree with 4 years of relevant experience. Relevant education and experience may be substituted as appropriate.", // UT Austin
+    'At least half of this work experience shall be within the five years immediately preceding the date of application.', // Minnesota State
     "Master's degree plus 2 years of experience required, or Bachelor's degree plus 5 years of experience required."
   ]) {
     assert.notStrictEqual(assess(`${LONG} ${text}`).verdict, 'blocked', `should not block: ${text}`);
@@ -2074,10 +2083,23 @@ function testEligibility() {
     'Sponsorship for permanent residency is not available for this position.',
     'J-1 sponsorship is not available.',
     'Sponsorship is not available; however, OPT candidates are welcome to apply.',
-    'We will consider sponsorship regardless of whether we can not sponsor others.'
+    'We will consider sponsorship regardless of whether we can not sponsor others.',
+    'Local applicants only; UMGC does not sponsor logistical support for this role.' // UMGC, live review
   ]) {
     assert.notStrictEqual(assess(`${LONG} ${text}`).verdict, 'blocked', `should not block: ${text}`);
   }
+  // The bare verb still refuses when its object is a visa or the post.
+  assert(RadarScoring.parseSponsorshipRefusal('This vacancy is not eligible for sponsorship / we will not sponsor or transfer visas for this position.'));
+  assert(RadarScoring.parseSponsorshipRefusal('Unfortunately the department does not sponsor.'));
+  for (const text of [ // released by an over-tight first draft of this rule, live review 2026-10-06
+    'We are unable to sponsor or take over sponsorship of an employment visa at this time.',
+    'UMD will not sponsor the successful candidate for work authorization in the United States.',
+    'We unfortunately cannot sponsor for this opportunity.',
+    'Babson does not sponsor for employment-based petitions/applications.'
+  ]) assert(RadarScoring.parseSponsorshipRefusal(text), `should refuse: ${text}`);
+  // Open-rank faculty postings state years per rank; the entry rank has none.
+  assert.notStrictEqual(assess(`${LONG} Associate-level appointments require a minimum of 5 years of teaching and research experience.`,
+    { title: 'Open Rank Tenure Track faculty, School of Nursing' }).verdict, 'blocked');
   // Lowercase "opt" is benefits text, not OPT — it must not cancel a refusal.
   assert(RadarScoring.parseSponsorshipRefusal('Eligible staff may opt in to the plan if eligible. Sponsorship is not available.'));
 
