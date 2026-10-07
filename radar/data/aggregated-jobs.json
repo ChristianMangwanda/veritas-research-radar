@@ -1,39 +1,33 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-06T21:18:27.739Z",
+  "updated_at": "2026-10-07T11:25:31.967Z",
   "snapshots": {
     "nature-careers": {
       "scouted_at": "2026-10-06T21:16:04.114427Z",
+      "attempted_at": "2026-10-07T11:22:40.313358Z",
       "job_count": 21,
       "scraped_count": 300,
-      "dropped": {
-        "covered_by_live_ats": 76,
-        "not_cap_exempt": 203,
-        "invalid": 0
-      },
-      "skipped_reason": null
+      "rejected_count": 0,
+      "skipped_reason": "pagination_limit_reached",
+      "preserved_previous": true
     },
     "science-careers": {
       "scouted_at": "2026-10-06T21:18:20.951871Z",
+      "attempted_at": "2026-10-07T11:25:25.468216Z",
       "job_count": 57,
       "scraped_count": 300,
-      "dropped": {
-        "covered_by_live_ats": 69,
-        "not_cap_exempt": 174,
-        "invalid": 0
-      },
-      "skipped_reason": null
+      "rejected_count": 0,
+      "skipped_reason": "pagination_limit_reached",
+      "preserved_previous": true
     },
     "higheredjobs": {
       "scouted_at": "2026-10-06T21:18:27.239727Z",
+      "attempted_at": "2026-10-07T11:25:31.657828Z",
       "job_count": 0,
       "scraped_count": 0,
-      "dropped": {
-        "covered_by_live_ats": 0,
-        "not_cap_exempt": 0,
-        "invalid": 0
-      },
-      "skipped_reason": "no_listings_found"
+      "rejected_count": 0,
+      "skipped_reason": "no_listings_found",
+      "preserved_previous": true
     }
   },
   "jobs": [
