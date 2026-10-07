@@ -62,6 +62,10 @@ function validateScoutedFile(payload, employersById) {
   if (!Array.isArray(payload.jobs)) {
     return { accepted: [], rejected: [], fileError: 'jobs is not an array' };
   }
+  if (payload.skipped_reason !== undefined && payload.skipped_reason !== null
+    && (typeof payload.skipped_reason !== 'string' || !payload.skipped_reason.trim())) {
+    return { accepted: [], rejected: [], fileError: 'skipped_reason must be a non-empty string or null' };
+  }
 
   const accepted = [];
   const rejected = [];
@@ -113,6 +117,41 @@ function normalizeScoutedJob(job, payload) {
   };
 }
 
+function applyScoutedSnapshot(store, payload, validation) {
+  const { accepted, rejected } = validation;
+  const priorJobs = store.jobs.filter((job) => job.employer_id === payload.employer_id);
+  const incompleteReason = payload.skipped_reason
+    || (rejected.length > 0 ? 'validation_rejected' : null);
+
+  if (incompleteReason) {
+    store.snapshots[payload.employer_id] = {
+      scouted_at: payload.scouted_at,
+      job_count: priorJobs.length,
+      scraped_count: payload.jobs.length,
+      accepted_count: accepted.length,
+      rejected_count: rejected.length,
+      skipped_reason: incompleteReason,
+      preserved_previous: true
+    };
+    return { authoritative: false, accepted: 0, rejected: rejected.length, reason: incompleteReason };
+  }
+
+  // Snapshot-replace only when the producer explicitly completed the whole
+  // employer crawl and every emitted row validated.
+  store.jobs = store.jobs.filter((job) => job.employer_id !== payload.employer_id);
+  store.jobs.push(...accepted.map((job) => normalizeScoutedJob(job, payload)));
+  store.snapshots[payload.employer_id] = {
+    scouted_at: payload.scouted_at,
+    job_count: accepted.length,
+    scraped_count: payload.jobs.length,
+    accepted_count: accepted.length,
+    rejected_count: 0,
+    skipped_reason: null,
+    preserved_previous: false
+  };
+  return { authoritative: true, accepted: accepted.length, rejected: 0, reason: null };
+}
+
 async function readJson(filePath, fallback) {
   try {
     return JSON.parse(await fs.readFile(filePath, 'utf8'));
@@ -145,17 +184,20 @@ async function importScouted(filePaths) {
 
   let totalAccepted = 0;
   let totalRejected = 0;
+  const failures = [];
   for (const filePath of files) {
     let payload;
     try {
       payload = JSON.parse(await fs.readFile(filePath, 'utf8'));
     } catch (error) {
       console.error(`${path.basename(filePath)}: unreadable JSON (${error.message})`);
+      failures.push(`${path.basename(filePath)}: unreadable JSON`);
       continue;
     }
     const { accepted, rejected, fileError, employer } = validateScoutedFile(payload, employersById);
     if (fileError) {
       console.error(`${path.basename(filePath)}: rejected — ${fileError}`);
+      failures.push(`${path.basename(filePath)}: ${fileError}`);
       continue;
     }
     if (employer.ats_provider) {
@@ -164,33 +206,39 @@ async function importScouted(filePaths) {
     for (const reject of rejected) {
       console.warn(`${path.basename(filePath)}: job[${reject.index}] rejected — ${reject.reason}`);
     }
-    // Snapshot-replace: this file is the full truth for its employer.
-    // The snapshot record lets refresh distinguish "scouted, zero jobs"
-    // (close previous) from "could not scout" (carry previous forward).
-    store.jobs = store.jobs.filter((job) => job.employer_id !== payload.employer_id);
-    store.jobs.push(...accepted.map((job) => normalizeScoutedJob(job, payload)));
-    store.snapshots[payload.employer_id] = {
-      scouted_at: payload.scouted_at,
-      job_count: accepted.length,
-      skipped_reason: payload.skipped_reason || null
-    };
-    totalAccepted += accepted.length;
+    const applied = applyScoutedSnapshot(store, payload, { accepted, rejected });
+    if (!applied.authoritative) {
+      failures.push(`${payload.employer_id}: ${applied.reason}`);
+      console.error(`${path.basename(filePath)}: non-authoritative (${applied.reason}); preserved prior employer jobs`);
+    }
+    totalAccepted += applied.accepted;
     totalRejected += rejected.length;
-    console.log(`${path.basename(filePath)}: ${accepted.length} accepted, ${rejected.length} rejected${payload.skipped_reason ? ` (skipped_reason: ${payload.skipped_reason})` : ''}`);
+    console.log(`${path.basename(filePath)}: ${accepted.length} observed, ${rejected.length} rejected${payload.skipped_reason ? ` (skipped_reason: ${payload.skipped_reason})` : ''}`);
   }
 
   store.updated_at = new Date().toISOString();
   await fs.mkdir(DATA_DIR, { recursive: true });
   await fs.writeFile(STORE_PATH, `${JSON.stringify(store, null, 2)}\n`, 'utf8');
   console.log(`Scouted store: ${store.jobs.length} jobs total (${totalAccepted} accepted, ${totalRejected} rejected this run)`);
-  return { imported: totalAccepted, rejected: totalRejected };
+  return { imported: totalAccepted, rejected: totalRejected, failures };
 }
 
 if (require.main === module) {
-  importScouted(process.argv.slice(2).map((p) => path.resolve(p))).catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  });
+  importScouted(process.argv.slice(2).map((p) => path.resolve(p)))
+    .then((result) => {
+      if (result?.failures?.length) process.exitCode = 1;
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exitCode = 1;
+    });
 }
 
-module.exports = { validateScoutedFile, scoutedJobId, canonicalUrl, normalizeScoutedJob, importScouted };
+module.exports = {
+  validateScoutedFile,
+  scoutedJobId,
+  canonicalUrl,
+  normalizeScoutedJob,
+  applyScoutedSnapshot,
+  importScouted
+};

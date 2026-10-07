@@ -419,6 +419,69 @@ button { font: inherit; color: inherit; }
   padding: 0 4px;
 }
 
+/* Sits opposite the undo bar so the two never overlap. Deliberately louder
+   than the undo bar: undo is confirmation of something that worked, this is a
+   warning that a save did not reach the account. */
+.offline-bar {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: min(420px, calc(100vw - 40px));
+  padding: 10px 14px;
+  background: var(--warn-soft);
+  color: var(--warn-ink);
+  border: 1px solid var(--line-strong);
+  font-size: 13px;
+}
+
+.offline-bar button {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  flex: none;
+}
+
+.offline-bar button[disabled] { opacity: 0.5; cursor: default; }
+
+/* On a phone the two bars stack rather than sitting side by side. */
+@media (max-width: 640px) {
+  .offline-bar {
+    left: 16px;
+    right: 16px;
+    bottom: 76px;
+    max-width: none;
+  }
+}
+
+/* Evidence sits with the stage controls, visually quieter than them. */
+.detail-confirm { margin: 14px 0 0; }
+.detail-confirm .note-input { width: 100%; }
+
+.confirm-hint {
+  font-size: 12px;
+  color: var(--warn-ink);
+  margin-top: 5px;
+}
+
+.confirm-hint.is-confirmed { color: var(--muted); }
+
+/* A step that would undo an application. Not disabled — reachable, but it
+   should not look like the others on the way past. */
+.triage-stepper button.is-locked,
+.triage-links button.is-locked {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
 .drawer-note {
   font-size: 12.5px;
   color: var(--muted);

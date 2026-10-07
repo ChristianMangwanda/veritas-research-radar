@@ -9,23 +9,38 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
+
+# Keep one complete scout run in flight. A later producer must not preserve a
+# base snapshot that an earlier run has not published yet.
+concurrency:
+  group: radar-scout-run
+  cancel-in-progress: false
+  queue: max
 
 # The crawl and the commit are separate jobs on purpose. The crawl can run for
 # five hours; the commit takes seconds. Holding the shared radar-data group for
 # the whole crawl meant a Monday scout displaced the 6-hourly refresh entirely,
-# because GitHub keeps only one running and one pending entry per group and
-# cancels the older pending one. Only the publish job takes the group now.
+# because the default concurrency queue retained only one pending entry. Only
+# the publish job takes the group now, and queue:max preserves pending writers.
 jobs:
   scout:
     runs-on: ubuntu-latest
     timeout-minutes: 300
+    outputs:
+      has_output: ${{ steps.output.outputs.publish }}
+      artifact_id: ${{ steps.artifact.outputs.artifact-id }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Mark the checked-out snapshot baseline
+        run: touch "$RUNNER_TEMP/scout-start"
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.11"
       - name: Install scout deps
@@ -34,62 +49,113 @@ jobs:
           scout/.venv/bin/pip install -r scout/requirements.txt
           scout/.venv/bin/python -m playwright install --with-deps chromium
       - name: Scout employers without ATS feeds
+        id: scout
         run: npm run scout:jobs -- --all --import
+      - name: Verify current-run scout output
+        id: output
+        if: ${{ always() && !cancelled() }}
+        run: |
+          set -euo pipefail
+          file=radar/data/scouted-jobs.json
+          if [ ! "$file" -nt "$RUNNER_TEMP/scout-start" ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            if [ "${{ steps.scout.outcome }}" = "success" ]; then
+              echo "::error::Scout exited successfully without rewriting scouted-jobs.json."
+              exit 1
+            fi
+            echo "Scout failed before producing a safe current-run store; nothing will be published."
+            exit 0
+          fi
+          node -e 'const fs=require("fs"); const value=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if (!Number.isFinite(Date.parse(value.updated_at||"")) || !Array.isArray(value.jobs) || !value.snapshots || typeof value.snapshots!=="object") throw new Error("invalid scouted-jobs store");' "$file"
+          echo "publish=true" >> "$GITHUB_OUTPUT"
       - name: Save the snapshot
-        # if: always() -- a run cancelled at the timeout (confirmed live in
-        # radar-firehose.yml on 2026-08-04, 2h48m of work committed nowhere)
-        # skips every later step by default. Whatever the crawl imported before
-        # it was cut off is still worth keeping.
-        if: always()
-        uses: actions/upload-artifact@v4
+        id: artifact
+        # Incomplete employer crawls retain their prior rows. Publish that safe
+        # mixed store even though the producer job remains red and alerts.
+        if: ${{ always() && !cancelled() && steps.output.outputs.publish == 'true' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: scouted-jobs
+          name: scouted-jobs-${{ github.run_id }}
           path: radar/data/scouted-jobs.json
-          if-no-files-found: ignore
+          if-no-files-found: error
+          overwrite: true
           retention-days: 7
 
   publish:
     needs: scout
-    if: always()
+    if: ${{ always() && !cancelled() && needs.scout.outputs.has_output == 'true' && needs.scout.outputs.artifact_id != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
     # Serialized against every other job that commits radar data or writes
     # Supabase — held for the couple of minutes this takes, not for the crawl.
     concurrency:
-      group: radar-data-${{ github.ref }}
+      group: radar-data-main
       cancel-in-progress: false
+      queue: max
     steps:
-      - uses: actions/checkout@v4
-      # checkout pins github.sha from queue time, so commits that landed while
-      # the crawl was running would make a rebase conflict. Reset to main FIRST,
-      # then lay this run's snapshot on top.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+      # Reconfirm main after acquiring the writer lock, then lay the exact
+      # current-run artifact on top.
       - name: Sync to latest main
         run: |
           set -euo pipefail
           git fetch origin main
           git reset --hard origin/main
       - name: Restore the snapshot (this run's output wins)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: scouted-jobs
-          path: radar/data/
-        continue-on-error: true
+          artifact-ids: ${{ needs.scout.outputs.artifact_id }}
+          path: ${{ runner.temp }}/scout-artifact
+      - name: Reject an older scout snapshot
+        run: |
+          node -e '
+          const fs = require("fs");
+          const incomingPath = process.argv[1];
+          const currentPath = process.argv[2];
+          const incoming = JSON.parse(fs.readFileSync(incomingPath, "utf8"));
+          const incomingAt = Date.parse(incoming.updated_at || "");
+          if (!Number.isFinite(incomingAt) || !Array.isArray(incoming.jobs) || !incoming.snapshots) {
+            throw new Error("incoming scout artifact is invalid");
+          }
+          if (fs.existsSync(currentPath)) {
+            const current = JSON.parse(fs.readFileSync(currentPath, "utf8"));
+            const currentAt = Date.parse(current.updated_at || "");
+            if (Number.isFinite(currentAt) && incomingAt < currentAt) {
+              throw new Error(`refusing scout rollback: artifact ${incoming.updated_at} is older than main ${current.updated_at}`);
+            }
+          }
+          fs.copyFileSync(incomingPath, currentPath);
+          ' "$RUNNER_TEMP/scout-artifact/scouted-jobs.json" radar/data/scouted-jobs.json
       - name: Commit scouted data
         # No refresh here: the snapshot is TTL-gated for 14 days and the next
         # 6-hourly radar run folds it into Supabase within the hour. Running a
         # full 547-employer refresh to publish one file was most of what made
         # this workflow hold the group for so long.
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
         with:
           commit_message: "Update scouted employer data"
           file_pattern: "radar/data/scouted-jobs.json"
+
+  notify:
+    needs: [scout, publish]
+    if: ${{ always() && (needs.scout.result != 'success' || (needs.scout.outputs.has_output == 'true' && needs.publish.result != 'success')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
       - name: Alert on failure
-        if: failure() || cancelled() || needs.scout.result != 'success'
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REF_NAME: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           [ -z "$NTFY_TOPIC" ] && { echo "NTFY_TOPIC not set; skipping alert"; exit 0; }
-          curl -sS -H "Title: ${{ github.workflow }} failed" \
+          curl -sS -H "Title: $WORKFLOW_NAME failed" \
             -H "Tags: rotating_light" \
-            -d "Workflow '${{ github.workflow }}' failed on ${{ github.ref_name }}. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "Workflow '$WORKFLOW_NAME' failed on $REF_NAME. Run: $RUN_URL" \
             "https://ntfy.sh/$NTFY_TOPIC" || true

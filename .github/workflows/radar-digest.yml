@@ -1,9 +1,8 @@
 name: Radar Daily Digest
 
-# Pushes a daily "what's new" notification via ntfy.sh, ranked by sponsorship
-# evidence. Reads the dataset from Supabase (falling back to committed
-# jobs.json), fetches nothing, and never commits. Skips cleanly (prints instead
-# of pushing) until the NTFY_TOPIC secret is set.
+# Pushes a daily "what's new" notification through ntfy.sh, ranked by
+# sponsorship evidence. Production requires a successful Supabase read and an
+# NTFY_TOPIC. A missing source or delivery channel fails the run.
 on:
   schedule:
     - cron: "5 13 * * *"
@@ -19,24 +18,36 @@ concurrency:
 jobs:
   digest:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24"
+      - name: Verify Supabase target
+        run: node radar/scripts/verify-supabase-target.js --require-url
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       - name: Build and send digest
         run: node radar/scripts/digest.js
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          RADAR_REQUIRE_SUPABASE: "1"
+          RADAR_REQUIRE_NTFY: "1"
       - name: Alert on failure
         if: failure()
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REF_NAME: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           [ -z "$NTFY_TOPIC" ] && { echo "NTFY_TOPIC not set; skipping alert"; exit 0; }
-          curl -sS -H "Title: ${{ github.workflow }} failed" \
+          curl -sS -H "Title: $WORKFLOW_NAME failed" \
             -H "Tags: rotating_light" \
-            -d "Workflow '${{ github.workflow }}' failed on ${{ github.ref_name }}. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "Workflow '$WORKFLOW_NAME' failed on $REF_NAME. Run: $RUN_URL" \
             "https://ntfy.sh/$NTFY_TOPIC" || true

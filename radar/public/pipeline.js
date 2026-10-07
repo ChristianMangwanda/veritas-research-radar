@@ -106,6 +106,88 @@
     return `${lines.join('\n')}\n`;
   }
 
+  /* ---------------------------------------------------------------------- *
+   * Snapshots: what makes an application survive its posting.
+   *
+   * A triage record used to be a foreign key into the jobs feed and nothing
+   * else, which quietly made "I applied to this" depend on the employer
+   * keeping the ad up. They do not. A closed posting is a tombstone for 30
+   * days and is then deleted, and a job whose employer leaves the registry
+   * goes on the next refresh. Because the pipeline renders by walking the
+   * feed, the row survived in the database while the application vanished
+   * off the screen.
+   *
+   * Applications outlive postings as a matter of course — you apply in
+   * September and hear back in November, by which time the ad is long gone.
+   * So the handful of facts needed to recognise the job are copied onto the
+   * record the first time you act on it, and a record carrying them can be
+   * rendered with no job in the feed at all.
+   * ---------------------------------------------------------------------- */
+
+  const SNAPSHOT_FIELDS = ['employer_name', 'employer_id', 'title', 'url', 'location'];
+
+  function jobSnapshot(job) {
+    if (!job) return null;
+    const snapshot = {};
+    for (const field of SNAPSHOT_FIELDS) snapshot[field] = job[field] ?? null;
+    return snapshot;
+  }
+
+  /* Stamped ONCE, on the first write that had a job to read. Later stage
+     changes must not re-stamp: by the time you mark an offer the posting may
+     read differently or be gone, and the snapshot is the job as you applied
+     to it, not as it last appeared. */
+  function withSnapshot(record, job) {
+    if (!record || record.title != null || !job) return record;
+    const snapshot = jobSnapshot(job);
+    if (!snapshot || (snapshot.title == null && snapshot.employer_name == null)) return record;
+    return { ...record, ...snapshot, snapshot_at: new Date().toISOString() };
+  }
+
+  /* A job-shaped stand-in for a posting that is not in the database at all.
+     Flagged `_orphan` so the radar views can leave it out: it has no
+     description, no visa reading and no score, and putting it in a ranked
+     list of things to apply to would be a lie about what is known. The
+     pipeline shows it, which is the point — an application you made is not
+     less real because the employer took the ad down. */
+  function orphanStub(jobId, record) {
+    if (!record) return null;
+    if (record.title == null && record.employer_name == null) return null;
+    const asOf = record.snapshot_at || record.updated_at || null;
+    return {
+      id: jobId,
+      title: record.title || 'Posting no longer listed',
+      employer_name: record.employer_name || null,
+      employer_id: record.employer_id || null,
+      location: record.location || null,
+      url: record.url || null,
+      description_text: null,
+      description_captured: false,
+      veritas_state: 'NEUTRAL',
+      status: 'closed',
+      closed_at: asOf,
+      first_seen_at: asOf,
+      last_seen_at: asOf,
+      citizenship_gated: false,
+      _orphan: true,
+      _descPending: false
+    };
+  }
+
+  /* Every triage record with no job behind it, as stubs. `has` answers
+     "is this id already in the pool" — passing a Map or a Set both work. */
+  function orphanJobs(triage, has) {
+    const present = typeof has === 'function' ? has
+      : (id) => Boolean(has && has.has && has.has(id));
+    const stubs = [];
+    for (const [jobId, record] of Object.entries(triage || {})) {
+      if (present(jobId)) continue;
+      const stub = orphanStub(jobId, record);
+      if (stub) stubs.push(stub);
+    }
+    return stubs;
+  }
+
   // Last-write-wins per job by updated_at — merges a remote triage map into a
   // local one without losing either side's newer edits. Ties keep local
   // (strict >), so a device never discards its own record for an equal echo.
@@ -149,7 +231,8 @@
     for (const [jobId, record] of Object.entries(doc.triage)) {
       if (!record || typeof record !== 'object' || Array.isArray(record)) return `record for ${jobId} is not an object`;
       if (!knownStatuses.has(record.status)) return `unknown status "${record.status}" on ${jobId}`;
-      for (const field of ['updated_at', 'note', 'applied_at', 'variant_sent']) {
+      for (const field of ['updated_at', 'note', 'applied_at', 'variant_sent',
+        'snapshot_at', 'employer_name', 'employer_id', 'title', 'url', 'location']) {
         if (record[field] !== undefined && typeof record[field] !== 'string') return `${field} on ${jobId} is not a string`;
       }
     }
@@ -192,7 +275,12 @@
     restoreTriageRecord,
     validateTriageDoc,
     mergeLocalState,
-    buildShortlistCsv
+    buildShortlistCsv,
+    SNAPSHOT_FIELDS,
+    jobSnapshot,
+    withSnapshot,
+    orphanStub,
+    orphanJobs
   };
 
   root.RadarPipeline = RadarPipeline;

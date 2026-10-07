@@ -57,3 +57,17 @@ drop policy if exists "public read access" on public.refresh_runs;
 create policy "public read access" on public.refresh_runs
   for select to anon, authenticated
   using (true);
+
+-- RLS and SQL privileges are separate. State every Data API grant so a project
+-- with restricted default privileges still has the intended public read path
+-- and service-role write path.
+revoke all on table public.jobs from public, anon, authenticated, service_role;
+revoke all on table public.refresh_runs from public, anon, authenticated, service_role;
+revoke all on sequence public.refresh_runs_id_seq from public, anon, authenticated, service_role;
+
+grant select on public.jobs to anon, authenticated;
+grant select on public.refresh_runs to anon, authenticated;
+
+grant select, insert, update, delete on public.jobs to service_role;
+grant select, insert on public.refresh_runs to service_role;
+grant usage, select on sequence public.refresh_runs_id_seq to service_role;

@@ -21,11 +21,16 @@
  */
 
 const {
-  JUDGMENT_SCHEMA, JUDGE_SYSTEM_PROMPT, judgeUserPrompt, normalizeJudgment
+  JUDGMENT_SCHEMA, JUDGE_SYSTEM_PROMPT, judgeUserPrompt, normalizeJudgment, profileFingerprint, prepareJobs, JUDGMENT_VERSION, contractFingerprint
 } = require('../radar/scripts/lib/match.js');
 const { DEFAULT_MODEL, judgeOnce, costOf } = require('../radar/scripts/lib/openai.js');
 const { groupMissesByHash, dedupeCacheRows } = require('../radar/scripts/lib/match-cache.js');
-const { rehydrateJob } = require('../radar/scripts/lib/supabase.js');
+const { rehydrateJob, resolveSupabaseServiceKey } = require('../radar/scripts/lib/supabase.js');
+const {
+  assertSupabaseTargetUrl,
+  loadTargetManifest,
+  normalizeSupabaseUserId
+} = require('../radar/scripts/lib/supabase-target.js');
 const { parseProfileDocument } = require('../radar/public/profile-doc.js');
 const RadarScoring = require('../radar/public/scoring.js');
 
@@ -37,15 +42,25 @@ const CONCURRENCY = 4;
 const LAUNCH_DEADLINE_MS = 45000;
 
 const MODEL = process.env.RADAR_MATCH_MODEL || DEFAULT_MODEL;
+const SUPABASE_TARGET = loadTargetManifest();
+
+function requireOwnerUserId(value) {
+  return normalizeSupabaseUserId(value);
+}
 
 /* Both key names are accepted because both are in circulation: CI holds
  * SUPABASE_SERVICE_KEY as a repo secret, and Supabase's dashboard now issues
  * the same thing as a "secret key" (sb_secret_…). Which name a key was pasted
  * under should never be the thing that breaks judging. */
 function env() {
-  const url = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
-  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SECRET_KEY || '';
-  return url && key ? { url, key } : null;
+  const key = resolveSupabaseServiceKey();
+  return {
+    // A service key can reach every project it belongs to. Validate the URL
+    // against the repo's non-secret target manifest before sending that key.
+    url: assertSupabaseTargetUrl(process.env.SUPABASE_URL, SUPABASE_TARGET),
+    key,
+    ownerUserId: requireOwnerUserId(process.env.RADAR_OWNER_USER_ID)
+  };
 }
 
 /** Which of the required variables are actually missing — so a 500 says what
@@ -56,6 +71,7 @@ function missingEnv() {
   if (!process.env.SUPABASE_SERVICE_KEY && !process.env.SUPABASE_SECRET_KEY) {
     missing.push('SUPABASE_SERVICE_KEY (or SUPABASE_SECRET_KEY)');
   }
+  if (!process.env.RADAR_OWNER_USER_ID) missing.push('RADAR_OWNER_USER_ID');
   if (!process.env.OPENAI_API_KEY) missing.push('OPENAI_API_KEY');
   return missing;
 }
@@ -127,10 +143,16 @@ async function handler(request, response) {
   if (/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
     response.setHeader('access-control-allow-origin', origin);
     response.setHeader('access-control-allow-headers', 'authorization, content-type');
-    response.setHeader('access-control-allow-methods', 'POST, OPTIONS');
+    response.setHeader('access-control-allow-methods', 'GET, POST, OPTIONS');
     response.setHeader('vary', 'origin');
   }
   if (request.method === 'OPTIONS') { response.status(204).end(); return; }
+  if (request.method === 'GET') {
+    response.setHeader('cache-control', 'no-store');
+    response.status(200).json({ model: MODEL, judgment_version: JUDGMENT_VERSION,
+      judgment_contract: await contractFingerprint(MODEL) });
+    return;
+  }
   if (request.method !== 'POST') { response.status(405).json({ error: 'POST only' }); return; }
 
   const missing = missingEnv();
@@ -138,11 +160,22 @@ async function handler(request, response) {
     response.status(500).json({ error: `not configured on this deployment: ${missing.join(', ')}` });
     return;
   }
-  const config = env();
+  let config;
+  try {
+    config = env();
+  } catch (error) {
+    response.status(500).json({ error: `invalid deployment configuration: ${error.message}` });
+    return;
+  }
 
   const token = /^Bearer (.+)$/i.exec(request.headers.authorization || '')?.[1];
   const user = await verifyUser(config, token);
   if (!user) { response.status(401).json({ error: 'sign in to judge postings' }); return; }
+  const verifiedOwnerUserId = String(user.id).toLowerCase();
+  if (verifiedOwnerUserId !== config.ownerUserId) {
+    response.status(403).json({ error: 'this account is not authorized to judge postings' });
+    return;
+  }
 
   const body = typeof request.body === 'string' ? JSON.parse(request.body || '{}') : (request.body || {});
   const ids = Array.isArray(body.ids) ? body.ids.filter((id) => typeof id === 'string' && id) : null;
@@ -151,13 +184,22 @@ async function handler(request, response) {
 
   try {
     /* ---- the profile ------------------------------------------------- */
-    const profileRows = await sb(config, 'GET', '/profile_documents?select=content&limit=1');
+    // sb() carries the service key and therefore bypasses RLS. The exact user
+    // filter is authorization, not an optimization: never select "the first"
+    // profile from a table that can contain more than one account.
+    const profileRows = await sb(config, 'GET',
+      `/profile_documents?user_id=eq.${encodeURIComponent(verifiedOwnerUserId)}`
+      + '&select=user_id,content&limit=1');
     const content = profileRows?.[0]?.content;
     if (!content) { response.status(409).json({ error: 'no profile document saved yet' }); return; }
     const profile = parseProfileDocument(content);
     const invalid = RadarScoring.validateProfile(profile);
     if (invalid) { response.status(409).json({ error: `profile does not validate: ${invalid}` }); return; }
-    const profileHash = RadarScoring.profileHash(profile);
+    const profileHash = await profileFingerprint(profile, MODEL);
+    if (body.profile_hash && body.profile_hash !== profileHash) {
+      response.status(409).json({ error: 'profile or judging configuration changed; reload before judging' });
+      return;
+    }
 
     /* ---- the postings -------------------------------------------------
      * rehydrateJob is not a convenience here, it is the identity rule: the
@@ -168,7 +210,8 @@ async function handler(request, response) {
     const rows = await sb(config, 'GET',
       `/jobs?id=in.${encodeURIComponent(inList(ids))}&select=payload,description_text`);
     const jobs = (rows || []).map(rehydrateJob).filter(Boolean);
-    const hashOf = new Map(jobs.map((job) => [job.id, RadarScoring.jobContentHash(job)]));
+    await prepareJobs(jobs);
+    const hashOf = new Map(jobs.map((job) => [job.id, job._judgmentHash]));
 
     /* ---- what we already know ------------------------------------------ */
     const hashes = [...hashOf.values()];
@@ -248,6 +291,7 @@ async function handler(request, response) {
       judgments,
       unjudged,
       profile_hash: profileHash,
+      job_hashes: Object.fromEntries(hashOf),
       model: MODEL,
       spend: Number(spend.toFixed(4))
     });
@@ -262,3 +306,4 @@ async function handler(request, response) {
 module.exports = handler;
 module.exports.inList = inList;
 module.exports.MAX_IDS = MAX_IDS;
+module.exports.requireOwnerUserId = requireOwnerUserId;

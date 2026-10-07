@@ -123,6 +123,26 @@ Run `npm start` and open http://localhost:4173 (or the hosted dashboard).
 - [ ] Keyboard still works: j/k navigate, o opens posting, a marks applied, u undoes
 - [ ] At ~1100px the 3 stats stay visible; at ~700px stats wrap to their own row, no horizontal scroll
 
+## Test 12: An application outlives its posting
+Applications used to disappear: the jobs row was swept 30 days after the
+posting closed, and the pipeline — which renders off the feed — had nothing
+left to draw the triage row against. Run `radar/supabase/triage-snapshot.sql`
+first.
+
+- [ ] Mark any job applied, then check its row in the `triage` table: `title`, `employer_name`, `url`, `location` and `snapshot_at` are filled
+- [ ] Move it to interview, then to offer: `snapshot_at` and `title` do NOT change (the snapshot is the job as you applied to it)
+- [ ] Delete that job from the `jobs` table by hand, reload: it is still in **Applied**, at the right stage, with employer, title and a working link
+- [ ] Its detail pane says the posting is no longer published, gives the snapshot date, and does not tell you to "open the posting" for a description
+- [ ] That job does NOT appear in Qualified or All jobs — it has no description or visa reading and must not sit in a ranked list
+- [ ] Run a refresh with a triaged job past its retention: the run report's `supabase_sync.retained_for_triage` counts it and its row is still in `jobs`
+
+## Test 13: A write that cannot reach the account
+- [ ] Sign in, then invalidate the session (clear the Supabase auth key in localStorage) and mark a job applied
+- [ ] The warning bar appears bottom-right: "1 change is saved in this browser only"
+- [ ] Reload and sign in again: the change is in the account, the bar is gone, and `veritas_radar_local_state` no longer holds it
+- [ ] Repeat a second time — the carry-up must work on EVERY sign-in, not only the first (this was the bug: a one-time flag stranded everything after it)
+- [ ] With the session dead, **Retry** on the bar opens sign-in rather than failing silently
+
 ## Known Issues Log
 Document any issues found during testing:
 

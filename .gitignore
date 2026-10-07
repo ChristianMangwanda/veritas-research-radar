@@ -15,7 +15,10 @@ temp/
 
 # Node modules (if added later)
 node_modules/
-package-lock.json
+
+# Supabase CLI state is account- and project-specific
+supabase/.temp/
+.supabase/
 
 # Research radar local-only data
 radar/data/jobs.json

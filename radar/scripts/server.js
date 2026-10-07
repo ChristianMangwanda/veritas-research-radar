@@ -95,6 +95,19 @@ async function route(request, response) {
     return;
   }
 
+  // Reading cached judgments also needs the versioned fingerprint contract.
+  // The local server provides configuration only; paid judging stays on Vercel.
+  if (request.method === 'GET' && url.pathname === '/api/judge') {
+    const { DEFAULT_MODEL, JUDGMENT_VERSION, contractFingerprint } = require('../public/matching.js');
+    const model = process.env.RADAR_MATCH_MODEL || DEFAULT_MODEL;
+    send(response, 200, JSON.stringify({
+      model,
+      judgment_version: JUDGMENT_VERSION,
+      judgment_contract: await contractFingerprint(model)
+    }));
+    return;
+  }
+
   if (request.method === 'GET') {
     await serveStatic(response, url.pathname);
     return;

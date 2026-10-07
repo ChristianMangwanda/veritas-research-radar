@@ -7,6 +7,7 @@
  *   - the last refresh is older than DEADMAN_MAX_AGE_HOURS (default 8), or
  *   - the last refresh reported fetch errors, or
  *   - the last refresh flagged a zero-job recall anomaly, or
+ *   - a provider circuit opened across unrelated tenants, or
  *   - the last refresh aborted its Supabase sync (lifecycle guard tripped), or
  *   - the last refresh FAILED its Supabase sync partway through.
  *
@@ -16,10 +17,9 @@
  *   DEADMAN_MAX_ERRORED     — errored-employer count that trips the alarm, default 10
  *                             (transient single-feed blips are normal and shouldn't page)
  *
- * Exit codes — the alarm has to end up somewhere a human will look:
- *   0  clean check, or a problem that was successfully pushed to ntfy
- *   1  a problem with NOWHERE to deliver it (no NTFY_TOPIC, or the push
- *      failed), or the report could not be read at all
+ * Exit codes — health and notification delivery are separate signals:
+ *   0  clean check
+ *   1  unhealthy or unreadable report, whether or not ntfy delivery succeeded
  *
  * That second case is the whole point. With no ntfy topic configured the
  * alert used to be printed into the log of a run that then reported success,
@@ -30,6 +30,7 @@
  */
 
 const fsp = require('fs/promises');
+const FeedHealth = require('../public/feed-health.js');
 const path = require('path');
 
 const REPORT_PATH = path.resolve(__dirname, '../data/refresh-report.json');
@@ -65,6 +66,9 @@ async function main() {
   }
 
   const problems = [];
+  for (const feed of FeedHealth.persistentFailures(report)) {
+    problems.push(`${feed.name} (${feed.ats_provider}): ${feed.consecutive_failures} consecutive failed refreshes; last success ${feed.last_success_at || 'unknown'}`);
+  }
   const refreshedAt = Date.parse(report.refreshed_at || '');
   if (!Number.isFinite(refreshedAt)) {
     problems.push('refresh report has no valid refreshed_at timestamp');
@@ -80,6 +84,12 @@ async function main() {
   if (Array.isArray(report.recall_anomalies) && report.recall_anomalies.length) {
     const names = report.recall_anomalies.map((a) => a.name).join(', ');
     problems.push(`${report.recall_anomalies.length} zero-job recall anomaly(ies): ${names}`);
+  }
+  if (Array.isArray(report.provider_circuits) && report.provider_circuits.length) {
+    const providers = report.provider_circuits
+      .map((entry) => entry?.provider || 'unknown provider')
+      .join(', ');
+    problems.push(`${report.provider_circuits.length} provider circuit(s) opened: ${providers}`);
   }
   if (report.supabase_sync_aborted) {
     problems.push(`Supabase sync aborted: ${report.supabase_sync_aborted}`);
@@ -116,10 +126,13 @@ async function main() {
     console.warn(`ntfy push failed (detail logged above): ${error.message}`);
   }
 
+  await writeStepOutput('notification_delivered', delivered ? 'true' : 'false');
   if (!delivered) {
-    console.error('No delivery channel for this alert — failing the run so it is visible in the Actions list.');
-    process.exitCode = 1;
+    console.error('No delivery channel for this alert; the failed run remains the fallback notification.');
+  } else {
+    console.error('Alert delivered; failing the run because the pipeline is unhealthy.');
   }
+  process.exitCode = 1;
 }
 
 /**
@@ -134,6 +147,16 @@ async function writeStepSummary(title, problems) {
     await fsp.appendFile(summaryPath, `${lines.join('\n')}\n`, 'utf8');
   } catch (error) {
     console.warn(`could not write step summary: ${error.message}`);
+  }
+}
+
+async function writeStepOutput(name, value) {
+  const outputPath = process.env.GITHUB_OUTPUT;
+  if (!outputPath) return;
+  try {
+    await fsp.appendFile(outputPath, `${name}=${value}\n`, 'utf8');
+  } catch (error) {
+    console.warn(`could not write step output: ${error.message}`);
   }
 }
 

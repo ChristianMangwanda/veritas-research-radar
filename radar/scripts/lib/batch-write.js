@@ -35,8 +35,20 @@ function defaultSleep(ms) {
  */
 function isTransientPostgrestError(error) {
   if (!error) return false;
-  if (error.name === 'AbortError') return true;
-  const message = String(error.message || error);
+  const parts = [];
+  const seen = new Set();
+  let current = error;
+  let undiciTerminated = false;
+  while (current && !seen.has(current)) {
+    seen.add(current);
+    if (current.name === 'AbortError') return true;
+    if (current.name === 'TypeError' && current.message === 'terminated') undiciTerminated = true;
+    parts.push(String(current.message || current));
+    if (current.code) parts.push(String(current.code));
+    current = current.cause;
+  }
+  const message = parts.join(' ');
+  if (undiciTerminated) return true;
   if (/\b(408|425|429|5\d\d)\b/.test(message)) return true;
   return /fetch failed|ECONNRESET|ECONNREFUSED|ETIMEDOUT|EPIPE|socket hang up|network|timed? ?out|aborted/i.test(message);
 }

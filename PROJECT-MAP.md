@@ -1,128 +1,89 @@
 # Veritas Research Radar — Project Map
 
-*A one-page orientation. Start here when you've lost the thread. Last updated 2026-08-03.*
+Updated 2026-09-16. This document describes the current architecture and the pending reliability release.
 
-An engine that finds U.S. research jobs that are both **visa-safe** and **a fit for
-your résumés** — and keeps them fresh on its own. Born 2026-07-03; ~1 month old.
+## Purpose
 
----
+The Radar collects research jobs and ranks them against an authored profile.
+It emphasizes employers with evidence of cap-exempt sponsorship.
+A positive signal does not guarantee sponsorship for a particular posting.
 
-## 1. The purpose
+The repository also contains a Chrome extension that scans job pages for visa-related language.
+The extension processes page text locally. The Radar uses hosted services.
 
-You're an international, early-career researcher on **F-1 / OPT**. Every U.S. job
-has two hard filters: *will they sponsor a visa*, and *does it match what I
-actually do*. Veritas answers both automatically.
+## Where each part runs
 
-It focuses on **H-1B cap-exempt** employers — universities, research institutes,
-research hospitals — because they can sponsor H-1Bs year-round with no lottery.
-It pulls their live postings, scores each against your own résumés, and tells you
-which to apply to and which résumé to send. **It never writes résumés — it ranks
-and routes the ones you wrote.**
-
-## 2. How it works, end to end
-
-```
-309 cap-exempt      13 ATS job      auto-pull        ~11.5k live*     fit engine        you:
-employers      →    systems     →   every 6h    →    jobs        →    (your 7      →    dashboard
-(registry)          (Workday…)      (refresh.js)     (Supabase)       résumés)          + digest
-
-*job count is pre-refresh as of this doc's last update — the 56 employers added
-2026-08-03 fold in on the next scheduled 6-hourly run.
-```
-
-## 3. What we've built
-
-- **Employer registry** (`radar/employers.json`) — 309 cap-exempt employers with
-  their feed coordinates + sponsorship evidence (IPEDS/IRS/USCIS/DOL).
-- **ATS drivers** (`radar/scripts/refresh.js`) — 13 wired systems: Workday,
-  Oracle HCM, PeopleAdmin, SuccessFactors, Eightfold, UltiPro, Paylocity,
-  Greenhouse, Lever, Ashby, SmartRecruiters, Workable, USAJOBS.
-- **Refresh pipeline** — 7 scheduled GitHub Actions (§5). No servers.
-- **Dashboard** (`radar/public/`, on GitHub Pages) — jobs ranked by fit,
-  filtered by visa signal, moved through a triage funnel.
-- **Fit engine** (`build-profile.js` + `scoring.js`) — reads your résumés
-  locally, scores every job against all 7, recommends which to send.
-- **Daily digest** (`digest-local.js`) — best new fits, once a day (needs arming).
-
-## 4. What the database looks like
-
-- **309 employers** (all cap-exempt) → **~11,487 active jobs** (of ~17,626
-  tracked; ~6,139 closed but kept as tombstones) as of the last completed
-  refresh — pre-dates the 56 employers added 2026-08-03. **0 recall alarms** =
-  nothing silently lost.
-- By job system: Workday 139 · PeopleAdmin 80 · Oracle HCM 32 · UltiPro 12 ·
-  Paylocity 8 · Lever 3 · Greenhouse 2 · SmartRecruiters / SuccessFactors /
-  Eightfold / USAJOBS / Workable 1 each · 28 not-yet-wired (scout-routed
-  iCIMS boards + the remaining 10 dark flagships: MIT, Harvard, Broad… on
-  closed or JS-only systems).
-- Three job lanes: **ATS feeds** (primary), a **scout** for boards with no clean
-  feed, and an **aggregator firehose** (Nature/Science careers).
-- Dataset of record is **Supabase** (project `nawbdsujjysugaisczta`);
-  `jobs.json` is a gitignored local mirror.
-
-## 5. How it stays fresh
-
-Seven scheduled GitHub Actions — nothing runs on your machine.
-
-| Workflow | Runs | Does |
+| Part | Location | Responsibility |
 |---|---|---|
-| Research Job Radar | every 6h | Pulls live jobs from every ATS feed, syncs Supabase, then judges |
-| Aggregator Firehose | 2×/day | Sweeps Nature/Science job boards (the radar folds the snapshot in) |
-| Employer Scout | weekly (Mon) | Re-scouts registry employers that have no clean ATS feed |
-| ATS Discovery | monthly | Sharded crawl for employers whose board we could wire |
-| Enrichment | monthly | Refreshes sponsorship evidence (IPEDS/IRS/USCIS/DOL) |
-| Daily Digest | daily | Sponsorship-ranked summary (fit digest runs locally) |
-| Dead-Man Switch | every 2h | Alerts if data goes stale >8h, feeds error, or a sync failed |
+| Dashboard | Vercel, `radar/public/` | Job search, profile editor, ranking, and triage |
+| Public job database | Supabase `nawbdsujjysugaisczta` | Postings and refresh history |
+| Private account data | Supabase | Profile document, AI judgments, triage, and account state |
+| Job collection | GitHub Actions, every six hours | ATS feeds, lifecycle updates, and database sync |
+| Scheduled AI matching | GitHub Actions, after refresh | Judgments for qualified jobs, with a $5 run limit |
+| On-demand AI matching | Vercel `api/judge.js` | Judgments for visible jobs, with server-side credentials |
+| Scout and enrichment | Scheduled GitHub Actions | Supplemental postings and employer evidence |
+| Development server | `npm start` | Local dashboard preview and optional local job mirror |
 
-**Only the radar writes Supabase.** The others produce a file and commit it;
-the next radar run merges it. That is what keeps the differential sync honest —
-a run may treat the table it read at the start as the whole table only because
-nothing else is writing while it does. Every job that commits data or touches
-Supabase shares one concurrency group so they serialize; the long crawls hold
-it only for the minute they spend committing, not for the hours they spend
-crawling.
+The registry contains 547 employers. Coverage varies by employer and feed health.
+Current counts come from the dashboard and refresh report. This guide does not freeze them into documentation.
 
-**Safety net:** a refresh that reads an empty dataset *aborts instead of
-overwriting*; a sync that fails partway records itself and fails the run, so
-the judge step is skipped rather than paying to read a half-written table; any
-employer dropping to zero jobs raises a recall alarm; a provider answering
-identically for five unrelated tenants trips a circuit breaker and its jobs are
-carried forward; the dead-man switch pings if the whole thing stalls.
+## How matching works
 
-## 6. How we got here
+1. The browser and scripts parse the same profile document.
+2. The deterministic scorer checks posting requirements and ranks jobs.
+3. The AI reads the candidate information and posting text.
+4. The application stores the judgment and resolves it against the current inputs.
 
-- **Jul 3** — Born as a Chrome extension: "Veritas Visa Eligibility Scanner"
-  (color-codes any job page for sponsorship). Still the ranking core today.
-- **Jul 11–19** — Grew into the Radar: employer registry + automated job pulls +
-  dashboard. Hardened data (Tier 0), daily-driver triage (Tier 1), fixed data
-  fields — salary/deadline/location/remote (Tier 2).
-- **Jul 19 → Aug 3** — Coverage push (Tier 3): new ATS drivers, dark-flagship
-  rescues; registry grew to 253.
-- **Aug 3 (morning)** — Pivot to the app itself: fit engine now ranks all 7
-  résumés (was 2), faster dashboard, daily digest built.
-- **Aug 3 (afternoon)** — Back to coverage: two `promote-employers.js` bugs
-  fixed (an iCIMS subdomain artifact, an over-strict identity match) unlocked
-  15 real candidates that looked dead; a new Paylocity driver; a 56-employer
-  discovery-backlog sweep (UltiPro/Oracle hits sitting unpromoted since
-  July); registry 253 → 309. Prefilter recall-visibility instrumentation
-  added so a bad title-matching regex gets caught automatically next time.
+The pending release shares the prompt, schema, and fingerprint code in `radar/public/matching.js`.
+Profile fingerprints include profile constraints, preferences, model, prompt, schema, and judgment version.
+Posting fingerprints include employer, title, department, description, location, remote status, and salary.
 
-## 7. Where you are now
+Old judgments remain in storage. A changed fingerprint prevents an old judgment from appearing as current.
+The scheduled run rebuilds judgments within its existing spending limit.
+The first release of the new fingerprints requires fresh judgments for the eligible pool.
 
-**Working & live:** discovery, fit ranking (7 résumés), honest verdict tiers,
-the full triage funnel, the self-refreshing pipeline.
+## How collection failures appear
 
-**Two things only you can switch on** (see `HANDOFF.md` → "Pick-up state"):
-1. **Arm the daily digest** — set `NTFY_TOPIC` in `radar/scripts/.digest.env`,
-   load the launchd agent.
-2. **Turn on triage sync** — apply `radar/supabase/triage.sql` + set a token
-   (needs you to authorize Supabase).
+The collector retains existing postings when a feed fails. It does not refresh their last-seen dates.
+The pending release records each feed's failure count and last successful refresh.
+Three consecutive failures produce a dashboard warning and a failed health-check run.
+A single persistent source failure does not prevent matching for healthy sources.
+Temporary network errors use bounded retries and the server's `Retry-After` value.
 
-**Nice-to-have next:** move DB enrichment to background agents, scan the wider
-nonprofit tail, rescue remaining dark flagships.
+Carnegie Mellon's replacement Workday host returned 93 jobs in a direct adapter check on 2026-09-16.
+Eastern Washington's new PageUp site works in a browser, but its detail pages block the server-side adapter.
+Its manual link points to the new site. Automated collection remains unresolved and visible as a failure.
 
----
+## Release state
 
-*Deeper docs: `HANDOFF.md` (how to run it + pick-up state) · `ROADMAP.md`
-(what's done / next) · `CHANGELOG.md` (change log) · `radar/data/flagship-ats-findings.md`
-(dark-flagship ATS map).*
+The `codex/radar-reliability` branch includes the existing pending safeguards and the new cache and feed fixes.
+The branch started from the latest fetched `origin/main` data commit, `a10b68e`.
+A local change is not a deployed change. The website and scheduled workflows require a coordinated release.
+
+Production checks on 2026-09-16 found one Auth user and one matching profile owner.
+Public signups remain enabled. The owner allowlist table is absent.
+GitHub and Vercel do not yet contain `RADAR_OWNER_USER_ID`.
+These findings must be resolved before the pending security changes reach production.
+The release procedure is in [HANDOFF.md](HANDOFF.md#production-security-gate).
+
+## Development checks
+
+Run the JavaScript tests:
+
+```sh
+npm test
+```
+
+Run the Python tests:
+
+```sh
+scout/.venv/bin/python -m pytest scout/tests
+```
+
+Check the repository's database target:
+
+```sh
+npm run supabase:verify:manifest
+```
+
+The manifest check does not inspect live permissions or create a CLI project link.

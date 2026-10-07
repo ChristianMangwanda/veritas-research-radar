@@ -10,7 +10,10 @@
  *   DIGEST_HOURS   — lookback window, default 24
  *   DASHBOARD_URL  — click-through target for the notification
  *
- * Usage: node radar/scripts/digest.js [--dry-run]
+ *   RADAR_REQUIRE_SUPABASE — set to 1 in production to forbid local fallback
+ *   RADAR_REQUIRE_NTFY     — set to 1 in production to require delivery config
+ *
+ * Usage: node radar/scripts/digest.js [--dry-run] [--require-supabase]
  */
 
 const fsp = require('fs/promises');
@@ -37,22 +40,32 @@ function rankJobs(a, b) {
   return (b.research_relevance_score || 0) - (a.research_relevance_score || 0);
 }
 
-async function buildDigest({ hours }) {
+async function loadDigestJobs({ requireSupabase = false, fetchJobs = fetchAllJobs, readFile = fsp.readFile } = {}) {
   // Supabase is the dataset of record; the local file is the fallback. In CI
-  // jobs.json is gitignored, so a missing file means "no local fallback", not
-  // a crash — degrade to an empty dataset (no digest) instead of throwing.
+  // jobs.json is gitignored, so production must fail instead of turning an
+  // auth/network outage into a false "no new jobs" result.
   let jobs = null;
   try {
-    jobs = await fetchAllJobs();
-  } catch { /* fall back to file */ }
+    jobs = await fetchJobs();
+  } catch (error) {
+    if (requireSupabase) throw new Error(`Supabase digest read failed: ${error.message}`);
+  }
+  if (requireSupabase && !jobs) {
+    throw new Error('Supabase digest read returned no jobs');
+  }
   if (!jobs) {
     try {
-      jobs = JSON.parse(await fsp.readFile(JOBS_PATH, 'utf8'));
+      jobs = JSON.parse(await readFile(JOBS_PATH, 'utf8'));
     } catch {
       console.warn('No Supabase data and no local jobs.json — digest has nothing to read.');
       jobs = [];
     }
   }
+  return jobs;
+}
+
+async function buildDigest({ hours, requireSupabase = false, fetchJobs, readFile }) {
+  const jobs = await loadDigestJobs({ requireSupabase, fetchJobs, readFile });
   const cutoff = Date.now() - hours * 60 * 60 * 1000;
   const fresh = jobs.filter((job) =>
     job.status !== 'closed'
@@ -75,10 +88,17 @@ async function buildDigest({ hours }) {
 
 async function main() {
   const dryRun = process.argv.includes('--dry-run');
+  const requireSupabase = process.argv.includes('--require-supabase')
+    || process.env.RADAR_REQUIRE_SUPABASE === '1';
+  const requireNtfy = process.env.RADAR_REQUIRE_NTFY === '1';
   const hours = Number(process.env.DIGEST_HOURS) || 24;
   const topic = process.env.NTFY_TOPIC;
 
-  const digest = await buildDigest({ hours });
+  if (!dryRun && requireNtfy && !topic) {
+    throw new Error('NTFY_TOPIC is required for the production digest');
+  }
+
+  const digest = await buildDigest({ hours, requireSupabase });
   if (!digest) {
     console.log(`No new jobs in the last ${hours}h — no digest sent.`);
     return;
@@ -111,4 +131,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { buildDigest, evidenceLine };
+module.exports = { buildDigest, evidenceLine, loadDigestJobs };

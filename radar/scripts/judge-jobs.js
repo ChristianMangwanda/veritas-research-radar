@@ -27,12 +27,18 @@
  */
 
 const {
-  JUDGMENT_SCHEMA, JUDGE_SYSTEM_PROMPT, judgeUserPrompt, normalizeJudgment
+  JUDGMENT_SCHEMA, JUDGE_SYSTEM_PROMPT, judgeUserPrompt, normalizeJudgment, profileFingerprint, prepareJobs
 } = require('./lib/match.js');
 const { DEFAULT_MODEL, judgeOnce, costOf } = require('./lib/openai.js');
 const { groupMissesByHash, createCacheWriter } = require('./lib/match-cache.js');
+const { isTransientPostgrestError } = require('./lib/batch-write.js');
 const { loadEnvFile } = require('./lib/env-file.js');
 const { fetchAllJobs, supabaseEnv } = require('./lib/supabase.js');
+const {
+  assertSupabaseTargetUrl,
+  loadTargetManifest,
+  normalizeSupabaseUserId
+} = require('./lib/supabase-target.js');
 const { parseProfileDocument } = require('../public/profile-doc.js');
 const RadarScoring = require('../public/scoring.js');
 
@@ -53,6 +59,33 @@ const CONCURRENCY = Number(process.env.RADAR_MATCH_CONCURRENCY || 3);
 const UPSERT_BATCH = 25;
 const PAGE = 1000;
 const MODEL = process.env.RADAR_MATCH_MODEL || DEFAULT_MODEL;
+const SUPABASE_TARGET = loadTargetManifest();
+const SUPABASE_REQUEST_TIMEOUT_MS = 15000;
+const SUPABASE_REQUEST_ATTEMPTS = 3;
+const SUPABASE_RETRY_BASE_MS = 500;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function requireOwnerUserId(value) {
+  return normalizeSupabaseUserId(value);
+}
+
+function ownerProfilePath(userId) {
+  return `/profile_documents?user_id=eq.${encodeURIComponent(userId)}`
+    + '&select=user_id,content&limit=1';
+}
+
+/** Pruning is table-wide because match_cache has no user_id. Under the strict
+ * single-owner schema, it is safe only when the database itself still has one
+ * profile and that profile belongs to the configured owner. */
+function assertSoleOwnerProfile(rows, ownerUserId) {
+  if (!Array.isArray(rows) || rows.length !== 1
+      || String(rows[0]?.user_id || '').toLowerCase() !== ownerUserId) {
+    throw new Error('refusing to prune: profile_documents is not owned by exactly RADAR_OWNER_USER_ID');
+  }
+}
 
 function parseArgs(argv) {
   const args = { dryRun: false, maxSpend: 5, limit: Infinity, pruneStaleProfiles: false };
@@ -88,18 +121,46 @@ function rowFromJudgment(job, jobHash, profileHash, judgment, model, nowIso) {
   };
 }
 
-function makeClient({ url, key }) {
+function makeClient({
+  url,
+  key,
+  fetchFn = globalThis.fetch,
+  sleepFn = sleep,
+  warn = console.warn,
+  attempts = SUPABASE_REQUEST_ATTEMPTS,
+  timeoutMs = SUPABASE_REQUEST_TIMEOUT_MS,
+  baseDelayMs = SUPABASE_RETRY_BASE_MS
+}) {
   const request = async (method, pathname, { body, headers = {} } = {}) => {
-    const response = await fetch(`${url}/rest/v1${pathname}`, {
-      method,
-      headers: {
-        apikey: key, authorization: `Bearer ${key}`, 'content-type': 'application/json', ...headers
-      },
-      body: body === undefined ? undefined : JSON.stringify(body)
-    });
-    const text = await response.text();
-    if (!response.ok) throw new Error(`${method} ${pathname} → ${response.status}: ${text.slice(0, 250)}`);
-    return text ? JSON.parse(text) : null;
+    // Cache writes already retry in createCacheWriter/writeAllBatches. Retrying
+    // POST here as well would multiply one outage into nine identical writes.
+    // The reads that failed in #231 have no outer retry owner, so only GETs use
+    // this ladder. Every method still gets the same hard request timeout.
+    const maxAttempts = method === 'GET' ? Math.max(1, attempts) : 1;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetchFn(`${url}/rest/v1${pathname}`, {
+          method,
+          signal: controller.signal,
+          headers: {
+            apikey: key, authorization: `Bearer ${key}`, 'content-type': 'application/json', ...headers
+          },
+          body: body === undefined ? undefined : JSON.stringify(body)
+        });
+        const text = await response.text();
+        if (!response.ok) throw new Error(`${method} ${pathname} → ${response.status}: ${text.slice(0, 250)}`);
+        return text ? JSON.parse(text) : null;
+      } catch (error) {
+        if (!isTransientPostgrestError(error) || attempt === maxAttempts) throw error;
+        warn(`Supabase ${method} ${pathname} was interrupted; retrying (${attempt}/${maxAttempts}).`);
+        await sleepFn(baseDelayMs * 2 ** (attempt - 1));
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    throw new Error(`${method} ${pathname} exhausted its retry budget`);
   };
   return { request };
 }
@@ -120,19 +181,38 @@ async function loadJudgedHashes(client, profileHash) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const env = supabaseEnv();
+  let env;
+  try {
+    env = supabaseEnv();
+  } catch (error) {
+    console.error(error.message);
+    return 1;
+  }
   if (!env) { console.error('SUPABASE_URL / SUPABASE_SERVICE_KEY not set — nothing to judge against.'); return 1; }
+  let ownerUserId;
+  let targetUrl;
+  try {
+    // Validate before the service key is used. Account identity alone cannot
+    // distinguish Veritas from another project owned by the same account.
+    targetUrl = assertSupabaseTargetUrl(env.url, SUPABASE_TARGET);
+    ownerUserId = requireOwnerUserId(process.env.RADAR_OWNER_USER_ID);
+  } catch (error) {
+    console.error(error.message);
+    return 1;
+  }
   if (!process.env.OPENAI_API_KEY && !args.dryRun) { console.error('OPENAI_API_KEY not set.'); return 1; }
-  const client = makeClient(env);
+  const client = makeClient({ ...env, url: targetUrl });
 
-  const profileRows = await client.request('GET', '/profile_documents?select=content&limit=1');
+  // The client carries a service key and bypasses RLS. Always select the
+  // configured owner explicitly; "first profile" is not authorization.
+  const profileRows = await client.request('GET', ownerProfilePath(ownerUserId));
   const content = profileRows?.[0]?.content;
   if (!content) { console.error('No profile document saved — run seed-supabase.js or save one in the dashboard.'); return 1; }
   const profile = parseProfileDocument(content);
   const invalid = RadarScoring.validateProfile(profile);
   if (invalid) { console.error(`Profile does not validate: ${invalid}`); return 1; }
   const compiled = RadarScoring.compileProfile(profile);
-  const profileHash = compiled.hash;
+  const profileHash = await profileFingerprint(profile, MODEL);
 
   const jobs = await fetchAllJobs();
   if (!jobs || !jobs.length) { console.error('No jobs in Supabase — has the refresh run?'); return 1; }
@@ -140,10 +220,11 @@ async function main() {
 
   // Highest keyword fit first: if a spend cap or a limit cuts the run short,
   // what got judged is the part most likely to matter.
+  await prepareJobs(jobs);
   const qualified = jobs
     .filter((job) => RadarScoring.isQualified(job))
     .sort((a, b) => (b.fit?.fit_score || 0) - (a.fit?.fit_score || 0))
-    .map((job) => ({ job, hash: RadarScoring.jobContentHash(job) }));
+    .map((job) => ({ job, hash: job._judgmentHash }));
 
   const judged = await loadJudgedHashes(client, profileHash);
   const missedJobs = diffMisses(qualified, judged);
@@ -239,6 +320,10 @@ async function main() {
     // Manual only. A profile edit orphans an entire generation of judgments,
     // and this is how they are reclaimed — but never automatically: a run
     // triggered mid-edit would vacuum rows you might revert to in a minute.
+    // match_cache has no user_id to filter on, so re-check the single-owner
+    // invariant immediately before the table-wide delete and fail closed.
+    const allProfiles = await client.request('GET', '/profile_documents?select=user_id&limit=2');
+    assertSoleOwnerProfile(allProfiles, ownerUserId);
     await client.request('DELETE', `/match_cache?profile_hash=neq.${encodeURIComponent(profileHash)}`,
       { headers: { prefer: 'return=minimal' } });
     console.log('Pruned judgments belonging to other profile generations.');
@@ -273,4 +358,7 @@ if (require.main === module) {
   });
 }
 
-module.exports = { parseArgs, diffMisses, rowFromJudgment };
+module.exports = {
+  parseArgs, diffMisses, rowFromJudgment, requireOwnerUserId, ownerProfilePath,
+  assertSoleOwnerProfile, makeClient
+};

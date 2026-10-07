@@ -101,6 +101,21 @@ function isAbsoluteHttpUrl(value) {
   }
 }
 
+function markAggregatedSourceFailure(store, source, attemptedAt, reason, scrapedCount = 0, rejectedCount = 0) {
+  const priorSourceJobs = store.jobs.filter((job) => job.source === source);
+  const priorSnapshot = store.snapshots[source] || {};
+  store.snapshots[source] = {
+    scouted_at: priorSnapshot.scouted_at || null,
+    attempted_at: attemptedAt,
+    job_count: priorSourceJobs.length,
+    scraped_count: scrapedCount,
+    rejected_count: rejectedCount,
+    skipped_reason: reason,
+    preserved_previous: true
+  };
+  return { skipped: true, kept: priorSourceJobs.length, drops: null, reason };
+}
+
 async function readJson(filePath, fallback) {
   try {
     return JSON.parse(await fs.readFile(filePath, 'utf8'));
@@ -110,13 +125,68 @@ async function readJson(filePath, fallback) {
   }
 }
 
-async function importAggregated() {
+function applyAggregatedSnapshot(store, payload, context) {
+  const preservePrevious = (reason, invalidCount = 0) => {
+    // A failed attempt is not a new observation. Keep the last successful
+    // source timestamp so downstream freshness never resets on an outage.
+    return markAggregatedSourceFailure(
+      store,
+      payload.source,
+      payload.scouted_at,
+      reason,
+      payload.jobs.length,
+      invalidCount
+    );
+  };
+
+  if (payload.skipped_reason) {
+    return preservePrevious(payload.skipped_reason);
+  }
+
+  const kept = [];
+  const drops = { covered_by_live_ats: 0, not_cap_exempt: 0, invalid: 0 };
+  const seenIds = new Set();
+  for (const job of payload.jobs) {
+    if (!job || typeof job.title !== 'string' || !job.title.trim()
+      || typeof job.employer_name !== 'string' || !job.employer_name.trim()
+      || !isAbsoluteHttpUrl(job.url)) {
+      drops.invalid += 1;
+      continue;
+    }
+    const resolution = resolveAggregatedJob(job, context);
+    if (!resolution.keep) {
+      drops[resolution.reason] += 1;
+      continue;
+    }
+    const normalized = normalizeAggregatedJob(job, payload, resolution);
+    if (seenIds.has(normalized.id)) continue;
+    seenIds.add(normalized.id);
+    kept.push(normalized);
+  }
+  if (drops.invalid > 0) {
+    return preservePrevious('validation_rejected', drops.invalid);
+  }
+  // Snapshot-replace only an authoritative, complete source result.
+  store.jobs = store.jobs.filter((job) => job.source !== payload.source);
+  store.jobs.push(...kept);
+  store.snapshots[payload.source] = {
+    scouted_at: payload.scouted_at,
+    attempted_at: payload.scouted_at,
+    job_count: kept.length,
+    scraped_count: payload.jobs.length,
+    dropped: drops,
+    skipped_reason: null,
+    preserved_previous: false
+  };
+  return { skipped: false, kept: kept.length, drops };
+}
+
+async function importAggregated(filePaths) {
   const employers = await readJson(EMPLOYERS_PATH, []);
   const directoryFile = await readJson(DIRECTORY_PATH, null);
   if (!directoryFile) {
     console.error('cap-exempt-directory.json missing — run npm run radar:enrich first');
-    process.exitCode = 1;
-    return;
+    return { failures: ['cap-exempt-directory.json missing'] };
   }
   const directory = directoryFile.entries || {};
   const tokenKeyIndex = new Map();
@@ -129,75 +199,88 @@ async function importAggregated() {
   const store = await readJson(STORE_PATH, { schema_version: 1, updated_at: null, snapshots: {}, jobs: [] });
   store.snapshots = store.snapshots || {};
 
-  let files = [];
-  try {
-    const names = await fs.readdir(AGGREGATED_DIR);
-    files = names.filter((name) => name.endsWith('.json')).map((name) => path.join(AGGREGATED_DIR, name));
-  } catch (error) {
-    if (error.code !== 'ENOENT') throw error;
+  let files = filePaths;
+  if (!files || files.length === 0) {
+    files = [];
+    try {
+      const names = await fs.readdir(AGGREGATED_DIR);
+      files = names.filter((name) => name.endsWith('.json')).map((name) => path.join(AGGREGATED_DIR, name));
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
   }
   if (files.length === 0) {
     console.log('No aggregated snapshots in radar/data/aggregated/ — run the firehose first');
-    return;
+    return { failures: [] };
   }
 
   const context = { directory, tokenKeyIndex, registryResolver, liveProviderIds };
+  const failures = [];
   for (const filePath of files) {
+    const expectedSource = path.basename(filePath, '.json');
     let payload;
     try {
       payload = JSON.parse(await fs.readFile(filePath, 'utf8'));
     } catch (error) {
       console.error(`${path.basename(filePath)}: unreadable JSON (${error.message})`);
+      failures.push(`${path.basename(filePath)}: unreadable JSON`);
+      markAggregatedSourceFailure(store, expectedSource, new Date().toISOString(), 'invalid_snapshot');
       continue;
     }
-    if (payload.schema_version !== 1 || !payload.source || !Array.isArray(payload.jobs)) {
+    const payloadObject = payload && typeof payload === 'object' && !Array.isArray(payload);
+    const invalidSkipReason = payloadObject
+      && payload.skipped_reason !== undefined && payload.skipped_reason !== null
+      && (typeof payload.skipped_reason !== 'string' || !payload.skipped_reason.trim());
+    if (!payloadObject || payload.schema_version !== 1
+        || typeof payload.source !== 'string' || !payload.source.trim()
+        || !payload.scouted_at || Number.isNaN(Date.parse(payload.scouted_at))
+        || !Array.isArray(payload.jobs) || invalidSkipReason) {
       console.error(`${path.basename(filePath)}: invalid snapshot shape`);
+      failures.push(`${path.basename(filePath)}: invalid snapshot shape`);
+      markAggregatedSourceFailure(
+        store,
+        expectedSource,
+        Number.isNaN(Date.parse(payload?.scouted_at || '')) ? new Date().toISOString() : payload.scouted_at,
+        'invalid_snapshot',
+        Array.isArray(payload?.jobs) ? payload.jobs.length : 0
+      );
       continue;
     }
-    const kept = [];
-    const drops = { covered_by_live_ats: 0, not_cap_exempt: 0, invalid: 0 };
-    const seenIds = new Set();
-    for (const job of payload.jobs) {
-      if (!job || typeof job.title !== 'string' || !job.title.trim()
-        || typeof job.employer_name !== 'string' || !job.employer_name.trim()
-        || !isAbsoluteHttpUrl(job.url)) {
-        drops.invalid += 1;
-        continue;
-      }
-      const resolution = resolveAggregatedJob(job, context);
-      if (!resolution.keep) {
-        drops[resolution.reason] += 1;
-        continue;
-      }
-      const normalized = normalizeAggregatedJob(job, payload, resolution);
-      if (seenIds.has(normalized.id)) continue;
-      seenIds.add(normalized.id);
-      kept.push(normalized);
+    if (expectedSource !== payload.source) {
+      console.error(`${path.basename(filePath)}: source does not match filename`);
+      failures.push(`${path.basename(filePath)}: source does not match filename`);
+      markAggregatedSourceFailure(store, expectedSource, payload.scouted_at, 'source_mismatch', payload.jobs.length);
+      continue;
     }
-    // Snapshot-replace per source
-    store.jobs = store.jobs.filter((job) => job.source !== payload.source);
-    store.jobs.push(...kept);
-    store.snapshots[payload.source] = {
-      scouted_at: payload.scouted_at,
-      job_count: kept.length,
-      scraped_count: payload.jobs.length,
-      dropped: drops,
-      skipped_reason: payload.skipped_reason || null
-    };
-    console.log(`${payload.source}: kept ${kept.length}/${payload.jobs.length} (live-ATS dupes ${drops.covered_by_live_ats}, not cap-exempt ${drops.not_cap_exempt}, invalid ${drops.invalid})`);
+    const result = applyAggregatedSnapshot(store, payload, context);
+    if (result.skipped) {
+      failures.push(`${payload.source}: ${result.reason}`);
+      console.error(`${payload.source}: non-authoritative snapshot (${result.reason}); preserved ${result.kept} prior jobs`);
+    } else {
+      const { drops } = result;
+      console.log(`${payload.source}: kept ${result.kept}/${payload.jobs.length} (live-ATS dupes ${drops.covered_by_live_ats}, not cap-exempt ${drops.not_cap_exempt}, invalid ${drops.invalid})`);
+    }
   }
 
   store.updated_at = new Date().toISOString();
   await fs.writeFile(STORE_PATH, `${JSON.stringify(store, null, 2)}\n`, 'utf8');
   const employerCount = new Set(store.jobs.map((job) => job.employer_id)).size;
   console.log(`Aggregated store: ${store.jobs.length} cap-exempt jobs across ${employerCount} employers`);
+  return { failures };
 }
 
 if (require.main === module) {
-  importAggregated().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  });
+  importAggregated(process.argv.slice(2).map((filePath) => path.resolve(filePath)))
+    .then((result) => {
+      if (result?.failures?.length) process.exitCode = 1;
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exitCode = 1;
+    });
 }
 
-module.exports = { importAggregated, resolveAggregatedJob, normalizeAggregatedJob, aggregatedJobId, pseudoEmployerId, directoryLookup };
+module.exports = {
+  importAggregated, applyAggregatedSnapshot, resolveAggregatedJob, normalizeAggregatedJob,
+  aggregatedJobId, pseudoEmployerId, directoryLookup, markAggregatedSourceFailure
+};

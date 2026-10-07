@@ -6,63 +6,78 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
     # The group covers every job that writes Supabase or commits radar data, so
     # their pushes serialize instead of racing to a non-fast-forward failure. It
-    # is declared per JOB, not per workflow: GitHub keeps only one running and
-    # one pending entry per group, so a five-hour crawl holding it at workflow
-    # level displaces the 6-hourly refresh entirely.
+    # is declared per JOB, not per workflow. queue:max preserves every pending
+    # writer instead of letting a newer run replace an older pending refresh.
     #
     # The serialization is also what makes the differential sync safe: it lets a
     # run treat the table it read at the start as the whole table.
     concurrency:
-      group: radar-data-${{ github.ref }}
+      group: radar-data-main
       cancel-in-progress: false
+      queue: max
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+      - name: Remove checked-out refresh report
+        id: clean
+        run: |
+          if [ -f radar/data/refresh-report.json ]; then
+            cp radar/data/refresh-report.json "$RUNNER_TEMP/radar-previous-report.json"
+          fi
+          rm -f radar/data/refresh-report.json
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24"
+      - name: Verify Supabase target
+        run: node radar/scripts/verify-supabase-target.js --require-url
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       - name: Refresh public ATS data
+        id: refresh
         run: npm run radar:refresh
         env:
+          RADAR_PREVIOUS_REPORT_PATH: ${{ runner.temp }}/radar-previous-report.json
           USAJOBS_API_KEY: ${{ secrets.USAJOBS_API_KEY }}
           USAJOBS_EMAIL: ${{ secrets.USAJOBS_EMAIL }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-      - name: Judge new postings against the profile
-        # Deliberately AFTER the refresh and deliberately WITHOUT if: always().
-        # The sync is differential now — it writes what changed and deletes what
-        # left, rather than rewriting the table — but a refresh whose sync fails
-        # exits non-zero precisely so this step is skipped: the table would be
-        # missing that run's writes, and judging it means paying to read
-        # postings about to change or disappear. If the refresh itself failed,
-        # there is nothing here worth reading either.
-        run: node radar/scripts/judge-jobs.js --max-spend 5
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - name: Validate current-run refresh report
+        id: output
+        # refresh.js deliberately exits non-zero for a critical/degraded run.
+        # The report is still worth publishing as diagnostics, but only because
+        # the checked-out copy was removed before the producer started.
+        if: ${{ always() && !cancelled() && steps.clean.outcome == 'success' }}
+        run: |
+          if [ ! -f radar/data/refresh-report.json ]; then
+            if [ "${{ steps.refresh.outcome }}" = "success" ]; then
+              echo "::error::Refresh exited successfully without creating refresh-report.json."
+              exit 1
+            fi
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "The failed refresh did not create a diagnostic report." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node -e 'const fs=require("fs"); const file="radar/data/refresh-report.json"; const report=JSON.parse(fs.readFileSync(file,"utf8")); const refreshed=Date.parse(report.refreshed_at||""); if (!Number.isFinite(refreshed) || Math.abs(Date.now()-refreshed)>3*60*60*1000) throw new Error(`${file}: refreshed_at is not from this run`);'
+          echo "publish=true" >> "$GITHUB_OUTPUT"
       - name: Sync to latest main (this run's outputs win)
-        # if: always() -- a real bug found 2026-08-04: this workflow has no
-        # timeout-minutes set (defaults to GitHub's 6h cap), and a run that
-        # hits it gets cancelled with every step after "Refresh public ATS
-        # data" skipped by default -- so a run that legitimately takes long
-        # (registry growth, network slowness) silently commits nothing,
-        # discarding real work rather than just leaving it unresumed.
-        # Confirmed live: a same-day radar-firehose.yml run hit this exact
-        # gap after 2h48m with zero commit.
-        #
-        # checkout pins github.sha from queue time, so commits that landed while
-        # this run was pending/running would make a rebase conflict on
-        # refresh-report.json. Runs in the radar-data group are serialized, so
-        # this run's outputs are always the freshest — save, reset, restore.
-        if: always()
+        # main can advance while this producer runs. Preserve only this run's
+        # report, update the isolated runner to current main, then restore it.
+        # A failed or cancelled producer must never copy the report that came
+        # from checkout over a newer report on main.
+        id: sync
+        if: ${{ always() && !cancelled() && steps.output.outputs.publish == 'true' }}
         run: |
           set -euo pipefail
           tmp=$(mktemp -d)
@@ -71,18 +86,32 @@ jobs:
           git reset --hard origin/main
           cp "$tmp"/* radar/data/
       - name: Commit refreshed radar data
-        if: always()
-        uses: stefanzweifel/git-auto-commit-action@v5
+        if: ${{ always() && !cancelled() && steps.output.outputs.publish == 'true' && steps.sync.outcome == 'success' }}
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
         with:
           commit_message: "Update research radar data"
           file_pattern: "radar/data/refresh-report.json"
+      - name: Judge new postings against the profile
+        # Deliberately after a successful refresh. A refresh whose Supabase sync
+        # fails exits non-zero, so this paid step is skipped rather than judging
+        # a table that missed the run's writes.
+        if: ${{ success() && steps.refresh.outcome == 'success' && steps.output.outputs.publish == 'true' && steps.sync.outcome == 'success' }}
+        run: node radar/scripts/judge-jobs.js --max-spend 5
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          RADAR_OWNER_USER_ID: ${{ secrets.RADAR_OWNER_USER_ID }}
       - name: Alert on failure
         if: failure() || cancelled()
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REF_NAME: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           [ -z "$NTFY_TOPIC" ] && { echo "NTFY_TOPIC not set; skipping alert"; exit 0; }
-          curl -sS -H "Title: ${{ github.workflow }} failed" \
+          curl -sS -H "Title: $WORKFLOW_NAME failed" \
             -H "Tags: rotating_light" \
-            -d "Workflow '${{ github.workflow }}' failed on ${{ github.ref_name }}. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "Workflow '$WORKFLOW_NAME' failed on $REF_NAME. Run: $RUN_URL" \
             "https://ntfy.sh/$NTFY_TOPIC" || true

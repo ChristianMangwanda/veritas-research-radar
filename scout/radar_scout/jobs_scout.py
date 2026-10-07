@@ -232,18 +232,19 @@ ICIMS_MAX_LIST_PAGES = 8
 ICIMS_MIN_BUDGET = 40
 
 
-def _frame_links(page_obj) -> list[tuple[str | None, str]]:
+def _frame_links(page_obj) -> tuple[list[tuple[str | None, str]], bool]:
     """Anchors from every frame — iCIMS renders results inside an iframe the
     main-frame collector never sees."""
     links: list[tuple[str | None, str]] = []
+    had_error = False
     for frame in page_obj.frames:
         try:
             links.extend(
                 (el.get_attribute("href"), el.inner_text())
                 for el in frame.query_selector_all("a[href]"))
         except Exception:
-            continue
-    return links
+            had_error = True
+    return links, had_error
 
 
 def _icims_job_text(page_obj) -> tuple[str, str]:
@@ -276,6 +277,7 @@ def scout_icims_board(target: JobsScoutTarget, budget: int, headless: bool = Tru
         base = base + ("&" if "?" in base else "?") + "ss=1"
 
     jobs: list[dict] = []
+    skipped_reason: str | None = None
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=headless)
         context = browser.new_context(user_agent=UA)
@@ -286,6 +288,7 @@ def scout_icims_board(target: JobsScoutTarget, budget: int, headless: bool = Tru
         try:
             for page_no in range(ICIMS_MAX_LIST_PAGES):
                 if fetched >= budget:
+                    skipped_reason = skipped_reason or "budget_exhausted"
                     break
                 url = f"{base}&pr={page_no}"
                 throttle(url, 3)
@@ -293,7 +296,10 @@ def scout_icims_board(target: JobsScoutTarget, budget: int, headless: bool = Tru
                 page.goto(url, wait_until="networkidle", timeout=GOTO_TIMEOUT_MS)
                 page.wait_for_timeout(1500)
                 new_on_page = 0
-                for href, _text in _frame_links(page):
+                frame_links, frame_error = _frame_links(page)
+                if frame_error:
+                    skipped_reason = skipped_reason or "frame_extract_failed"
+                for href, _text in frame_links:
                     if not href or not ICIMS_JOB_LINK.search(href):
                         continue
                     clean = href.split("?")[0]
@@ -303,12 +309,22 @@ def scout_icims_board(target: JobsScoutTarget, budget: int, headless: bool = Tru
                         new_on_page += 1
                 if new_on_page == 0:
                     break
+            else:
+                # A full final page means there may be more results beyond our
+                # pagination ceiling. Never call that a complete snapshot.
+                skipped_reason = skipped_reason or "pagination_limit_reached"
 
             if not detail_urls:
-                return build_snapshot(target.employer_id, target.listing_url, [], "no_listings_found")
+                return build_snapshot(
+                    target.employer_id,
+                    target.listing_url,
+                    [],
+                    skipped_reason or "no_listings_found",
+                )
 
             for url in detail_urls:
                 if fetched >= budget:
+                    skipped_reason = skipped_reason or "budget_exhausted"
                     break
                 throttle(url, 3)
                 fetched += 1
@@ -317,12 +333,14 @@ def scout_icims_board(target: JobsScoutTarget, budget: int, headless: bool = Tru
                     page.wait_for_timeout(1000)
                 except Exception as error:
                     log.warning("icims_detail_failed", employer=target.employer_id, url=url, error=str(error))
+                    skipped_reason = skipped_reason or "detail_fetch_failed"
                     continue
                 title, body = _icims_job_text(page)
                 if not title:
                     slug = url.rstrip("/").split("/")[-2] if "/" in url else ""
                     title = slug.replace("-", " ").title()
                 if not title or not body:
+                    skipped_reason = skipped_reason or "detail_parse_failed"
                     continue
                 jobs.append({
                     "title": title,
@@ -331,11 +349,17 @@ def scout_icims_board(target: JobsScoutTarget, budget: int, headless: bool = Tru
                 })
         except Exception as error:
             log.warning("icims_scout_failed", employer=target.employer_id, error=str(error))
+            skipped_reason = skipped_reason or "scout_failed"
         finally:
             browser.close()
 
     log.info("icims_scout_done", employer=target.employer_id, jobs=len(jobs), list_urls=len(detail_urls))
-    return build_snapshot(target.employer_id, target.listing_url, jobs, None if jobs else "no_listings_found")
+    return build_snapshot(
+        target.employer_id,
+        target.listing_url,
+        jobs,
+        skipped_reason or (None if jobs else "no_listings_found"),
+    )
 
 
 def scout_employer(target: JobsScoutTarget, budget: int = DEFAULT_FETCH_BUDGET, headless: bool = True) -> dict:
@@ -396,6 +420,7 @@ def scout_employer(target: JobsScoutTarget, budget: int = DEFAULT_FETCH_BUDGET, 
                     visit(board["url"], "networkidle")
                 except Exception as error:
                     log.warning("board_fetch_failed", employer=target.employer_id, url=board["url"], error=str(error))
+                    skipped_reason = skipped_reason or "board_fetch_failed"
                     continue
                 board_anchors = collect(page)
                 for link in filter_job_links(board_anchors, page.url):
@@ -406,14 +431,23 @@ def scout_employer(target: JobsScoutTarget, budget: int = DEFAULT_FETCH_BUDGET, 
                     if all(link["url"] != existing["url"] for existing in boards):
                         boards.append(link)
 
+            if boards:
+                skipped_reason = skipped_reason or "board_limit_reached"
+
             if not details:
                 log.info("no_listings_found", employer=target.employer_id, board_hops=hops)
-                return build_snapshot(target.employer_id, target.listing_url, [], "no_listings_found")
+                return build_snapshot(
+                    target.employer_id,
+                    target.listing_url,
+                    [],
+                    skipped_reason or "no_listings_found",
+                )
 
             # Spend the remaining budget on research-shaped anchors first
             details.sort(key=lambda link: not is_research_relevant_title(link["text"], target.research_areas))
             for link in details:
                 if fetched >= budget:
+                    skipped_reason = skipped_reason or "budget_exhausted"
                     break
                 if not robots_allows(link["url"]):
                     continue
@@ -421,6 +455,7 @@ def scout_employer(target: JobsScoutTarget, budget: int = DEFAULT_FETCH_BUDGET, 
                     visit(link["url"], "domcontentloaded")
                 except Exception as error:
                     log.warning("detail_fetch_failed", employer=target.employer_id, url=link["url"], error=str(error))
+                    skipped_reason = skipped_reason or "detail_fetch_failed"
                     continue
                 page_body = page.inner_text("body")
                 if not looks_like_job_posting(page_body):
@@ -437,12 +472,17 @@ def scout_employer(target: JobsScoutTarget, budget: int = DEFAULT_FETCH_BUDGET, 
                 })
         except Exception as error:
             log.warning("scout_failed", employer=target.employer_id, error=str(error))
-            skipped_reason = "no_listings_found" if not jobs else None
+            skipped_reason = skipped_reason or "scout_failed"
         finally:
             browser.close()
 
     log.info("scout_done", employer=target.employer_id, jobs=len(jobs))
-    return build_snapshot(target.employer_id, target.listing_url, jobs, skipped_reason if not jobs else None)
+    return build_snapshot(
+        target.employer_id,
+        target.listing_url,
+        jobs,
+        skipped_reason or (None if jobs else "no_listings_found"),
+    )
 
 
 def write_snapshot(radar_path: Path, snapshot: dict) -> Path:

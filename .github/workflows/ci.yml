@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: scout/requirements.txt
+
+      - name: Install Node dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Install Python dependencies
+        run: python -m pip install --requirement scout/requirements.txt
+
+      - name: Run Node tests
+        run: npm test
+
+      - name: Verify repository Supabase target
+        # CI has no local CLI link. This command checks every committed target
+        # marker; manual CLI work uses the strict supabase:verify command.
+        run: npm run supabase:verify:manifest
+
+      - name: Run scout tests
+        run: python -m pytest scout/tests
+
+      - name: Check JavaScript syntax
+        run: git ls-files -z '*.js' | xargs -0 -n 1 node --check
+
+      - name: Check Python syntax
+        run: python -m compileall -q scout radar/scripts/make-icon.py
+
+      - name: Check JSON syntax
+        run: |
+          git ls-files -z '*.json' |
+            xargs -0 node -e 'const fs = require("fs"); for (const file of process.argv.slice(1)) JSON.parse(fs.readFileSync(file, "utf8"));'
+
+      - name: Check workflow YAML syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          for workflow in Path('.github/workflows').glob('*.yml'):
+              with workflow.open(encoding='utf-8') as source:
+                  yaml.safe_load(source)
+          PY
+
+      - name: Lint GitHub Actions workflows
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/actionlint.tar.gz"
+          bin_dir="$RUNNER_TEMP/actionlint"
+          curl --fail --location --silent --show-error \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            --output "$archive"
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $archive" | sha256sum --check
+          mkdir -p "$bin_dir"
+          tar -xzf "$archive" -C "$bin_dir"
+          # v1.7.12 predates GitHub's valid concurrency.queue field. Ignore
+          # only that exact schema diagnostic until actionlint supports it.
+          "$bin_dir/actionlint" -no-color \
+            -ignore 'unexpected key "queue" for "concurrency" section'

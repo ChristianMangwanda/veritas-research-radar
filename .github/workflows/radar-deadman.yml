@@ -5,7 +5,9 @@ name: Radar Dead-Man Switch
 # refresh is stale, errored, flagged a recall anomaly, or aborted its sync.
 on:
   schedule:
-    - cron: "0 */2 * * *"
+    # GitHub documents the start of the hour as a high-load period where
+    # scheduled runs can be delayed or dropped.
+    - cron: "23 */2 * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -18,22 +20,32 @@ concurrency:
 jobs:
   deadman:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24"
       - name: Check pipeline liveness
+        id: health
         run: node radar/scripts/deadman-check.js
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
       - name: Alert on failure
-        if: failure()
+        # The checker sends a detailed health alert itself. Use this generic
+        # fallback only when that delivery did not succeed (including crashes
+        # before the checker could attempt it), while keeping the run red.
+        if: ${{ failure() && steps.health.outputs.notification_delivered != 'true' }}
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REF_NAME: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           [ -z "$NTFY_TOPIC" ] && { echo "NTFY_TOPIC not set; skipping alert"; exit 0; }
-          curl -sS -H "Title: ${{ github.workflow }} failed" \
+          curl -sS -H "Title: $WORKFLOW_NAME failed" \
             -H "Tags: rotating_light" \
-            -d "Workflow '${{ github.workflow }}' failed on ${{ github.ref_name }}. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "Workflow '$WORKFLOW_NAME' failed on $REF_NAME. Run: $RUN_URL" \
             "https://ntfy.sh/$NTFY_TOPIC" || true

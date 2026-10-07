@@ -119,7 +119,8 @@ def _extract_description(html: str) -> str:
         return ""
 
 
-def scrape_madgex(source: MadgexSource, page_obj, max_pages: int | None = None) -> list[dict]:
+def scrape_madgex(source: MadgexSource, page_obj,
+                  max_pages: int | None = None) -> tuple[list[dict], str | None]:
     """Walk the paginated listing; each card carries title/url/employer/location."""
     jobs: list[dict] = []
     seen_urls: set[str] = set()
@@ -134,11 +135,14 @@ def scrape_madgex(source: MadgexSource, page_obj, max_pages: int | None = None) 
             page_obj.wait_for_timeout(1500)
         except Exception as error:
             log.warning("list_page_failed", source=source.name, page=page_number, error=str(error))
-            break
+            return jobs, f"list_page_{page_number}_failed"
         cards = page_obj.query_selector_all(source.item_selector)
         if not cards:
+            if page_number == 1 and not jobs:
+                return [], "no_listings_found"
             break
         new_on_page = 0
+        parseable_on_page = 0
         for card in cards:
             title_el = card.query_selector(source.title_selector)
             if not title_el:
@@ -150,14 +154,15 @@ def scrape_madgex(source: MadgexSource, page_obj, max_pages: int | None = None) 
             if job_url.startswith("/"):
                 job_url = source.base_url + job_url
             job_url = job_url.split("?")[0]
-            if job_url in seen_urls:
-                continue
-            seen_urls.add(job_url)
             employer_el = card.query_selector(source.employer_selector)
             location_el = card.query_selector(source.location_selector)
             employer_name = _clean(employer_el.inner_text() if employer_el else "")
             if not employer_name:
                 continue
+            parseable_on_page += 1
+            if job_url in seen_urls:
+                continue
+            seen_urls.add(job_url)
             jobs.append({
                 "title": _clean(title_el.inner_text()),
                 "url": job_url,
@@ -168,8 +173,14 @@ def scrape_madgex(source: MadgexSource, page_obj, max_pages: int | None = None) 
             new_on_page += 1
         log.info("list_page_done", source=source.name, page=page_number, new=new_on_page, total=len(jobs))
         if new_on_page == 0:
+            if parseable_on_page == 0:
+                return jobs, f"no_parseable_listings_page_{page_number}"
             break
-    return jobs
+    else:
+        # The final configured page still had jobs. There may be another page,
+        # so this result cannot close jobs missing from the partial snapshot.
+        return jobs, "pagination_limit_reached"
+    return jobs, None
 
 
 def load_description_cache(radar_path: Path) -> dict[str, str]:
@@ -254,6 +265,7 @@ def scrape_higheredjobs(page_obj, max_pages: int = 10) -> tuple[list[dict], str 
         seen: set[str] = set()
         for page_number in range(max_pages):
             rows = page_obj.query_selector_all("div.row.record, div.record")
+            parseable_on_page = 0
             for row in rows:
                 link = row.query_selector("a[href*='details.cfm']")
                 if not link:
@@ -261,14 +273,15 @@ def scrape_higheredjobs(page_obj, max_pages: int = 10) -> tuple[list[dict], str 
                 href = link.get_attribute("href") or ""
                 job_url = href if href.startswith("http") else base + "/" + href.lstrip("/")
                 job_url = job_url.split("&aID=")[0]
-                if job_url in seen:
-                    continue
-                seen.add(job_url)
                 lines = [l.strip() for l in row.inner_text().split("\n") if l.strip()]
                 title = _clean(link.inner_text())
                 employer = lines[1] if len(lines) > 1 and _clean(lines[0]) == title else (lines[1] if len(lines) > 1 else "")
                 if not title or not employer:
                     continue
+                parseable_on_page += 1
+                if job_url in seen:
+                    continue
+                seen.add(job_url)
                 jobs.append({
                     "title": title,
                     "url": job_url,
@@ -276,6 +289,8 @@ def scrape_higheredjobs(page_obj, max_pages: int = 10) -> tuple[list[dict], str 
                     "location": _clean(lines[2]) if len(lines) > 2 else "",
                     "description_text": "",
                 })
+            if rows and parseable_on_page == 0:
+                return jobs, f"no_parseable_listings_page_{page_number + 1}"
             next_link = page_obj.query_selector("a[title='Next Page'], a:has-text('Next')")
             if not next_link:
                 break
@@ -283,14 +298,17 @@ def scrape_higheredjobs(page_obj, max_pages: int = 10) -> tuple[list[dict], str 
             try:
                 next_link.click()
                 page_obj.wait_for_timeout(2000)
-            except Exception:
-                break
+            except Exception as error:
+                log.warning("higheredjobs_pagination_failed", page=page_number + 1, error=str(error))
+                return jobs, "pagination_failed"
+        else:
+            return jobs, "pagination_limit_reached"
         if not jobs:
             return [], "no_listings_found"
         return jobs, None
     except Exception as error:
         log.warning("higheredjobs_failed", error=str(error))
-        return [], "no_listings_found"
+        return [], "fetch_failed"
 
 
 def write_snapshot(radar_path: Path, snapshot: dict) -> Path:
