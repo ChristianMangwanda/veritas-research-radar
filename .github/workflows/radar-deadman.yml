@@ -33,6 +33,10 @@ jobs:
         run: node radar/scripts/deadman-check.js
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          # The refresh runs every 6 hours, but GitHub can start it hours late and a
+          # run can take ~1.5 hours. At the default 8 hours a single late run tripped
+          # the alarm (2026-10-07, 8.8h). 13 hours means two refreshes in a row were missed.
+          DEADMAN_MAX_AGE_HOURS: "13"
       - name: Alert on failure
         # The checker sends a detailed health alert itself. Use this generic
         # fallback only when that delivery did not succeed (including crashes
