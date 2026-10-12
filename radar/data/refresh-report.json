@@ -1,11 +1,11 @@
 {
-  "refreshed_at": "2026-10-11T22:13:35.628Z",
+  "refreshed_at": "2026-10-12T06:09:54.973Z",
   "employer_count": 547,
   "ats_enabled_employer_count": 530,
-  "job_count": 28468,
-  "active_job_count": 18821,
-  "closed_job_count": 9647,
-  "newly_closed_count": 22,
+  "job_count": 28499,
+  "active_job_count": 18728,
+  "closed_job_count": 9771,
+  "newly_closed_count": 141,
   "errored_employers": 2,
   "recall_anomalies": [],
   "prefilter_anomalies": [
@@ -37,7 +37,7 @@
       "employer_id": "hackensack-meridian-school-of-medicine",
       "name": "Hackensack Meridian School of Medicine",
       "ats_provider": "icims",
-      "prefiltered_count": 1480,
+      "prefiltered_count": 1475,
       "prefilter_survived_count": 45,
       "fetched_jobs": 25
     },
@@ -45,8 +45,8 @@
       "employer_id": "palm-beach-state-college",
       "name": "Palm Beach State College",
       "ats_provider": "workday",
-      "prefiltered_count": 270,
-      "prefilter_survived_count": 2,
+      "prefiltered_count": 269,
+      "prefilter_survived_count": 1,
       "fetched_jobs": 0
     },
     {
@@ -221,7 +221,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -245,7 +245,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -269,7 +269,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -293,7 +293,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -304,12 +304,12 @@
       "name": "Baylor College of Medicine",
       "ats_provider": "successfactors",
       "ats_token": "bcm",
-      "fetched_jobs": 265,
-      "prefiltered_count": 166,
-      "prefilter_survived_count": 265,
+      "fetched_jobs": 263,
+      "prefiltered_count": 161,
+      "prefilter_survived_count": 263,
       "skipped": false,
       "error": null,
-      "closed_jobs": 136,
+      "closed_jobs": 138,
       "feed_health": [
         {
           "ats_provider": "successfactors",
@@ -317,7 +317,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -341,7 +341,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -366,7 +366,7 @@
       "ats_provider": "oracle",
       "ats_token": "stanford",
       "fetched_jobs": 155,
-      "prefiltered_count": 228,
+      "prefiltered_count": 230,
       "prefilter_survived_count": 155,
       "skipped": false,
       "error": null,
@@ -378,7 +378,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -403,7 +403,7 @@
       "ats_provider": "eightfold",
       "ats_token": "jhu",
       "fetched_jobs": 225,
-      "prefiltered_count": 387,
+      "prefiltered_count": 388,
       "prefilter_survived_count": 225,
       "skipped": false,
       "error": null,
@@ -415,7 +415,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -438,7 +438,7 @@
           "ats_token": "ucsf",
           "error": "HTTP 404 Not Found",
           "skipped": false,
-          "consecutive_failures": 9,
+          "consecutive_failures": 10,
           "last_success_at": "2026-10-08T23:38:37.339Z",
           "first_failure_at": "2026-10-09T06:21:18.672Z",
           "persistent_failure": true
@@ -478,7 +478,7 @@
       "ats_provider": "workday",
       "ats_token": "uw",
       "fetched_jobs": 130,
-      "prefiltered_count": 446,
+      "prefiltered_count": 445,
       "prefilter_survived_count": 130,
       "skipped": false,
       "error": null,
@@ -490,7 +490,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -514,7 +514,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -538,7 +538,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -562,7 +562,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -586,7 +586,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -610,7 +610,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -652,7 +652,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         },
@@ -662,7 +662,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -686,7 +686,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -710,7 +710,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -734,7 +734,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -746,8 +746,8 @@
       "ats_provider": "oracle",
       "ats_token": "loma-linda-university",
       "fetched_jobs": 12,
-      "prefiltered_count": 415,
-      "prefilter_survived_count": 28,
+      "prefiltered_count": 408,
+      "prefilter_survived_count": 27,
       "skipped": false,
       "error": null,
       "closed_jobs": 7,
@@ -758,7 +758,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -782,7 +782,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -806,7 +806,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -830,7 +830,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -854,7 +854,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -865,12 +865,12 @@
       "name": "Vanderbilt University",
       "ats_provider": "oracle",
       "ats_token": "vanderbilt-university",
-      "fetched_jobs": 21,
-      "prefiltered_count": 117,
-      "prefilter_survived_count": 26,
+      "fetched_jobs": 20,
+      "prefiltered_count": 116,
+      "prefilter_survived_count": 25,
       "skipped": false,
       "error": null,
-      "closed_jobs": 15,
+      "closed_jobs": 16,
       "feed_health": [
         {
           "ats_provider": "oracle",
@@ -878,7 +878,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -916,7 +916,7 @@
       "ats_provider": "workday",
       "ats_token": "msk",
       "fetched_jobs": 25,
-      "prefiltered_count": 94,
+      "prefiltered_count": 95,
       "prefilter_survived_count": 25,
       "skipped": false,
       "error": null,
@@ -928,7 +928,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -939,12 +939,12 @@
       "name": "Mayo Clinic",
       "ats_provider": "oracle",
       "ats_token": "mayo",
-      "fetched_jobs": 216,
-      "prefiltered_count": 1164,
-      "prefilter_survived_count": 216,
+      "fetched_jobs": 219,
+      "prefiltered_count": 1161,
+      "prefilter_survived_count": 219,
       "skipped": false,
       "error": null,
-      "closed_jobs": 182,
+      "closed_jobs": 183,
       "feed_health": [
         {
           "ats_provider": "oracle",
@@ -952,7 +952,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -990,7 +990,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1006,7 +1006,7 @@
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1525,
+      "closed_jobs": 1534,
       "feed_health": [
         {
           "ats_provider": "usajobs",
@@ -1014,7 +1014,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1038,7 +1038,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1062,7 +1062,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1086,7 +1086,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1097,12 +1097,12 @@
       "name": "Carnegie Mellon University",
       "ats_provider": "workday",
       "ats_token": "cmu",
-      "fetched_jobs": 92,
-      "prefiltered_count": 110,
-      "prefilter_survived_count": 92,
+      "fetched_jobs": 90,
+      "prefiltered_count": 107,
+      "prefilter_survived_count": 90,
       "skipped": false,
       "error": null,
-      "closed_jobs": 51,
+      "closed_jobs": 53,
       "feed_health": [
         {
           "ats_provider": "workday",
@@ -1110,7 +1110,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1134,7 +1134,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1145,9 +1145,9 @@
       "name": "Brown University",
       "ats_provider": "workday",
       "ats_token": "brown",
-      "fetched_jobs": 17,
+      "fetched_jobs": 19,
       "prefiltered_count": 87,
-      "prefilter_survived_count": 17,
+      "prefilter_survived_count": 19,
       "skipped": false,
       "error": null,
       "closed_jobs": 6,
@@ -1158,7 +1158,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1200,7 +1200,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         },
@@ -1210,7 +1210,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1234,7 +1234,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1276,7 +1276,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         },
@@ -1286,7 +1286,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1310,7 +1310,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1321,12 +1321,12 @@
       "name": "University of Arkansas for Medical Sciences",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 32,
-      "prefiltered_count": 255,
-      "prefilter_survived_count": 32,
+      "fetched_jobs": 30,
+      "prefiltered_count": 249,
+      "prefilter_survived_count": 30,
       "skipped": false,
       "error": null,
-      "closed_jobs": 38,
+      "closed_jobs": 40,
       "feed_health": [
         {
           "ats_provider": "workday",
@@ -1334,7 +1334,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1345,12 +1345,12 @@
       "name": "Thomas Jefferson University",
       "ats_provider": "workday",
       "ats_token": "jeffersonhealth",
-      "fetched_jobs": 96,
-      "prefiltered_count": 904,
-      "prefilter_survived_count": 96,
+      "fetched_jobs": 97,
+      "prefiltered_count": 903,
+      "prefilter_survived_count": 97,
       "skipped": false,
       "error": null,
-      "closed_jobs": 79,
+      "closed_jobs": 78,
       "feed_health": [
         {
           "ats_provider": "workday",
@@ -1358,7 +1358,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1382,7 +1382,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1393,12 +1393,12 @@
       "name": "University of Arkansas",
       "ats_provider": "workday",
       "ats_token": "uasys",
-      "fetched_jobs": 68,
-      "prefiltered_count": 52,
-      "prefilter_survived_count": 68,
+      "fetched_jobs": 67,
+      "prefiltered_count": 49,
+      "prefilter_survived_count": 67,
       "skipped": false,
       "error": null,
-      "closed_jobs": 10,
+      "closed_jobs": 11,
       "feed_health": [
         {
           "ats_provider": "workday",
@@ -1406,7 +1406,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1430,7 +1430,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1454,7 +1454,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1465,12 +1465,12 @@
       "name": "University of Central Florida",
       "ats_provider": "workday",
       "ats_token": "ucf",
-      "fetched_jobs": 42,
-      "prefiltered_count": 42,
-      "prefilter_survived_count": 44,
+      "fetched_jobs": 39,
+      "prefiltered_count": 40,
+      "prefilter_survived_count": 41,
       "skipped": false,
       "error": null,
-      "closed_jobs": 10,
+      "closed_jobs": 13,
       "feed_health": [
         {
           "ats_provider": "workday",
@@ -1478,7 +1478,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1502,7 +1502,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1526,7 +1526,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1550,7 +1550,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1574,7 +1574,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1598,7 +1598,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1610,7 +1610,7 @@
       "ats_provider": "workday",
       "ats_token": "umd",
       "fetched_jobs": 77,
-      "prefiltered_count": 127,
+      "prefiltered_count": 124,
       "prefilter_survived_count": 79,
       "skipped": false,
       "error": null,
@@ -1622,7 +1622,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1646,7 +1646,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1658,7 +1658,7 @@
       "ats_provider": "workday",
       "ats_token": "clemson",
       "fetched_jobs": 5,
-      "prefiltered_count": 52,
+      "prefiltered_count": 49,
       "prefilter_survived_count": 7,
       "skipped": false,
       "error": null,
@@ -1670,7 +1670,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1694,7 +1694,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1718,7 +1718,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1742,7 +1742,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1784,7 +1784,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         },
@@ -1794,7 +1794,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1818,7 +1818,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1830,7 +1830,7 @@
       "ats_provider": "workday",
       "ats_token": "bsu",
       "fetched_jobs": 23,
-      "prefiltered_count": 43,
+      "prefiltered_count": 37,
       "prefilter_survived_count": 23,
       "skipped": false,
       "error": null,
@@ -1842,7 +1842,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1866,7 +1866,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1890,7 +1890,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1902,7 +1902,7 @@
       "ats_provider": "workday",
       "ats_token": "ivytech",
       "fetched_jobs": 280,
-      "prefiltered_count": 240,
+      "prefiltered_count": 238,
       "prefilter_survived_count": 281,
       "skipped": false,
       "error": null,
@@ -1914,7 +1914,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1938,7 +1938,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1962,7 +1962,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -1986,7 +1986,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2010,7 +2010,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2034,7 +2034,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2058,7 +2058,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2082,7 +2082,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2106,7 +2106,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2130,7 +2130,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2154,7 +2154,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2178,7 +2178,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2202,7 +2202,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2226,7 +2226,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2250,7 +2250,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2274,7 +2274,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2298,7 +2298,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2322,7 +2322,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2346,7 +2346,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2358,7 +2358,7 @@
       "ats_provider": "workday",
       "ats_token": "neiu",
       "fetched_jobs": 0,
-      "prefiltered_count": 12,
+      "prefiltered_count": 11,
       "prefilter_survived_count": 2,
       "skipped": false,
       "error": null,
@@ -2370,7 +2370,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2394,7 +2394,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2418,7 +2418,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2442,7 +2442,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2453,12 +2453,12 @@
       "name": "Minnesota State University-Mankato",
       "ats_provider": "workday",
       "ats_token": "minnstate",
-      "fetched_jobs": 65,
-      "prefiltered_count": 100,
-      "prefilter_survived_count": 65,
+      "fetched_jobs": 66,
+      "prefiltered_count": 105,
+      "prefilter_survived_count": 66,
       "skipped": false,
       "error": null,
-      "closed_jobs": 16,
+      "closed_jobs": 19,
       "feed_health": [
         {
           "ats_provider": "workday",
@@ -2466,7 +2466,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2490,7 +2490,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2514,7 +2514,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2538,7 +2538,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2562,7 +2562,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2586,7 +2586,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2598,7 +2598,7 @@
       "ats_provider": "workday",
       "ats_token": "fortlewiscollege",
       "fetched_jobs": 1,
-      "prefiltered_count": 3,
+      "prefiltered_count": 2,
       "prefilter_survived_count": 1,
       "skipped": false,
       "error": null,
@@ -2610,7 +2610,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2634,7 +2634,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2658,7 +2658,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2682,7 +2682,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2694,7 +2694,7 @@
       "ats_provider": "workday",
       "ats_token": "wisconsin",
       "fetched_jobs": 133,
-      "prefiltered_count": 236,
+      "prefiltered_count": 234,
       "prefilter_survived_count": 138,
       "skipped": false,
       "error": null,
@@ -2706,7 +2706,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2730,7 +2730,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2754,7 +2754,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2778,7 +2778,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2802,7 +2802,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2826,7 +2826,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2850,7 +2850,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2874,7 +2874,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2898,7 +2898,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2922,7 +2922,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2946,7 +2946,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2970,7 +2970,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -2994,7 +2994,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3018,7 +3018,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3042,7 +3042,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3066,7 +3066,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3090,7 +3090,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3114,7 +3114,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3138,7 +3138,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3162,7 +3162,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3186,7 +3186,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3210,7 +3210,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3234,7 +3234,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3258,7 +3258,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3282,7 +3282,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3306,7 +3306,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3330,7 +3330,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3354,7 +3354,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3378,7 +3378,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3402,7 +3402,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3426,7 +3426,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3450,7 +3450,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3474,7 +3474,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3498,7 +3498,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3522,7 +3522,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3546,7 +3546,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3570,7 +3570,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3594,7 +3594,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3618,7 +3618,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3630,7 +3630,7 @@
       "ats_provider": "workday",
       "ats_token": "tamus",
       "fetched_jobs": 30,
-      "prefiltered_count": 27,
+      "prefiltered_count": 25,
       "prefilter_survived_count": 30,
       "skipped": false,
       "error": null,
@@ -3642,7 +3642,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3666,7 +3666,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3678,7 +3678,7 @@
       "ats_provider": "workday",
       "ats_token": "wisconsin",
       "fetched_jobs": 4,
-      "prefiltered_count": 31,
+      "prefiltered_count": 30,
       "prefilter_survived_count": 6,
       "skipped": false,
       "error": null,
@@ -3690,7 +3690,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3714,7 +3714,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3738,7 +3738,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3762,7 +3762,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3774,7 +3774,7 @@
       "ats_provider": "workday",
       "ats_token": "mc",
       "fetched_jobs": 4,
-      "prefiltered_count": 25,
+      "prefiltered_count": 26,
       "prefilter_survived_count": 12,
       "skipped": false,
       "error": null,
@@ -3786,7 +3786,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3810,7 +3810,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3834,7 +3834,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3858,7 +3858,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3882,7 +3882,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3894,7 +3894,7 @@
       "ats_provider": "peopleadmin",
       "ats_token": "uab",
       "fetched_jobs": 470,
-      "prefiltered_count": 261,
+      "prefiltered_count": 260,
       "prefilter_survived_count": 72,
       "skipped": false,
       "error": null,
@@ -3924,7 +3924,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         },
@@ -3934,7 +3934,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3945,12 +3945,12 @@
       "name": "University of North Carolina at Chapel Hill",
       "ats_provider": "peopleadmin",
       "ats_token": "unc",
-      "fetched_jobs": 445,
+      "fetched_jobs": 444,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 564,
+      "closed_jobs": 566,
       "feed_health": [
         {
           "ats_provider": "peopleadmin",
@@ -3958,7 +3958,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3982,7 +3982,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -3993,12 +3993,12 @@
       "name": "East Carolina University",
       "ats_provider": "peopleadmin",
       "ats_token": "ecu",
-      "fetched_jobs": 93,
+      "fetched_jobs": 92,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 27,
+      "closed_jobs": 28,
       "feed_health": [
         {
           "ats_provider": "peopleadmin",
@@ -4006,7 +4006,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4030,7 +4030,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4054,7 +4054,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4078,7 +4078,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4089,7 +4089,7 @@
       "name": "University of Idaho",
       "ats_provider": "peopleadmin",
       "ats_token": "uidaho",
-      "fetched_jobs": 87,
+      "fetched_jobs": 91,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
@@ -4102,7 +4102,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4126,7 +4126,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4150,7 +4150,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4174,7 +4174,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4198,7 +4198,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4222,7 +4222,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4246,7 +4246,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4270,7 +4270,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4294,7 +4294,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4318,7 +4318,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4342,7 +4342,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4366,7 +4366,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4390,7 +4390,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4414,7 +4414,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4438,7 +4438,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4462,7 +4462,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4504,7 +4504,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         },
@@ -4514,7 +4514,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4538,7 +4538,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4562,7 +4562,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4586,7 +4586,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4610,7 +4610,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4634,7 +4634,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4658,7 +4658,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4682,7 +4682,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4706,7 +4706,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4730,7 +4730,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4754,7 +4754,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4778,7 +4778,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4802,7 +4802,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4813,12 +4813,12 @@
       "name": "University of Kentucky",
       "ats_provider": "peopleadmin",
       "ats_token": "ukjobs.uky.edu",
-      "fetched_jobs": 825,
+      "fetched_jobs": 744,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1498,
+      "closed_jobs": 1580,
       "feed_health": [
         {
           "ats_provider": "peopleadmin",
@@ -4826,7 +4826,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4850,7 +4850,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4861,12 +4861,12 @@
       "name": "The University of Texas at Dallas",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.utdallas.edu",
-      "fetched_jobs": 133,
+      "fetched_jobs": 132,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 70,
+      "closed_jobs": 71,
       "feed_health": [
         {
           "ats_provider": "peopleadmin",
@@ -4874,7 +4874,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4898,7 +4898,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4922,7 +4922,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4946,7 +4946,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4970,7 +4970,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -4994,7 +4994,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5018,7 +5018,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5042,7 +5042,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5066,7 +5066,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5090,7 +5090,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5114,7 +5114,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5138,7 +5138,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5162,7 +5162,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5186,7 +5186,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5209,7 +5209,7 @@
           "ats_token": "jobs.hr.ewu.edu",
           "error": "HTTP 404 Not Found",
           "skipped": false,
-          "consecutive_failures": 14,
+          "consecutive_failures": 15,
           "last_success_at": null,
           "first_failure_at": "2026-10-07T06:12:39.146Z",
           "persistent_failure": true
@@ -5234,7 +5234,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5258,7 +5258,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5282,7 +5282,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5306,7 +5306,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5330,7 +5330,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5354,7 +5354,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5378,7 +5378,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5402,7 +5402,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5426,7 +5426,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5450,7 +5450,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5474,7 +5474,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5498,7 +5498,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5522,7 +5522,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5546,7 +5546,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5570,7 +5570,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5594,7 +5594,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5618,7 +5618,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5642,7 +5642,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5666,7 +5666,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5677,12 +5677,12 @@
       "name": "Des Moines Area Community College",
       "ats_provider": "peopleadmin",
       "ats_token": "jobs.dmacc.edu",
-      "fetched_jobs": 7,
+      "fetched_jobs": 6,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 12,
+      "closed_jobs": 13,
       "feed_health": [
         {
           "ats_provider": "peopleadmin",
@@ -5690,7 +5690,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5714,7 +5714,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5738,7 +5738,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5762,7 +5762,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5786,7 +5786,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5810,7 +5810,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5834,7 +5834,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5846,7 +5846,7 @@
       "ats_provider": "workday",
       "ats_token": "msk",
       "fetched_jobs": 20,
-      "prefiltered_count": 94,
+      "prefiltered_count": 95,
       "prefilter_survived_count": 25,
       "skipped": false,
       "error": null,
@@ -5858,7 +5858,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5882,7 +5882,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5906,7 +5906,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5930,7 +5930,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5954,7 +5954,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -5978,7 +5978,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6002,7 +6002,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6026,7 +6026,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6050,7 +6050,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6074,7 +6074,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6098,7 +6098,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6122,7 +6122,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6164,7 +6164,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         },
@@ -6174,7 +6174,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6216,7 +6216,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         },
@@ -6226,7 +6226,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6277,7 +6277,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6301,7 +6301,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6325,7 +6325,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6337,7 +6337,7 @@
       "ats_provider": "workday",
       "ats_token": "nsu",
       "fetched_jobs": 1,
-      "prefiltered_count": 47,
+      "prefiltered_count": 45,
       "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
@@ -6349,7 +6349,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6361,7 +6361,7 @@
       "ats_provider": "oracle",
       "ats_token": "usf",
       "fetched_jobs": 129,
-      "prefiltered_count": 88,
+      "prefiltered_count": 87,
       "prefilter_survived_count": 129,
       "skipped": false,
       "error": null,
@@ -6373,7 +6373,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6397,7 +6397,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6421,7 +6421,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6445,7 +6445,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6469,7 +6469,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6493,7 +6493,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6517,7 +6517,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6541,7 +6541,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6565,7 +6565,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6589,7 +6589,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6613,7 +6613,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6637,7 +6637,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6648,7 +6648,7 @@
       "name": "Icahn School of Medicine at Mount Sinai",
       "ats_provider": "oracle",
       "ats_token": "icahn-school-of-medicine-at-mount-sinai",
-      "fetched_jobs": 155,
+      "fetched_jobs": 156,
       "prefiltered_count": 1263,
       "prefilter_survived_count": 236,
       "skipped": false,
@@ -6661,7 +6661,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6685,7 +6685,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6709,7 +6709,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6721,7 +6721,7 @@
       "ats_provider": "oracle",
       "ats_token": "the-university-of-texas-health-science-center-at-san-antonio",
       "fetched_jobs": 42,
-      "prefiltered_count": 204,
+      "prefiltered_count": 201,
       "prefilter_survived_count": 47,
       "skipped": false,
       "error": null,
@@ -6733,7 +6733,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6745,7 +6745,7 @@
       "ats_provider": "oracle",
       "ats_token": "university-of-california-san-francisco",
       "fetched_jobs": 98,
-      "prefiltered_count": 646,
+      "prefiltered_count": 652,
       "prefilter_survived_count": 137,
       "skipped": false,
       "error": null,
@@ -6757,7 +6757,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6781,7 +6781,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6805,7 +6805,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6829,7 +6829,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6853,7 +6853,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6877,7 +6877,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6901,7 +6901,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6925,7 +6925,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6949,7 +6949,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6961,7 +6961,7 @@
       "ats_provider": "oracle",
       "ats_token": "hult-international-business-school",
       "fetched_jobs": 0,
-      "prefiltered_count": 211,
+      "prefiltered_count": 212,
       "prefilter_survived_count": 9,
       "skipped": false,
       "error": null,
@@ -6973,7 +6973,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -6997,7 +6997,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7021,7 +7021,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7045,7 +7045,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7069,7 +7069,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7093,7 +7093,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7177,7 +7177,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         },
@@ -7187,7 +7187,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7211,7 +7211,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7235,7 +7235,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7247,7 +7247,7 @@
       "ats_provider": "icims",
       "ats_token": "careers-hackensackmeridianhealth",
       "fetched_jobs": 25,
-      "prefiltered_count": 1480,
+      "prefiltered_count": 1475,
       "prefilter_survived_count": 45,
       "skipped": false,
       "error": null,
@@ -7259,7 +7259,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7283,7 +7283,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7307,7 +7307,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7331,7 +7331,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7355,7 +7355,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7393,7 +7393,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7417,7 +7417,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7441,7 +7441,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7465,7 +7465,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7489,7 +7489,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7513,7 +7513,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7537,7 +7537,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7561,7 +7561,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7585,7 +7585,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7609,7 +7609,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7633,7 +7633,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7657,7 +7657,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7681,7 +7681,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7705,7 +7705,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7729,7 +7729,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7753,7 +7753,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7777,7 +7777,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7801,7 +7801,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7825,7 +7825,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7849,7 +7849,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7873,7 +7873,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7897,7 +7897,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7921,7 +7921,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7945,7 +7945,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7969,7 +7969,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -7993,7 +7993,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8017,7 +8017,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8041,7 +8041,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8065,7 +8065,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8089,7 +8089,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8113,7 +8113,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8137,7 +8137,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8161,7 +8161,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8185,7 +8185,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8209,7 +8209,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8233,7 +8233,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8257,7 +8257,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8281,7 +8281,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8305,7 +8305,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8329,7 +8329,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8353,7 +8353,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8377,7 +8377,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8389,8 +8389,8 @@
       "ats_provider": "workday",
       "ats_token": "palmbeachstate",
       "fetched_jobs": 0,
-      "prefiltered_count": 270,
-      "prefilter_survived_count": 2,
+      "prefiltered_count": 269,
+      "prefilter_survived_count": 1,
       "skipped": false,
       "error": null,
       "closed_jobs": 0,
@@ -8401,7 +8401,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8425,7 +8425,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8449,7 +8449,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8473,7 +8473,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8497,7 +8497,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8521,7 +8521,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8532,12 +8532,12 @@
       "name": "Youngstown State University",
       "ats_provider": "governmentjobs",
       "ats_token": "ysu",
-      "fetched_jobs": 9,
+      "fetched_jobs": 8,
       "prefiltered_count": 38,
-      "prefilter_survived_count": 97,
+      "prefilter_survived_count": 95,
       "skipped": false,
       "error": null,
-      "closed_jobs": 1,
+      "closed_jobs": 2,
       "feed_health": [
         {
           "ats_provider": "governmentjobs",
@@ -8545,7 +8545,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8557,7 +8557,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "susqu",
       "fetched_jobs": 1,
-      "prefiltered_count": 7,
+      "prefiltered_count": 5,
       "prefilter_survived_count": 4,
       "skipped": false,
       "error": null,
@@ -8569,7 +8569,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8593,7 +8593,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8617,7 +8617,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8641,7 +8641,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8665,7 +8665,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8689,7 +8689,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8713,7 +8713,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8737,7 +8737,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8749,7 +8749,7 @@
       "ats_provider": "workday",
       "ats_token": "hshs",
       "fetched_jobs": 14,
-      "prefiltered_count": 408,
+      "prefiltered_count": 409,
       "prefilter_survived_count": 17,
       "skipped": false,
       "error": null,
@@ -8761,7 +8761,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8785,7 +8785,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8809,7 +8809,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8833,7 +8833,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8857,7 +8857,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8881,7 +8881,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8905,7 +8905,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8929,7 +8929,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8953,7 +8953,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -8964,12 +8964,12 @@
       "name": "Iowa State University",
       "ats_provider": "workday",
       "ats_token": "isu",
-      "fetched_jobs": 25,
-      "prefiltered_count": 43,
-      "prefilter_survived_count": 54,
+      "fetched_jobs": 24,
+      "prefiltered_count": 38,
+      "prefilter_survived_count": 53,
       "skipped": false,
       "error": null,
-      "closed_jobs": 16,
+      "closed_jobs": 17,
       "feed_health": [
         {
           "ats_provider": "workday",
@@ -8977,7 +8977,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9001,7 +9001,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9025,7 +9025,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9037,7 +9037,7 @@
       "ats_provider": "workday",
       "ats_token": "lsu",
       "fetched_jobs": 44,
-      "prefiltered_count": 187,
+      "prefiltered_count": 177,
       "prefilter_survived_count": 103,
       "skipped": false,
       "error": null,
@@ -9049,7 +9049,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9073,7 +9073,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9085,7 +9085,7 @@
       "ats_provider": "workday",
       "ats_token": "marylandconnect",
       "fetched_jobs": 6,
-      "prefiltered_count": 33,
+      "prefiltered_count": 34,
       "prefilter_survived_count": 21,
       "skipped": false,
       "error": null,
@@ -9097,7 +9097,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9121,7 +9121,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9145,7 +9145,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9169,7 +9169,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9193,7 +9193,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9217,7 +9217,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9229,7 +9229,7 @@
       "ats_provider": "workday",
       "ats_token": "umgc",
       "fetched_jobs": 2,
-      "prefiltered_count": 17,
+      "prefiltered_count": 19,
       "prefilter_survived_count": 157,
       "skipped": false,
       "error": null,
@@ -9241,7 +9241,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9265,7 +9265,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9289,7 +9289,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9313,7 +9313,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9337,7 +9337,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9361,7 +9361,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9385,7 +9385,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9409,7 +9409,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9433,7 +9433,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9457,7 +9457,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9481,7 +9481,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9505,7 +9505,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9529,7 +9529,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9553,7 +9553,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9577,7 +9577,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9615,7 +9615,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9639,7 +9639,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9663,7 +9663,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9687,7 +9687,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9711,7 +9711,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9735,7 +9735,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9759,7 +9759,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9783,7 +9783,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9807,7 +9807,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9831,7 +9831,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9855,7 +9855,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9879,7 +9879,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9903,7 +9903,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9927,7 +9927,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9951,7 +9951,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9975,7 +9975,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -9999,7 +9999,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10023,7 +10023,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10047,7 +10047,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10071,7 +10071,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10095,7 +10095,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10119,7 +10119,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10143,7 +10143,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10167,7 +10167,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10191,7 +10191,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10215,7 +10215,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10239,7 +10239,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10263,7 +10263,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10287,7 +10287,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10311,7 +10311,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10335,7 +10335,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10347,7 +10347,7 @@
       "ats_provider": "adp",
       "ats_token": "78334d6d-1342-4b7f-9674-a7916c71caa7",
       "fetched_jobs": 0,
-      "prefiltered_count": 11,
+      "prefiltered_count": 9,
       "prefilter_survived_count": 0,
       "skipped": false,
       "error": null,
@@ -10359,7 +10359,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10383,7 +10383,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10407,7 +10407,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10431,7 +10431,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10455,7 +10455,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10479,7 +10479,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10503,7 +10503,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10527,7 +10527,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10551,7 +10551,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10575,7 +10575,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10599,7 +10599,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10623,7 +10623,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10647,7 +10647,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10671,7 +10671,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10695,7 +10695,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10719,7 +10719,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10743,7 +10743,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10767,7 +10767,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10791,7 +10791,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10815,7 +10815,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10839,7 +10839,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10863,7 +10863,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10887,7 +10887,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10911,7 +10911,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10924,7 +10924,7 @@
       "ats_token": "4ec54663-0058-4347-9828-d4720a7524f4",
       "fetched_jobs": 0,
       "prefiltered_count": 6,
-      "prefilter_survived_count": 2,
+      "prefilter_survived_count": 1,
       "skipped": false,
       "error": null,
       "closed_jobs": 0,
@@ -10935,7 +10935,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10959,7 +10959,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -10983,7 +10983,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11007,7 +11007,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11018,12 +11018,12 @@
       "name": "San Jacinto College",
       "ats_provider": "csod",
       "ats_token": "sanjac",
-      "fetched_jobs": 165,
+      "fetched_jobs": 166,
       "prefiltered_count": 19,
-      "prefilter_survived_count": 165,
+      "prefilter_survived_count": 166,
       "skipped": false,
       "error": null,
-      "closed_jobs": 6,
+      "closed_jobs": 7,
       "feed_health": [
         {
           "ats_provider": "csod",
@@ -11031,7 +11031,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11055,7 +11055,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11079,7 +11079,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11103,7 +11103,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11127,7 +11127,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11151,7 +11151,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11175,7 +11175,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11199,7 +11199,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11223,7 +11223,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11247,7 +11247,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11271,7 +11271,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11295,7 +11295,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11306,9 +11306,9 @@
       "name": "Concordia College",
       "ats_provider": "csod",
       "ats_token": "concordiacollege",
-      "fetched_jobs": 6,
+      "fetched_jobs": 7,
       "prefiltered_count": 42,
-      "prefilter_survived_count": 6,
+      "prefilter_survived_count": 7,
       "skipped": false,
       "error": null,
       "closed_jobs": 0,
@@ -11319,7 +11319,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11343,7 +11343,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11367,7 +11367,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11391,7 +11391,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11415,7 +11415,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11439,7 +11439,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11463,7 +11463,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11487,7 +11487,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11511,7 +11511,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11535,7 +11535,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11559,7 +11559,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11583,7 +11583,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11607,7 +11607,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11619,7 +11619,7 @@
       "ats_provider": "csod",
       "ats_token": "nsuok",
       "fetched_jobs": 5,
-      "prefiltered_count": 11,
+      "prefiltered_count": 9,
       "prefilter_survived_count": 5,
       "skipped": false,
       "error": null,
@@ -11631,7 +11631,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11655,7 +11655,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11679,7 +11679,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11703,7 +11703,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11727,7 +11727,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11751,7 +11751,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11775,7 +11775,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11799,7 +11799,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11823,7 +11823,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11847,7 +11847,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11871,7 +11871,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11895,7 +11895,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11906,12 +11906,12 @@
       "name": "Appalachian State University",
       "ats_provider": "peopleadmin",
       "ats_token": "appstate",
-      "fetched_jobs": 128,
+      "fetched_jobs": 122,
       "prefiltered_count": 0,
       "prefilter_survived_count": null,
       "skipped": false,
       "error": null,
-      "closed_jobs": 113,
+      "closed_jobs": 119,
       "feed_health": [
         {
           "ats_provider": "peopleadmin",
@@ -11919,7 +11919,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11943,7 +11943,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11967,7 +11967,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -11991,7 +11991,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12015,7 +12015,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12039,7 +12039,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12063,7 +12063,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12087,7 +12087,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12111,7 +12111,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12135,7 +12135,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12159,7 +12159,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12183,7 +12183,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12194,12 +12194,12 @@
       "name": "Governors State University",
       "ats_provider": "governmentjobs",
       "ats_token": "govst",
-      "fetched_jobs": 34,
+      "fetched_jobs": 38,
       "prefiltered_count": 17,
-      "prefilter_survived_count": 34,
+      "prefilter_survived_count": 38,
       "skipped": false,
       "error": null,
-      "closed_jobs": 41,
+      "closed_jobs": 37,
       "feed_health": [
         {
           "ats_provider": "governmentjobs",
@@ -12207,7 +12207,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12219,7 +12219,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "jsums",
       "fetched_jobs": 38,
-      "prefiltered_count": 56,
+      "prefiltered_count": 58,
       "prefilter_survived_count": 38,
       "skipped": false,
       "error": null,
@@ -12231,7 +12231,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12255,7 +12255,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12279,7 +12279,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12303,7 +12303,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12314,12 +12314,12 @@
       "name": "Mcneese State University",
       "ats_provider": "governmentjobs",
       "ats_token": "louisiana",
-      "fetched_jobs": 45,
-      "prefiltered_count": 425,
-      "prefilter_survived_count": 45,
+      "fetched_jobs": 43,
+      "prefiltered_count": 455,
+      "prefilter_survived_count": 43,
       "skipped": false,
       "error": null,
-      "closed_jobs": 103,
+      "closed_jobs": 105,
       "feed_health": [
         {
           "ats_provider": "governmentjobs",
@@ -12327,7 +12327,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12351,7 +12351,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12375,7 +12375,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12399,7 +12399,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12423,7 +12423,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12447,7 +12447,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12471,7 +12471,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12483,7 +12483,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "suu",
       "fetched_jobs": 4,
-      "prefiltered_count": 21,
+      "prefiltered_count": 22,
       "prefilter_survived_count": 4,
       "skipped": false,
       "error": null,
@@ -12495,7 +12495,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12519,7 +12519,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12543,7 +12543,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12567,7 +12567,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12579,7 +12579,7 @@
       "ats_provider": "governmentjobs",
       "ats_token": "ucmo",
       "fetched_jobs": 3,
-      "prefiltered_count": 52,
+      "prefiltered_count": 53,
       "prefilter_survived_count": 3,
       "skipped": false,
       "error": null,
@@ -12591,7 +12591,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12615,7 +12615,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12627,7 +12627,7 @@
       "ats_provider": "workday",
       "ats_token": "ulsuno",
       "fetched_jobs": 24,
-      "prefiltered_count": 71,
+      "prefiltered_count": 70,
       "prefilter_survived_count": 24,
       "skipped": false,
       "error": null,
@@ -12639,7 +12639,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12663,7 +12663,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12687,7 +12687,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12711,7 +12711,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12735,7 +12735,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12759,7 +12759,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12770,12 +12770,12 @@
       "name": "Utah Valley University",
       "ats_provider": "governmentjobs",
       "ats_token": "uvu",
-      "fetched_jobs": 7,
-      "prefiltered_count": 56,
-      "prefilter_survived_count": 7,
+      "fetched_jobs": 6,
+      "prefiltered_count": 49,
+      "prefilter_survived_count": 6,
       "skipped": false,
       "error": null,
-      "closed_jobs": 7,
+      "closed_jobs": 8,
       "feed_health": [
         {
           "ats_provider": "governmentjobs",
@@ -12783,7 +12783,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12807,7 +12807,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12831,7 +12831,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12855,7 +12855,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12879,7 +12879,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12903,7 +12903,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12914,12 +12914,12 @@
       "name": "West Virginia University",
       "ats_provider": "taleo",
       "ats_token": "wvu",
-      "fetched_jobs": 72,
-      "prefiltered_count": 148,
-      "prefilter_survived_count": 72,
+      "fetched_jobs": 71,
+      "prefiltered_count": 144,
+      "prefilter_survived_count": 71,
       "skipped": false,
       "error": null,
-      "closed_jobs": 21,
+      "closed_jobs": 22,
       "feed_health": [
         {
           "ats_provider": "taleo",
@@ -12927,7 +12927,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12951,7 +12951,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12975,7 +12975,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -12987,7 +12987,7 @@
       "ats_provider": "taleo",
       "ats_token": "tcnj",
       "fetched_jobs": 8,
-      "prefiltered_count": 28,
+      "prefiltered_count": 26,
       "prefilter_survived_count": 8,
       "skipped": false,
       "error": null,
@@ -12999,7 +12999,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13023,7 +13023,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13034,12 +13034,12 @@
       "name": "University of Pittsburgh-Pittsburgh Campus",
       "ats_provider": "taleo",
       "ats_token": "cfopitt",
-      "fetched_jobs": 235,
-      "prefiltered_count": 188,
-      "prefilter_survived_count": 235,
+      "fetched_jobs": 233,
+      "prefiltered_count": 186,
+      "prefilter_survived_count": 233,
       "skipped": false,
       "error": null,
-      "closed_jobs": 85,
+      "closed_jobs": 87,
       "feed_health": [
         {
           "ats_provider": "taleo",
@@ -13047,7 +13047,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13058,12 +13058,12 @@
       "name": "University of Texas Southwestern Medical Center",
       "ats_provider": "taleo",
       "ats_token": "utsw",
-      "fetched_jobs": 108,
+      "fetched_jobs": 107,
       "prefiltered_count": 422,
-      "prefilter_survived_count": 118,
+      "prefilter_survived_count": 117,
       "skipped": false,
       "error": null,
-      "closed_jobs": 67,
+      "closed_jobs": 70,
       "feed_health": [
         {
           "ats_provider": "taleo",
@@ -13071,7 +13071,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13095,7 +13095,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13119,7 +13119,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13143,7 +13143,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13167,7 +13167,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13191,7 +13191,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13215,7 +13215,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13239,7 +13239,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13263,7 +13263,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13287,7 +13287,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13311,7 +13311,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13335,7 +13335,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13359,7 +13359,7 @@
           "error": null,
           "skipped": false,
           "consecutive_failures": 0,
-          "last_success_at": "2026-10-11T22:13:35.628Z",
+          "last_success_at": "2026-10-12T06:09:54.973Z",
           "first_failure_at": null,
           "persistent_failure": false
         }
@@ -13368,11 +13368,11 @@
   ],
   "supabase_sync": {
     "mode": "diff",
-    "upserted": 303,
-    "deleted": 189,
+    "upserted": 444,
+    "deleted": 0,
     "retained_for_triage": 1,
-    "unchanged": 28165,
-    "total": 28468
+    "unchanged": 28055,
+    "total": 28499
   },
   "supabase_sync_status": "ok"
 }
