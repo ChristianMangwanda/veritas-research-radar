@@ -293,15 +293,15 @@
       "manual",
       "ipeds_candidate"
     ],
-    "ats_provider": "lever",
-    "ats_token": "ucsf",
+    "ats_provider": null,
+    "ats_token": null,
     "careers_url": "https://www.ucsf.edu/about/working-ucsf",
     "research_areas": [
       "medicine",
       "bioinformatics",
       "clinical research"
     ],
-    "notes": "Likely cap-exempt institution. Custom career source deferred for v1. Probed public ATS APIs on 2026-07-03: Lever board verified (jobs.lever.co/ucsf), but it currently lists only an evergreen development-office posting, not research roles."
+    "notes": "Likely cap-exempt institution. Custom career source deferred for v1. Probed public ATS APIs on 2026-07-03: Lever board verified (jobs.lever.co/ucsf), but it currently lists only an evergreen development-office posting, not research roles. Feed retired 2026-11-03: Lever board ucsf returned HTTP 404 on every refresh and kept tripping the dead-man switch."
   },
   {
     "id": "uc-berkeley",
@@ -4553,14 +4553,12 @@
       "ipeds:235097"
     ],
     "tier": "auto",
-    "ats_provider": "peopleadmin",
-    "ats_token": "jobs.hr.ewu.edu",
-    "ats_config": {
-      "host": "jobs.hr.ewu.edu"
-    },
+    "ats_provider": null,
+    "ats_token": null,
+    "ats_config": null,
     "careers_url": "https://jobs.ewu.edu/jobs/search",
     "research_areas": [],
-    "notes": "PeopleAdmin feed retired. As of 2026-09-16, jobs.ewu.edu uses PageUp. Its listings and descriptions work in a browser, but the real PageUp adapter receives empty HTTP 202 challenges. Manual careers link updated; automated replacement is not verified. Keep the failed feed visible and retain prior listings. USCIS 29 approvals / DOL 0 research LCAs (3y)."
+    "notes": "PeopleAdmin feed retired. As of 2026-09-16, jobs.ewu.edu uses PageUp. Its listings and descriptions work in a browser, but the real PageUp adapter receives empty HTTP 202 challenges. Manual careers link updated; automated replacement is not verified. Keep the failed feed visible and retain prior listings. USCIS 29 approvals / DOL 0 research LCAs (3y). Feed retired 2026-11-03: PeopleAdmin jobs.hr.ewu.edu returned HTTP 404 on every refresh and kept tripping the dead-man switch."
   },
   {
     "id": "cleveland-state-university",
@@ -8839,14 +8837,12 @@
       "ipeds:198561"
     ],
     "tier": "auto",
-    "ats_provider": "adp",
-    "ats_token": "59905f81-b547-48d2-925f-01b13cefe77a",
-    "ats_config": {
-      "cid": "59905f81-b547-48d2-925f-01b13cefe77a"
-    },
+    "ats_provider": null,
+    "ats_token": null,
+    "ats_config": null,
     "careers_url": "https://gardner-webb.edu/about/offices-and-departments/human-resources/job-openings/",
     "research_areas": [],
-    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 62 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y)."
+    "notes": "Auto-wired from ATS discovery crawl (2026-07-05); probe saw 62 live postings. USCIS 2 approvals / DOL 0 research LCAs (3y). Feed retired 2026-11-03: ADP feed returned HTTP 404 on every refresh and kept tripping the dead-man switch."
   },
   {
     "id": "fuller-theological-seminary",

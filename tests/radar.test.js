@@ -4991,6 +4991,14 @@ function testDeadmanExitContract() {
       consecutive_failures: 3, persistent_failure: true }] }] });
   assert.strictEqual(run().status, 1, 'one persistently broken feed must fail the check');
 
+  // Once ntfy has the alert, a red run only pages a second time by GitHub email.
+  const stubPath = path.join(root, 'ntfy-ok.js');
+  fs.writeFileSync(stubPath, 'globalThis.fetch = async () => ({ ok: true, status: 200, statusText: "OK" });\n');
+  const deliveredOutput = path.join(root, 'deadman-delivered.txt');
+  const delivered = run({ NTFY_TOPIC: 'test-topic', NODE_OPTIONS: `--require ${stubPath}`, GITHUB_OUTPUT: deliveredOutput });
+  assert.strictEqual(delivered.status, 0, 'a delivered alert must leave the run green');
+  assert.match(fs.readFileSync(deliveredOutput, 'utf8'), /notification_delivered=true/);
+
   // The live 2026-08-04 case: stale, no ntfy topic, nowhere to send the alert.
   writeReport({ refreshed_at: new Date(Date.now() - 13 * 60 * 60 * 1000).toISOString() });
   const outputPath = path.join(root, 'deadman-output.txt');

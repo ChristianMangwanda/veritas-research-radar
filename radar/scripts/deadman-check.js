@@ -19,7 +19,7 @@
  *
  * Exit codes — health and notification delivery are separate signals:
  *   0  clean check
- *   1  unhealthy or unreadable report, whether or not ntfy delivery succeeded
+ *   1  unhealthy and the ntfy alert was not delivered, or the report is unreadable
  *
  * That second case is the whole point. With no ntfy topic configured the
  * alert used to be printed into the log of a run that then reported success,
@@ -127,12 +127,15 @@ async function main() {
   }
 
   await writeStepOutput('notification_delivered', delivered ? 'true' : 'false');
+  // Fail the run only when ntfy did not get the alert. A delivered alert that
+  // also failed the run paged twice - ntfy plus a GitHub email - every two
+  // hours for as long as one feed stayed broken (late October 2026).
   if (!delivered) {
     console.error('No delivery channel for this alert; the failed run remains the fallback notification.');
+    process.exitCode = 1;
   } else {
-    console.error('Alert delivered; failing the run because the pipeline is unhealthy.');
+    console.warn('Alert delivered to ntfy; leaving the run green so GitHub does not page a second time.');
   }
-  process.exitCode = 1;
 }
 
 /**
