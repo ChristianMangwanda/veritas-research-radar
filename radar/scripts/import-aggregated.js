@@ -216,6 +216,7 @@ async function importAggregated(filePaths) {
 
   const context = { directory, tokenKeyIndex, registryResolver, liveProviderIds };
   const failures = [];
+  const skipped = [];
   for (const filePath of files) {
     const expectedSource = path.basename(filePath, '.json');
     let payload;
@@ -254,8 +255,11 @@ async function importAggregated(filePaths) {
     }
     const result = applyAggregatedSnapshot(store, payload, context);
     if (result.skipped) {
-      failures.push(`${payload.source}: ${result.reason}`);
-      console.error(`${payload.source}: non-authoritative snapshot (${result.reason}); preserved ${result.kept} prior jobs`);
+      // A skipped snapshot is routine (pagination cap, empty listing) and
+      // loses nothing: prior jobs are preserved. Only a file this importer
+      // could not read or trust is a failure worth a red run.
+      skipped.push(`${payload.source}: ${result.reason}`);
+      console.warn(`${payload.source}: non-authoritative snapshot (${result.reason}); preserved ${result.kept} prior jobs`);
     } else {
       const { drops } = result;
       console.log(`${payload.source}: kept ${result.kept}/${payload.jobs.length} (live-ATS dupes ${drops.covered_by_live_ats}, not cap-exempt ${drops.not_cap_exempt}, invalid ${drops.invalid})`);
@@ -266,7 +270,7 @@ async function importAggregated(filePaths) {
   await fs.writeFile(STORE_PATH, `${JSON.stringify(store, null, 2)}\n`, 'utf8');
   const employerCount = new Set(store.jobs.map((job) => job.employer_id)).size;
   console.log(`Aggregated store: ${store.jobs.length} cap-exempt jobs across ${employerCount} employers`);
-  return { failures };
+  return { failures, skipped };
 }
 
 if (require.main === module) {

@@ -206,6 +206,8 @@ def load_targets(radar_path: Path, employer_ids: list[str] | None = None, overri
         if not employer_ids and employer.get("ats_provider"):
             continue  # default set: only employers with no working feed
         override = overrides.get(employer["id"], {})
+        if override.get("skip") and not employer_ids:
+            continue  # a page known to hang or wall the scout; named runs still try it
         listing_url = override.get("listing_url") or employer.get("careers_url")
         if not listing_url:
             continue

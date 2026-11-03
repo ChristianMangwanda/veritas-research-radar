@@ -2,7 +2,13 @@
 # Targets default to the radar registry (radar/employers.json) entries with
 # ats_provider: null, using their careers_url and an 'a' selector. Add an
 # entry here when an employer needs a deeper listing URL or a tighter anchor
-# selector.
+# selector, or skip: true to leave it out of --all runs.
 
 fred-hutch:
   listing_url: https://www.fredhutch.org/en/about/careers/job-openings/staff-job-openings.html
+
+gardner-webb-university:
+  # Its ADP feed began returning 404 on 2026-11-01 and was unwired on
+  # 2026-11-03. The HR page then timed out (45s, networkidle) on the first
+  # scout run. Re-probe ADP for a new client id before removing this.
+  skip: true

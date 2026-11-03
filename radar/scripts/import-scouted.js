@@ -208,8 +208,11 @@ async function importScouted(filePaths) {
     }
     const applied = applyScoutedSnapshot(store, payload, { accepted, rejected });
     if (!applied.authoritative) {
-      failures.push(`${payload.employer_id}: ${applied.reason}`);
-      console.error(`${path.basename(filePath)}: non-authoritative (${applied.reason}); preserved prior employer jobs`);
+      // A board limit, bot wall or crash already preserved the employer's
+      // prior jobs, and scout_jobs.py fails the run itself on a crash. Only
+      // rows that broke the snapshot contract fail the import.
+      if (applied.reason === 'validation_rejected') failures.push(`${payload.employer_id}: ${applied.reason}`);
+      console.warn(`${path.basename(filePath)}: non-authoritative (${applied.reason}); preserved prior employer jobs`);
     }
     totalAccepted += applied.accepted;
     totalRejected += rejected.length;

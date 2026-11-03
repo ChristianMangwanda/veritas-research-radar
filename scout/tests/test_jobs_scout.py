@@ -200,3 +200,16 @@ def test_partial_detail_failure_is_non_authoritative(monkeypatch):
 
     assert len(snapshot["jobs"]) == 1
     assert snapshot["skipped_reason"] == "detail_fetch_failed"
+
+
+def test_skip_override_leaves_employer_out_of_all_runs(tmp_path):
+    import json
+    from radar_scout.jobs_scout import load_targets
+    (tmp_path / "radar").mkdir()
+    (tmp_path / "radar" / "employers.json").write_text(json.dumps([
+        {"id": "hangs", "ats_provider": None, "careers_url": "https://hangs.example/jobs"},
+        {"id": "works", "ats_provider": None, "careers_url": "https://works.example/jobs"},
+    ]))
+    overrides = {"hangs": {"skip": True}}
+    assert [t.employer_id for t in load_targets(tmp_path, overrides=overrides)] == ["works"]
+    assert [t.employer_id for t in load_targets(tmp_path, ["hangs"], overrides)] == ["hangs"]
