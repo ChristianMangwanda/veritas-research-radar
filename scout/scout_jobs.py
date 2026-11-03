@@ -92,9 +92,16 @@ def main() -> int:
             check=False,
         )
         import_failed = result.returncode != 0
+    # A capped, walled or empty listing is routine: its snapshot is marked
+    # non-authoritative, so the importer keeps prior jobs instead of closing
+    # them. Failing the run for it paged on every run (late October 2026).
+    # Only a crash or a failed import is worth a red run.
+    crashed = [entry for entry in failed_employers if entry.endswith(": scout_failed")]
     if failed_employers:
-        log.error("non_authoritative_employers", employers=failed_employers)
-    return 1 if failed_employers or import_failed else 0
+        log.warning("non_authoritative_employers", employers=failed_employers)
+    if crashed:
+        log.error("scout_crashes", employers=crashed)
+    return 1 if crashed or import_failed else 0
 
 
 if __name__ == "__main__":
